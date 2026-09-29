@@ -70,9 +70,18 @@ Pushing to `main` builds and publishes through `.github/workflows/pages.yml`.
 CI runs typecheck, lint, tests and both checks before anything is published,
 because this is the only workflow whose output the public sees.
 
-Set the repository variable `GOOGLE_SITE_VERIFICATION` once the Search Console
-property exists. Without it the verification tag is omitted rather than shipped
-empty.
+## Search Console
+
+The property `https://verastack-labs.github.io/origan/` is verified, automatically,
+by inheriting the already-verified parent property for the host. No verification
+tag was needed. The `GOOGLE_SITE_VERIFICATION` repository variable is still wired
+up and stays unset: it would be needed if this ever moves to its own domain,
+where there is no verified parent to inherit from.
+
+**`robots.txt` here is decorative.** Crawlers only read it from the host root,
+`https://verastack-labs.github.io/robots.txt`, which is served by the org site
+repo. Origan's sitemap has to be listed there to be discovered that way; it is
+submitted directly in Search Console regardless.
 
 ## Conventions
 
