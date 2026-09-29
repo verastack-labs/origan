@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Archivo, Azeret_Mono } from "next/font/google";
 import { site } from "@/data/site";
 import { JsonLd } from "@/components/json-ld";
@@ -70,7 +71,10 @@ export const metadata: Metadata = {
     : {}),
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+// Typed explicitly rather than with Next's generated `LayoutProps`, which
+// only exists after a build has run. CI typechecks before building, so
+// depending on it makes the check fail on a clean checkout.
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
