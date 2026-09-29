@@ -45,6 +45,12 @@ card, which reads the token layer at build time rather than carrying its own cop
 `DESIGN.md` is written from the built result once the work is finished, not
 before, so it describes what shipped rather than what was intended.
 
+There is no `/design-system` route. Under `output: export` a page cannot be
+excluded from production cleanly: `notFound()` still writes an HTML file, which
+Pages serves with a 200 as a soft 404, and an empty `generateStaticParams` fails
+the build. `pnpm check:contrast` prints every measured pairing, which was the
+useful part of that page.
+
 ## Layout
 
 ```
