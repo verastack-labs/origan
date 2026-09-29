@@ -1,0 +1,87 @@
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  # So the site can be republished without an empty commit, which is what you
+  # want the first time something is wrong with the deploy rather than with the
+  # code.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and never cancel one mid-flight. A superseded build is
+# wasted minutes; a cancelled deploy can leave the published site in a state
+# that matches no commit.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Everything that can fail cheaply runs before anything is published.
+      # This is the only workflow whose output the public sees, so the bar for
+      # what it will push is higher than for a pull request check.
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm check:contrast
+      - run: pnpm check:components
+
+      - name: Build
+        env:
+          # The site is served from a project path, not a domain root, so every
+          # internal link and asset URL resolves one level too high without
+          # this. It is empty in local development, which is why `next dev`
+          # runs at `/`.
+          NEXT_PUBLIC_BASE_PATH: /origan
+          # Set this as a repository variable once the Search Console property
+          # exists. Absent, the verification tag is omitted rather than shipped
+          # empty, which Google reads as a failed check.
+          GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
+        run: pnpm build
+
+      # Stops Pages running the output through Jekyll, which would drop every
+      # path beginning with an underscore. Next puts its entire static bundle
+      # under `_next`, so without this the site publishes with no CSS and no
+      # JavaScript and looks broken rather than absent.
+      - name: Disable Jekyll processing
+        run: touch .next-build/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      # `.next-build`, not `out`. Setting `distDir` makes the static export land
+      # in that directory itself, and there is no `out` to find.
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: .next-build
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

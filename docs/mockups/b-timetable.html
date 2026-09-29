@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Origan — Direction B: The Timetable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Martian+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#152449;
+  --ground-2:#1B2C56;
+  --line:#33477C;
+  --line-2:#26386A;
+  --fg:#EDEFF5;
+  --fg-2:#9FAECF;
+  --fg-3:#6B7CA6;
+  --ochre:#E0A33C;
+  --ochre-dim:#8A6528;
+  --gut:clamp(20px,4vw,56px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--ground);color:var(--fg);
+  font-family:'Familjen Grotesk',system-ui,sans-serif;font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'Martian Mono',ui-monospace,monospace}
+.wrap{max-width:1200px;margin:0 auto;padding:0 var(--gut)}
+:focus-visible{outline:2px solid var(--ochre);outline-offset:3px}
+
+.top{display:flex;justify-content:space-between;align-items:center;padding:24px 0;border-bottom:1px solid var(--line)}
+.mark{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.mark b{color:var(--ochre)}
+.top .mono{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-3)}
+
+.hero{padding:clamp(44px,6.5vw,84px) 0 0}
+.hero h1{font-size:clamp(32px,6vw,68px);font-weight:700;letter-spacing:-.035em;line-height:1.02;max-width:17ch;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--ochre)}
+.hero p{margin-top:20px;max-width:58ch;font-size:18px;color:var(--fg-2)}
+
+/* grid */
+.sheet{margin-top:clamp(36px,5vw,58px);border:1px solid var(--line);background:var(--ground-2)}
+.sheet-head{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.sheet-head span{font-family:'Martian Mono',monospace;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--fg-3)}
+.grid{display:grid;grid-template-columns:132px repeat(8,1fr)}
+.gh{font-family:'Martian Mono',monospace;font-size:9.5px;letter-spacing:.04em;color:var(--fg-3);padding:11px 6px;text-align:center;border-bottom:1px solid var(--line);border-left:1px solid var(--line-2)}
+.gh:first-child{border-left:0;text-align:left;padding-left:16px}
+.gr{font-size:13.5px;font-weight:600;padding:0 16px;display:flex;align-items:center;border-bottom:1px solid var(--line-2);color:var(--fg-2)}
+.cell{border-left:1px solid var(--line-2);border-bottom:1px solid var(--line-2);height:58px;padding:7px;display:flex;align-items:stretch}
+.cell i{display:block;width:100%;border-radius:2px;background:transparent;transition:background .6s cubic-bezier(.2,.75,.3,1)}
+.cell[data-f="1"] i{background:var(--ochre-dim)}
+.cell[data-f="2"] i{background:var(--ochre);opacity:.62}
+.cell[data-f="3"] i{background:var(--ochre)}
+.yr{display:grid;grid-template-columns:132px repeat(4,1fr);border-top:1px solid var(--line)}
+.yr span{font-family:'Martian Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-3);padding:10px 6px;text-align:center;border-left:1px solid var(--line-2)}
+.yr span:first-child{border-left:0;text-align:left;padding-left:16px}
+
+.band{margin-top:clamp(56px,7vw,96px);border-top:1px solid var(--line);padding-top:clamp(34px,4.5vw,52px)}
+.band h2{font-size:clamp(26px,4vw,40px);font-weight:700;letter-spacing:-.03em;max-width:20ch;text-wrap:balance}
+.band p{margin-top:16px;max-width:60ch;color:var(--fg-2)}
+
+.rows{margin-top:30px;border-top:1px solid var(--line-2)}
+.row{display:grid;grid-template-columns:136px 1fr 1fr;gap:26px;padding:20px 0;border-bottom:1px solid var(--line-2);align-items:start}
+.row .mono{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ochre);padding-top:4px}
+.row h3{font-size:19px;font-weight:600;letter-spacing:-.015em}
+.row p{margin-top:6px;color:var(--fg-2);font-size:15.5px;max-width:46ch}
+
+.study{margin-top:clamp(44px,6vw,72px);border:1px solid var(--line);background:var(--ground-2);overflow:hidden}
+.study-bar{display:flex;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--line)}
+.study-bar span{font-family:'Martian Mono',monospace;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--fg-3)}
+.study-in{display:grid;grid-template-columns:184px 1fr;min-height:250px;position:relative}
+.nav{border-right:1px solid var(--line);padding:14px 0}
+.nav div{padding:9px 18px;font-size:14px;color:var(--fg-2);display:flex;gap:10px;align-items:center}
+.nav div.on{color:var(--fg);font-weight:600;box-shadow:inset 2px 0 0 var(--ochre);background:#213561}
+.pane{padding:22px 24px;position:relative}
+.pane h4{font-size:19px;font-weight:600;letter-spacing:-.015em}
+.pane .mono{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-3);margin-top:5px;display:block}
+.pl{margin-top:18px;display:grid;gap:7px}
+.pl div{display:grid;grid-template-columns:1fr 88px;gap:14px;align-items:center;border:1px solid var(--line-2);padding:11px 13px;font-size:14.5px;color:var(--fg-2)}
+.pb{height:5px;background:#26386A}
+.pb i{display:block;height:100%;background:var(--ochre)}
+.fade{position:absolute;top:0;right:0;bottom:0;width:78px;background:linear-gradient(90deg,transparent,var(--ground-2) 74%)}
+.note{font-family:'Martian Mono',monospace;font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-3);margin-top:10px}
+
+.end{margin-top:clamp(60px,8vw,110px);border-top:1px solid var(--line);padding:40px 0 78px}
+.end h2{font-size:clamp(26px,4vw,42px);font-weight:700;letter-spacing:-.03em;max-width:19ch;text-wrap:balance}
+.end p{margin-top:14px;color:var(--fg-2);max-width:54ch}
+.cta{display:inline-block;margin-top:26px;background:var(--ochre);color:#1A1405;padding:14px 28px;font-family:'Martian Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;font-weight:600;transition:background .18s cubic-bezier(.2,.7,.3,1)}
+.cta:hover{background:#F0B653}
+
+@media(max-width:900px){
+  .grid{grid-template-columns:96px repeat(8,1fr)}
+  .gr{font-size:12px;padding:0 9px}
+  .gh:first-child{padding-left:9px}
+  .cell{height:44px}
+  .yr{grid-template-columns:96px repeat(4,1fr)}
+  .yr span:first-child{padding-left:9px}
+  .row{grid-template-columns:1fr;gap:8px}
+  .study-in{grid-template-columns:1fr}
+  .nav{border-right:0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap}
+  .fade{display:none}
+}
+</style>
+</head>
+<body>
+<!--
+THESIS: Four years of preparation laid out the way a college already lays out time. It
+refuses the edtech hero and the feature-card grid, and makes the semester timetable, the
+one chart every department prints, carry the entire argument.
+OWN-WORLD: Saturated indigo ground, cool rule lines at two weights, ochre as the only
+warm signal and the only fill. Familjen Grotesk for text, Martian Mono for grid headers
+and labels. Everything sits in ruled cells; nothing sits in a card.
+STORY: A dean reads eight semesters across, sees preparation accumulating where their own
+planning documents put it, and understands the four-year claim without being told twice.
+FIRST VIEWPORT: Rule under a compact masthead, a 68px statement at left, then the eight
+column by four row grid filling ochre from Year I to Year IV.
+FORM: Semester timetable grid. Dealt as a challenger against the assigned direction.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->
+<div class="wrap">
+
+  <header class="top">
+    <div class="mark">Orig<b>a</b>n</div>
+    <div class="mono">VeraStack Labs</div>
+  </header>
+
+  <section class="hero">
+    <h1>Eight semesters of preparation, not <em>two weeks</em> of training.</h1>
+    <p>A training programme arrives in the final year and leaves a fortnight later. Origan is in place from the first year, with a consultant who learns what your students are stuck on and a platform that keeps changing because of it.</p>
+
+    <div class="sheet">
+      <div class="sheet-head"><span>Preparation, by semester</span><span>One cohort, entry to placement</span></div>
+      <div class="grid" id="grid">
+        <div class="gh">Strand</div>
+        <div class="gh">S1</div><div class="gh">S2</div><div class="gh">S3</div><div class="gh">S4</div>
+        <div class="gh">S5</div><div class="gh">S6</div><div class="gh">S7</div><div class="gh">S8</div>
+      </div>
+      <div class="yr"><span>Year</span><span>I</span><span>II</span><span>III</span><span>IV</span></div>
+    </div>
+  </section>
+
+  <section class="band">
+    <h2>Four strands, running the whole time.</h2>
+    <p>Not twelve features to read through. Four things that are always happening, doing different work depending on the year a student is in.</p>
+
+    <div class="rows">
+      <div class="row">
+        <div class="mono">Direction</div>
+        <div><h3>Knowing what to learn next</h3><p>A questionnaire produces a roadmap. Curated playlists sit inside each block, and a glossary turns the jargon into something a first-year can actually hold.</p></div>
+        <div><p>Strongest in the first two years, when the cost of drifting is highest and nobody notices it happening.</p></div>
+      </div>
+      <div class="row">
+        <div class="mono">Practice</div>
+        <div><h3>Doing the work, repeatedly</h3><p>Curated DSA sheets with revisit marking, and a test engine covering aptitude, reasoning, and technical topics rather than saving all of it for final year.</p></div>
+        <div><p>Compounds. The reason a student arrives at campus training already able to use it.</p></div>
+      </div>
+      <div class="row">
+        <div class="mono">Readiness</div>
+        <div><h3>Turning preparation into applications</h3><p>Resume tooling, template galleries, and Avsar, which moves campus drives off WhatsApp groups and Google Forms into one place students actually apply from.</p></div>
+        <div><p>Third and fourth year. Also where the outcome data comes from.</p></div>
+      </div>
+      <div class="row">
+        <div class="mono">Evidence</div>
+        <div><h3>What the college can see</h3><p>Trajectory across years rather than a readiness score on a student. Reporting arrives biweekly or monthly, shaped with your placement cell.</p></div>
+        <div><p>Designed so students never experience it as being watched.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="study">
+      <div class="study-bar"><span>Interface study</span><span>Illustrative, not a live deployment</span></div>
+      <div class="study-in">
+        <nav class="nav">
+          <div class="on"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 12.5V3.5M2 3.5h5M2 8h8M2 12.5h12"/></svg>Roadmap</div>
+          <div><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="12" height="10"/><path d="M7 6.5l3 1.5-3 1.5z"/></svg>Playlists</div>
+          <div><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="2.5" width="11" height="11"/><path d="M5 6h6M5 9h4"/></svg>Sheets</div>
+          <div><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 13V6l5-3 5 3v7z"/><path d="M6.5 13V9h3v4"/></svg>Tests</div>
+          <div><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 13.5c0-2.5 2.2-4 5-4s5 1.5 5 4"/></svg>Avsar</div>
+          <div><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2.5 13.5V7M6.5 13.5V3M10.5 13.5V9M14 13.5V5"/></svg>Progress</div>
+        </nav>
+        <div class="pane">
+          <h4>Backend Engineering</h4>
+          <span class="mono">Python · Django · Semester 4</span>
+          <div class="pl">
+            <div><span>Language fundamentals</span><span class="pb"><i style="width:100%"></i></span></div>
+            <div><span>Data structures</span><span class="pb"><i style="width:74%"></i></span></div>
+            <div><span>Web framework</span><span class="pb"><i style="width:31%"></i></span></div>
+            <div><span>Databases</span><span class="pb"><i style="width:0%"></i></span></div>
+          </div>
+          <div class="fade" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Interface study. Values are illustrative and no deployment exists yet.</p>
+  </section>
+
+  <section class="end">
+    <h2>Two years is the shortest term that can show you anything.</h2>
+    <p>Long enough for a cohort to move through it. We open there, and the rest is a conversation with your placement cell.</p>
+    <a class="cta" href="#">Request a conversation</a>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  var g=document.getElementById('grid'),
+      strands=['Direction','Practice','Readiness','Evidence'],
+      // fill level per strand across 8 semesters, 0 = none
+      plan=[[3,3,3,2,2,1,1,1],[1,2,3,3,3,3,2,2],[0,0,1,1,2,3,3,3],[1,1,2,2,2,3,3,3]],
+      cells=[];
+  strands.forEach(function(s,r){
+    var lab=document.createElement('div');lab.className='gr';lab.textContent=s;g.appendChild(lab);
+    for(var c=0;c<8;c++){
+      var d=document.createElement('div');d.className='cell';d.setAttribute('data-f','0');
+      d.innerHTML='<i></i>';g.appendChild(d);cells.push({el:d,v:plan[r][c],c:c});
+    }
+  });
+  function fill(){
+    cells.sort(function(a,b){return a.c-b.c;}).forEach(function(o,i){
+      setTimeout(function(){o.el.setAttribute('data-f',o.v);}, i*22);
+    });
+  }
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+    cells.forEach(function(o){o.el.setAttribute('data-f',o.v);});
+  }else{
+    var io=new IntersectionObserver(function(e){if(e[0].isIntersecting){fill();io.disconnect();}},{threshold:.25});
+    io.observe(g);
+  }
+})();
+</script>
+</body>
+</html>

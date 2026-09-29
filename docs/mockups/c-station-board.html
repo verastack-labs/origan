@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Origan — Direction C: The Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --board:#F2B705;
+  --board-2:#E0A800;
+  --ink:#141210;
+  --ink-2:#4A423A;
+  --maroon:#6B2622;
+  --maroon-2:#57201C;
+  --cream:#F6F1E4;
+  --cream-2:#EBE3D0;
+  --rule:#CBBE9E;
+  --gut:clamp(20px,4vw,56px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--cream);color:var(--ink);
+  font-family:Archivo,system-ui,sans-serif;font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'Azeret Mono',ui-monospace,monospace}
+.wrap{max-width:1140px;margin:0 auto;padding:0 var(--gut)}
+:focus-visible{outline:3px solid var(--maroon);outline-offset:3px}
+
+.top{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:2px solid var(--ink)}
+.mark{font-size:21px;font-weight:800;letter-spacing:-.02em}
+.top .mono{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2)}
+
+/* station board */
+.board{
+  margin-top:clamp(34px,5vw,58px);
+  background:var(--board);
+  border:5px solid var(--ink);
+  border-radius:14px;
+  padding:clamp(26px,4.4vw,46px) clamp(22px,4vw,44px);
+  position:relative;
+}
+.board .stn{font-size:clamp(40px,9vw,104px);font-weight:800;letter-spacing:-.045em;line-height:.92;text-transform:uppercase}
+.board .sub{font-family:'Azeret Mono',monospace;font-size:clamp(10px,1.5vw,13px);letter-spacing:.16em;text-transform:uppercase;margin-top:12px;color:#5C4A08}
+.board .div{height:3px;background:var(--ink);margin:20px 0;opacity:.85}
+.board .line{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;font-family:'Azeret Mono',monospace;font-size:clamp(10px,1.4vw,12px);letter-spacing:.09em;text-transform:uppercase;color:#5C4A08}
+
+.lede{margin-top:clamp(30px,4vw,48px);max-width:62ch;font-size:clamp(18px,2.2vw,21px);line-height:1.5;font-weight:500}
+.lede b{font-weight:700}
+
+/* timetable */
+.tt{margin-top:clamp(40px,5.5vw,72px);border:3px solid var(--ink);background:var(--cream)}
+.tt-cap{display:flex;justify-content:space-between;padding:13px 18px;background:var(--maroon);color:var(--cream)}
+.tt-cap span{font-family:'Azeret Mono',monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase}
+.halt{display:grid;grid-template-columns:78px 1fr 1.05fr;gap:22px;padding:20px 18px;border-bottom:1px solid var(--rule);align-items:start}
+.halt:last-child{border-bottom:0}
+.halt:nth-child(even){background:var(--cream-2)}
+.halt .yr{font-family:'Azeret Mono',monospace;font-size:13px;font-weight:600;color:var(--maroon);letter-spacing:.04em;padding-top:3px}
+.halt h3{font-size:20px;font-weight:700;letter-spacing:-.02em}
+.halt p{margin-top:5px;font-size:15.5px;color:var(--ink-2);max-width:44ch}
+.halt .col{font-size:15.5px;color:var(--ink-2);padding-top:3px;max-width:40ch}
+.halt .col b{color:var(--ink);font-weight:600}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:clamp(40px,5.5vw,72px);border:3px solid var(--ink)}
+.split > div{padding:26px}
+.split > div:first-child{border-right:3px solid var(--ink);background:var(--cream-2)}
+.split h4{font-family:'Azeret Mono',monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;margin-bottom:15px}
+.split > div:last-child{background:var(--maroon);color:var(--cream)}
+.split ul{list-style:none;font-size:16px}
+.split li{padding:9px 0;border-bottom:1px solid var(--rule)}
+.split > div:last-child li{border-bottom:1px solid #7E3A35}
+.split li:last-child{border-bottom:0}
+
+.study{margin-top:clamp(40px,5.5vw,72px);border:3px solid var(--ink);background:var(--cream);overflow:hidden}
+.study-bar{display:flex;justify-content:space-between;padding:12px 18px;background:var(--ink);color:var(--cream)}
+.study-bar span{font-family:'Azeret Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.study-in{display:grid;grid-template-columns:184px 1fr;min-height:250px}
+.nav{border-right:2px solid var(--ink);padding:14px 0;background:var(--cream-2)}
+.nav div{padding:9px 18px;font-size:14.5px;display:flex;gap:10px;align-items:center;color:var(--ink-2)}
+.nav div.on{font-weight:700;color:var(--ink);background:var(--board);box-shadow:inset 3px 0 0 var(--ink)}
+.pane{padding:22px 24px;position:relative}
+.pane h4{font-size:19px;font-weight:700;letter-spacing:-.018em;font-family:Archivo}
+.pane .mono{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin-top:5px}
+.pl{margin-top:18px;display:grid;gap:8px}
+.pl div{display:grid;grid-template-columns:1fr 90px;gap:14px;align-items:center;border:2px solid var(--ink);padding:10px 12px;font-size:14.5px}
+.pb{height:8px;background:var(--cream-2);border:1px solid var(--ink)}
+.pb i{display:block;height:100%;background:var(--maroon)}
+.fade{position:absolute;top:0;right:0;bottom:0;width:78px;background:linear-gradient(90deg,transparent,var(--cream) 74%)}
+.note{font-family:'Azeret Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin-top:10px}
+
+.end{margin-top:clamp(56px,7vw,100px);border-top:3px solid var(--ink);padding:36px 0 78px}
+.end h2{font-size:clamp(26px,4.2vw,44px);font-weight:800;letter-spacing:-.035em;max-width:19ch;text-wrap:balance}
+.end p{margin-top:14px;color:var(--ink-2);max-width:54ch}
+.cta{display:inline-block;margin-top:24px;background:var(--ink);color:var(--board);padding:15px 30px;font-family:'Azeret Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border-radius:4px;transition:background .18s cubic-bezier(.2,.7,.3,1)}
+.cta:hover{background:var(--maroon)}
+
+@media(max-width:840px){
+  .halt{grid-template-columns:56px 1fr;gap:14px}
+  .halt .col{grid-column:2}
+  .split{grid-template-columns:1fr}
+  .split > div:first-child{border-right:0;border-bottom:3px solid var(--ink)}
+  .study-in{grid-template-columns:1fr}
+  .nav{border-right:0;border-bottom:2px solid var(--ink);display:flex;flex-wrap:wrap}
+  .fade{display:none}
+}
+</style>
+</head>
+<body>
+<!--
+THESIS: A four-year journey with scheduled halts, told in the graphic language every
+Indian traveller reads without thinking. It refuses the edtech hero, the feature-card
+grid, and the muted institutional palette, on the grounds that a dean remembers a board.
+OWN-WORLD: Station-board yellow inside heavy black rule, cream paper ground, coach maroon
+for the timetable chrome and progress. Archivo at 800 for board lettering, Azeret Mono for
+every label and time column. Thick borders, no shadows, no cards.
+STORY: A visitor sees the destination named, the halts between here and there, and
+understands that Origan boards in the first year rather than meeting them at the platform.
+FIRST VIEWPORT: The board itself, near full width, destination set at up to 104px, service
+details ruled beneath it, the page's lede directly below.
+FORM: Indian Railways timetable and station board. Dealt as a challenger.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->
+<div class="wrap">
+
+  <header class="top">
+    <div class="mark">ORIGAN</div>
+    <div class="mono">VeraStack Labs</div>
+  </header>
+
+  <section>
+    <div class="board">
+      <div class="stn">Origan</div>
+      <div class="sub">Preparation · Engineering colleges · India</div>
+      <div class="div"></div>
+      <div class="line">
+        <span>Boards: Year I</span>
+        <span>Halts: Eight semesters</span>
+        <span>For: Placement</span>
+      </div>
+    </div>
+
+    <p class="lede">A training programme meets your students on the platform in their final year, with the season already running. <b>Origan boards with them in their first.</b></p>
+  </section>
+
+  <section>
+    <div class="tt">
+      <div class="tt-cap"><span>Scheduled halts</span><span>One cohort, entry to placement</span></div>
+
+      <div class="halt">
+        <div class="yr">YR I</div>
+        <div><h3>Direction</h3><p>A questionnaire produces a roadmap. Curated playlists sit inside each block, and a glossary makes the jargon usable.</p></div>
+        <div class="col"><b>The college sees</b> a first-year cohort engaging rather than drifting, at the point where drifting is invisible and expensive.</div>
+      </div>
+
+      <div class="halt">
+        <div class="yr">YR II</div>
+        <div><h3>Practice</h3><p>Curated DSA sheets with revisit marking. Aptitude, reasoning, and technical tests, spread across years rather than crammed into the last one.</p></div>
+        <div class="col"><b>The college sees</b> which strands a batch is weak in, early enough to actually do something about it.</div>
+      </div>
+
+      <div class="halt">
+        <div class="yr">YR III</div>
+        <div><h3>Readiness</h3><p>Resume tooling and template galleries. Avsar moves campus drives and internship applications off WhatsApp groups and Google Forms.</p></div>
+        <div class="col"><b>The college sees</b> internship conversion, which is the first honest leading indicator of placement.</div>
+      </div>
+
+      <div class="halt">
+        <div class="yr">YR IV</div>
+        <div><h3>Season</h3><p>Drives, applications, interviews. Standing on three years of accumulated work rather than a fortnight of it.</p></div>
+        <div class="col"><b>The college sees</b> participation and outcomes in one place instead of a spreadsheet and a WhatsApp group.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="split">
+      <div>
+        <h4>A training programme</h4>
+        <ul>
+          <li>Final year, season already running</li>
+          <li>A fortnight, then it ends</li>
+          <li>The same syllabus at every college</li>
+          <li>Nothing measured after it leaves</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Origan, alongside it</h4>
+        <ul>
+          <li>First year onward, all four</li>
+          <li>Continuous, and extended as it runs</li>
+          <li>Shaped by what your students report</li>
+          <li>Instrumented from first week to last</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="study">
+      <div class="study-bar"><span>Interface study</span><span>Illustrative, not a live deployment</span></div>
+      <div class="study-in">
+        <nav class="nav">
+          <div class="on"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12.5V3.5M2 3.5h5M2 8h8M2 12.5h12"/></svg>Roadmap</div>
+          <div><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="12" height="10"/><path d="M7 6.5l3 1.5-3 1.5z"/></svg>Playlists</div>
+          <div><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="11" height="11"/><path d="M5 6h6M5 9h4"/></svg>Sheets</div>
+          <div><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 13V6l5-3 5 3v7z"/><path d="M6.5 13V9h3v4"/></svg>Tests</div>
+          <div><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 13.5c0-2.5 2.2-4 5-4s5 1.5 5 4"/></svg>Avsar</div>
+          <div><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 13.5V7M6.5 13.5V3M10.5 13.5V9M14 13.5V5"/></svg>Progress</div>
+        </nav>
+        <div class="pane">
+          <h4>Backend Engineering</h4>
+          <span class="mono">Python · Django · Semester 4</span>
+          <div class="pl">
+            <div><span>Language fundamentals</span><span class="pb"><i style="width:100%"></i></span></div>
+            <div><span>Data structures</span><span class="pb"><i style="width:74%"></i></span></div>
+            <div><span>Web framework</span><span class="pb"><i style="width:31%"></i></span></div>
+            <div><span>Databases</span><span class="pb"><i style="width:0%"></i></span></div>
+          </div>
+          <div class="fade" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Interface study. Values are illustrative and no deployment exists yet.</p>
+  </section>
+
+  <section class="end">
+    <h2>Two years is the shortest term that shows you anything.</h2>
+    <p>Long enough for a cohort to move through it. We open there, and the rest is a conversation with your placement cell.</p>
+    <a class="cta" href="#">Request a conversation</a>
+  </section>
+
+</div>
+</body>
+</html>

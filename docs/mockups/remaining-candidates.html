@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Origan — Remaining candidate worlds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Faustina:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0C0C0D;color:#E8E8E6;font-family:Archivo,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.shell{max-width:1240px;margin:0 auto;padding:44px clamp(16px,3vw,32px) 90px}
+.doc-head{border-bottom:1px solid #2A2A2C;padding-bottom:18px;margin-bottom:38px;display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap}
+.doc-head h1{font-size:19px;font-weight:600;letter-spacing:-.01em}
+.doc-head span{font-family:'Azeret Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#77777C}
+
+.plate{margin-bottom:56px}
+.plate-tag{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.plate-tag h2{font-family:'Azeret Mono',monospace;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#E8E8E6;font-weight:600}
+.plate-tag em{font-style:normal;font-family:'Azeret Mono',monospace;font-size:10px;letter-spacing:.07em;color:#77777C}
+.frame{border-radius:5px;overflow:hidden;position:relative;height:min(74vh,610px)}
+.read{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:14px}
+.read p{font-size:14.5px;line-height:1.55;color:#A3A3A6;max-width:56ch}
+.read p b{color:#E8E8E6;font-weight:600}
+@media(max-width:760px){.read{grid-template-columns:1fr;gap:10px}.frame{height:520px}}
+
+/* ============ D · MARK SHEET / SECURITY PRINT ============ */
+.d{background:#E9EFE5;color:#12210F;height:100%;position:relative;overflow:hidden;font-family:Faustina,Georgia,serif}
+.d .guilloche{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
+.d .mp{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(18,53,30,.045) 3px 4px);pointer-events:none}
+.d-in{position:relative;height:100%;padding:clamp(24px,3.4vw,44px);display:flex;flex-direction:column}
+.d-top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1.5px solid #1D3A22;padding-bottom:14px}
+.d-title{font-size:clamp(28px,4.6vw,50px);font-weight:700;letter-spacing:-.025em;line-height:1}
+.d-sub{font-family:'Azeret Mono',monospace;font-size:9.5px;letter-spacing:.17em;text-transform:uppercase;margin-top:8px;color:#3D5B40}
+.d-ser{font-family:'Azeret Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-align:right;color:#3D5B40;line-height:1.8}
+.d-rows{margin-top:auto;width:100%;border-collapse:collapse}
+.d-rows th,.d-rows td{text-align:left;padding:7px 10px;font-size:13.5px;border-bottom:1px solid rgba(29,58,34,.22)}
+.d-rows thead th{font-family:'Azeret Mono',monospace;font-size:8.5px;letter-spacing:.11em;text-transform:uppercase;color:#3D5B40;border-bottom:1.5px solid #1D3A22}
+.d-rows td:first-child,.d-rows th:first-child{font-family:'Azeret Mono',monospace;font-size:11px;font-variant-numeric:tabular-nums}
+.d-rows td:last-child{text-align:right;font-family:'Azeret Mono',monospace;font-variant-numeric:tabular-nums;font-weight:600}
+.d-cum{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid #1D3A22;margin-top:4px;padding-top:12px}
+.d-cum span{font-family:'Azeret Mono',monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#3D5B40}
+.d-cum b{font-size:clamp(26px,4vw,42px);font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+
+/* ============ E · NOTICEBOARD ============ */
+.e{height:100%;position:relative;overflow:hidden;background:#6A4A2C}
+.e .tex{position:absolute;inset:0;opacity:.5}
+.e-stack{position:absolute;inset:0}
+.note{position:absolute;background:#F4F1E6;box-shadow:0 14px 28px rgba(0,0,0,.34),0 2px 5px rgba(0,0,0,.28);padding:14px 16px;font-family:'Azeret Mono',monospace;font-size:9.5px;line-height:1.7;color:#4A4636;letter-spacing:.03em}
+.note b{display:block;font-family:Archivo,sans-serif;font-size:13px;font-weight:700;letter-spacing:-.01em;color:#1C1A14;margin-bottom:5px;text-transform:uppercase}
+.note.pink{background:#F0DCD8}
+.note.green{background:#DDE7D8}
+.pin{position:absolute;top:-5px;left:50%;width:11px;height:11px;border-radius:50%;background:#B8332B;box-shadow:0 2px 3px rgba(0,0,0,.45),inset 0 -2px 2px rgba(0,0,0,.25);transform:translateX(-50%)}
+.e-card{position:absolute;right:clamp(16px,3vw,40px);top:50%;transform:translateY(-50%);width:min(370px,50%);background:#12140F;border-radius:9px;padding:20px;box-shadow:0 26px 60px rgba(0,0,0,.5)}
+.e-card h4{font-size:11px;font-family:'Azeret Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#87D8A8;margin-bottom:12px}
+.e-card .row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #22261E;font-size:13px;color:#C9CCC4}
+.e-card .row:last-child{border-bottom:0}
+.e-card .go{margin-top:14px;background:#2FA96A;color:#04180C;border-radius:5px;padding:10px;text-align:center;font-family:'Azeret Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;font-weight:600}
+
+/* ============ F · LAB RECORD BOOK ============ */
+.f{height:100%;position:relative;overflow:hidden;background:#F6F4EC;color:#1A1A16;font-family:Literata,Georgia,serif}
+.f .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(70,120,150,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(70,120,150,.15) 1px,transparent 1px);background-size:19px 19px}
+.f .marg{position:absolute;top:0;bottom:0;left:clamp(58px,9vw,112px);width:1.5px;background:#C0382E}
+.f .marg2{position:absolute;top:0;bottom:0;left:calc(clamp(58px,9vw,112px) + 4px);width:1.5px;background:#C0382E;opacity:.5}
+.f-in{position:relative;height:100%;padding:clamp(22px,3vw,38px) clamp(22px,3.4vw,44px) clamp(22px,3vw,38px) calc(clamp(58px,9vw,112px) + 26px);display:flex;flex-direction:column}
+.f-h{font-size:clamp(25px,4vw,42px);font-weight:600;letter-spacing:-.022em;line-height:1.08;max-width:19ch}
+.f-meta{font-family:'Azeret Mono',monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#6B6B5E;margin-top:10px}
+.f-idx{margin-top:auto}
+.f-row{display:grid;grid-template-columns:38px 1fr 96px 62px;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(26,26,22,.14);font-size:14px}
+.f-row:first-child{border-top:1px solid rgba(26,26,22,.25)}
+.f-row span:first-child,.f-row span:nth-child(3),.f-row span:last-child{font-family:'Azeret Mono',monospace;font-size:10.5px;color:#6B6B5E;font-variant-numeric:tabular-nums}
+.f-row span:last-child{text-align:right}
+.f-row.done span:last-child{color:#2C6E3F;font-weight:600}
+.tick{display:inline-block;width:13px;height:13px;vertical-align:-2px}
+
+/* ============ G · SURVEY & LEVELLING ============ */
+.g{height:100%;position:relative;overflow:hidden;background:#0E1A17}
+.g canvas,.g svg.contour{position:absolute;inset:0;width:100%;height:100%}
+.g-in{position:relative;height:100%;padding:clamp(24px,3.4vw,46px);display:flex;flex-direction:column;justify-content:space-between}
+.g h3{font-family:Archivo,sans-serif;font-size:clamp(30px,5.6vw,66px);font-weight:700;letter-spacing:-.04em;line-height:.98;max-width:15ch;color:#F2F5F2}
+.g h3 em{font-style:normal;color:#5FD9A8}
+.g .lead{font-family:'Azeret Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#6F8D82;margin-bottom:14px}
+.g-marks{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #23403A;padding-top:16px;gap:10px}
+.g-bm{flex:1;text-align:center}
+.g-bm svg{display:block;margin:0 auto 8px}
+.g-bm .yr{font-family:'Azeret Mono',monospace;font-size:10px;letter-spacing:.11em;color:#8FB3A7}
+.g-bm .nm{font-family:Archivo,sans-serif;font-size:13px;font-weight:600;color:#F2F5F2;margin-top:3px;letter-spacing:-.01em}
+.g-bm .ch{font-family:'Azeret Mono',monospace;font-size:9px;letter-spacing:.08em;color:#4E6E64;margin-top:3px}
+@media(max-width:700px){.g-bm .nm{font-size:11px}.g-bm .ch{display:none}}
+</style>
+</head>
+<body>
+<!--
+Comparison plate set. Four remaining candidate worlds from the seven-candidate shortlist,
+rendered at hero scale with authored geometry and real material rather than as structure
+sketches. Each frame is one first viewport. Content and claims are identical across plates
+so the comparison is about world, never copy.
+-->
+<div class="shell">
+
+  <header class="doc-head">
+    <h1>Origan · remaining candidate worlds</h1>
+    <span>Same copy, same claims, four materials</span>
+  </header>
+
+  <!-- ===== D ===== -->
+  <section class="plate">
+    <div class="plate-tag"><h2>D · Mark sheet and security printing</h2><em>Guilloche, safety tint, microline</em></div>
+    <div class="frame">
+      <div class="d">
+        <svg class="guilloche" id="gu" viewBox="0 0 1200 620" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+        <div class="mp"></div>
+        <div class="d-in">
+          <div class="d-top">
+            <div>
+              <div class="d-title">Statement of<br>Preparation</div>
+              <div class="d-sub">Origan · Four-year record · Issued to the college</div>
+            </div>
+            <div class="d-ser">Ser. OR–0001<br>Eight semesters<br>Cumulative</div>
+          </div>
+          <table class="d-rows">
+            <thead><tr><th>Sem</th><th>Strand advanced</th><th>Recorded</th></tr></thead>
+            <tbody>
+              <tr><td>01</td><td>Direction established, roadmap issued</td><td>100</td></tr>
+              <tr><td>02</td><td>Practice begins, first sheets cleared</td><td>96</td></tr>
+              <tr><td>03</td><td>Aptitude enters the weekly rhythm</td><td>91</td></tr>
+              <tr><td>04</td><td>Framework depth, project work</td><td>88</td></tr>
+            </tbody>
+          </table>
+          <div class="d-cum"><span>Carried forward to placement</span><b>375</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="read">
+      <p><b>The bet.</b> A transcript is the one document a college already accepts as proof of four years. Origan proposes a parallel one for preparation, engraved rather than designed.</p>
+      <p><b>The risk.</b> Security printing signals officialdom, and officialdom can read as cold. It also fights the student half of the audience, who have no warm feelings about mark sheets.</p>
+    </div>
+  </section>
+
+  <!-- ===== E ===== -->
+  <section class="plate">
+    <div class="plate-tag"><h2>E · The departmental noticeboard</h2><em>Layered paper, pins, one thing resolving</em></div>
+    <div class="frame">
+      <div class="e">
+        <svg class="tex" viewBox="0 0 400 200" preserveAspectRatio="none" aria-hidden="true">
+          <filter id="ck"><feTurbulence baseFrequency="0.9" numOctaves="3" seed="7"/><feColorMatrix values="0 0 0 0 .25 0 0 0 0 .16 0 0 0 0 .07 0 0 0 .5 0"/></filter>
+          <rect width="400" height="200" filter="url(#ck)"/>
+        </svg>
+        <div class="e-stack">
+          <div class="note" style="left:3%;top:9%;width:210px;transform:rotate(-2.4deg)"><span class="pin"></span><b>Drive: 14 Mar</b>Eligibility 7.0 CGPA<br>Send resume to the group<br>Deadline tonight 11 pm</div>
+          <div class="note green" style="left:19%;top:38%;width:196px;transform:rotate(1.8deg)"><span class="pin"></span><b>Form link</b>docs.google.com/forms<br>Fill before Friday<br>One response per student</div>
+          <div class="note pink" style="left:5%;top:62%;width:224px;transform:rotate(-1.1deg)"><span class="pin"></span><b>Shortlist out</b>Check the group<br>Roll numbers only<br>Do not call the office</div>
+          <div class="note" style="left:27%;top:6%;width:180px;transform:rotate(3.1deg)"><span class="pin"></span><b>Reminder</b>Resume format changed<br>Use the new template</div>
+        </div>
+        <div class="e-card">
+          <h4>Avsar</h4>
+          <div class="row"><span>Open drives</span><span>6</span></div>
+          <div class="row"><span>Eligible to you</span><span>4</span></div>
+          <div class="row"><span>Resume on file</span><span>3 versions</span></div>
+          <div class="row"><span>Closing today</span><span>1</span></div>
+          <div class="go">Apply in one tap</div>
+        </div>
+      </div>
+    </div>
+    <div class="read">
+      <p><b>The bet.</b> Show the mess the TPO lives in, then let one clean surface resolve it in the same frame. The before and after are the argument, with no sentence needed.</p>
+      <p><b>The risk.</b> It argues hard for Avsar and barely at all for the four-year thesis, which is the actual product. Strong section, probably not a whole world.</p>
+    </div>
+  </section>
+
+  <!-- ===== F ===== -->
+  <section class="plate">
+    <div class="plate-tag"><h2>F · The lab record book</h2><em>Graph ruling, red margin, dated index</em></div>
+    <div class="frame">
+      <div class="f">
+        <div class="grid"></div><div class="marg"></div><div class="marg2"></div>
+        <div class="f-in">
+          <div>
+            <div class="f-h">Four years of work, recorded as it happens.</div>
+            <div class="f-meta">Origan · Index of preparation · One student, entry to placement</div>
+          </div>
+          <div class="f-idx">
+            <div class="f-row done"><span>01</span><span>Direction established, roadmap issued</span><span>Sem 1</span><span>Signed</span></div>
+            <div class="f-row done"><span>02</span><span>Language fundamentals completed</span><span>Sem 2</span><span>Signed</span></div>
+            <div class="f-row done"><span>03</span><span>Data structures, first sheet cleared</span><span>Sem 3</span><span>Signed</span></div>
+            <div class="f-row"><span>04</span><span>Aptitude enters the weekly rhythm</span><span>Sem 4</span><span>Open</span></div>
+            <div class="f-row"><span>05</span><span>Framework depth and project work</span><span>Sem 5</span><span>—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="read">
+      <p><b>The bet.</b> Every engineering student in India has filled dozens of these, and every faculty member has signed them. It is the most emotionally familiar object on the shortlist for both audiences at once.</p>
+      <p><b>The risk.</b> Students associate the record book with drudgery and back-dating. Leaning on it could evoke exactly the compliance feeling the product is trying to avoid.</p>
+    </div>
+  </section>
+
+  <!-- ===== G ===== -->
+  <section class="plate">
+    <div class="plate-tag"><h2>G · Survey and levelling notation</h2><em>Contour linework, benchmarks, chainage</em></div>
+    <div class="frame">
+      <div class="g">
+        <svg class="contour" id="ct" viewBox="0 0 1200 620" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+        <div class="g-in">
+          <div>
+            <div class="lead">Origan · Preparation, surveyed</div>
+            <h3>Four years is a distance. We mark the <em>ground</em> the whole way.</h3>
+          </div>
+          <div class="g-marks">
+            <div class="g-bm">
+              <svg width="20" height="18" viewBox="0 0 20 18" fill="none" stroke="#5FD9A8" stroke-width="1.4"><path d="M10 2l8 14H2z"/><circle cx="10" cy="12.4" r="1.6" fill="#5FD9A8" stroke="none"/></svg>
+              <div class="yr">I</div><div class="nm">Direction</div><div class="ch">CH 0+000</div>
+            </div>
+            <div class="g-bm">
+              <svg width="20" height="18" viewBox="0 0 20 18" fill="none" stroke="#5FD9A8" stroke-width="1.4"><path d="M10 2l8 14H2z"/><circle cx="10" cy="12.4" r="1.6" fill="#5FD9A8" stroke="none"/></svg>
+              <div class="yr">II</div><div class="nm">Practice</div><div class="ch">CH 1+000</div>
+            </div>
+            <div class="g-bm">
+              <svg width="20" height="18" viewBox="0 0 20 18" fill="none" stroke="#5FD9A8" stroke-width="1.4"><path d="M10 2l8 14H2z"/><circle cx="10" cy="12.4" r="1.6" fill="#5FD9A8" stroke="none"/></svg>
+              <div class="yr">III</div><div class="nm">Readiness</div><div class="ch">CH 2+000</div>
+            </div>
+            <div class="g-bm">
+              <svg width="20" height="18" viewBox="0 0 20 18" fill="none" stroke="#F2F5F2" stroke-width="1.4"><path d="M10 2l8 14H2z" fill="#F2F5F2"/></svg>
+              <div class="yr">IV</div><div class="nm">Season</div><div class="ch">CH 3+000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="read">
+      <p><b>The bet.</b> Civil engineering's own graphic language, and the only candidate whose native subject is measuring progress toward a known point across distance. The linework carries the page on its own.</p>
+      <p><b>The risk.</b> Contours read as beautiful before they read as meaningful. It needs the benchmarks doing real work or it becomes wallpaper with a headline on it.</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ---- D: guilloche rosette, hypotrochoid family ---- */
+(function(){
+  var s=document.getElementById('gu'),ns='http://www.w3.org/2000/svg';
+  function rose(cx,cy,R,r,d,turns,step){
+    var p='',t=0,max=Math.PI*2*turns,k=(R-r)/r;
+    for(;t<=max;t+=step){
+      var x=cx+(R-r)*Math.cos(t)+d*Math.cos(k*t),
+          y=cy+(R-r)*Math.sin(t)-d*Math.sin(k*t);
+      p+=(t?'L':'M')+x.toFixed(2)+' '+y.toFixed(2);
+    }
+    return p;
+  }
+  var sets=[[300,310,250,47,120,47,.035],[300,310,210,33,96,33,.04],[930,310,250,47,120,47,.035],[930,310,196,29,88,29,.045]];
+  sets.forEach(function(a,i){
+    var path=document.createElementNS(ns,'path');
+    path.setAttribute('d',rose.apply(null,a));
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke','#2C5A34');
+    path.setAttribute('stroke-width',i%2?'.45':'.6');
+    path.setAttribute('opacity',i%2?'.42':'.55');
+    s.appendChild(path);
+  });
+})();
+
+/* ---- G: contour field ---- */
+(function(){
+  var s=document.getElementById('ct'),ns='http://www.w3.org/2000/svg',W=1200,H=620;
+  function h(x,y){
+    return Math.sin(x*.0062)*Math.cos(y*.0091)*1.0
+         + Math.sin((x+y)*.0037)*.62
+         + Math.cos(x*.0021-y*.0043)*.48;
+  }
+  // march a set of level curves by sampling columns and joining crossings
+  for(var L=-1.9;L<=1.9;L+=.19){
+    var d='',open=false;
+    for(var x=0;x<=W;x+=5){
+      var found=null;
+      for(var y=0;y<=H;y+=4){
+        var a=h(x,y)-L,b=h(x,y+4)-L;
+        if(a===0||a*b<0){ found=y+4*(a/(a-b)); break; }
+      }
+      if(found===null){ open=false; continue; }
+      d+=(open?'L':'M')+x+' '+found.toFixed(1);
+      open=true;
+    }
+    if(!d)continue;
+    var p=document.createElementNS(ns,'path');
+    p.setAttribute('d',d);p.setAttribute('fill','none');
+    var major=Math.abs(L%.57)<.1;
+    p.setAttribute('stroke',major?'#3E7F6B':'#22453C');
+    p.setAttribute('stroke-width',major?'1.15':'.7');
+    s.appendChild(p);
+  }
+  // second pass, mirrored, for cross-hatched relief
+  for(var L2=-1.6;L2<=1.6;L2+=.42){
+    var d2='',o2=false;
+    for(var y2=0;y2<=H;y2+=5){
+      var f2=null;
+      for(var x2=0;x2<=W;x2+=4){
+        var a2=h(x2,y2)-L2,b2=h(x2+4,y2)-L2;
+        if(a2===0||a2*b2<0){ f2=x2+4*(a2/(a2-b2)); break; }
+      }
+      if(f2===null){o2=false;continue;}
+      d2+=(o2?'L':'M')+f2.toFixed(1)+' '+y2;o2=true;
+    }
+    if(!d2)continue;
+    var q=document.createElementNS(ns,'path');
+    q.setAttribute('d',d2);q.setAttribute('fill','none');
+    q.setAttribute('stroke','#1B3A32');q.setAttribute('stroke-width','.6');
+    s.appendChild(q);
+  }
+})();
+</script>
+</body>
+</html>

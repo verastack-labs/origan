@@ -1,0 +1,9 @@
+# Which dependencies may run install scripts. Everything defaults to no.
+#
+# esbuild needs its postinstall to fetch the platform binary; vitest will not
+# run without it. sharp and unrs-resolver are not used by this project, so they
+# stay off rather than being allowed "just in case".
+allowBuilds:
+  esbuild: true
+  sharp: false
+  unrs-resolver: false
