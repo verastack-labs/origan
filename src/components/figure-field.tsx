@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import {
+  ENTRY,
   bearingArc,
   datum,
   rangeArcs,
@@ -91,7 +92,11 @@ export function FigureField() {
     <svg
       className="absolute inset-0 h-full w-full"
       viewBox="0 0 1440 900"
-      preserveAspectRatio="xMidYMid slice"
+      // Anchored right, not centred. The figure is composed into the right of
+      // the field, and a narrow viewport crops the sides: centred, a phone
+      // showed the first station and nothing else, with the route running off
+      // into a frame that held none of it.
+      preserveAspectRatio="xMaxYMid slice"
       aria-hidden="true"
     >
       <g ref={plane}>
@@ -135,6 +140,20 @@ export function FigureField() {
             opacity={0.8}
           />
         ))}
+
+        {/* Where the line begins: an open circle, as a survey drawing marks a
+            station it started from rather than fixed. Without it the route
+            simply appeared out of the edge of the sheet. */}
+        <circle
+          className="set-out"
+          style={{ animationDelay: `${DRAW_MS + 520}ms` }}
+          cx={ENTRY.x}
+          cy={ENTRY.y}
+          r={4}
+          fill="var(--color-ground)"
+          stroke="var(--color-survey-2)"
+          strokeWidth={1.4}
+        />
 
         {/* The traverse. Straight legs between fixed stations. */}
         <path

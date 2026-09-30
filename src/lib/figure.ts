@@ -48,7 +48,7 @@ export const STATIONS: Station[] = [
 ];
 
 /** Where the party starts. Off the figure, because first year begins before us. */
-const ENTRY = { x: 742, y: 752 } as const;
+export const ENTRY = { x: 742, y: 752 } as const;
 
 /** The legs, as one polyline. Straight between stations, as a traverse is. */
 export function traversePath(): string {

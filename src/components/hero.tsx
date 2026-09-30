@@ -29,6 +29,13 @@ export function Hero() {
           look like linework behind frosted glass. */}
       <div className="absolute inset-0 bg-[linear-gradient(104deg,var(--color-ground)_0%,color-mix(in_srgb,var(--color-ground)_50%,transparent)_34%,transparent_62%)]" />
 
+      {/* On a phone there is no "beside the headline" to put a drawing in: the
+          column is the whole width, so the figure and the type want the same
+          pixels. Rather than shrink the figure into decoration, it keeps the
+          top of the viewport and dissolves into the ground before the words
+          start. Above `md` the columns exist and this is not needed. */}
+      <div className="absolute inset-x-0 bottom-0 h-[58%] bg-[linear-gradient(to_top,var(--color-ground)_38%,color-mix(in_srgb,var(--color-ground)_88%,transparent)_68%,transparent)] md:hidden" />
+
       {/* Drawing furniture. One mark, not two: the figure already carries a
           measured datum, and the scale bar that used to sit down here was a
           second scale saying the same thing in an emptier composition. */}
