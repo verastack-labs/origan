@@ -8,15 +8,41 @@ const VIEW = { width: 1200, height: 320 };
 const g = profileGeometry(VIEW);
 
 /**
+ * How long each semester holds before the section walks on.
+ *
+ * Long enough to read the two lines underneath without hurrying, which is the
+ * only thing this number has to be. Anything quicker turns the reading panel
+ * into a ticker.
+ */
+const AUTOPLAY_MS = 3600;
+
+/**
  * The longitudinal section: the drawing a surveyor makes along a route, ground
  * level plotted against distance. Here the distance is eight semesters.
  *
  * It is operable. Each semester is a hit zone, and selecting one moves the
  * marker and swaps the reading below, which is how the section carries eight
  * paragraphs of copy without showing eight paragraphs of copy.
+ *
+ * It also walks itself, which is how a reader who never touches it still sees
+ * that there are eight semesters rather than one. Three rules govern that:
+ *
+ * - It only runs while the section is actually on screen. A timer advancing a
+ *   drawing nobody is looking at is wasted work, and it means arriving at the
+ *   section to find it already halfway through.
+ * - Hovering or focusing the drawing pauses it, and leaving resumes. Reading
+ *   a semester should never be interrupted by the next one arriving.
+ * - Selecting a semester stops it for good. A pause is a hesitation; a click
+ *   is a decision, and walking on from someone's decision is the rudest thing
+ *   an autoplay can do.
  */
 export function LongitudinalProfile() {
   const [selected, setSelected] = useState(0);
+  /** The reader has chosen. The section stops walking, permanently. */
+  const [taken, setTaken] = useState(false);
+  /** Transient: a pointer is over the drawing, or focus is inside it. */
+  const [paused, setPaused] = useState(false);
+  const [onScreen, setOnScreen] = useState(false);
   const lineRef = useRef<SVGPathElement>(null);
   const fillRef = useRef<SVGPathElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -52,6 +78,37 @@ export function LongitudinalProfile() {
     return () => io.disconnect();
   }, []);
 
+  // Whether the section is on screen. Separate from the draw-on observer
+  // above, which disconnects after firing once; this one has to keep watching
+  // so the walk stops again when the reader scrolls away.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+
+    const io = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), {
+      // Most of the drawing, not a sliver of it: the section is tall, and a
+      // reader who can see only its bottom edge is not looking at it yet.
+      threshold: 0.45,
+    });
+
+    io.observe(svg);
+    return () => io.disconnect();
+  }, []);
+
+  // The walk itself.
+  useEffect(() => {
+    if (taken || paused || !onScreen) return;
+    // Motion that starts on its own is exactly what this setting asks to be
+    // spared. The section stays fully operable by hand.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const id = setInterval(
+      () => setSelected((current) => (current + 1) % semesters.length),
+      AUTOPLAY_MS,
+    );
+    return () => clearInterval(id);
+  }, [taken, paused, onScreen]);
+
   // Replay the swap animation whenever the reading changes.
   useEffect(() => {
     const el = readingRef.current;
@@ -60,6 +117,12 @@ export function LongitudinalProfile() {
     void el.offsetHeight;
     el.classList.add("swap");
   }, [selected]);
+
+  /** Selecting is a decision, not a hesitation: the walk ends here. */
+  function choose(index: number) {
+    setSelected(index);
+    setTaken(true);
+  }
 
   const current = semesters[selected];
   const marker = { x: g.boundaries[selected + 1], y: 0 };
@@ -83,6 +146,13 @@ export function LongitudinalProfile() {
         viewBox={`0 0 ${VIEW.width} ${VIEW.height}`}
         role="img"
         aria-label="A rising ground profile across eight semesters, with benchmark markers on each year boundary."
+        // Pointer events rather than mouse ones, so a touch that lands on the
+        // drawing pauses it too. Capture on focus, because the thing being
+        // focused is one of the eight hit zones, not the svg itself.
+        onPointerEnter={() => setPaused(true)}
+        onPointerLeave={() => setPaused(false)}
+        onFocusCapture={() => setPaused(true)}
+        onBlurCapture={() => setPaused(false)}
       >
         {/* horizontal grid, heaviest at the datum */}
         {[0, 1, 2, 3, 4].map((i) => {
@@ -221,11 +291,11 @@ export function LongitudinalProfile() {
             aria-label={`Semester ${i + 1}, ${s.title}`}
             aria-pressed={selected === i}
             className="cursor-pointer outline-none"
-            onClick={() => setSelected(i)}
+            onClick={() => choose(i)}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                setSelected(i);
+                choose(i);
               }
             }}
           >
@@ -255,7 +325,11 @@ export function LongitudinalProfile() {
 
       <div
         className="grid min-h-[86px] grid-cols-[78px_1fr] items-start gap-[18px] border-t border-line px-[18px] py-4"
-        aria-live="polite"
+        // Announced only once the reader is driving. Left polite, the walk
+        // would interrupt a screen reader with a fresh paragraph every few
+        // seconds for as long as the section stayed on screen, which is a
+        // worse experience than the one the autoplay is there to improve.
+        aria-live={taken ? "polite" : "off"}
       >
         <span className="pt-[3px] font-mono text-[10px] tracking-[0.1em] text-survey">
           {current.key}
