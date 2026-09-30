@@ -42,8 +42,10 @@ reference tokens through Tailwind utilities or `var(--…)`. `pnpm check:compone
 fails if a hex literal appears anywhere else, including in the generated social
 card, which reads the token layer at build time rather than carrying its own copy.
 
-`DESIGN.md` is written from the built result once the work is finished, not
-before, so it describes what shipped rather than what was intended.
+[`DESIGN.md`](DESIGN.md) describes what shipped: the tokens, the type split,
+the motion set, why the hero is what it is after two versions that failed, and
+what the design refuses. It is written from the built result, not from the
+brief, so it is worth re-reading before changing anything visual.
 
 There is no `/design-system` route. Under `output: export` a page cannot be
 excluded from production cleanly: `notFound()` still writes an HTML file, which
