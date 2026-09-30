@@ -30,14 +30,16 @@ const DIRECTION_CONTRACT = `<!--
 THESIS: Preparation is a distance, and Origan marks the ground the whole way. Refuses the
 edtech hero with its gradient, stock students and feature cards, and refuses the generic
 dark SaaS page, by committing to survey drawing as the page's working language.
-OWN-WORLD: Ink-green ground in three steps, contour linework marched from a height function
-at build time and drifting continuously, survey mint as the only saturated colour, two rule
-weights, 2-3px radii. Archivo for display, Azeret Mono for all notation. Bordered panels,
-never cards.
+OWN-WORLD: Ink-green ground in three steps, survey notation as linework, survey mint as the
+only saturated colour, two rule weights, 2-3px radii. Archivo for display, Azeret Mono for
+all notation. Bordered panels, never cards. Icons are drawn from survey marks, never taken
+from a general-purpose set.
 STORY: A dean reads four years as measured ground with named halts, operates the profile and
 the student surface, and asks for a conversation.
-FIRST VIEWPORT: Drifting contour field under a radial mask, 96px statement at lower left,
-two controls beneath it. A live chainage readout in the nav tracks scroll position.
+FIRST VIEWPORT: A triangulation figure set out in the right of the frame, about a dozen
+marks, with the headline holding the left. Two earlier versions filled the frame with ruled
+linework and both read as texture; density is the failure mode this refuses. A live chainage
+readout in the nav tracks scroll position.
 FORM: Survey and levelling notation. Candidate 5 of 7, chosen after an external roll.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
 -->`;
