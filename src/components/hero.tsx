@@ -1,42 +1,52 @@
-import { contourLines } from "@/lib/contours";
 import { hero } from "@/data/content";
-import { ContourField } from "./contour-field";
+import { FigureField } from "./figure-field";
 import { Reveal } from "./reveal";
 import { Action } from "./action";
-import { NorthArrow, ScaleBar } from "./survey-glyphs";
+import { NorthArrow } from "./survey-glyphs";
 
 /**
- * The first viewport is the drawing. Lines are marched here, on the server, so
- * they ship in the HTML and the page never appears without its field.
+ * The first viewport is the drawing, and the drawing is a triangulation
+ * figure: a dozen marks in the right of the frame, the rest of the sheet left
+ * empty for the headline.
  */
 export function Hero() {
-  const lines = contourLines({ width: 1440, height: 900 });
-
   return (
     <header
       id="top"
       className="relative flex min-h-[clamp(540px,88vh,880px)] flex-col justify-end overflow-hidden border-b border-line"
     >
-      <div className="absolute -inset-[8%]">
-        <ContourField lines={lines} />
+      {/* Only a little larger than the frame. The old field was oversized so
+          its texture ran off every edge; a figure that is placed wants to stay
+          where it was placed. */}
+      <div className="absolute -inset-[3%]">
+        <FigureField />
       </div>
 
-      {/* Protects the headline's contrast on the left while leaving the right
-          of the frame clear, which is where the summit and the final station
-          are. A radial wash centred behind the text smothered both. */}
-      <div className="absolute inset-0 bg-[linear-gradient(101deg,var(--color-ground)_0%,var(--color-ground)_26%,color-mix(in_srgb,var(--color-ground)_74%,transparent)_46%,transparent_74%)]" />
-      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,var(--color-ground),transparent)]" />
+      {/* The figure is set out clear of the words, so this is a guarantee
+          rather than the mechanism: a thin wash holding the headline's
+          contrast at viewport shapes the placement did not anticipate. A veil
+          heavy enough to carry the whole job is what made the earlier versions
+          look like linework behind frosted glass. */}
+      <div className="absolute inset-0 bg-[linear-gradient(104deg,var(--color-ground)_0%,color-mix(in_srgb,var(--color-ground)_50%,transparent)_34%,transparent_62%)]" />
 
-      {/* Drawing furniture. A plan carries its orientation and its scale in
-          the margin, and putting them here frames the whole page as a sheet. */}
+      {/* On a phone there is no "beside the headline" to put a drawing in: the
+          column is the whole width, so the figure and the type want the same
+          pixels. Rather than shrink the figure into decoration, it keeps the
+          top of the viewport and dissolves into the ground before the words
+          start. Above `md` the columns exist and this is not needed. */}
+      <div className="absolute inset-x-0 bottom-0 h-[58%] bg-[linear-gradient(to_top,var(--color-ground)_38%,color-mix(in_srgb,var(--color-ground)_88%,transparent)_68%,transparent)] md:hidden" />
+
+      {/* Drawing furniture. One mark, not two: the figure already carries a
+          measured datum, and the scale bar that used to sit down here was a
+          second scale saying the same thing in an emptier composition. */}
       <div className="pointer-events-none absolute right-[clamp(18px,4vw,60px)] top-[clamp(28px,6vw,72px)] hidden text-survey-2 md:block">
         <NorthArrow size={38} />
       </div>
-      <div className="pointer-events-none absolute right-[clamp(18px,4vw,60px)] bottom-[clamp(28px,4vw,50px)] hidden text-survey-2 lg:block">
-        <ScaleBar />
-      </div>
 
-      <div className="relative mx-auto w-full max-w-[1240px] px-[clamp(18px,4vw,60px)] pb-[clamp(24px,4vw,46px)]">
+      {/* Sits off the bottom rather than on it. The content used to end a few
+          pixels above the fold, which reads as the page having run out of room
+          rather than as a composition. */}
+      <div className="relative mx-auto w-full max-w-[1240px] px-[clamp(18px,4vw,60px)] pb-[clamp(78px,11vw,150px)]">
         <Reveal variant="label" className="notation">
           {hero.notation}
         </Reveal>
@@ -44,17 +54,14 @@ export function Hero() {
         <Reveal
           as="h1"
           variant="plot"
-          className="mt-4 max-w-[14ch] text-[clamp(38px,7.6vw,96px)] font-extrabold leading-[0.95] tracking-[-0.043em]"
+          className="mt-4 max-w-[13ch] text-[clamp(40px,7.6vw,100px)] font-extrabold leading-[0.94] tracking-[-0.045em]"
         >
           {hero.headline.before}
           <em className="not-italic text-survey">{hero.headline.accent}</em>
           {hero.headline.after}
         </Reveal>
 
-        <Reveal
-          as="p"
-          className="mt-5 max-w-[48ch] text-[clamp(16px,1.9vw,18.5px)] text-fg-2"
-        >
+        <Reveal as="p" className="mt-5 max-w-[44ch] text-[clamp(16px,1.9vw,18.5px)] text-fg-2">
           {hero.body}
         </Reveal>
 

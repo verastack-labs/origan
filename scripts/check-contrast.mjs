@@ -26,13 +26,14 @@ const pairs = [
   ["fg-2", "ground-2", 4.5, "secondary copy on a banded section"],
   ["fg-2", "panel", 4.5, "secondary copy inside a panel"],
   ["fg-3", "ground", 4.5, "notation labels on the page"],
+  ["fg-3", "ground-2", 4.5, "notation labels on a banded section"],
   ["fg-3", "panel", 4.5, "notation labels inside a panel"],
   ["survey", "ground", 4.5, "accent text and links"],
   ["survey", "ground-2", 4.5, "accent text on a banded section"],
   ["survey", "panel", 4.5, "accent text inside a panel"],
   ["survey-ink", "survey", 4.5, "label on the primary control"],
   ["warn", "panel", 4.5, "the warn tone inside a panel"],
-  ["survey-2", "ground", 3, "contour linework, a graphical boundary"],
+  ["survey-2", "ground", 3, "the surface model, a graphical boundary"],
   ["line", "ground", 1.2, "rules, which only need to be perceptible"],
 ];
 

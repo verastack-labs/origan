@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { strands } from "@/data/content";
+import { glyphs, type GlyphName } from "./survey-glyphs";
 
 /**
  * Four strands as a tab set rather than four stacked blocks. The page has to
@@ -21,6 +22,7 @@ export function Strands() {
   }, [active]);
 
   const current = strands[active];
+  const Mark = glyphs[current.glyph as GlyphName];
 
   return (
     <>
@@ -48,6 +50,9 @@ export function Strands() {
         className="grid min-h-[210px] grid-cols-1 gap-[18px] pt-[clamp(24px,3.4vw,40px)] lg:grid-cols-[1.25fr_0.75fr] lg:gap-[clamp(20px,4vw,52px)]"
       >
         <div>
+          <span className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-control border border-line text-survey">
+            <Mark size={21} />
+          </span>
           <h3 className="text-[clamp(21px,2.8vw,30px)] font-semibold tracking-[-0.026em]">
             {current.heading}
           </h3>

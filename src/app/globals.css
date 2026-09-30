@@ -7,7 +7,7 @@
  * `pnpm check:components` fails the build if a hex literal appears outside
  * this file.
  *
- * World: survey and levelling notation. Ink-green ground, contour linework,
+ * World: survey and levelling notation. Ink-green ground, a triangulation figure,
  * survey mint as the only saturated colour. Dark is not a category default
  * here: the page carries a drawing, and drawings on this subject are read as
  * light lines on a dark field.
@@ -176,6 +176,29 @@
     animation: swap 0.45s var(--ease-survey);
   }
 
+  /* Changing sheets. Short, and on the same curve as everything else, so a
+     navigation reads as part of the drawing set rather than as a page load. */
+  .sheet-change {
+    animation: sheet-change 0.42s var(--ease-survey) both;
+  }
+
+  /* Range arcs drifting in weight, on long and unequal periods so they never
+     come into step. Slow enough to read as light falling on a drawing rather
+     than as something animating, and the trough never reaches zero, because an
+     arc that disappears is a flicker. */
+  .range {
+    opacity: 0.5;
+    animation-name: range;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+
+  /* A mark added to the sheet after the traverse has been run: the checks and
+     the furniture, which are drawn once the route they refer to exists. */
+  .set-out {
+    animation: set-out 0.7s var(--ease-survey) both;
+  }
+
   /* A traverse station appears as the line reaches it. `both` holds the
      from-state through the delay, so this needs no JavaScript and no state:
      with the animation switched off the station is simply visible. */
@@ -231,6 +254,33 @@
   }
 }
 
+@keyframes sheet-change {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes range {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.78;
+  }
+}
+
+@keyframes set-out {
+  from {
+    opacity: 0;
+  }
+}
+
 @keyframes swap {
   from {
     opacity: 0;
@@ -254,6 +304,9 @@
 
   .swap,
   .station,
+  .range,
+  .set-out,
+  .sheet-change,
   .rv-plot[data-in="true"] .plot-ink,
   .rv-plot[data-in="true"] .plot-pen,
   .rv-label[data-in="true"] .plot-char {

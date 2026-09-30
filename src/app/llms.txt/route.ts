@@ -16,6 +16,13 @@ const body = `# ${site.name}
 
 ${site.name} is built by ${site.studio} in ${site.location}.
 
+## Pages
+
+- ${site.url}/ — the overview.
+- ${site.url}/product/ — what the platform is and what a student does with it.
+- ${site.url}/partnership/ — how the partnership is structured, the two
+  engagement modes, the term, and what is delivered when.
+
 ## What it is
 
 ${site.name} is a software placement preparation partnership sold to engineering

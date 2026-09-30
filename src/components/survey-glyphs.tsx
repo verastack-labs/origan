@@ -96,6 +96,118 @@ export function GlyphContours(props: GlyphProps) {
   );
 }
 
+/**
+ * Instrument on a tripod: the level or theodolite, set up over a point. The
+ * thing that actually takes a reading, which is why it stands for the person
+ * rather than for the platform.
+ */
+export function GlyphInstrument(props: GlyphProps) {
+  return (
+    <Frame {...props}>
+      <path d="M4 4.5h8" />
+      <path d="M8 4.5v2.5" />
+      <path d="M8 7l-4.5 6.5M8 7l4.5 6.5M8 7v6.5" />
+    </Frame>
+  );
+}
+
+/**
+ * Bench mark: the cut arrow with a bar across it, chiselled into something
+ * that will not move. A height everything else is measured from.
+ */
+export function GlyphBenchmark(props: GlyphProps) {
+  return (
+    <Frame {...props}>
+      <path d="M3.5 4.5h9" />
+      <path d="M8 4.5v4" />
+      <path d="M3.5 13l4.5-4.5 4.5 4.5" />
+    </Frame>
+  );
+}
+
+/** Field book: the ruled notebook a reading is written into on site. */
+export function GlyphFieldBook(props: GlyphProps) {
+  return (
+    <Frame {...props}>
+      <path d="M3.5 2.5h9v11h-9z" />
+      <path d="M6 2.5v11" />
+      <path d="M8 6h2.5M8 9h2.5" />
+    </Frame>
+  );
+}
+
+/** Legend: the key in the sheet's corner that says what each mark means. */
+export function GlyphLegend(props: GlyphProps) {
+  return (
+    <Frame {...props}>
+      <path d="M2.5 3.5h11v9h-11z" />
+      <circle cx="5.5" cy="6.5" r="1.1" fill="currentColor" stroke="none" />
+      <path d="M8 6.5h3" />
+      <path d="M4.4 9.8h2.2" />
+      <path d="M8 9.8h3" />
+    </Frame>
+  );
+}
+
+/** Sheet grid: a set divided into numbered panels. Cohorts, sections, batches. */
+export function GlyphGrid(props: GlyphProps) {
+  return (
+    <Frame {...props}>
+      <path d="M2.5 2.5h11v11h-11z" />
+      <path d="M8 2.5v11M2.5 8h11" />
+      <path d="M2.5 8h5.5v5.5h-5.5z" fill="currentColor" stroke="none" opacity={0.35} />
+    </Frame>
+  );
+}
+
+/** Bearing: a sight taken across distance, with the angle it was read at. */
+export function GlyphBearing(props: GlyphProps) {
+  return (
+    <Frame {...props}>
+      <circle cx="3.5" cy="12.5" r="1.3" fill="currentColor" stroke="none" />
+      <path d="M3.5 12.5L13 3.5" />
+      <path d="M3.5 12.5h7" strokeDasharray="1.6 1.6" />
+      <path d="M8.2 12.5a5 5 0 00-1.3-3.2" strokeWidth={1} />
+    </Frame>
+  );
+}
+
+/** Peg: a stake driven into the ground to hold a position on site. */
+export function GlyphPeg(props: GlyphProps) {
+  return (
+    <Frame {...props}>
+      <path d="M2 10.5h12" />
+      <path d="M8 2v8.5" />
+      <path d="M6.2 13.8L8 10.5l1.8 3.3z" />
+    </Frame>
+  );
+}
+
+/**
+ * Reciprocal observation: two instruments sighting each other so the error in
+ * one reading is cancelled by the other. A conversation, in survey terms.
+ */
+export function GlyphReciprocal(props: GlyphProps) {
+  return (
+    <Frame {...props}>
+      <circle cx="3" cy="4.5" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="13" cy="11.5" r="1.3" fill="currentColor" stroke="none" />
+      <path d="M4.6 6.2l6.6 4.2" />
+      <path d="M11.4 5.4L4.8 9.8" strokeDasharray="1.8 1.6" />
+    </Frame>
+  );
+}
+
+/** Chain: the measured line, one link per interval. Distance along a route. */
+export function GlyphChain(props: GlyphProps) {
+  return (
+    <Frame {...props}>
+      <path d="M1.5 8h13" />
+      <path d="M4 5.8v4.4M8 5.2v5.6M12 5.8v4.4" />
+    </Frame>
+  );
+}
+
 /** North arrow, for the hero's drawing furniture. */
 export function NorthArrow({ size = 34, className = "" }: GlyphProps) {
   return (
@@ -155,6 +267,50 @@ export function ScaleBar({ className = "" }: { className?: string }) {
         4 YRS
       </text>
     </svg>
+  );
+}
+
+/**
+ * The set, addressable by name, so `content.ts` can say which mark belongs to
+ * an item without importing a component into the copy.
+ */
+export const glyphs = {
+  traverse: GlyphTraverse,
+  staff: GlyphStaff,
+  sheet: GlyphSheet,
+  spotHeights: GlyphSpotHeights,
+  station: GlyphStation,
+  contours: GlyphContours,
+  instrument: GlyphInstrument,
+  benchmark: GlyphBenchmark,
+  fieldBook: GlyphFieldBook,
+  legend: GlyphLegend,
+  grid: GlyphGrid,
+  bearing: GlyphBearing,
+  peg: GlyphPeg,
+  reciprocal: GlyphReciprocal,
+  chain: GlyphChain,
+} as const;
+
+export type GlyphName = keyof typeof glyphs;
+
+/** Render a glyph by name, in a ruled square, the way a legend prints one. */
+export function Glyph({
+  name,
+  size = 17,
+  className = "text-survey",
+}: {
+  name: GlyphName;
+  size?: number;
+  className?: string;
+}) {
+  const Mark = glyphs[name];
+  return (
+    <span
+      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-control border border-line-2 ${className}`}
+    >
+      <Mark size={size} />
+    </span>
   );
 }
 

@@ -80,13 +80,32 @@ export function Reveal({
   }
 
   if (variant === "label" && typeof children === "string") {
+    // Split into words first, then characters inside each word, and stop a
+    // word from breaking. Every character is its own inline-block so it can be
+    // animated, and a browser will happily break a line between two of them:
+    // without this the notation wrapped as "PREPARATION F / OR ENGINEERING"
+    // on a phone.
+    const words = children.split(" ");
+    let printed = -1;
+
     return (
       <Tag ref={ref} className={cls} {...rest}>
         <span className="sr-only">{children}</span>
         <span aria-hidden="true">
-          {Array.from(children).map((ch, i) => (
-            <span key={i} className="plot-char" style={{ animationDelay: `${i * 16}ms` }}>
-              {ch === " " ? " " : ch}
+          {words.map((word, w) => (
+            <span key={w} className="inline-block whitespace-pre">
+              {Array.from(w < words.length - 1 ? `${word} ` : word).map((ch, i) => {
+                printed += 1;
+                return (
+                  <span
+                    key={i}
+                    className="plot-char"
+                    style={{ animationDelay: `${printed * 16}ms` }}
+                  >
+                    {ch}
+                  </span>
+                );
+              })}
             </span>
           ))}
         </span>
