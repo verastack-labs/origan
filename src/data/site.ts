@@ -44,9 +44,12 @@ export const form = {
  * and be forgotten in the other.
  */
 export const sheets = [
-  { href: "/", label: "Overview" },
-  { href: "/product/", label: "The platform" },
-  { href: "/partnership/", label: "The partnership" },
+  // `short` is what the floating bar uses below the breakpoint where the
+  // header's own page links appear. Three full labels do not fit across a
+  // phone, and a nav that does not fit is a nav that wraps or scrolls away.
+  { href: "/", label: "Overview", short: "Overview" },
+  { href: "/product/", label: "The platform", short: "Platform" },
+  { href: "/partnership/", label: "The partnership", short: "Partnership" },
 ] as const;
 
 /** The sheets other than the overview, which the sitemap adds separately. */

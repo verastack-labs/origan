@@ -33,6 +33,15 @@ describe("the drawing set", () => {
     expect(pages).toHaveLength(sheets.length - 1);
   });
 
+  it("gives every sheet a short label that fits a phone", () => {
+    // Below the header's breakpoint the floating bar carries these instead of
+    // the page links, and three long ones do not fit across 390px.
+    for (const sheet of sheets) {
+      expect(sheet.short.length, `${sheet.label} is too long for the bar`).toBeLessThanOrEqual(12);
+    }
+    expect(sheets.reduce((n, s) => n + s.short.length, 0)).toBeLessThanOrEqual(30);
+  });
+
   it("uses anchors, not routes, for sections", () => {
     for (const list of Object.values(sectionsByPath)) {
       for (const section of list) {

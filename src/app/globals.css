@@ -7,7 +7,7 @@
  * `pnpm check:components` fails the build if a hex literal appears outside
  * this file.
  *
- * World: survey and levelling notation. Ink-green ground, a surveyed surface model,
+ * World: survey and levelling notation. Ink-green ground, a triangulation figure,
  * survey mint as the only saturated colour. Dark is not a category default
  * here: the page carries a drawing, and drawings on this subject are read as
  * light lines on a dark field.
@@ -182,15 +182,21 @@
     animation: sheet-change 0.42s var(--ease-survey) both;
   }
 
-  /* A wave travelling through the surface model, from the horizon toward the
-     viewer. Each row runs the same cycle with its delay set from its depth, so
-     the brightening reads as one pass over the ground rather than as every
-     line pulsing at once. The trough never reaches zero: lines that vanish
-     make the terrain flicker instead of breathe. */
-  .wave {
-    animation-name: wave;
+  /* Range arcs drifting in weight, on long and unequal periods so they never
+     come into step. Slow enough to read as light falling on a drawing rather
+     than as something animating, and the trough never reaches zero, because an
+     arc that disappears is a flicker. */
+  .range {
+    opacity: 0.5;
+    animation-name: range;
     animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
+  }
+
+  /* A mark added to the sheet after the traverse has been run: the checks and
+     the furniture, which are drawn once the route they refer to exists. */
+  .set-out {
+    animation: set-out 0.7s var(--ease-survey) both;
   }
 
   /* A traverse station appears as the line reaches it. `both` holds the
@@ -259,13 +265,19 @@
   }
 }
 
-@keyframes wave {
+@keyframes range {
   0%,
   100% {
-    opacity: 0.45;
+    opacity: 0.3;
   }
   50% {
-    opacity: 1;
+    opacity: 0.78;
+  }
+}
+
+@keyframes set-out {
+  from {
+    opacity: 0;
   }
 }
 
@@ -292,7 +304,8 @@
 
   .swap,
   .station,
-  .wave,
+  .range,
+  .set-out,
   .sheet-change,
   .rv-plot[data-in="true"] .plot-ink,
   .rv-plot[data-in="true"] .plot-pen,

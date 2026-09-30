@@ -63,14 +63,27 @@ src/
 │   └── og.png/    social card, generated at build from the token layer
 ├── components/    one file per section, plus the survey glyph set
 ├── data/          every word and every illustrative value on the page
-└── lib/           pure geometry: the terrain, the surface mesh, the traverse,
-                   the profile, chainage
+└── lib/           pure geometry: the hero figure, the profile, chainage
 ```
 
 Three pages, one drawing set. `src/data/site.ts` holds the sheet list and the
 per-sheet section anchors; the header renders the sheets and the floating index
 at the foot renders the current sheet's sections. `src/data/site.test.ts` fails
 if a sheet is added to one and forgotten in the other.
+
+## The hero
+
+`src/lib/figure.ts` is a triangulation figure: four stations, the legs between
+them, two sights closing the figure, three range arcs and one measured datum.
+About a dozen marks, placed in the right of the frame so the headline has the
+left to itself.
+
+Two earlier versions, a contour field and then a surface mesh, both failed the
+same way: dozens of long lines across the whole frame, which is texture, and
+texture behind a headline is wallpaper however finely it is ruled. The tests in
+`figure.test.ts` hold the replacement to what made it work, including a cap on
+the number of marks and a check that the stations are never collinear, which is
+what makes the closing sights draw triangles rather than retrace the legs.
 
 ## Icons
 
