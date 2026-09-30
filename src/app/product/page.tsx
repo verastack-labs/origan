@@ -62,6 +62,9 @@ export default function Product() {
                 {product.practice.aptitude.label}
               </h3>
               <p className="mt-3 text-[16px] text-fg-2">{product.practice.aptitude.body}</p>
+              <p className="mt-4 border-t border-line-2 pt-3 font-mono text-[11px] leading-[1.5] text-fg-3">
+                {product.practice.aptitude.source}
+              </p>
             </div>
           </Reveal>
         </div>

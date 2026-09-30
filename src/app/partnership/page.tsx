@@ -115,7 +115,18 @@ export default function Partnership() {
             ))}
           </div>
 
-          <Reveal className="mt-[clamp(24px,3.4vw,44px)] max-w-[62ch] border-l border-warn/50 pl-5">
+          <Reveal className="mt-[clamp(24px,3.4vw,44px)] max-w-[66ch] rounded-panel border border-survey-2 bg-panel p-[clamp(22px,3vw,34px)]">
+            <h3 className="font-mono text-[10px] uppercase tracking-[0.11em] text-survey">
+              {partnership.accreditation.label}
+            </h3>
+            <p className="mt-3.5 text-[16px] text-fg-2">{partnership.accreditation.body}</p>
+            <p className="mt-3 text-[16px] text-fg-2">{partnership.accreditation.aside}</p>
+            <p className="mt-4 border-t border-line-2 pt-3 font-mono text-[11px] leading-[1.5] text-fg-3">
+              {partnership.accreditation.source}
+            </p>
+          </Reveal>
+
+          <Reveal className="mt-[clamp(20px,2.6vw,32px)] max-w-[62ch] border-l border-warn/50 pl-5">
             <h3 className="font-mono text-[10px] uppercase tracking-[0.11em] text-fg-3">
               {partnership.cost.heading}
             </h3>

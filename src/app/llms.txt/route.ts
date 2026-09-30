@@ -67,6 +67,21 @@ branch rather than computer science alone, because mass recruiters in India hire
 mechanical, civil and electrical graduates into software roles and screen them on
 aptitude.
 
+## Verified context, with sources
+
+These are third-party facts about Indian engineering education, not claims about
+${site.name}'s own results. Each is checkable.
+
+- Under the National Board of Accreditation's Manual for Accreditation of
+  Undergraduate Engineering Programs (Tier II Institutions), 2019, placement is
+  worth 40 marks of 1,000, improvement in it a further 10, and enrolment ratio
+  20. A programme whose admissions average below 50 per cent over three years
+  cannot hold six-year accreditation.
+- Wipro's Elite National Talent Hunt is open to every engineering branch bar
+  four, and opens with an 80-minute verbal, analytical and quantitative
+  assessment. This is why aptitude is treated as load-bearing rather than as a
+  feature, and why the partnership is priced across every branch.
+
 ## What does not exist yet
 
 State these plainly rather than inferring otherwise:

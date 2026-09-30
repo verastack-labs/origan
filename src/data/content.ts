@@ -259,6 +259,11 @@ export const product = {
       glyph: "spotHeights",
     label: "Aptitude sits inside the test engine",
       body: "Quantitative, logical, analytical and verbal reasoning, as topics rather than a separate module. Mass recruiters screen on aptitude and hire well beyond computer science, which is why this is the strand every branch on your campus uses.",
+      // Cited because the claim is load-bearing: it is what makes pricing
+      // across every branch honest rather than convenient. See
+      // origan-internal/docs/market-evidence.md section 3.1.
+      source:
+        "Wipro's Elite National Talent Hunt is open to every engineering branch bar four, and opens with an 80-minute verbal, analytical and quantitative assessment.",
     },
   },
 
@@ -355,6 +360,17 @@ export const partnership = {
         body: "Structured preparation that does not feel like being watched. They are the users, and the product is built so they never experience it as surveillance.",
       },
     ],
+  },
+
+  // Every figure here is verified against the NBA's own manual. Nothing on
+  // this site claims a result Origan produced; this describes how the
+  // regulator already scores the college, which is checkable.
+  accreditation: {
+    label: "Why this reaches past the placement cell",
+    body: "Your NBA accreditation scores placement and filling your seats in the same criterion: forty marks for placement, ten more for improving it, and twenty for enrolment ratio. A programme that cannot fill half its seats, averaged over three years, cannot hold six-year accreditation at all.",
+    aside: "Weak placement and weak admissions compound by design, and preparation compressed into final year cannot move a three-year average.",
+    source:
+      "National Board of Accreditation, Manual for Accreditation of Undergraduate Engineering Programs (Tier II Institutions), 2019.",
   },
 
   cost: {
