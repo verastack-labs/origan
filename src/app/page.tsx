@@ -4,20 +4,15 @@ import { LongitudinalProfile } from "@/components/longitudinal-profile";
 import { Strands } from "@/components/strands";
 import { ConsultantStats } from "@/components/consultant-stats";
 import { SurfaceStudy } from "@/components/surface-study";
-import { SiteNav } from "@/components/site-nav";
 import { Reveal } from "@/components/reveal";
 import { Action } from "@/components/action";
-import { TitleBlock } from "@/components/title-block";
+import { TalkSection } from "@/components/talk-section";
+import { h2, section, shell } from "@/components/page-head";
 import { close, consultant, datum } from "@/data/content";
-
-const shell = "mx-auto max-w-[1240px] px-[clamp(18px,4vw,60px)]";
-const section = "py-[clamp(60px,8.5vw,120px)]";
-const h2 = "mt-3.5 max-w-[17ch] text-[clamp(27px,4.6vw,50px)] font-bold leading-[1.05] tracking-[-0.035em]";
 
 export default function Home() {
   return (
     <>
-      <SiteNav />
       <Hero />
 
       <div className={shell}>
@@ -93,9 +88,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="talk" className={`border-t border-line bg-ground-2 ${section} pb-0`}>
+      <section className={section}>
         <div className={shell}>
-          <Reveal variant="label" className="notation">Establishing the partnership</Reveal>
+          <Reveal variant="label" className="notation">The terms, in short</Reveal>
           <Reveal as="h2" variant="plot" className={h2}>
             {close.heading}
           </Reveal>
@@ -108,12 +103,10 @@ export default function Home() {
               {close.secondary.label}
             </Action>
           </Reveal>
-
-          <footer className="pb-[clamp(44px,6vw,80px)]">
-            <TitleBlock />
-          </footer>
         </div>
       </section>
+
+      <TalkSection />
     </>
   );
 }

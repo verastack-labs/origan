@@ -8,16 +8,17 @@ import { site } from "@/data/site";
  * technical work read as expensive. Every field here is true. There is no
  * client line, because there is no client yet.
  */
-const fields = [
-  { k: "Project", v: site.name },
-  { k: "Sheet", v: "Institutional prospectus" },
-  { k: "Drawn", v: site.studio },
-  { k: "Datum", v: "First semester" },
-  { k: "Scale", v: "Four years" },
-  { k: "Location", v: site.location },
-] as const;
+/** Every sheet in a set carries the same block; only the sheet name changes. */
+export function TitleBlock({ sheet = "Institutional prospectus" }: { sheet?: string }) {
+  const fields = [
+    { k: "Project", v: site.name },
+    { k: "Sheet", v: sheet },
+    { k: "Drawn", v: site.studio },
+    { k: "Datum", v: "First semester" },
+    { k: "Scale", v: "Four years" },
+    { k: "Location", v: site.location },
+  ];
 
-export function TitleBlock() {
   return (
     <div className="mt-[clamp(44px,6vw,80px)] overflow-hidden rounded-panel border border-line">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6">

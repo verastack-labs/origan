@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contourLines, height, SUMMIT } from "./contours";
-
-const opts = { width: 400, height: 300 };
+import { height, SUMMIT } from "./contours";
 
 describe("height", () => {
   it("is deterministic", () => {
@@ -24,46 +22,9 @@ describe("height", () => {
         if (v > max) max = v;
       }
     }
-    // Must sit inside the `from`/`to` defaults in contourLines.
+    // The mesh scales relief by these bounds, so a runaway value would
+    // push a row off the sheet.
     expect(min).toBeGreaterThan(-1.7);
     expect(max).toBeLessThan(2.7);
-  });
-});
-
-describe("contourLines", () => {
-  it("produces lines", () => {
-    expect(contourLines(opts).length).toBeGreaterThan(5);
-  });
-
-  it("indexes every fourth line as major", () => {
-    const lines = contourLines(opts);
-    expect(lines.some((l) => l.major)).toBe(true);
-    expect(lines.some((l) => !l.major)).toBe(true);
-  });
-
-  it("emits valid path data, starting with a moveto", () => {
-    for (const line of contourLines(opts)) {
-      expect(line.d.startsWith("M")).toBe(true);
-      expect(line.d).not.toMatch(/NaN|Infinity|undefined/);
-    }
-  });
-
-  it("is deterministic, so server and client renders agree", () => {
-    expect(contourLines(opts)).toEqual(contourLines(opts));
-  });
-
-  it("gets denser as the interval shrinks", () => {
-    const coarse = contourLines({ ...opts, interval: 0.5 });
-    const fine = contourLines({ ...opts, interval: 0.1 });
-    expect(fine.length).toBeGreaterThan(coarse.length);
-  });
-
-  it("never emits a point outside the field", () => {
-    for (const line of contourLines(opts)) {
-      for (const [, , xs, ys] of line.d.matchAll(/([ML])([\d.]+) ([\d.]+)/g)) {
-        expect(Number(xs)).toBeLessThanOrEqual(opts.width);
-        expect(Number(ys)).toBeLessThanOrEqual(opts.height);
-      }
-    }
   });
 });

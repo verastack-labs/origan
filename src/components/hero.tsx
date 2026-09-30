@@ -1,16 +1,17 @@
-import { contourLines } from "@/lib/contours";
+import { meshColumns, meshRows } from "@/lib/mesh";
 import { hero } from "@/data/content";
-import { ContourField } from "./contour-field";
+import { SurfaceField } from "./surface-field";
 import { Reveal } from "./reveal";
 import { Action } from "./action";
 import { NorthArrow, ScaleBar } from "./survey-glyphs";
 
 /**
- * The first viewport is the drawing. Lines are marched here, on the server, so
- * they ship in the HTML and the page never appears without its field.
+ * The first viewport is the drawing. The surface is built here, on the server,
+ * so it ships in the HTML and the page never appears without its ground.
  */
 export function Hero() {
-  const lines = contourLines({ width: 1440, height: 900 });
+  const rows = meshRows();
+  const columns = meshColumns();
 
   return (
     <header
@@ -18,14 +19,16 @@ export function Hero() {
       className="relative flex min-h-[clamp(540px,88vh,880px)] flex-col justify-end overflow-hidden border-b border-line"
     >
       <div className="absolute -inset-[8%]">
-        <ContourField lines={lines} />
+        <SurfaceField rows={rows} columns={columns} />
       </div>
 
-      {/* Protects the headline's contrast on the left while leaving the right
-          of the frame clear, which is where the summit and the final station
-          are. A radial wash centred behind the text smothered both. */}
-      <div className="absolute inset-0 bg-[linear-gradient(101deg,var(--color-ground)_0%,var(--color-ground)_26%,color-mix(in_srgb,var(--color-ground)_74%,transparent)_46%,transparent_74%)]" />
-      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,var(--color-ground),transparent)]" />
+      {/* The surface is framed to leave this corner empty, so these are a
+          guarantee rather than the mechanism: a thin wash that holds the
+          headline's contrast at viewport shapes the framing did not anticipate.
+          A veil heavy enough to carry the whole job is what made the previous
+          version look like linework behind frosted glass. */}
+      <div className="absolute inset-0 bg-[linear-gradient(104deg,var(--color-ground)_0%,color-mix(in_srgb,var(--color-ground)_55%,transparent)_30%,transparent_58%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-2/5 bg-[linear-gradient(to_top,var(--color-ground)_16%,transparent)]" />
 
       {/* Drawing furniture. A plan carries its orientation and its scale in
           the margin, and putting them here frames the whole page as a sheet. */}
@@ -44,7 +47,7 @@ export function Hero() {
         <Reveal
           as="h1"
           variant="plot"
-          className="mt-4 max-w-[14ch] text-[clamp(38px,7.6vw,96px)] font-extrabold leading-[0.95] tracking-[-0.043em]"
+          className="mt-4 max-w-[13ch] text-[clamp(40px,8vw,104px)] font-extrabold leading-[0.94] tracking-[-0.045em]"
         >
           {hero.headline.before}
           <em className="not-italic text-survey">{hero.headline.accent}</em>

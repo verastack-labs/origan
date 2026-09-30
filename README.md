@@ -57,12 +57,42 @@ useful part of that page.
 scripts/           check:contrast and check:components, with their own tests
 src/
 ├── app/           routes. globals.css is the token layer
+│   ├── partnership/  how the partnership is structured
+│   ├── product/      what the platform is
 │   ├── llms.txt/  a plain-text brief for answer engines
 │   └── og.png/    social card, generated at build from the token layer
 ├── components/    one file per section, plus the survey glyph set
 ├── data/          every word and every illustrative value on the page
-└── lib/           pure geometry: contours, the traverse, the profile, chainage
+└── lib/           pure geometry: the terrain, the surface mesh, the traverse,
+                   the profile, chainage
 ```
+
+Three pages, one drawing set. `src/data/site.ts` holds the sheet list and the
+per-sheet section anchors; the header renders the sheets and the floating index
+at the foot renders the current sheet's sections. `src/data/site.test.ts` fails
+if a sheet is added to one and forgotten in the other.
+
+## Icons
+
+Icons are drawn in `src/components/survey-glyphs.tsx` from survey and levelling
+notation: a traverse, a levelling staff, a bench mark, a peg, a reciprocal
+observation. A general-purpose icon set would put a generic book and a generic
+user next to copy that spent its whole length establishing a different world,
+which is the one thing this design refuses. `lucide-react` is installed for
+ordinary interface furniture where a generic mark is the correct one.
+
+## The enquiry form
+
+Posts to Web3Forms, because a static export has no server. The access key and
+the hCaptcha site key in `src/data/site.ts` are both public by design and are
+committed deliberately, not leaked: the key names a destination inbox and the
+site key's secret half never leaves Web3Forms. Domain restriction is a paid
+feature there, so what actually guards the inbox is the hCaptcha token, which
+they verify server side, plus a 250-a-month cap.
+
+hCaptcha must also be selected as the captcha in the Web3Forms dashboard. The
+markup alone does nothing; the endpoint ignores the token unless the form is
+configured to require one.
 
 ## Deployment
 

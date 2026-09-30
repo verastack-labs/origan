@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 const base =
@@ -17,8 +18,17 @@ export function Action({
   tone?: keyof typeof tones;
   children: ReactNode;
 }) {
-  return (
-    <a href={href} className={`${base} ${tones[tone]}`}>
+  const className = `${base} ${tones[tone]}`;
+
+  // A route needs the router to prefix `basePath`; the site is served from
+  // `/origan`, so a bare anchor would send the reader to the domain root.
+  // An in-page anchor must stay a plain anchor so smooth scrolling still works.
+  return href.startsWith("/") ? (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
+  ) : (
+    <a href={href} className={className}>
       {children}
     </a>
   );

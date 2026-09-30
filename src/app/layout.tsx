@@ -3,6 +3,9 @@ import type { ReactNode } from "react";
 import { Archivo, Azeret_Mono } from "next/font/google";
 import { site } from "@/data/site";
 import { JsonLd } from "@/components/json-ld";
+import { SiteNav } from "@/components/site-nav";
+import { SectionIndex } from "@/components/section-index";
+import { PageTransition } from "@/components/page-transition";
 import "./globals.css";
 
 /**
@@ -97,7 +100,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             audited against the render rather than only against intent. */}
         <div hidden dangerouslySetInnerHTML={{ __html: DIRECTION_CONTRACT }} />
         <JsonLd />
-        {children}
+        {/* The header and the section index live here rather than in each
+            page, so navigating between sheets does not tear them down and
+            rebuild them. Only the content between them changes. */}
+        <SiteNav />
+        <PageTransition>{children}</PageTransition>
+        <SectionIndex />
       </body>
     </html>
   );
