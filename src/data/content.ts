@@ -134,7 +134,7 @@ export const consultant = {
   stats: [
     { value: "5 – 10", countTo: 10, prefix: "5 – ", label: "Student conversations per campus day" },
     { value: "8", countTo: 8, label: "Semesters the partnership covers" },
-    { value: "2wk", countTo: 2, suffix: "wk", label: "Between reports to your placement cell" },
+    { value: "2 – 4wk", countTo: 4, prefix: "2 – ", suffix: "wk", label: "Between reports to your placement cell" },
     { value: "1 college", countTo: 1, suffix: " college", label: "Each consultant's roadmap is shaped for" },
   ],
 } as const;
