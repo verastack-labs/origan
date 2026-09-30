@@ -215,6 +215,7 @@ export const enquiry = {
   sent: "Thank you. This reaches Rigan directly, and you will hear back within two working days.",
   assurance: "Goes to one inbox. No mailing list.",
   awaitingCaptcha: "Complete the check above to send.",
+  captchaPending: "A human check appears here once you start.",
   failed: "That did not send. Please write to",
   fallbackEmail: "therealriganb@gmail.com",
 } as const;

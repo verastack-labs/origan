@@ -49,7 +49,7 @@ export function SiteNav() {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-line-2 bg-ground/85 backdrop-blur-[10px]">
+    <nav className="sticky top-0 z-50 border-b border-line-2 bg-ground md:bg-ground/85 md:backdrop-blur-[10px]">
       {/* Three tracks of equal weight, so the centre column is centred against
           the viewport rather than against whatever the sides happen to
           measure. */}

@@ -1,12 +1,23 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { useId, useState } from "react";
+import dynamic from "next/dynamic";
 import { form as endpoint } from "@/data/site";
 import { submissionBody } from "@/lib/enquiry";
 import { enquiry } from "@/data/content";
 
 type State = "idle" | "sending" | "sent" | "error";
+
+/**
+ * Loaded only once a reader touches the form.
+ *
+ * hCaptcha costs about 64KB of wrapper plus its own third-party script and an
+ * iframe, and it was being paid on every page load by every visitor, almost
+ * none of whom ever fill this in. Deferring it is the single biggest thing on
+ * this site's mobile performance. `ssr: false` because it cannot render on a
+ * server that does not exist in a static export anyway.
+ */
+const HCaptcha = dynamic(() => import("@hcaptcha/react-hcaptcha"), { ssr: false });
 
 const control =
   "w-full rounded-control border border-line bg-ground px-3.5 py-3 text-[15.5px] text-fg transition-colors placeholder:text-fg-3 focus:border-survey-2 disabled:opacity-60";
@@ -27,7 +38,20 @@ export function EnquiryForm() {
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState("");
   const [token, setToken] = useState("");
-  const captcha = useRef<HCaptcha>(null);
+  /**
+   * The reader has engaged with the form, so the captcha is now worth its
+   * weight. Set on first focus rather than on submit: the widget needs to be
+   * mounted and solved before the button can enable, so waiting until they
+   * press it would strand them.
+   */
+  const [engaged, setEngaged] = useState(false);
+  /**
+   * Bumped to remount the widget after a failed send. A token is single use,
+   * so without a fresh one the second attempt is rejected as a replay and the
+   * reader is stuck in a loop. Remounting is what the widget's own reset does,
+   * and it needs no ref, which `next/dynamic` does not forward cleanly anyway.
+   */
+  const [captchaKey, setCaptchaKey] = useState(0);
   const id = useId();
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -52,9 +76,7 @@ export function EnquiryForm() {
       // the message below gives them the address to write to directly.
       setError(cause instanceof Error ? cause.message : "Unknown error");
       setState("error");
-      // A token is single use. Without this reset, a second attempt after any
-      // failure is rejected as a replay and the reader is stuck in a loop.
-      captcha.current?.resetCaptcha();
+      setCaptchaKey((n) => n + 1);
       setToken("");
     }
   }
@@ -72,7 +94,13 @@ export function EnquiryForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-7 max-w-[560px]" noValidate={false}>
+    <form
+      onSubmit={onSubmit}
+      className="mt-7 max-w-[560px]"
+      noValidate={false}
+      onFocusCapture={() => setEngaged(true)}
+      onPointerDownCapture={() => setEngaged(true)}
+    >
       {/* Web3Forms drops any submission that fills this in. It is hidden from
           sight and from assistive technology, so only a script finds it. */}
       <input
@@ -124,17 +152,27 @@ export function EnquiryForm() {
       {/* hCaptcha. Web3Forms verifies the token server side, so this is the
           check that actually protects the inbox; the honeypot above only
           catches the laziest scripts. The widget is rendered rather than
-          script-injected so React owns when it mounts and resets. */}
-      <div className="mt-6">
-        <HCaptcha
-          ref={captcha}
-          sitekey={endpoint.captchaSiteKey}
-          reCaptchaCompat={false}
-          theme="dark"
-          onVerify={setToken}
-          onExpire={() => setToken("")}
-          onError={() => setToken("")}
-        />
+          script-injected so React owns when it mounts and resets.
+
+          The box keeps its height whether or not the widget has loaded, so
+          arriving at the form does not shift the button out from under a
+          thumb that was already reaching for it. */}
+      <div className="mt-6 min-h-[78px]">
+        {engaged ? (
+          <HCaptcha
+            key={captchaKey}
+            sitekey={endpoint.captchaSiteKey}
+            reCaptchaCompat={false}
+            theme="dark"
+            onVerify={setToken}
+            onExpire={() => setToken("")}
+            onError={() => setToken("")}
+          />
+        ) : (
+          <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-fg-3">
+            {enquiry.captchaPending}
+          </p>
+        )}
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">

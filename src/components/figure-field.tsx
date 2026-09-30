@@ -52,6 +52,10 @@ export function FigureField() {
   // nothing to cue: the whole figure is on one sheet and should move as one.
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // A phone has no pointer to follow, so this loop would run every frame
+    // forever and move nothing. It was pure main-thread cost on exactly the
+    // devices that can least afford it.
+    if (!window.matchMedia("(pointer: fine)").matches) return;
 
     const g = plane.current;
     if (!g) return;
@@ -75,10 +79,22 @@ export function FigureField() {
       frame = requestAnimationFrame(tick);
     };
 
-    frame = requestAnimationFrame(tick);
+    // Only while the hero is on screen. Once it has scrolled away the loop is
+    // animating something nobody can see, for the rest of the visit.
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !frame) {
+        frame = requestAnimationFrame(tick);
+      } else if (!entry.isIntersecting && frame) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      }
+    });
+    io.observe(g);
+
     window.addEventListener("pointermove", onPointer, { passive: true });
     return () => {
-      cancelAnimationFrame(frame);
+      io.disconnect();
+      if (frame) cancelAnimationFrame(frame);
       window.removeEventListener("pointermove", onPointer);
     };
   }, []);

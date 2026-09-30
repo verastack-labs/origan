@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { sectionsByPath, sheets } from "@/data/site";
 
 const pill =
-  "pointer-events-auto flex items-center gap-0.5 rounded-panel border border-line bg-ground/90 p-1 backdrop-blur-[10px]";
+  "pointer-events-auto flex items-center gap-0.5 rounded-panel border border-line bg-ground p-1 md:bg-ground/90 md:backdrop-blur-[10px]";
 const item =
   "flex items-center gap-2 rounded-control px-3 py-2 text-[13px] transition-colors sm:px-3.5";
 
