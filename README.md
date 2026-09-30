@@ -67,9 +67,11 @@ src/
 ```
 
 Three pages, one drawing set. `src/data/site.ts` holds the sheet list and the
-per-sheet section anchors; the header renders the sheets and the floating index
-at the foot renders the current sheet's sections. `src/data/site.test.ts` fails
-if a sheet is added to one and forgotten in the other.
+per-sheet section anchors. The header renders the sheets and the floating bar
+at the foot renders the current sheet's sections, except below `md`, where the
+header has no room for three page labels and the bar carries the sheets
+instead. `src/data/site.test.ts` fails if a sheet is added to one list and
+forgotten in the other.
 
 ## The hero
 
