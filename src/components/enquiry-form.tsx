@@ -3,6 +3,7 @@
 import { useId, useRef, useState } from "react";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { form as endpoint } from "@/data/site";
+import { submissionBody } from "@/lib/enquiry";
 import { enquiry } from "@/data/content";
 
 type State = "idle" | "sending" | "sent" | "error";
@@ -36,11 +37,7 @@ export function EnquiryForm() {
     setState("sending");
     setError("");
 
-    const data = new FormData(event.currentTarget);
-    data.append("access_key", endpoint.key);
-    data.append("subject", "Origan enquiry from a college");
-    data.append("from_name", "Origan");
-    data.append("h-captcha-response", token);
+    const data = submissionBody(new FormData(event.currentTarget), token);
 
     try {
       const response = await fetch(endpoint.endpoint, { method: "POST", body: data });
