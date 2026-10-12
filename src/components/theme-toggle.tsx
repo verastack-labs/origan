@@ -51,12 +51,12 @@ export function ThemeToggle() {
       onClick={() => apply(next)}
       aria-label={`Switch to ${next} theme`}
       title={`Switch to ${next} theme`}
-      className="inline-flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-control border border-line text-fg-2 transition-colors hover:border-survey-2 hover:text-survey"
+      className="inline-flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-control border border-line text-fg transition-colors hover:border-survey-2 hover:text-survey"
     >
       {theme === "dark" ? (
-        <Sun size={15} strokeWidth={1.6} aria-hidden="true" />
+        <Sun size={16} strokeWidth={1.9} aria-hidden="true" />
       ) : (
-        <Moon size={15} strokeWidth={1.6} aria-hidden="true" />
+        <Moon size={16} strokeWidth={1.9} aria-hidden="true" />
       )}
     </button>
   );
