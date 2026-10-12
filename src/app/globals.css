@@ -359,6 +359,21 @@
   }
 }
 
+/*
+ * hCaptcha's picture challenge. hCaptcha appends it to <body> in an absolutely
+ * positioned container with an inline z-index of -2147483648, the lowest layer
+ * there is, so any overlay with a positive z-index, the interest dialog
+ * included, covers it and the challenge cannot be clicked. Lifting it here
+ * makes the order independent of what hCaptcha sets inline. Matched on the
+ * challenge frame's own URL fragment (`#frame=challenge`), never its title:
+ * the checkbox widget's title also contains the word "challenge". A hidden
+ * challenge is offscreen and invisible, so this changes nothing until one
+ * opens.
+ */
+body > div:has(> div > iframe[src*="hcaptcha.com"][src*="frame=challenge"]) {
+  z-index: 2147483647 !important;
+}
+
 @keyframes register-in {
   from {
     opacity: 0;
