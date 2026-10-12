@@ -99,6 +99,17 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* Tailwind v4 dropped the pointer cursor from buttons, so every control
+     built as a <button> (each "Register your interest", the theme switch,
+     the tabs) showed the plain arrow while links showed the hand. Restored
+     for anything clickable, and never for a control that is disabled. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+
   /* This surface is public, so focus is always visible. */
   :focus-visible {
     outline: 2px solid var(--color-survey);
