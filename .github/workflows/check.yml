@@ -32,5 +32,5 @@ jobs:
       # than on the deploy that follows the merge.
       - name: Build
         env:
-          NEXT_PUBLIC_BASE_PATH: /origan
+          NEXT_PUBLIC_BASE_PATH: ""
         run: pnpm build

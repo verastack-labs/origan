@@ -119,11 +119,15 @@ because this is the only workflow whose output the public sees.
 
 ## Search Console
 
-The property `https://verastack-labs.github.io/origan/` is verified, automatically,
-by inheriting the already-verified parent property for the host. No verification
-tag was needed. The `GOOGLE_SITE_VERIFICATION` repository variable is still wired
-up and stays unset: it would be needed if this ever moves to its own domain,
-where there is no verified parent to inherit from.
+The site moved to its own domain, `https://origan.verastack.dev/`, on 12 October
+2026. If `verastack.dev` is verified as a Domain property in Search Console, this
+subdomain is covered by it and needs nothing further. If not, add
+`https://origan.verastack.dev/` as a URL-prefix property and set the
+`GOOGLE_SITE_VERIFICATION` repository variable to the tag Google gives you; the
+workflow already passes it through, and it is omitted while unset.
+
+The old addresses, `verastack-labs.github.io/origan/` and
+`verastack.dev/origan/`, redirect here.
 
 **`robots.txt` here is decorative.** Crawlers only read it from the host root,
 `https://verastack-labs.github.io/robots.txt`, which is served by the org site

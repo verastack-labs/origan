@@ -6,7 +6,7 @@ export const site = {
   tagline: "Four years of preparation for software placements",
   description:
     "A software placement preparation partnership for engineering colleges. A Campus Coach on your campus, a platform your students use from their first semester, and a record of everything covered between entry and placement.",
-  url: "https://verastack-labs.github.io/origan",
+  url: "https://origan.verastack.dev",
   studio: "VeraStack Labs",
   studioUrl: "https://verastack-labs.github.io",
   location: "Indiranagar, Bangalore",
