@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { sectionsByPath, sheets } from "@/data/site";
 
 const pill =
@@ -18,10 +18,15 @@ const item =
  * secondary axis: where you are on the sheet you are holding, with each
  * station mark filling as you reach it.
  *
- * Narrow, and the header cannot fit three page labels beside a wordmark and a
+ * Narrow, and the header cannot fit the page labels beside a wordmark and a
  * call to action, so it drops them. This bar takes them over. That is not a
  * nicety: with the pages hidden above and sections shown here, a reader on a
- * phone had no route to the other two sheets at all.
+ * phone had no route to the other sheets at all.
+ *
+ * Six sheets do not fit across a phone as a row, and a row that wraps or
+ * scrolls sideways hides exactly the pages it exists to show. So the bar
+ * becomes a drawing register: one control naming the sheet you are on, which
+ * opens the full list of sheets above it.
  */
 export function SectionIndex() {
   const pathname = usePathname();
@@ -86,32 +91,13 @@ export function SectionIndex() {
       inert={atTalk || undefined}
     >
       {/* The pages, only while the header is too narrow to carry them. */}
-      <nav aria-label="Pages" className="md:hidden">
-        <ol className={pill}>
-          {sheets.map((sheet) => {
-            const current = here === sheet.href;
-
-            return (
-              <li key={sheet.href}>
-                <Link
-                  href={sheet.href}
-                  aria-current={current ? "page" : undefined}
-                  className={`${item} ${
-                    current ? "bg-panel-2 text-fg" : "text-fg-2 hover:bg-panel hover:text-fg"
-                  }`}
-                >
-                  <Mark filled={current} />
-                  {sheet.short}
-                </Link>
-              </li>
-            );
-          })}
-        </ol>
-      </nav>
+      {/* Keyed on the route, so arriving on a new sheet starts with the
+          register closed rather than closing it from an effect. */}
+      <Register key={here} here={here} />
 
       {/* The sections of the page you are on, once the header has the pages. */}
       {sections.length > 0 && (
-        <nav aria-label="Sections on this page" className="hidden md:block">
+        <nav aria-label="Sections on this page" className="hidden lg:block">
           <ol className={pill}>
             {sections.map((section, i) => {
               const current = active === i;
@@ -147,5 +133,108 @@ function Mark({ filled }: { filled: boolean }) {
         filled ? "border-survey bg-survey" : "border-line-2 bg-transparent"
       }`}
     />
+  );
+}
+
+/**
+ * The drawing register: the list of every sheet in the set, the way a drawing
+ * package opens. Closed, it names the sheet in hand. Open, it lists them all.
+ */
+function Register({ here }: { here: string }) {
+  const [open, setOpen] = useState(false);
+  const id = useId();
+  const box = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const index = Math.max(
+    0,
+    sheets.findIndex((sheet) => sheet.href === here),
+  );
+  const current = sheets[index];
+
+  useEffect(() => {
+    if (!open) return;
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      button.current?.focus();
+    };
+    const onPointer = (event: PointerEvent) => {
+      if (!box.current?.contains(event.target as Node)) setOpen(false);
+    };
+
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
+    };
+  }, [open]);
+
+  return (
+    <nav aria-label="Pages" className="lg:hidden">
+      <div ref={box} className="pointer-events-auto relative">
+        {open && (
+          <ol
+            id={id}
+            className="swap absolute inset-x-0 bottom-full mb-2 min-w-[240px] rounded-panel border border-line bg-ground p-1"
+          >
+            {sheets.map((sheet, i) => {
+              const isHere = sheet.href === current.href;
+
+              return (
+                <li key={sheet.href}>
+                  <Link
+                    href={sheet.href}
+                    aria-current={isHere ? "page" : undefined}
+                    className={`${item} w-full justify-between ${
+                      isHere ? "bg-panel-2 text-fg" : "text-fg-2 hover:bg-panel hover:text-fg"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Mark filled={isHere} />
+                      {sheet.label}
+                    </span>
+                    <span className="font-mono text-[10px] tabular-nums text-fg-3">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+
+        <div className={pill}>
+          <button
+            ref={button}
+            type="button"
+            aria-expanded={open}
+            aria-controls={open ? id : undefined}
+            onClick={() => setOpen((v) => !v)}
+            className={`${item} min-w-[220px] justify-between text-fg hover:bg-panel`}
+          >
+            <span className="flex items-center gap-2">
+              <Mark filled />
+              {current.label}
+            </span>
+            <span className="flex items-center gap-2 font-mono text-[10px] tabular-nums text-fg-3">
+              <span>
+                Sheet {index + 1} of {sheets.length}
+              </span>
+              <svg
+                width="9"
+                height="9"
+                viewBox="0 0 9 9"
+                aria-hidden="true"
+                className={`transition-transform duration-200 ease-survey ${open ? "" : "rotate-180"}`}
+              >
+                <path d="M1 6l3.5-3.5L8 6" fill="none" stroke="currentColor" strokeWidth="1.2" />
+              </svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </nav>
   );
 }

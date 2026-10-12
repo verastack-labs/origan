@@ -36,3 +36,20 @@ export function parseTokens(css) {
     [...css.matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})/g)].map((m) => [m[1], m[2]]),
   );
 }
+
+/**
+ * Both palettes. Light is the `@theme` block; dark is the
+ * `:root[data-theme="dark"]` block laid over it, so a token dark does not
+ * redefine falls back to its light value exactly as the browser would.
+ */
+export function parseThemes(css) {
+  const block = (marker) => {
+    const at = css.indexOf(marker);
+    if (at === -1) return "";
+    const open = css.indexOf("{", at);
+    return css.slice(open + 1, css.indexOf("}", open));
+  };
+  const light = parseTokens(block("@theme"));
+  const dark = { ...light, ...parseTokens(block(':root[data-theme="dark"]')) };
+  return { light, dark };
+}

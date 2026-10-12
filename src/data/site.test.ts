@@ -33,13 +33,12 @@ describe("the drawing set", () => {
     expect(pages).toHaveLength(sheets.length - 1);
   });
 
-  it("gives every sheet a short label that fits a phone", () => {
-    // Below the header's breakpoint the floating bar carries these instead of
-    // the page links, and three long ones do not fit across 390px.
+  it("gives every sheet a label that fits the register button on a phone", () => {
+    // Below the header's breakpoint the current sheet's label shares one button
+    // with "Sheet n of 6" across a 343px column. Longer than this and it wraps.
     for (const sheet of sheets) {
-      expect(sheet.short.length, `${sheet.label} is too long for the bar`).toBeLessThanOrEqual(12);
+      expect(sheet.label.length, `${sheet.label} is too long for the register`).toBeLessThanOrEqual(16);
     }
-    expect(sheets.reduce((n, s) => n + s.short.length, 0)).toBeLessThanOrEqual(30);
   });
 
   it("uses anchors, not routes, for sections", () => {

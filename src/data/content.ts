@@ -12,7 +12,7 @@ export const hero = {
   // sentence: the first viewport is carrying a drawing, and a headline that
   // runs to four lines buries it.
   headline: { before: "We mark the ", accent: "ground", after: ", all four years." },
-  body: "A consultant on your campus, and a platform your students use from first semester to final drive.",
+  body: "A Campus Coach on your campus, and a platform your students use from first semester to final drive.",
   primary: { label: "Request a conversation", href: "#talk" },
   secondary: { label: "See the four years", href: "#profile" },
 } as const;
@@ -47,7 +47,7 @@ export const semesters = [
   {
     key: "S5",
     title: "Depth",
-    body: "Framework and project work. The roadmap has diverged meaningfully by now, shaped by what the consultant reported from this campus.",
+    body: "Framework and project work. The roadmap has diverged meaningfully by now, shaped by what your Campus Coach reported from this campus.",
   },
   {
     key: "S6",
@@ -135,7 +135,7 @@ export const consultant = {
     { value: "5 – 10", countTo: 10, prefix: "5 – ", label: "Student conversations per campus day" },
     { value: "8", countTo: 8, label: "Semesters the partnership covers" },
     { value: "2 – 4wk", countTo: 4, prefix: "2 – ", suffix: "wk", label: "Between reports to your placement cell" },
-    { value: "1 college", countTo: 1, suffix: " college", label: "Each consultant's roadmap is shaped for" },
+    { value: "1 college", countTo: 1, suffix: " college", label: "Each Campus Coach's roadmap is shaped for" },
   ],
 } as const;
 
@@ -307,7 +307,7 @@ export const partnership = {
     },
     {
       glyph: "staff",
-      key: "The consultant",
+      key: "The Campus Coach",
       role: "The medium",
       body: "Assigned to your college for as long as the partnership runs, not for an onboarding window. They hold five to ten student conversations on a campus day, and what they learn shapes what gets built for you.",
     },
@@ -315,12 +315,12 @@ export const partnership = {
 
   modes: {
     heading: "Two modes, and the difference is presence.",
-    body: "Both carry the same platform and the same consultant. What changes is how often that person is physically on your campus, and the cadence is agreed per contract rather than fixed by us.",
+    body: "Both carry the same platform and the same Campus Coach. What changes is how often that person is physically on your campus, and the cadence is agreed per contract rather than fixed by us.",
     items: [
       {
         glyph: "instrument",
         key: "On campus",
-        body: "A consultant present on an agreed rhythm, holding student conversations in person and sitting with your placement cell. Suits colleges large enough that a person on the ground is a small part of the arrangement.",
+        body: "A Campus Coach present on an agreed rhythm, holding student conversations in person and sitting with your placement cell. Suits colleges large enough that a person on the ground is a small part of the arrangement.",
       },
       {
         glyph: "bearing",
@@ -335,7 +335,7 @@ export const partnership = {
     body: "Origan works over four years. A single year lets a college cancel before any student has reached the part that pays off, and then conclude it did not work. Two years is the shortest term over which the thing can demonstrate itself. One year is available if you want it, and anything can be negotiated.",
     timeline: [
       { when: "Day one", what: "The platform is live for students. Nothing is gated behind an assessment period." },
-      { when: "Week one onward", what: "Your consultant begins student conversations on the agreed cadence." },
+      { when: "Week one onward", what: "Your Campus Coach begins student conversations on the agreed cadence." },
       { when: "Within month one", what: "A first draft of your college's dashboard, shaped with your cell rather than handed to it." },
       { when: "Every two to four weeks", what: "Reporting to your placement cell and to college leadership." },
       { when: "Throughout", what: "Content and features extended against what your students actually report." },

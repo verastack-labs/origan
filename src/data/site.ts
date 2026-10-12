@@ -5,7 +5,7 @@ export const site = {
   name: "Origan",
   tagline: "Four years of preparation for software placements",
   description:
-    "A software placement preparation partnership for engineering colleges. A consultant on your campus, a platform your students use from their first semester, and a record of everything covered between entry and placement.",
+    "A software placement preparation partnership for engineering colleges. A Campus Coach on your campus, a platform your students use from their first semester, and a record of everything covered between entry and placement.",
   url: "https://verastack-labs.github.io/origan",
   studio: "VeraStack Labs",
   studioUrl: "https://verastack-labs.github.io",
@@ -44,12 +44,14 @@ export const form = {
  * and be forgotten in the other.
  */
 export const sheets = [
-  // `short` is what the floating bar uses below the breakpoint where the
-  // header's own page links appear. Three full labels do not fit across a
-  // phone, and a nav that does not fit is a nav that wraps or scrolls away.
-  { href: "/", label: "Overview", short: "Overview" },
-  { href: "/product/", label: "The platform", short: "Platform" },
-  { href: "/partnership/", label: "The partnership", short: "Partnership" },
+  // Below the header's breakpoint these are listed in the drawing register at
+  // the foot of the viewport, and the current one names its button.
+  { href: "/", label: "Overview" },
+  { href: "/product/", label: "The platform" },
+  { href: "/features/", label: "Features" },
+  { href: "/analytics/", label: "Analytics" },
+  { href: "/coach/", label: "Campus Coach" },
+  { href: "/partnership/", label: "The partnership" },
 ] as const;
 
 /** The sheets other than the overview, which the sitemap adds separately. */
@@ -77,6 +79,24 @@ export const partnershipSections = [
   { href: "#term", label: "The term" },
 ] as const;
 
+export const featureSections = [
+  { href: "#legend", label: "The legend" },
+  { href: "#ai", label: "Where AI works" },
+] as const;
+
+export const analyticsSections = [
+  { href: "#trajectory", label: "Trajectory" },
+  { href: "#branches", label: "Branches" },
+  { href: "#topics", label: "Topics" },
+  { href: "#report", label: "The report" },
+] as const;
+
+export const coachSections = [
+  { href: "#role", label: "The role" },
+  { href: "#day", label: "A campus day" },
+  { href: "#continuity", label: "Continuity" },
+] as const;
+
 /**
  * Which anchors belong to which sheet. The layout owns the section index, so
  * it needs to resolve this from the route rather than have every page pass it
@@ -86,4 +106,7 @@ export const sectionsByPath: Record<string, readonly { href: string; label: stri
   "/": homeSections,
   "/product/": productSections,
   "/partnership/": partnershipSections,
+  "/features/": featureSections,
+  "/analytics/": analyticsSections,
+  "/coach/": coachSections,
 };
