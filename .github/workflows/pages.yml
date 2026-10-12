@@ -50,11 +50,11 @@ jobs:
 
       - name: Build
         env:
-          # The site is served from a project path, not a domain root, so every
-          # internal link and asset URL resolves one level too high without
-          # this. It is empty in local development, which is why `next dev`
-          # runs at `/`.
-          NEXT_PUBLIC_BASE_PATH: /origan
+          # Served from the root of its own domain, origan.verastack.dev, so
+          # there is no project path to prefix. Kept as an explicit empty value
+          # rather than removed, so moving back under a path is a one-line
+          # change.
+          NEXT_PUBLIC_BASE_PATH: ""
           # Set this as a repository variable once the Search Console property
           # exists. Absent, the verification tag is omitted rather than shipped
           # empty, which Google reads as a failed check.

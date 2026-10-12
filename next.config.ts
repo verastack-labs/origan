@@ -3,11 +3,10 @@ import type { NextConfig } from "next";
 /**
  * Built as a static export for GitHub Pages.
  *
- * The site is served from a project path, `verastack-labs.github.io/origan`,
- * not from a domain root, so `basePath` has to be set or every internal link
- * and asset URL resolves one level too high. It is read from an env var so a
- * local `next dev` still runs at `/`, and so pointing a real domain at this
- * later is a config change rather than a find and replace.
+ * Served from the root of its own domain, `origan.verastack.dev`. `basePath`
+ * is still read from an env var, empty in every build today, so serving it
+ * under a project path again would be a config change rather than a find and
+ * replace.
  *
  * `images.unoptimized` is required: the Next image optimiser needs a server,
  * and a static export has none.
@@ -22,8 +21,8 @@ const nextConfig: NextConfig = {
   // collide.
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
   basePath,
-  // Without this, GitHub Pages serves /origan/about as a 404 rather than
-  // finding /origan/about/index.html.
+  // Without this, GitHub Pages serves /about as a 404 rather than finding
+  // /about/index.html.
   trailingSlash: true,
   images: { unoptimized: true },
 };
