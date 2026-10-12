@@ -14,7 +14,11 @@ import { form } from "@/data/site";
  * Everything here is `set`, never `append`, so each key appears exactly once
  * whether or not the widget supplied it.
  */
-export function submissionBody(fields: FormData, token: string): FormData {
+export function submissionBody(
+  fields: FormData,
+  token: string,
+  subject = "Origan enquiry from a college",
+): FormData {
   const body = new FormData();
 
   for (const [key, value] of fields) {
@@ -23,7 +27,7 @@ export function submissionBody(fields: FormData, token: string): FormData {
 
   body.set("h-captcha-response", token);
   body.set("access_key", form.key);
-  body.set("subject", "Origan enquiry from a college");
+  body.set("subject", subject);
   body.set("from_name", "Origan");
 
   return body;

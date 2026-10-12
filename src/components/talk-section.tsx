@@ -2,6 +2,7 @@ import { Reveal } from "./reveal";
 import { EnquiryForm } from "./enquiry-form";
 import { TitleBlock } from "./title-block";
 import { talk } from "@/data/content";
+import { InterestButton } from "./interest";
 
 /**
  * The close, identical on all three pages. The nav's call to action points at
@@ -27,6 +28,11 @@ export function TalkSection({ sheet }: { sheet?: string }) {
         </Reveal>
         <Reveal as="p" className="mt-[18px] max-w-[52ch] text-fg-2">
           {talk.body}
+        </Reveal>
+
+        <Reveal className="mt-7 flex max-w-[560px] flex-wrap items-center gap-x-5 gap-y-3 rounded-panel border border-line bg-panel px-5 py-4">
+          <InterestButton tone="secondary" />
+          <p className="text-[14.5px] text-fg-2">{talk.orRegister}</p>
         </Reveal>
 
         <EnquiryForm />

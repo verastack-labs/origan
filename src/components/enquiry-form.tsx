@@ -52,7 +52,15 @@ export function EnquiryForm() {
    * and it needs no ref, which `next/dynamic` does not forward cleanly anyway.
    */
   const [captchaKey, setCaptchaKey] = useState(0);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const id = useId();
+
+  // The widget takes its theme once, at mount, so it is read at the moment
+  // the reader engages rather than when the page loaded.
+  function engage() {
+    setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+    setEngaged(true);
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -98,8 +106,8 @@ export function EnquiryForm() {
       onSubmit={onSubmit}
       className="mt-7 max-w-[560px]"
       noValidate={false}
-      onFocusCapture={() => setEngaged(true)}
-      onPointerDownCapture={() => setEngaged(true)}
+      onFocusCapture={engage}
+      onPointerDownCapture={engage}
     >
       {/* Web3Forms drops any submission that fills this in. It is hidden from
           sight and from assistive technology, so only a script finds it. */}
@@ -163,7 +171,7 @@ export function EnquiryForm() {
             key={captchaKey}
             sitekey={endpoint.captchaSiteKey}
             reCaptchaCompat={false}
-            theme="dark"
+            theme={theme}
             onVerify={setToken}
             onExpire={() => setToken("")}
             onError={() => setToken("")}

@@ -13,7 +13,6 @@ export const hero = {
   // runs to four lines buries it.
   headline: { before: "We mark the ", accent: "ground", after: ", all four years." },
   body: "A Campus Coach on your campus, and a platform your students use from first semester to final drive.",
-  primary: { label: "Request a conversation", href: "#talk" },
   secondary: { label: "See the four years", href: "#profile" },
 } as const;
 
@@ -142,8 +141,7 @@ export const consultant = {
 export const close = {
   heading: "Two years is the shortest term that shows you anything.",
   body: "Long enough for a cohort to move through it. One year is available. The rest is a conversation with your placement cell.",
-  primary: { label: "How the partnership works", href: "/partnership/" },
-  secondary: { label: "What the platform is", href: "/product/" },
+  secondary: { label: "How the partnership works", href: "/partnership/" },
 } as const;
 
 /* ------------------------------------------------------------------ enquiry */
@@ -216,6 +214,29 @@ export const enquiry = {
   assurance: "Goes to one inbox. No mailing list.",
   awaitingCaptcha: "Complete the check above to send.",
   captchaPending: "A human check appears here once you start.",
+  failed: "That did not send. Please write to",
+  fallbackEmail: "therealriganb@gmail.com",
+} as const;
+
+/** The interest list. Three fields, raised in a dialog from any call to action. */
+export const interest = {
+  cta: "Register your interest",
+  notation: "Interest list",
+  heading: "Keep your college on the list.",
+  body: "Three fields. We write back with a time to talk, and nothing else lands in your inbox.",
+  subject: "Origan interest list",
+  fields: [
+    { name: "email", label: "Email", type: "email", placeholder: "you@college.ac.in", autoComplete: "email" },
+    { name: "college", label: "College", type: "text", placeholder: "", autoComplete: "organization" },
+    { name: "city", label: "City", type: "text", placeholder: "", autoComplete: "address-level2" },
+  ] as const,
+  submit: "Register",
+  sending: "Sending",
+  sentHeading: "Registered.",
+  sent: "You will hear from Rigan within two working days. If your season is close, write to him directly at the foot of the page.",
+  done: "Back to the page",
+  assurance: "One inbox. No mailing list.",
+  awaitingCaptcha: "Complete the check above to register.",
   failed: "That did not send. Please write to",
   fallbackEmail: "therealriganb@gmail.com",
 } as const;
@@ -383,4 +404,5 @@ export const partnership = {
 export const talk = {
   heading: "Start the conversation.",
   body: "Tell us a little about your college and we will come back with a time. No deck is sent in the meantime.",
+  orRegister: "Not ready for a conversation? Three fields keeps your college on the list.",
 } as const;

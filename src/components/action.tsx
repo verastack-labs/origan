@@ -9,7 +9,14 @@ const tones = {
   // Solid, not transparent. The hero draws a line across this corner on a
   // phone, and it ran straight through the label.
   secondary: "border border-line bg-ground text-fg-2 hover:border-survey-2 hover:text-fg",
+  // The header's control: smaller, outlined in the accent, fills on hover.
+  nav: "border border-survey-2 px-4 py-2.5 text-[10.5px] text-survey hover:bg-survey hover:text-survey-ink",
 } as const;
+
+/** The classes alone, for a control that is a button rather than a link. */
+export function actionClass(tone: keyof typeof tones = "primary") {
+  return `${base} ${tones[tone]}`;
+}
 
 export function Action({
   href,

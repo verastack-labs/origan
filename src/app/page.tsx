@@ -6,6 +6,7 @@ import { ConsultantStats } from "@/components/consultant-stats";
 import { SurfaceStudy } from "@/components/surface-study";
 import { Reveal } from "@/components/reveal";
 import { Action } from "@/components/action";
+import { InterestButton } from "@/components/interest";
 import { TalkSection } from "@/components/talk-section";
 import { h2, section, shell } from "@/components/page-head";
 import { close, consultant, datum } from "@/data/content";
@@ -103,7 +104,7 @@ export default function Home() {
             {close.body}
           </Reveal>
           <Reveal className="mt-7 flex flex-wrap gap-3">
-            <Action href={close.primary.href}>{close.primary.label}</Action>
+            <InterestButton />
             <Action href={close.secondary.href} tone="secondary">
               {close.secondary.label}
             </Action>

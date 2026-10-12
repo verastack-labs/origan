@@ -7,6 +7,7 @@ import { chainageFromProgress } from "@/lib/chainage";
 import { pages, site } from "@/data/site";
 import { BenchmarkMark } from "./benchmark-mark";
 import { ThemeToggle } from "./theme-toggle";
+import { InterestButton } from "./interest";
 
 /**
  * The header carries the pages, centred, because that is the primary
@@ -103,13 +104,10 @@ export function SiteNav() {
         <div className="flex items-center justify-end gap-2.5 sm:gap-4">
           <ThemeToggle />
 
-          <a
-            href="#talk"
-            className="whitespace-nowrap rounded-control border border-survey-2 px-4 py-2.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.08em] text-survey transition-colors hover:bg-survey hover:text-survey-ink"
-          >
-            <span className="sm:hidden">Talk</span>
-            <span className="hidden sm:inline">Request a conversation</span>
-          </a>
+          <InterestButton tone="nav">
+            <span className="sm:hidden">Register</span>
+            <span className="hidden sm:inline">Register your interest</span>
+          </InterestButton>
         </div>
       </div>
     </nav>

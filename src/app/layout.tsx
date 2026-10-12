@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/json-ld";
 import { SiteNav } from "@/components/site-nav";
 import { SectionIndex } from "@/components/section-index";
 import { PageTransition } from "@/components/page-transition";
+import { InterestProvider } from "@/components/interest";
 import { themeScript } from "@/lib/theme";
 import "./globals.css";
 
@@ -107,9 +108,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* The header and the section index live here rather than in each
             page, so navigating between sheets does not tear them down and
             rebuild them. Only the content between them changes. */}
-        <SiteNav />
-        <PageTransition>{children}</PageTransition>
-        <SectionIndex />
+        <InterestProvider>
+          <SiteNav />
+          <PageTransition>{children}</PageTransition>
+          <SectionIndex />
+        </InterestProvider>
       </body>
     </html>
   );

@@ -228,6 +228,16 @@
     transition: transform 0.9s var(--ease-survey);
   }
 
+  /* The interest dialog: laid over the page like a sheet, on the same curve
+     as everything else. */
+  .register[open] {
+    animation: register-in 0.38s var(--ease-survey);
+  }
+
+  .register[open]::backdrop {
+    animation: backdrop-in 0.38s var(--ease-survey);
+  }
+
   /* Pane and tab content swap. */
   .swap {
     animation: swap 0.45s var(--ease-survey);
@@ -349,6 +359,19 @@
   }
 }
 
+@keyframes register-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -368,6 +391,8 @@
     transform: none;
   }
 
+  .register[open],
+  .register[open]::backdrop,
   .swap,
   .station,
   .range,
