@@ -1,19 +1,18 @@
 import { Reveal } from "./reveal";
 import { EnquiryForm } from "./enquiry-form";
-import { TitleBlock } from "./title-block";
 import { talk } from "@/data/content";
 import { InterestButton } from "./interest";
 
 /**
- * The close, identical on all three pages. The nav's call to action points at
+ * The close, identical on every page. The nav's call to action points at
  * `#talk` from everywhere, so this section has to exist on every route or that
  * button becomes a link to nothing.
  */
-export function TalkSection({ sheet }: { sheet?: string }) {
+export function TalkSection() {
   return (
     <section
       id="talk"
-      className="border-t border-line bg-ground-2 pt-[clamp(60px,8.5vw,120px)]"
+      className="border-t border-line bg-ground-2 py-[clamp(60px,8.5vw,120px)]"
     >
       <div className="mx-auto max-w-[1240px] px-[clamp(18px,4vw,60px)]">
         <Reveal variant="label" className="notation">
@@ -37,11 +36,6 @@ export function TalkSection({ sheet }: { sheet?: string }) {
 
         <EnquiryForm />
 
-        {/* Extra room at the foot so the floating sheet index never sits on
-            top of the title block. */}
-        <footer className="pb-[120px] pt-[clamp(50px,7vw,90px)]">
-          <TitleBlock sheet={sheet} />
-        </footer>
       </div>
     </section>
   );

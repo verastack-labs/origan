@@ -288,6 +288,13 @@ narrow, each entry stacks.
 A design-director review and a mechanical evidence pass ran on the live six
 sheets, independently, and this is what they changed:
 
+**A footer, mounted once in the layout.** Three columns a dean actually uses:
+the ask in one line, the set (all six sheets, numbered, the current one marked)
+and the studio (a name, the studio, an area, nothing more specific). Then the
+title block, which now carries "Checked" with the founder's name where a
+drawing carries a checker's initials. The sheet's name comes from the route,
+so no page passes it down and none can forget to.
+
 **The title block no longer says "Preliminary · Not for construction".** A dean
 reads a drawing's revision line literally, and the one document they are being
 asked to take to a trust was telling them it was a draft not to be acted on. It

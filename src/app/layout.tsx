@@ -7,6 +7,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SectionIndex } from "@/components/section-index";
 import { PageTransition } from "@/components/page-transition";
 import { InterestProvider } from "@/components/interest";
+import { SiteFooter } from "@/components/site-footer";
 import { themeScript } from "@/lib/theme";
 import "./globals.css";
 
@@ -117,6 +118,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <InterestProvider>
           <SiteNav />
           <PageTransition>{children}</PageTransition>
+          <SiteFooter />
           <SectionIndex />
         </InterestProvider>
       </body>

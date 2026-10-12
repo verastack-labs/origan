@@ -104,7 +104,7 @@ export default function Analytics() {
         </div>
       </section>
 
-      <TalkSection sheet="Analytics" />
+      <TalkSection />
     </>
   );
 }

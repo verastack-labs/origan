@@ -23,7 +23,7 @@ export function TitleBlock({ sheet = "Institutional prospectus" }: { sheet?: str
   ];
 
   return (
-    <div className="mt-[clamp(44px,6vw,80px)] overflow-hidden rounded-panel border border-line">
+    <div className="mt-[clamp(40px,5vw,64px)] overflow-hidden rounded-panel border border-line">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         {fields.map((f) => (
           <div

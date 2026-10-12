@@ -107,7 +107,7 @@ export default function Coach() {
         </div>
       </section>
 
-      <TalkSection sheet="The Campus Coach" />
+      <TalkSection />
     </>
   );
 }
