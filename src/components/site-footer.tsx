@@ -79,6 +79,12 @@ export function SiteFooter() {
                 {site.studio}
               </a>
               <span className="text-fg-2">{site.location}</span>
+              <a href={`mailto:${site.email}`} className="mt-2 text-fg transition-colors hover:text-survey">
+                {site.email}
+              </a>
+              <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="text-fg transition-colors hover:text-survey">
+                {site.phone}
+              </a>
             </address>
             <p className="mt-5 max-w-[26ch] text-[13.5px] text-fg-3">
               Forms on this site reach one inbox, and nothing here is a mailing list.

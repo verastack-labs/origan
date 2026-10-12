@@ -19,6 +19,8 @@ export function JsonLd() {
         name: site.studio,
         url: site.studioUrl,
         founder: { "@type": "Person", name: site.founder },
+        email: site.email,
+        telephone: site.phone,
         address: {
           "@type": "PostalAddress",
           // The area, not a street: enough to place the studio.
