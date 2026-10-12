@@ -104,6 +104,8 @@ values in it are invented for illustration.
 
 ${site.founder}, ${site.studio}
 ${site.location}
+${site.email}
+${site.phone}
 ${site.studioUrl}
 `;
 

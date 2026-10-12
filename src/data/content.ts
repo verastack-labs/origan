@@ -219,7 +219,7 @@ export const enquiry = {
   awaitingCaptcha: "One human check, then it sends.",
   captchaPending: "",
   failed: "That did not send. Please write to",
-  fallbackEmail: "therealriganb@gmail.com",
+  fallbackEmail: "verastack.labs@gmail.com",
 } as const;
 
 /** The interest list. Three fields, raised in a dialog from any call to action. */
@@ -242,7 +242,7 @@ export const interest = {
   assurance: "One inbox. No mailing list.",
   awaitingCaptcha: "Complete the check above to register.",
   failed: "That did not send. Please write to",
-  fallbackEmail: "therealriganb@gmail.com",
+  fallbackEmail: "verastack.labs@gmail.com",
 } as const;
 
 /* ------------------------------------------------------------------ product */

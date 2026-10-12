@@ -11,6 +11,8 @@ export const site = {
   studioUrl: "https://verastack-labs.github.io",
   location: "Indiranagar, Bangalore",
   founder: "Rigan Burnwal",
+  phone: "+91 93806 54730",
+  email: "verastack.labs@gmail.com",
 } as const;
 
 /**
