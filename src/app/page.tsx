@@ -69,6 +69,11 @@ export default function Home() {
             {consultant.body}
           </Reveal>
           <ConsultantStats />
+          <Reveal className="mt-7">
+            <Action href="/coach/" tone="secondary">
+              Meet the Campus Coach
+            </Action>
+          </Reveal>
         </div>
       </section>
 

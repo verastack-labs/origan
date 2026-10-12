@@ -171,6 +171,29 @@
     border: 0;
   }
 
+  /* A chart drawn as a pen crosses the plot, the same motion a headline
+     makes. The inset runs past the box so station marks on the edge and the
+     readings printed beyond the last one are never clipped once drawn. */
+  .js .pen-in {
+    clip-path: inset(-24px 100% -24px -24px);
+  }
+
+  .js [data-in="true"] .pen-in {
+    clip-path: inset(-24px -80px -24px -24px);
+    transition: clip-path 1.6s var(--ease-survey);
+  }
+
+  /* Bars grow from their origin once their chart is seen. */
+  .js .bar-fill {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .js [data-in="true"] .bar-fill {
+    transform: scaleX(1);
+    transition: transform 0.9s var(--ease-survey);
+  }
+
   /* Pane and tab content swap. */
   .swap {
     animation: swap 0.45s var(--ease-survey);
@@ -299,6 +322,15 @@
 
   .rv {
     opacity: 1;
+    transform: none;
+  }
+
+  .js .pen-in,
+  .js [data-in="true"] .pen-in {
+    clip-path: none;
+  }
+
+  .js .bar-fill {
     transform: none;
   }
 

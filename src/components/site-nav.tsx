@@ -4,11 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { chainageFromProgress } from "@/lib/chainage";
-import { sheets, site } from "@/data/site";
+import { pages, site } from "@/data/site";
 import { BenchmarkMark } from "./benchmark-mark";
 
 /**
- * The header carries the three pages, centred, because that is the primary
+ * The header carries the pages, centred, because that is the primary
  * axis: a dean or a TPO arriving from a search expects to find the whole site
  * in the bar at the top. Where you are *within* a page is secondary wayfinding
  * and lives in the section index at the foot of the viewport.
@@ -53,7 +53,7 @@ export function SiteNav() {
       {/* Three tracks of equal weight, so the centre column is centred against
           the viewport rather than against whatever the sides happen to
           measure. */}
-      <div className="mx-auto grid h-[62px] max-w-[1240px] grid-cols-[1fr_auto] items-center gap-4 px-[clamp(18px,4vw,60px)] md:grid-cols-[1fr_auto_1fr]">
+      <div className="mx-auto grid h-[62px] max-w-[1240px] grid-cols-[1fr_auto] items-center gap-4 px-[clamp(18px,4vw,60px)] lg:grid-cols-[1fr_auto_1fr]">
         <Link
           href="/"
           className="flex items-center gap-2.5 text-[18px] font-bold tracking-[-0.02em]"
@@ -64,8 +64,9 @@ export function SiteNav() {
           {site.name}
         </Link>
 
-        <div className="hidden items-center justify-center gap-[26px] md:flex">
-          {sheets.map((sheet) => {
+        {/* The overview is the wordmark's job, so five labels fit rather than six. */}
+        <div className="hidden items-center justify-center gap-[clamp(16px,1.8vw,26px)] lg:flex">
+          {pages.map((sheet) => {
             const current = here === sheet.href;
 
             return (
@@ -87,7 +88,7 @@ export function SiteNav() {
 
         <div className="flex items-center justify-end gap-4">
           <div
-            className="hidden rounded-control border border-line px-2.5 py-1.5 font-mono text-[10px] tracking-[0.09em] tabular-nums text-fg-3 lg:block"
+            className="hidden rounded-control border border-line px-2.5 py-1.5 font-mono text-[10px] tracking-[0.09em] tabular-nums text-fg-3 xl:block"
             title="Chainage: distance along a route, written as kilometres plus metres. Here it tracks how far down the page you are."
           >
             <span className="sr-only">Chainage</span>

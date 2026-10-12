@@ -30,7 +30,7 @@ Origan as structured preparation that must not feel like monitoring.
 ## Product Purpose
 
 Origan is a preparation partnership sold to engineering colleges as an institutional
-agreement. It pairs a student-facing platform with a consultant assigned to the college
+agreement. It pairs a student-facing platform with a Campus Coach assigned to the college
 for the length of the partnership.
 
 Origan covers preparation across the whole of engineering. A student joins in first year
@@ -45,7 +45,7 @@ Origan sits **alongside** campus recruitment training, not instead of it. Colleg
 their aptitude trainers and company-specific programmes.
 
 The claim a neighbouring product cannot truthfully copy: four years of continuous,
-instrumented, college-specific preparation, shaped by a consultant who talks to that
+instrumented, college-specific preparation, shaped by a Campus Coach who talks to that
 college's students and feeds what they say back into the platform. Training vendors
 deliver a fixed syllabus in a fixed window and leave. Self-serve platforms have no one
 making sure the thing gets used.
@@ -91,6 +91,10 @@ letter from "origin". The positioning seed is *where an engineering career start
 **Sub-product:** Avsar (अवसर, opportunity) student-facing; Origan Apply in institutional
 conversations.
 
+**The person on campus:** Campus Coach, in anything a dean reads; Coach, with
+students. Never "consultant" on a public surface. Feature names, and the rule for
+when one may carry "AI", live in `origan-internal/docs/naming.md`.
+
 **Studio:** VeraStack Labs. Repo pattern is `origan` public landing, `origan-app` private,
 `origan-internal` private.
 
@@ -123,7 +127,7 @@ must not imply a working deployment or an existing customer.
    training.
 4. **Prove by craft, since there is nothing else to prove with.** With no customers or
    metrics, the page's own quality is the only evidence of competence available.
-5. **The platform is the destination, the consultant is the medium.** Neither works alone
+5. **The platform is the destination, the Campus Coach is the medium.** Neither works alone
    and neither should dominate the other on this surface.
 
 ## Accessibility & Inclusion

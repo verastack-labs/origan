@@ -20,6 +20,11 @@ ${site.name} is built by ${site.studio} in ${site.location}.
 
 - ${site.url}/ — the overview.
 - ${site.url}/product/ — what the platform is and what a student does with it.
+- ${site.url}/features/ — the named parts of the platform.
+- ${site.url}/analytics/ — the kinds of cohort-level views a college's dashboard,
+  Datum, is built toward. Every chart on that page uses illustrative data.
+- ${site.url}/coach/ — the Campus Coach: the person assigned to a college for
+  the length of the partnership.
 - ${site.url}/partnership/ — how the partnership is structured, the two
   engagement modes, the term, and what is delivered when.
 
@@ -30,7 +35,7 @@ colleges in India as an institutional agreement. It combines two things that are
 sold together and do not work separately:
 
 - A platform students use from their first semester through to placement season.
-- A consultant assigned to the college for the length of the partnership, who
+- A Campus Coach assigned to the college for the length of the partnership, who
   talks to students, learns what they are stuck on, and feeds that back into the
   platform for that college.
 
@@ -39,7 +44,7 @@ sold together and do not work separately:
 It covers four years rather than a fortnight. Campus recruitment training
 typically arrives in the final year, runs a fixed syllabus for two weeks, and
 leaves. ${site.name} is in place from the first semester and is extended
-continuously based on what the consultant learns on that campus.
+continuously based on what the Campus Coach learns on that campus.
 
 It sits alongside a college's existing training rather than replacing it.
 Colleges keep their aptitude trainers and company-specific programmes.
@@ -52,10 +57,10 @@ Colleges keep their aptitude trainers and company-specific programmes.
 - Curated data structure sheets with solved and revisit states.
 - A test engine covering quantitative aptitude, logical reasoning, verbal
   ability and technical topics.
-- Resume tooling and template galleries.
+- AI-assisted resume tooling and template galleries.
 - Avsar, also called ${site.name} Apply, which replaces WhatsApp groups and
   Google Forms for campus drives and internship applications.
-- A glossary, a peer forum and a typing test.
+- A glossary, an AI-backed question forum and a typing test.
 
 ## Who it is for
 
