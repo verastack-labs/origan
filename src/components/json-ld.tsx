@@ -18,8 +18,11 @@ export function JsonLd() {
         "@id": `${site.url}/#studio`,
         name: site.studio,
         url: site.studioUrl,
+        founder: { "@type": "Person", name: site.founder },
         address: {
           "@type": "PostalAddress",
+          // The area, not a street: enough to place the studio.
+          streetAddress: "Indiranagar",
           addressLocality: "Bangalore",
           addressCountry: "IN",
         },
