@@ -102,7 +102,8 @@ values in it are invented for illustration.
 
 ## Contact
 
-${site.studio}, ${site.location}
+${site.founder}, ${site.studio}
+${site.location}
 ${site.studioUrl}
 `;
 

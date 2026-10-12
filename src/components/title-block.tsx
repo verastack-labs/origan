@@ -6,7 +6,8 @@ import { site } from "@/data/site";
  *
  * It closes the page the way a drawing closes, and it is the detail that makes
  * technical work read as expensive. Every field here is true. There is no
- * client line, because there is no client yet.
+ * client line, because there is no client yet. The address is the area, not
+ * the street: enough to place the studio, not enough to turn up at a door.
  */
 /** Every sheet in a set carries the same block; only the sheet name changes. */
 export function TitleBlock({ sheet = "Institutional prospectus" }: { sheet?: string }) {
@@ -14,7 +15,9 @@ export function TitleBlock({ sheet = "Institutional prospectus" }: { sheet?: str
     { k: "Project", v: site.name },
     { k: "Sheet", v: sheet },
     { k: "Drawn", v: site.studio },
-    { k: "Datum", v: "First semester" },
+    // A drawing is signed off by a person, and a buyer whose first question is
+    // "who are these people" gets a name here before they get a form.
+    { k: "Checked", v: site.founder },
     { k: "Scale", v: "Four years" },
     { k: "Location", v: site.location },
   ];

@@ -9,7 +9,8 @@ export const site = {
   url: "https://verastack-labs.github.io/origan",
   studio: "VeraStack Labs",
   studioUrl: "https://verastack-labs.github.io",
-  location: "Bangalore, India",
+  location: "Indiranagar, Bangalore",
+  founder: "Rigan Burnwal",
 } as const;
 
 /**
