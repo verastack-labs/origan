@@ -69,7 +69,7 @@ export function SiteNav() {
             {site.name}
           </Link>
           <div
-            className="hidden rounded-control border border-line px-2.5 py-1.5 font-mono text-[10px] tracking-[0.09em] tabular-nums whitespace-nowrap text-fg-3 xl:block"
+            className="hidden rounded-control border border-line px-2.5 py-1.5 font-mono text-[10px] tracking-[0.09em] tabular-nums whitespace-nowrap text-fg-2 xl:block"
             title="Chainage: distance along a route, written as kilometres plus metres. Here it tracks how far down the page you are."
           >
             <span className="sr-only">Chainage</span>
@@ -88,10 +88,10 @@ export function SiteNav() {
                 key={sheet.href}
                 href={sheet.href}
                 aria-current={current ? "page" : undefined}
-                className={`relative py-1 text-[13.5px] transition-colors ${
+                className={`relative py-1 text-[13.5px] font-medium transition-colors ${
                   current
                     ? "text-survey after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:bg-survey after:content-['']"
-                    : "text-fg-2 hover:text-fg"
+                    : "text-fg hover:text-survey"
                 }`}
               >
                 {sheet.label}

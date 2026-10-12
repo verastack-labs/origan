@@ -8,7 +8,7 @@ import { sectionsByPath, sheets } from "@/data/site";
 const pill =
   "pointer-events-auto flex items-center gap-0.5 rounded-panel border border-line bg-ground p-1 md:bg-ground/90 md:backdrop-blur-[10px]";
 const item =
-  "flex items-center gap-2 rounded-control px-3 py-2 text-[13px] transition-colors sm:px-3.5";
+  "flex items-center gap-2 rounded-control px-3 py-2 text-[13px] font-medium transition-colors sm:px-3.5";
 
 /**
  * The bar at the foot of the viewport, and what it carries depends on how much
@@ -108,7 +108,7 @@ export function SectionIndex() {
                     href={section.href}
                     aria-current={current ? "location" : undefined}
                     className={`${item} ${
-                      current ? "bg-panel-2 text-fg" : "text-fg-2 hover:bg-panel hover:text-fg"
+                      current ? "bg-panel-2 text-fg" : "text-fg hover:bg-panel"
                     }`}
                   >
                     <Mark filled={current} />
@@ -130,7 +130,7 @@ function Mark({ filled }: { filled: boolean }) {
     <span
       aria-hidden="true"
       className={`h-[7px] w-[7px] shrink-0 rounded-full border transition-colors ${
-        filled ? "border-survey bg-survey" : "border-line-2 bg-transparent"
+        filled ? "border-survey bg-survey" : "border-fg-3 bg-transparent"
       }`}
     />
   );
@@ -188,14 +188,14 @@ function Register({ here }: { here: string }) {
                     href={sheet.href}
                     aria-current={isHere ? "page" : undefined}
                     className={`${item} w-full justify-between ${
-                      isHere ? "bg-panel-2 text-fg" : "text-fg-2 hover:bg-panel hover:text-fg"
+                      isHere ? "bg-panel-2 text-fg" : "text-fg hover:bg-panel"
                     }`}
                   >
                     <span className="flex items-center gap-2">
                       <Mark filled={isHere} />
                       {sheet.label}
                     </span>
-                    <span className="font-mono text-[10px] tabular-nums text-fg-3">
+                    <span className="font-mono text-[10px] tabular-nums text-fg-2">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                   </Link>
@@ -218,7 +218,7 @@ function Register({ here }: { here: string }) {
               <Mark filled />
               {current.label}
             </span>
-            <span className="flex items-center gap-2 font-mono text-[10px] tabular-nums text-fg-3">
+            <span className="flex items-center gap-2 font-mono text-[10px] tabular-nums text-fg-2">
               <span>
                 Sheet {index + 1} of {sheets.length}
               </span>
@@ -229,7 +229,7 @@ function Register({ here }: { here: string }) {
                 aria-hidden="true"
                 className={`transition-transform duration-200 ease-survey ${open ? "" : "rotate-180"}`}
               >
-                <path d="M1 6l3.5-3.5L8 6" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M1 6l3.5-3.5L8 6" fill="none" stroke="currentColor" strokeWidth="1.5" />
               </svg>
             </span>
           </button>
