@@ -124,7 +124,7 @@ export default function Product() {
         </div>
       </section>
 
-      <TalkSection sheet="The platform" />
+      <TalkSection />
     </>
   );
 }

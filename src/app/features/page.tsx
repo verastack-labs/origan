@@ -63,7 +63,7 @@ export default function Features() {
         </div>
       </section>
 
-      <TalkSection sheet="Features" />
+      <TalkSection />
     </>
   );
 }

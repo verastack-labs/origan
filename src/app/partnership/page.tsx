@@ -135,7 +135,7 @@ export default function Partnership() {
         </div>
       </section>
 
-      <TalkSection sheet="The partnership" />
+      <TalkSection />
     </>
   );
 }
