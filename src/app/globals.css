@@ -234,7 +234,7 @@
     animation: register-in 0.38s var(--ease-survey);
   }
 
-  .register[open]::backdrop {
+  .register-backdrop {
     animation: backdrop-in 0.38s var(--ease-survey);
   }
 
@@ -392,7 +392,7 @@
   }
 
   .register[open],
-  .register[open]::backdrop,
+  .register-backdrop,
   .swap,
   .station,
   .range,
