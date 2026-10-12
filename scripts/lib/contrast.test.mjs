@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { channel, luminance, parseTokens, ratio } from "./contrast.mjs";
+import { channel, luminance, parseThemes, parseTokens, ratio } from "./contrast.mjs";
 
 describe("luminance", () => {
   it("is 0 for black and 1 for white", () => {
@@ -68,5 +68,22 @@ describe("parseTokens", () => {
       --font-mono: var(--font-azeret);
     }`;
     expect(parseTokens(css)).toEqual({ ground: "#0d1815", "survey-2": "#3e7f6b" });
+  });
+});
+
+describe("parseThemes", () => {
+  it("reads light from @theme and lays dark over it", () => {
+    const css = `@theme {
+      --color-ground: #eef6f1;
+      --color-warn: #8a5a00;
+    }
+    :root[data-theme="dark"] {
+      --color-ground: #0d1815;
+    }`;
+    expect(parseThemes(css)).toEqual({
+      light: { ground: "#eef6f1", warn: "#8a5a00" },
+      // warn is not redefined in dark, so it falls back as the browser would.
+      dark: { ground: "#0d1815", warn: "#8a5a00" },
+    });
   });
 });

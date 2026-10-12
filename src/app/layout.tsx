@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/json-ld";
 import { SiteNav } from "@/components/site-nav";
 import { SectionIndex } from "@/components/section-index";
 import { PageTransition } from "@/components/page-transition";
+import { themeScript } from "@/lib/theme";
 import "./globals.css";
 
 /**
@@ -87,13 +88,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       // Set before first paint so the reveal styles can hide content only when
       // there is JavaScript to bring it back. Without this the hiding class
       // arrives in an effect, and every heading paints, vanishes, then
-      // animates in, which reads as a bug rather than as an entrance.
+      // animates in, which reads as a bug rather than as an entrance. The same
+      // script applies a stored dark theme, for the same reason.
       suppressHydrationWarning
     >
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `document.documentElement.classList.add('js')`,
+            __html: `document.documentElement.classList.add('js');${themeScript}`,
           }}
         />
       </head>

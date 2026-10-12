@@ -12,10 +12,10 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { parseTokens, ratio } from "./lib/contrast.mjs";
+import { parseThemes, ratio } from "./lib/contrast.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const tokens = parseTokens(readFileSync(join(root, "src/app/globals.css"), "utf8"));
+const themes = parseThemes(readFileSync(join(root, "src/app/globals.css"), "utf8"));
 
 /** [foreground, background, minimum, what it is]. */
 const pairs = [
@@ -38,27 +38,32 @@ const pairs = [
 ];
 
 let failed = 0;
-const rows = [];
 
-for (const [fg, bg, min, what] of pairs) {
-  if (!tokens[fg] || !tokens[bg]) {
-    console.error(`  missing token: ${!tokens[fg] ? fg : bg}`);
-    failed += 1;
-    continue;
+// Every pair, against both palettes. A colour that passes on the dark ground
+// says nothing about the light one.
+for (const [theme, tokens] of Object.entries(themes)) {
+  const rows = [];
+
+  for (const [fg, bg, min, what] of pairs) {
+    if (!tokens[fg] || !tokens[bg]) {
+      console.error(`  missing ${theme} token: ${!tokens[fg] ? fg : bg}`);
+      failed += 1;
+      continue;
+    }
+    const r = ratio(tokens[fg], tokens[bg]);
+    const ok = r >= min;
+    if (!ok) failed += 1;
+    rows.push(
+      `  ${ok ? "ok  " : "FAIL"}  ${r.toFixed(2).padStart(5)}:1  (min ${String(min).padStart(3)})  ${fg} on ${bg}  — ${what}`,
+    );
   }
-  const r = ratio(tokens[fg], tokens[bg]);
-  const ok = r >= min;
-  if (!ok) failed += 1;
-  rows.push(
-    `  ${ok ? "ok  " : "FAIL"}  ${r.toFixed(2).padStart(5)}:1  (min ${String(min).padStart(3)})  ${fg} on ${bg}  — ${what}`,
-  );
+
+  console.log(`contrast, ${theme}\n` + rows.join("\n") + "\n");
 }
 
-console.log("contrast\n" + rows.join("\n"));
-
 if (failed) {
-  console.error(`\n${failed} pair(s) below threshold. Adjust the tokens in globals.css.`);
+  console.error(`${failed} pair(s) below threshold. Adjust the tokens in globals.css.`);
   process.exit(1);
 }
 
-console.log(`\nAll ${pairs.length} pairs pass.`);
+console.log(`All ${pairs.length} pairs pass in both themes.`);

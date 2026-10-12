@@ -16,8 +16,12 @@ export type Palette = Record<string, string>;
 
 export function palette(): Palette {
   const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+  // The light palette only, from the `@theme` block: the card shows the site
+  // the way a first visit does. The dark override that follows is ignored.
+  const start = css.indexOf("@theme");
+  const block = css.slice(css.indexOf("{", start) + 1, css.indexOf("}", start));
   const tokens = Object.fromEntries(
-    [...css.matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})/g)].map((m) => [m[1], m[2]]),
+    [...block.matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})/g)].map((m) => [m[1], m[2]]),
   );
 
   if (Object.keys(tokens).length === 0) {

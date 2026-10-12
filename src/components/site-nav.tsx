@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { chainageFromProgress } from "@/lib/chainage";
 import { pages, site } from "@/data/site";
 import { BenchmarkMark } from "./benchmark-mark";
+import { ThemeToggle } from "./theme-toggle";
 
 /**
  * The header carries the pages, centred, because that is the primary
@@ -54,15 +55,28 @@ export function SiteNav() {
           the viewport rather than against whatever the sides happen to
           measure. */}
       <div className="mx-auto grid h-[62px] max-w-[1240px] grid-cols-[1fr_auto] items-center gap-4 px-[clamp(18px,4vw,60px)] lg:grid-cols-[1fr_auto_1fr]">
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 text-[18px] font-bold tracking-[-0.02em]"
-        >
-          <span className="text-survey">
-            <BenchmarkMark size={17} />
-          </span>
-          {site.name}
-        </Link>
+        {/* The readout sits by the wordmark: the right of the bar is the
+            theme switch and the call to action, and three controls there do
+            not fit beside five page labels. */}
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 text-[18px] font-bold tracking-[-0.02em]"
+          >
+            <span className="text-survey">
+              <BenchmarkMark size={17} />
+            </span>
+            {site.name}
+          </Link>
+          <div
+            className="hidden rounded-control border border-line px-2.5 py-1.5 font-mono text-[10px] tracking-[0.09em] tabular-nums whitespace-nowrap text-fg-3 xl:block"
+            title="Chainage: distance along a route, written as kilometres plus metres. Here it tracks how far down the page you are."
+          >
+            <span className="sr-only">Chainage</span>
+            <span aria-hidden="true">CH </span>
+            <b className="font-medium text-survey">{chainage}</b>
+          </div>
+        </div>
 
         {/* The overview is the wordmark's job, so five labels fit rather than six. */}
         <div className="hidden items-center justify-center gap-[clamp(16px,1.8vw,26px)] lg:flex">
@@ -86,19 +100,12 @@ export function SiteNav() {
           })}
         </div>
 
-        <div className="flex items-center justify-end gap-4">
-          <div
-            className="hidden rounded-control border border-line px-2.5 py-1.5 font-mono text-[10px] tracking-[0.09em] tabular-nums text-fg-3 xl:block"
-            title="Chainage: distance along a route, written as kilometres plus metres. Here it tracks how far down the page you are."
-          >
-            <span className="sr-only">Chainage</span>
-            <span aria-hidden="true">CH </span>
-            <b className="font-medium text-survey">{chainage}</b>
-          </div>
+        <div className="flex items-center justify-end gap-2.5 sm:gap-4">
+          <ThemeToggle />
 
           <a
             href="#talk"
-            className="rounded-control border border-survey-2 px-4 py-2.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.08em] text-survey transition-colors hover:bg-survey hover:text-survey-ink"
+            className="whitespace-nowrap rounded-control border border-survey-2 px-4 py-2.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.08em] text-survey transition-colors hover:bg-survey hover:text-survey-ink"
           >
             <span className="sm:hidden">Talk</span>
             <span className="hidden sm:inline">Request a conversation</span>

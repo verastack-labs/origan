@@ -18,7 +18,7 @@ export const analyticsPage = {
     accent: "sees",
     after: ", every few weeks.",
   },
-  body: "Datum is your college's view of the record the platform keeps: cohort by cohort, branch by branch, semester by semester. Its first draft is shaped with your placement cell within month one, and it grows from there.",
+  body: "Datum is your college's view of the record the platform keeps. How closely it reads is yours to set, not ours: from a whole batch down to a single section, by branch, by semester, by topic. Its first draft is shaped with your placement cell within month one, and it grows from there.",
   disclaimer: "Illustrative data",
   direction:
     "Datum is drafted with each college, so these views show the direction rather than a fixed product. Every number on this page is invented.",

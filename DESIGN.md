@@ -33,7 +33,8 @@ is a bench mark.
 
 ## Colour
 
-Thirteen tokens, defined in `src/app/globals.css` and nowhere else.
+Thirteen tokens, in two palettes, defined in `src/app/globals.css` and nowhere
+else.
 `pnpm check:components` fails the build if a hex literal appears in any other
 file, including the generated social card, which reads the stylesheet at build
 time rather than carrying a copy.
@@ -60,10 +61,19 @@ accent is used for the thing being measured and never for emphasis in general;
 colour rather than a lighter shade of the same one, which would have read as a
 variant of Origan rather than as the alternative to it.
 
-Dark is not a category default here. The page carries a drawing, and drawings
-on this subject are read as light lines on a dark field.
+**Light is the default; dark is a choice.** The site first shipped dark only,
+and read as too green: three ink-green surfaces under a mint accent is a lot of
+one hue. Light is now what every first visit sees, whatever the operating
+system prefers: a pale survey-green sheet with ink linework, the way a drawing
+is plotted on paper. The accent darkens to `#0a7550` so it holds 4.5:1 as text
+on it. The table above is the dark palette, which a switch in the header
+applies, stores, and restores before first paint on the next visit.
 
-**Contrast.** `pnpm check:contrast` measures sixteen pairs against WCAG 2.1 AA
+Both palettes share every token name, so no component knows which ground it is
+on. The light values live in `@theme`; dark is an unlayered
+`:root[data-theme="dark"]` block over them.
+
+**Contrast.** `pnpm check:contrast` measures sixteen pairs, in both palettes, against WCAG 2.1 AA
 and prints every one. `fg-3` began at `#6b8880` and measured 4.16:1 on a panel,
 which failed; it was lightened until it passed at 4.54:1. The tightest pair
 still in use is that one. Nothing ships below threshold.

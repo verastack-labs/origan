@@ -7,36 +7,39 @@
  * `pnpm check:components` fails the build if a hex literal appears outside
  * this file.
  *
- * World: survey and levelling notation. Ink-green ground, a triangulation figure,
- * survey mint as the only saturated colour. Dark is not a category default
- * here: the page carries a drawing, and drawings on this subject are read as
- * light lines on a dark field.
+ * World: survey and levelling notation, drawn on two grounds. Light is the
+ * default and the first thing anyone sees: a pale survey-green sheet with ink
+ * linework, the way a drawing is plotted on paper. Dark is the same drawing
+ * read as light lines on a dark field, and is the reader's choice, kept in
+ * localStorage and applied before first paint by an inline script in the
+ * layout.
+ *
+ * Both palettes use the same token names, so no component knows which one it
+ * is on. `pnpm check:contrast` checks every pair against both.
  */
 @theme {
   /* --- surfaces, three steps from the page down to a panel --- */
-  --color-ground: #0d1815;
-  --color-ground-2: #101f1b;
-  --color-panel: #13251f;
-  --color-panel-2: #16302a;
+  --color-ground: #eef6f1;
+  --color-ground-2: #e3eee7;
+  --color-panel: #f9fcfa;
+  --color-panel-2: #deebe3;
 
   /* --- rules, two weights only --- */
-  --color-line: #22423a;
-  --color-line-2: #1a332c;
+  --color-line: #b8cfc2;
+  --color-line-2: #d2e2d9;
 
   /* --- text, three levels --- */
-  --color-fg: #eef3f0;
-  --color-fg-2: #9db3aa;
-  /* Lightened from #6b8880, which measured 4.16:1 against a panel and so
-     failed AA for the notation labels that sit on one. */
-  --color-fg-3: #708f86;
+  --color-fg: #0e211a;
+  --color-fg-2: #3b5a4f;
+  --color-fg-3: #4f6b5f;
 
   /* --- the one saturated colour, plus its dimmed partner for linework --- */
-  --color-survey: #5fd9a8;
-  --color-survey-2: #3e7f6b;
-  --color-survey-ink: #06251a;
+  --color-survey: #0a7550;
+  --color-survey-2: #3c7962;
+  --color-survey-ink: #f3fbf7;
 
   /* --- a genuinely different hue, never a shade of the accent --- */
-  --color-warn: #e2b24a;
+  --color-warn: #8a5a00;
 
   /* --- faces --- */
   --font-display: var(--font-archivo), system-ui, sans-serif;
@@ -48,6 +51,37 @@
   /* --- shape. Tight, because survey drawing has no soft corners --- */
   --radius-control: 2px;
   --radius-panel: 3px;
+}
+
+/*
+ * The dark drawing. Unlayered, so it outranks the @theme defaults above.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-ground: #0d1815;
+  --color-ground-2: #101f1b;
+  --color-panel: #13251f;
+  --color-panel-2: #16302a;
+
+  --color-line: #22423a;
+  --color-line-2: #1a332c;
+
+  --color-fg: #eef3f0;
+  --color-fg-2: #9db3aa;
+  /* Lightened from #6b8880, which measured 4.16:1 against a panel and so
+     failed AA for the notation labels that sit on one. */
+  --color-fg-3: #708f86;
+
+  --color-survey: #5fd9a8;
+  --color-survey-2: #3e7f6b;
+  --color-survey-ink: #06251a;
+
+  --color-warn: #e2b24a;
+}
+
+:root {
+  color-scheme: light;
 }
 
 @layer base {
