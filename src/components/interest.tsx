@@ -42,7 +42,6 @@ const control =
   "w-full rounded-control border border-line bg-ground px-3.5 py-3 text-[15.5px] text-fg transition-colors placeholder:text-fg-3 focus:border-survey-2 disabled:opacity-60";
 
 export function InterestProvider({ children }: { children: ReactNode }) {
-  const dialog = useRef<HTMLDialogElement>(null);
   const [mounted, setMounted] = useState(false);
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState("");
@@ -51,49 +50,37 @@ export function InterestProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const id = useId();
 
+  // Where focus was when the dialog opened, so closing hands it back.
+  const opener = useRef<HTMLElement | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
   const open = useCallback(() => {
+    opener.current = document.activeElement as HTMLElement | null;
     setMounted(true);
     // The widget inside follows the page's theme, read at open rather than at
     // mount, because the reader may have switched since.
     setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
-    // The dialog element is always in the page; only its contents wait for
-    // the first open. An earlier version mounted the whole dialog on demand
-    // and opened it in the next frame, which on a first click ran before
-    // React had attached it: the first click did nothing, the second worked.
-    const el = dialog.current;
-    if (el && !el.open) el.showModal();
+    setIsOpen(true);
   }, []);
 
   const close = useCallback(() => {
-    dialog.current?.close();
+    setIsOpen(false);
+    opener.current?.focus?.();
   }, []);
 
-  // The page behind must not scroll while the dialog is up, and a click on
-  // the backdrop closes it, the way a sheet laid over a drawing is lifted off.
+  // Escape closes it, and the page behind must not scroll while it is up.
   useEffect(() => {
-    const el = dialog.current;
-    if (!el) return;
-
-    const onClose = () => {
-      document.documentElement.style.overflow = "";
+    if (!isOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
     };
-    const onClick = (event: MouseEvent) => {
-      if (event.target === el) el.close();
-    };
-    const observer = new MutationObserver(() => {
-      document.documentElement.style.overflow = el.open ? "hidden" : "";
-    });
-
-    el.addEventListener("close", onClose);
-    el.addEventListener("click", onClick);
-    observer.observe(el, { attributes: true, attributeFilter: ["open"] });
+    document.addEventListener("keydown", onKey);
+    document.documentElement.style.overflow = "hidden";
     return () => {
-      el.removeEventListener("close", onClose);
-      el.removeEventListener("click", onClick);
-      observer.disconnect();
+      document.removeEventListener("keydown", onKey);
       document.documentElement.style.overflow = "";
     };
-  }, []);
+  }, [isOpen, close]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -121,12 +108,31 @@ export function InterestProvider({ children }: { children: ReactNode }) {
 
   return (
     <Ctx.Provider value={open}>
-      {children}
+      {/* The page, made inert while the dialog is up. A wrapper rather than
+          <body>, because hCaptcha attaches its challenge popup to <body>, and
+          an inert body would leave the challenge unclickable. `contents` so
+          the wrapper adds no box and the sticky header still sticks. */}
+      <div className="contents" inert={isOpen || undefined}>
+        {children}
+      </div>
 
+      {/* Not a native modal. `showModal()` lifts a dialog into the browser's
+          top layer, above everything, and makes the rest of the document
+          inert: the hCaptcha challenge, appended to <body>, then opened
+          underneath the dialog and could not be clicked. Positioned here at a
+          z-index below hCaptcha's own, the challenge sits on top as it should. */}
+      {isOpen && (
+        <div
+          aria-hidden="true"
+          onClick={close}
+          className="register-backdrop fixed inset-0 z-[60] bg-ground/70 backdrop-blur-[3px]"
+        />
+      )}
       <dialog
-        ref={dialog}
+        open={isOpen}
+        aria-modal="true"
         aria-labelledby={`${id}-title`}
-        className="register m-auto w-[min(100%-32px,520px)] rounded-panel border border-line bg-panel p-0 text-fg shadow-none backdrop:bg-ground/70 backdrop:backdrop-blur-[3px]"
+        className="register fixed inset-0 z-[61] m-auto h-fit max-h-[calc(100dvh-32px)] w-[min(100%-32px,520px)] overflow-y-auto rounded-panel border border-line bg-panel p-0 text-fg"
       >
         {/* Contents, and with them the captcha script, load on first open. */}
         {mounted && (
