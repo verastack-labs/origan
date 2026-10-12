@@ -185,6 +185,9 @@ export function InterestProvider({ children }: { children: ReactNode }) {
                         name={field.name}
                         type={field.type ?? "text"}
                         required
+                        // The first field takes focus when the dialog opens, so a
+                        // reader can start typing rather than tabbing past Close.
+                        autoFocus={field.name === "email"}
                         placeholder={field.placeholder}
                         autoComplete={field.autoComplete}
                         disabled={state === "sending"}
