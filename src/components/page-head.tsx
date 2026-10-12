@@ -1,4 +1,5 @@
 import { Reveal } from "./reveal";
+import { InterestButton } from "./interest";
 
 /**
  * Shared measurements. Every page is ruled to the same width and the same
@@ -42,6 +43,9 @@ export function PageHead({
         </Reveal>
         <Reveal as="p" className="mt-[22px] max-w-[54ch] text-[17px] text-fg-2">
           {body}
+        </Reveal>
+        <Reveal className="mt-[26px]">
+          <InterestButton />
         </Reveal>
       </div>
     </header>

@@ -283,6 +283,56 @@ narrow, each entry stacks.
 
 ---
 
+## The twelfth-of-October pass
+
+A design-director review and a mechanical evidence pass ran on the live six
+sheets, independently, and this is what they changed:
+
+**The title block no longer says "Preliminary · Not for construction".** A dean
+reads a drawing's revision line literally, and the one document they are being
+asked to take to a trust was telling them it was a draft not to be acted on. It
+now reads "Issued for discussion · 2026". Every other field in the block is true
+and stays.
+
+**Headlines a dean reads are plain English; survey vocabulary lives in the
+notation.** "Campus training arrives at the wrong chainage" became "arrives too
+late". The small mono labels keep their survey names because they are
+decoration, and decoration is allowed to be in-world. Datum is glossed on first
+use on each sheet.
+
+**One verb for the ask.** The header, every page head and the foot of every
+sheet say "Register your interest", which raises a three-field dialog (email,
+college, city). The full six-field form stays at the foot for a conversation,
+and its button is now "Request a conversation" rather than "Send it". The
+button is never shown disabled before the reader has done anything: pressing it
+with no human check mounted mounts the check.
+
+**The overview does one page's work.** The interface study and the alongside
+table each now live on one sheet (the platform and the partnership). The
+overview dropped from about 6,900px to about 5,300px.
+
+**Nothing counts up.** The four readings on the overview arrive with the same
+fade as everything else. "1 college" counting from "0 college" was a lie for a
+few hundred milliseconds.
+
+**The phone register lists the page's sections** beneath the sheet list, so a
+reader at 390px has the same wayfinding as one at 1440.
+
+**Light rules darkened a step** (`line` #a8c3b5, `line-2` #c8dbd0) so a ruled
+panel grid reads as ruled rather than as faint grey boxes.
+
+**Copy is shorter everywhere.** Openers and closers keep their length; every
+other headline is a clause, every body a sentence or two. Hints sit under form
+labels rather than vanishing as placeholders.
+
+Left as is, deliberately: the floating section index overlaps content as any
+fixed bar does, and the reader asked for it at the foot; the Wipro citation
+stays on the platform sheet because it is the one checkable fact that makes
+cross-branch pricing honest; and nobody is named on the site beyond the form's
+"reaches Rigan directly", which is a decision for the founder, not the design.
+
+---
+
 ## Honesty constraints
 
 The product does not exist publicly. The page therefore carries no pricing,

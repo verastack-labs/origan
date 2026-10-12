@@ -18,14 +18,14 @@ export const analyticsPage = {
     accent: "sees",
     after: ", every few weeks.",
   },
-  body: "Datum is your college's view of the record the platform keeps. How closely it reads is yours to set, not ours: from a whole batch down to a single section, by branch, by semester, by topic. Its first draft is shaped with your placement cell within month one, and it grows from there.",
+  body: "Datum, your college's dashboard, is its view of the record. How closely it reads is yours to set: a whole batch down to a single section, by branch, semester and topic. A first draft within month one, shaped with your placement cell.",
   disclaimer: "Illustrative data",
   direction:
-    "Datum is drafted with each college, so these views show the direction rather than a fixed product. Every number on this page is invented.",
+    "Drafted with each college, so these views show the direction, not a fixed product. Every number here is invented.",
 
   trajectory: {
-    heading: "Readiness across eight semesters, not eight weeks.",
-    body: "Median Bench Mark score for one cohort, followed from first semester to last. The point is the shape: a line that starts early has room to rise.",
+    heading: "Eight semesters, not eight weeks.",
+    body: "Median Bench Mark score for one cohort, first semester to last. A line that starts early has room to rise.",
     caption: "Median test score by semester",
     unit: "%",
     series: [
@@ -34,12 +34,12 @@ export const analyticsPage = {
     ],
     // Where campus recruitment training usually starts. The same mark the
     // longitudinal section on the overview uses.
-    marker: { semester: 7, label: "Where a two-week programme would begin" },
+    marker: { semester: 7, label: "Campus training begins" },
   },
 
   branches: {
-    heading: "Every branch, because recruiters hire from every branch.",
-    body: "Share of each branch practising in the last four weeks. A gap like this is a conversation for your Campus Coach, not a verdict on a department.",
+    heading: "Every branch.",
+    body: "Share of each branch practising in the last four weeks. A gap is a conversation for your Campus Coach, not a verdict on a department.",
     caption: "Practising in the last four weeks, by branch",
     rows: [
       { label: "Computer Science", value: 82 },
@@ -52,8 +52,8 @@ export const analyticsPage = {
   },
 
   topics: {
-    heading: "Where a cohort is stuck, before a company finds out.",
-    body: "Accuracy by topic and year of study. Weak cells are where the next term's content and practice go.",
+    heading: "Where a cohort is stuck.",
+    body: "Accuracy by topic and year. Weak cells are where next term's content and practice go.",
     caption: "Accuracy by topic and year",
     years: ["Year 1", "Year 2", "Year 3", "Year 4"],
     rows: [
@@ -69,8 +69,8 @@ export const analyticsPage = {
   },
 
   report: {
-    heading: "And a report a dean can read in five minutes.",
-    body: "Every two to four weeks your placement cell and college leadership get the readings, what your Campus Coach observed on campus, and what happens next.",
+    heading: "A report a dean reads in five minutes.",
+    body: "Every two to four weeks: the readings, what your Campus Coach observed, and what happens next.",
     title: "Datum · Report",
     period: "Semester 5 · Weeks 9 to 12",
     readings: [
@@ -98,6 +98,6 @@ export const analyticsPage = {
 
   principle: {
     heading: "Cohorts, not league tables.",
-    body: "Datum is built around groups of students over time. It is there to show a college where to help, and nothing in it is designed as a ranking of individual students.",
+    body: "Groups of students over time, to show a college where to help. Nothing in it ranks an individual student.",
   },
 } as const;

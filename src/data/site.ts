@@ -64,7 +64,7 @@ export const pages = sheets.filter((sheet) => sheet.href !== "/");
 export const homeSections = [
   { href: "#profile", label: "The distance" },
   { href: "#strands", label: "Four strands" },
-  { href: "#surface", label: "The surface" },
+  { href: "#consultant", label: "The Coach" },
 ] as const;
 
 export const productSections = [

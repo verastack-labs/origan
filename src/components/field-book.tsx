@@ -56,7 +56,7 @@ export function FieldBook() {
                 {entry.observation}
               </td>
               <td className="col-span-2 md:col-span-1 md:px-[clamp(14px,2vw,22px)] md:py-4 md:align-top">
-                <span className="inline-block rounded-control border border-survey-2 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.09em] text-survey">
+                <span className="inline-block font-mono text-[10px] uppercase tracking-[0.09em] text-survey">
                   <span className="md:sr-only">Booked to </span>
                   {entry.booked}
                 </span>

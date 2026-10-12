@@ -34,7 +34,7 @@ export function TitleBlock({ sheet = "Institutional prospectus" }: { sheet?: str
       </div>
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line bg-ground-2 px-4 py-3">
         <span className="font-mono text-[9.5px] uppercase tracking-[0.11em] text-fg-3">
-          Rev A · Preliminary · Not for construction
+          Issued for discussion · 2026
         </span>
         <span className="font-mono text-[9.5px] uppercase tracking-[0.11em] text-fg-3">
           {site.name} · {site.studio}

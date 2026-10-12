@@ -2,6 +2,7 @@ import { hero } from "@/data/content";
 import { FigureField } from "./figure-field";
 import { Reveal } from "./reveal";
 import { Action } from "./action";
+import { InterestButton } from "./interest";
 import { NorthArrow } from "./survey-glyphs";
 
 /**
@@ -66,7 +67,7 @@ export function Hero() {
         </Reveal>
 
         <Reveal className="mt-[26px] flex flex-wrap gap-3">
-          <Action href={hero.primary.href}>{hero.primary.label}</Action>
+          <InterestButton />
           <Action href={hero.secondary.href} tone="secondary">
             {hero.secondary.label}
           </Action>

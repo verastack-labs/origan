@@ -1,11 +1,10 @@
 import { Hero } from "@/components/hero";
-import { Alongside } from "@/components/alongside";
 import { LongitudinalProfile } from "@/components/longitudinal-profile";
 import { Strands } from "@/components/strands";
 import { ConsultantStats } from "@/components/consultant-stats";
-import { SurfaceStudy } from "@/components/surface-study";
 import { Reveal } from "@/components/reveal";
 import { Action } from "@/components/action";
+import { InterestButton } from "@/components/interest";
 import { TalkSection } from "@/components/talk-section";
 import { h2, section, shell } from "@/components/page-head";
 import { close, consultant, datum } from "@/data/content";
@@ -38,10 +37,10 @@ export default function Home() {
         <div className={shell}>
           <Reveal variant="label" className="notation">Longitudinal section</Reveal>
           <Reveal as="h2" variant="plot" className={h2}>
-            The ground covered, semester by semester.
+            Eight semesters, marked.
           </Reveal>
           <Reveal as="p" className="mt-[18px] max-w-[52ch] text-fg-2">
-            Select a semester to read what happens there.
+            Select a semester.
           </Reveal>
           <LongitudinalProfile />
         </div>
@@ -56,8 +55,6 @@ export default function Home() {
           <Strands />
         </div>
       </section>
-
-      <Alongside />
 
       <section id="consultant" className={section}>
         <div className={shell}>
@@ -77,22 +74,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="surface" className={`border-t border-line bg-ground-2 ${section}`}>
-        <div className={shell}>
-          <Reveal variant="label" className="notation">The surface</Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            What a student opens on a Tuesday.
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[52ch] text-fg-2">
-            Move through it.
-          </Reveal>
-          <SurfaceStudy />
-          <p className="mt-[11px] font-mono text-[9.5px] uppercase tracking-[0.08em] text-fg-3">
-            Interface study. Values are illustrative and no deployment exists yet.
-          </p>
-        </div>
-      </section>
-
       <section className={section}>
         <div className={shell}>
           <Reveal variant="label" className="notation">The terms, in short</Reveal>
@@ -103,7 +84,7 @@ export default function Home() {
             {close.body}
           </Reveal>
           <Reveal className="mt-7 flex flex-wrap gap-3">
-            <Action href={close.primary.href}>{close.primary.label}</Action>
+            <InterestButton />
             <Action href={close.secondary.href} tone="secondary">
               {close.secondary.label}
             </Action>

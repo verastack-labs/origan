@@ -220,7 +220,7 @@ export function LongitudinalProfile() {
           textAnchor="end"
           letterSpacing="0.8"
         >
-          TRAINING BEGINS
+          CAMPUS TRAINING BEGINS
         </text>
 
         {/* benchmarks on year boundaries */}

@@ -70,31 +70,19 @@ export default function Coach() {
       </section>
 
       <section className={section}>
-        <div
-          className={`${shell} grid gap-[clamp(28px,5vw,72px)] md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-end`}
-        >
-          <div>
-            <Reveal variant="label" className="notation">
-              Modes of engagement
-            </Reveal>
-            <Reveal as="h2" variant="plot" className={h2}>
-              {modes.heading}
-            </Reveal>
-          </div>
-          <div>
-            <Reveal as="p" className="max-w-[48ch] text-fg-2">
-              {modes.body}
-            </Reveal>
-            <Reveal className="mt-6">
-              <Action href={modes.link.href} tone="secondary">
-                {modes.link.label}
-              </Action>
-            </Reveal>
-          </div>
+        <div className={`${shell} flex flex-wrap items-center justify-between gap-x-10 gap-y-5`}>
+          <Reveal as="p" className="max-w-[52ch] text-[clamp(18px,2.2vw,24px)] font-semibold tracking-[-0.02em]">
+            {modes.heading} <span className="font-normal text-fg-2">{modes.body}</span>
+          </Reveal>
+          <Reveal>
+            <Action href={modes.link.href} tone="secondary">
+              {modes.link.label}
+            </Action>
+          </Reveal>
         </div>
       </section>
 
-      <section id="continuity" className={`border-t border-line ${section}`}>
+      <section id="continuity" className={`border-t border-line bg-ground-2 ${section}`}>
         <div className={shell}>
           <Reveal variant="label" className="notation">
             Reference that holds

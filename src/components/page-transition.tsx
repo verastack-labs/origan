@@ -21,7 +21,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div key={pathname} className="sheet-change">
+    <div key={pathname} id="main" className="sheet-change">
       {children}
     </div>
   );

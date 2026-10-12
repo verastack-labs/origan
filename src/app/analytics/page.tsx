@@ -33,7 +33,7 @@ export default function Analytics() {
           <span className="mt-[3px] shrink-0 font-mono text-[9.5px] uppercase tracking-[0.1em] text-warn">
             {analyticsPage.disclaimer}
           </span>
-          <p className="text-[14px] text-fg-2">{analyticsPage.direction}</p>
+          <p className="max-w-[70ch] text-[14px] text-fg-2">{analyticsPage.direction}</p>
         </div>
       </div>
 
