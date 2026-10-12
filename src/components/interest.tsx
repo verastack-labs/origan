@@ -56,10 +56,12 @@ export function InterestProvider({ children }: { children: ReactNode }) {
     // The widget inside follows the page's theme, read at open rather than at
     // mount, because the reader may have switched since.
     setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
-    requestAnimationFrame(() => {
-      const el = dialog.current;
-      if (el && !el.open) el.showModal();
-    });
+    // The dialog element is always in the page; only its contents wait for
+    // the first open. An earlier version mounted the whole dialog on demand
+    // and opened it in the next frame, which on a first click ran before
+    // React had attached it: the first click did nothing, the second worked.
+    const el = dialog.current;
+    if (el && !el.open) el.showModal();
   }, []);
 
   const close = useCallback(() => {
@@ -91,7 +93,7 @@ export function InterestProvider({ children }: { children: ReactNode }) {
       observer.disconnect();
       document.documentElement.style.overflow = "";
     };
-  }, [mounted]);
+  }, []);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -121,12 +123,14 @@ export function InterestProvider({ children }: { children: ReactNode }) {
     <Ctx.Provider value={open}>
       {children}
 
-      {mounted && (
-        <dialog
-          ref={dialog}
-          aria-labelledby={`${id}-title`}
-          className="register m-auto w-[min(100%-32px,520px)] rounded-panel border border-line bg-panel p-0 text-fg shadow-none backdrop:bg-ground/70 backdrop:backdrop-blur-[3px]"
-        >
+      <dialog
+        ref={dialog}
+        aria-labelledby={`${id}-title`}
+        className="register m-auto w-[min(100%-32px,520px)] rounded-panel border border-line bg-panel p-0 text-fg shadow-none backdrop:bg-ground/70 backdrop:backdrop-blur-[3px]"
+      >
+        {/* Contents, and with them the captcha script, load on first open. */}
+        {mounted && (
+          <>
           <div className="flex items-center justify-between gap-4 border-b border-line px-5 py-3.5">
             <span className="flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.12em] text-fg-2">
               <span className="text-survey">
@@ -237,8 +241,9 @@ export function InterestProvider({ children }: { children: ReactNode }) {
               </form>
             )}
           </div>
-        </dialog>
-      )}
+          </>
+        )}
+      </dialog>
     </Ctx.Provider>
   );
 }
