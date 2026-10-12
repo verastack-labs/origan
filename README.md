@@ -120,19 +120,23 @@ because this is the only workflow whose output the public sees.
 ## Search Console
 
 The site moved to its own domain, `https://origan.verastack.dev/`, on 12 October
-2026. If `verastack.dev` is verified as a Domain property in Search Console, this
-subdomain is covered by it and needs nothing further. If not, add
-`https://origan.verastack.dev/` as a URL-prefix property and set the
-`GOOGLE_SITE_VERIFICATION` repository variable to the tag Google gives you; the
-workflow already passes it through, and it is omitted while unset.
+2026. It is covered by the `verastack.dev` **Domain** property, which is verified
+by DNS and so includes every subdomain: no separate verification, no tag, and no
+DNS change was needed. The `GOOGLE_SITE_VERIFICATION` repository variable stays
+unset.
+
+Done the same day, in that property: `https://origan.verastack.dev/sitemap.xml`
+submitted, and indexing requested for the overview, platform, features,
+analytics and Campus Coach pages. The partnership page reaches Google through
+the sitemap.
 
 The old addresses, `verastack-labs.github.io/origan/` and
-`verastack.dev/origan/`, redirect here.
+`verastack.dev/origan/`, redirect here with a 301, so links already sent keep
+working and Google transfers them to the new URLs.
 
-**`robots.txt` here is decorative.** Crawlers only read it from the host root,
-`https://verastack-labs.github.io/robots.txt`, which is served by the org site
-repo. Origan's sitemap has to be listed there to be discovered that way; it is
-submitted directly in Search Console regardless.
+**`robots.txt` is real now.** Crawlers only read it from a host root, and this
+site is now a host root, so `https://origan.verastack.dev/robots.txt` is the
+one that counts and it lists the sitemap.
 
 ## Conventions
 
