@@ -93,7 +93,7 @@ export function SectionIndex() {
       {/* The pages, only while the header is too narrow to carry them. */}
       {/* Keyed on the route, so arriving on a new sheet starts with the
           register closed rather than closing it from an effect. */}
-      <Register key={here} here={here} />
+      <Register key={here} here={here} sections={sections} />
 
       {/* The sections of the page you are on, once the header has the pages. */}
       {sections.length > 0 && (
@@ -140,7 +140,7 @@ function Mark({ filled }: { filled: boolean }) {
  * The drawing register: the list of every sheet in the set, the way a drawing
  * package opens. Closed, it names the sheet in hand. Open, it lists them all.
  */
-function Register({ here }: { here: string }) {
+function Register({ here, sections }: { here: string; sections: readonly { href: string; label: string }[] }) {
   const [open, setOpen] = useState(false);
   const id = useId();
   const box = useRef<HTMLDivElement>(null);
@@ -202,6 +202,25 @@ function Register({ here }: { here: string }) {
                 </li>
               );
             })}
+            {/* The sheet in hand, opened to its own sections. */}
+            {sections.length > 0 && (
+              <li className="mt-1 border-t border-line-2 pt-1">
+                <ol>
+                  {sections.map((section) => (
+                    <li key={section.href}>
+                      <a
+                        href={section.href}
+                        onClick={() => setOpen(false)}
+                        className={`${item} w-full pl-8 text-fg-2 hover:bg-panel hover:text-fg`}
+                      >
+                        <Mark filled={false} />
+                        {section.label}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </li>
+            )}
           </ol>
         )}
 

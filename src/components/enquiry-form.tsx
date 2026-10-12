@@ -64,7 +64,14 @@ export function EnquiryForm() {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (state === "sending" || !token) return;
+    if (state === "sending") return;
+    // No token yet: the reader pressed the button before the check existed.
+    // Mount it and let them solve it, rather than greying the button out
+    // next to an instruction about a check that is not on the page.
+    if (!token) {
+      engage();
+      return;
+    }
 
     setState("sending");
     setError("");
@@ -130,6 +137,9 @@ export function EnquiryForm() {
               {field.label}
               {!field.required && <span className="text-fg-3"> (optional)</span>}
             </label>
+            {"hint" in field && field.hint && (
+              <p className="-mt-1 mb-2 text-[13px] text-fg-3">{field.hint}</p>
+            )}
 
             {field.lines ? (
               <textarea
@@ -165,7 +175,7 @@ export function EnquiryForm() {
           The box keeps its height whether or not the widget has loaded, so
           arriving at the form does not shift the button out from under a
           thumb that was already reaching for it. */}
-      <div className="mt-6 min-h-[78px]">
+      <div className={engaged ? "mt-6 min-h-[78px]" : "mt-2"}>
         {engaged ? (
           <HCaptcha
             key={captchaKey}
@@ -176,24 +186,20 @@ export function EnquiryForm() {
             onExpire={() => setToken("")}
             onError={() => setToken("")}
           />
-        ) : (
-          <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-fg-3">
-            {enquiry.captchaPending}
-          </p>
-        )}
+        ) : null}
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
         <button
           type="submit"
-          disabled={state === "sending" || !token}
+          disabled={state === "sending"}
           className="inline-flex items-center gap-2.5 rounded-control bg-survey px-[22px] py-[13px] font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-survey-ink transition-[background-color,transform] duration-200 ease-survey hover:-translate-y-px hover:bg-survey/85 disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-line disabled:text-fg-3"
         >
           {state === "sending" ? enquiry.sending : enquiry.submit}
         </button>
 
         <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-fg-3">
-          {token ? enquiry.assurance : enquiry.awaitingCaptcha}
+          {token || !engaged ? enquiry.assurance : enquiry.awaitingCaptcha}
         </p>
       </div>
 

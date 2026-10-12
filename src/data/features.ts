@@ -26,7 +26,7 @@ export const featuresPage = {
     accent: "distance",
     after: ".",
   },
-  body: "The platform's parts are named for the instruments and marks a surveyor uses, because each one records a piece of the ground between a student's first semester and their placement drive.",
+  body: "Each part is named for a surveyor's instrument or mark, because each records a piece of the ground between first semester and placement drive.",
 
   legend: {
     caption: "Legend",
@@ -39,21 +39,21 @@ export const featuresPage = {
       name: "Bearing",
       descriptor: "The roadmap builder",
       glyph: "bearing",
-      body: "A first-year answers a short questionnaire on domain, language and framework, and gets a roadmap built for that answer. The same answers always give the same roadmap, so your placement cell can see exactly why a student is on the path they are on.",
+      body: "A short questionnaire on domain, language and framework produces a roadmap. The same answers always give the same roadmap, so your cell can see why a student is on the path they are on.",
       records: "Direction, set in year one",
     },
     {
       name: "Bench Mark",
       descriptor: "The test engine",
       glyph: "benchmark",
-      body: "Quantitative aptitude, logical reasoning, verbal ability and technical topics. Two tests a day and seven a week, so practice becomes a habit across semesters instead of a cram in the last one.",
+      body: "Aptitude, reasoning, verbal and technical topics. Two tests a day, so practice becomes a habit across semesters rather than a cram in the last one.",
       records: "Scores against a fixed standard, by topic",
     },
     {
       name: "Chain",
       descriptor: "The DSA tracker",
       glyph: "chain",
-      body: "Curated problem sheets, solved one link at a time. Anything shaky is flagged to come back to in a week or two, because a problem solved once is not yet a problem learned.",
+      body: "Curated problem sheets, one link at a time. Anything shaky comes back in a week or two, because solved once is not yet learned.",
       records: "Solved, unsolved, due for revisit",
     },
     {
@@ -61,7 +61,7 @@ export const featuresPage = {
       descriptor: "The résumé builder",
       glyph: "sheet",
       ai: true,
-      body: "AI that helps a student write the version of themselves a recruiter reads first, set in curated templates rather than whatever a search turned up.",
+      body: "AI that helps a student write the version of themselves a recruiter reads first, in curated templates.",
       records: "Versions on file, ready before a drive",
     },
     {
@@ -69,14 +69,14 @@ export const featuresPage = {
       descriptor: "The question forum",
       glyph: "reciprocal",
       ai: true,
-      body: "An AI-backed forum for the questions a student will not ask in class, answered when they are stuck rather than when office hours allow.",
+      body: "An AI-backed forum for the questions a student will not ask in class, answered when they are stuck.",
       records: "What students are asking, as it changes",
     },
     {
       name: "Avsar",
       descriptor: "Campus applications",
       glyph: "peg",
-      body: "Drives and internships applied for in one place, instead of across WhatsApp groups and Google Forms. अवसर means opportunity.",
+      body: "Drives and internships applied for in one place instead of WhatsApp groups. अवसर means opportunity.",
       records: "Applications, eligibility, deadlines",
     },
   ] satisfies Feature[],
@@ -108,12 +108,12 @@ export const featuresPage = {
 
   ai: {
     heading: "AI where it does real work.",
-    body: "Two features carry AI in their name, because AI does the work inside them: drafting a résumé, and answering a question at an hour nobody else is awake. Everywhere else the logic is deliberate and repeatable, which is what lets a placement cell trust what the record says.",
+    body: "Two features carry AI in their name, because AI does the work inside them: drafting a résumé, and answering a question at an hour nobody else is awake. Everywhere else the logic is repeatable, which is what lets a placement cell trust the record.",
   },
 
   datum: {
     heading: "And one view for your college.",
-    body: "Datum is the dashboard your placement cell holds: the record all of this builds, read cohort by cohort.",
+    body: "Datum is the dashboard your placement cell holds: the record all of this builds, read by cohort.",
     link: { label: "What Datum shows", href: "/analytics/" },
   },
 } as const;

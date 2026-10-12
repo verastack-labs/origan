@@ -108,6 +108,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* The header and the section index live here rather than in each
             page, so navigating between sheets does not tear them down and
             rebuild them. Only the content between them changes. */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-control focus:bg-survey focus:px-4 focus:py-2.5 focus:font-mono focus:text-[11px] focus:uppercase focus:tracking-[0.08em] focus:text-survey-ink"
+        >
+          Skip to content
+        </a>
         <InterestProvider>
           <SiteNav />
           <PageTransition>{children}</PageTransition>

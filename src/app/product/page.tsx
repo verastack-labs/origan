@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHead, h2, section, shell } from "@/components/page-head";
+import { Action } from "@/components/action";
 import { Reveal } from "@/components/reveal";
 import { Glyph, type GlyphName } from "@/components/survey-glyphs";
 import { SurfaceStudy } from "@/components/surface-study";
@@ -91,21 +92,20 @@ export default function Product() {
       </section>
 
       <section className={`border-y border-line bg-ground-2 ${section}`}>
-        <div className={shell}>
-          <Reveal variant="label" className="notation">
-            {product.rest.heading}
-          </Reveal>
-          <div className="mt-[clamp(20px,3vw,36px)] grid gap-px overflow-hidden rounded-panel border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
-            {product.rest.items.map((item) => (
-              <Reveal key={item.name} className="flex gap-3.5 bg-panel p-[clamp(18px,2.4vw,26px)]">
-                <Glyph name={item.glyph as GlyphName} />
-                <div>
-                  <h3 className="text-[16px] font-semibold text-fg">{item.name}</h3>
-                  <p className="mt-1.5 text-[15px] text-fg-2">{item.body}</p>
-                </div>
-              </Reveal>
-            ))}
+        <div className={`${shell} grid gap-[clamp(24px,4vw,56px)] md:grid-cols-[minmax(0,1fr)_auto] md:items-end`}>
+          <div>
+            <Reveal variant="label" className="notation">
+              {product.rest.heading}
+            </Reveal>
+            <Reveal as="h2" variant="plot" className={h2}>
+              {product.rest.body}
+            </Reveal>
           </div>
+          <Reveal>
+            <Action href={product.rest.link.href} tone="secondary">
+              {product.rest.link.label}
+            </Action>
+          </Reveal>
         </div>
       </section>
 

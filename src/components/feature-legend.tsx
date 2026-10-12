@@ -58,9 +58,6 @@ export function FeatureLegend() {
           <span className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-fg-2">
             {legend.caption}
           </span>
-          <span className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-fg-3">
-            {shown.length + faded.length}+ parts
-          </span>
         </div>
         {shown.map((feature) => (
           <Row key={feature.name} feature={feature} />
