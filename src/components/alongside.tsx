@@ -1,5 +1,6 @@
 import { alongside } from "@/data/content";
 import { Reveal } from "./reveal";
+import { HeadingPair } from "./heading-pair";
 
 function Dash() {
   return (
@@ -32,18 +33,7 @@ export function Alongside() {
         <Reveal variant="label" className="notation">
           Two readings from the same point
         </Reveal>
-        <Reveal
-          as="h2"
-          variant="plot"
-          className="mt-3.5 max-w-[17ch] text-[clamp(27px,4.6vw,50px)] font-bold leading-[1.05] tracking-[-0.035em]"
-        >
-          {alongside.heading.before}
-          <em className="not-italic text-survey">{alongside.heading.accent}</em>
-          {alongside.heading.after}
-        </Reveal>
-        <Reveal as="p" className="mt-4 max-w-[52ch] text-fg-2">
-          {alongside.body}
-        </Reveal>
+        <HeadingPair pair={alongside} className="mt-3.5" />
 
         <Reveal className="mt-[clamp(24px,3.4vw,44px)] grid grid-cols-1 overflow-hidden rounded-panel border border-line md:grid-cols-2">
           <div className="border-b border-line bg-ground-2 p-[clamp(20px,2.8vw,32px)] md:border-b-0 md:border-r">

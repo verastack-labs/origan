@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { PageHead, h2, section, shell } from "@/components/page-head";
+import { PageHead, section, shell } from "@/components/page-head";
 import { Reveal } from "@/components/reveal";
+import { HeadingPair } from "@/components/heading-pair";
 import { Glyph, GlyphChain, type GlyphName } from "@/components/survey-glyphs";
 import { Alongside } from "@/components/alongside";
 import { TalkSection } from "@/components/talk-section";
@@ -8,18 +9,14 @@ import { partnership } from "@/data/content";
 
 export const metadata: Metadata = {
   title: "The partnership",
-  description: partnership.body,
+  description: partnership.description,
   alternates: { canonical: "/partnership/" },
 };
 
 export default function Partnership() {
   return (
     <>
-      <PageHead
-        notation={partnership.notation}
-        headline={partnership.headline}
-        body={partnership.body}
-      />
+      <PageHead notation={partnership.notation} pair={partnership} />
 
       <section id="shape" className={section}>
         <div className={shell}>
@@ -48,12 +45,7 @@ export default function Partnership() {
           <Reveal variant="label" className="notation">
             Modes of engagement
           </Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            {partnership.modes.heading}
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[54ch] text-fg-2">
-            {partnership.modes.body}
-          </Reveal>
+          <HeadingPair pair={partnership.modes} className="mt-3.5" />
 
           <div className="mt-[clamp(24px,3.4vw,44px)] grid gap-px overflow-hidden rounded-panel border border-line bg-line md:grid-cols-2">
             {partnership.modes.items.map((mode) => (
@@ -74,10 +66,8 @@ export default function Partnership() {
           <Reveal variant="label" className="notation">
             Term and delivery
           </Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            {partnership.term.heading}
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[54ch] text-fg-2">
+          <HeadingPair pair={partnership.term} className="mt-3.5" />
+          <Reveal as="p" className="mt-5 max-w-[54ch] text-fg-2">
             {partnership.term.body}
           </Reveal>
 
@@ -103,8 +93,9 @@ export default function Partnership() {
       <section className={section}>
         <div className={shell}>
           <Reveal variant="label" className="notation">
-            {partnership.who.heading}
+            {partnership.who.notation}
           </Reveal>
+          <HeadingPair pair={partnership.who} className="mt-3.5" />
           <div className="mt-[clamp(20px,3vw,36px)] grid gap-px overflow-hidden rounded-panel border border-line bg-line lg:grid-cols-3">
             {partnership.who.items.map((item) => (
               <Reveal key={item.role} className="bg-panel p-[clamp(20px,2.6vw,30px)]">
@@ -127,10 +118,7 @@ export default function Partnership() {
           </Reveal>
 
           <Reveal className="mt-[clamp(20px,2.6vw,32px)] max-w-[62ch] border-l border-warn/50 pl-5">
-            <h3 className="font-mono text-[10px] uppercase tracking-[0.11em] text-fg-3">
-              {partnership.cost.heading}
-            </h3>
-            <p className="mt-3 text-[16px] text-fg-2">{partnership.cost.body}</p>
+            <HeadingPair pair={partnership.cost} as="h3" size="card" />
           </Reveal>
         </div>
       </section>

@@ -21,12 +21,10 @@ export type Feature = {
 
 export const featuresPage = {
   notation: "Features",
-  headline: {
-    before: "Every part measures some of the ",
-    accent: "distance",
-    after: ".",
-  },
-  body: "Each part is named for a surveyor's instrument or mark, because each records a piece of the ground between first semester and placement drive.",
+  kicker: "Each part is named for a surveyor's instrument, because each one measures a piece of the ground between first semester and the placement drive.",
+  heading: "Every part measures [something].",
+  description:
+    "Each part is named for a surveyor's instrument or mark, because each records a piece of the ground between first semester and placement drive.",
 
   legend: {
     caption: "Legend",
@@ -107,13 +105,14 @@ export const featuresPage = {
   ] satisfies Feature[],
 
   ai: {
-    heading: "AI where it does real work.",
-    body: "Two features carry AI in their name, because AI does the work inside them: drafting a résumé, and answering a question at an hour nobody else is awake. Everywhere else the logic is repeatable, which is what lets a placement cell trust the record.",
+    heading: "AI where it [works].",
+    sub: "Two features carry AI in their name because AI does the work inside them: drafting a résumé, and answering at an hour nobody else is awake.",
+    body: "Everywhere else the logic is repeatable, which is what lets a placement cell trust the record.",
   },
 
   datum: {
-    heading: "And one view for your college.",
-    body: "Datum is the dashboard your placement cell holds: the record all of this builds, read by cohort.",
+    heading: "And one view for your [college].",
+    sub: "Datum is the dashboard your placement cell holds: the record all of this builds, read by cohort.",
     link: { label: "What Datum shows", href: "/analytics/" },
   },
 } as const;

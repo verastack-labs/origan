@@ -8,16 +8,14 @@
 
 export const coachPage = {
   notation: "The Campus Coach",
-  headline: {
-    before: "The person who ",
-    accent: "stays",
-    after: " for the whole term.",
-  },
-  body: "A Campus Coach is assigned to your college for as long as the partnership runs. They talk with your students, shape what gets built, and report to your placement cell. Your students will just call them Coach.",
+  heading: "The one who [stays].",
+  sub: "A Campus Coach is assigned to your college for the whole partnership. Your students will just call them Coach.",
+  description:
+    "A Campus Coach is assigned to your college for as long as the partnership runs. They talk with your students, shape what gets built, and report to your placement cell. Your students will just call them Coach.",
 
   role: {
-    heading: "Five things, every term.",
-    body: "None of them is a visit. All of them repeat, because a cohort changes every year.",
+    heading: "Five things, every [term].",
+    sub: "None of them is a visit. All of them repeat, because a cohort changes every year.",
     duties: [
       {
         glyph: "staff",
@@ -48,8 +46,8 @@ export const coachPage = {
   },
 
   day: {
-    heading: "What a campus day looks like.",
-    body: "A surveyor books every reading on the day it is taken. A Campus Coach works the same way.",
+    kicker: "A surveyor books every reading on the day it's taken.",
+    heading: "So does a Campus [Coach].",
     caption: "Field book",
     disclaimer: "Illustrative entries, not a real campus",
     columns: ["Time", "Station", "Observation", "Booked to"],
@@ -95,14 +93,14 @@ export const coachPage = {
   },
 
   modes: {
-    heading: "On campus, or remote.",
-    body: "Same Coach, same work. What changes is how often they are physically on campus.",
+    heading: "On campus, or [remote].",
+    sub: "Same Coach, same work. Only how often they're on campus changes.",
     link: { label: "How the two modes work", href: "/partnership/" },
   },
 
   continuity: {
-    heading: "Built to outlast any one person.",
-    body: "Everything a Coach learns is booked to Datum and to the reports your college already holds. A change of Coach is a handover, not a restart.",
+    heading: "Built to outlast one [person].",
+    sub: "Everything a Coach learns is booked to Datum. A change of Coach is a handover, not a restart.",
     not: [
       {
         label: "Not a trainer",
