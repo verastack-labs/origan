@@ -39,21 +39,21 @@ else.
 file, including the generated social card, which reads the stylesheet at build
 time rather than carrying a copy.
 
-| Token | Value | What it is |
-| --- | --- | --- |
-| `ground` | `#0d1815` | The page |
-| `ground-2` | `#101f1b` | A banded section |
-| `panel` | `#13251f` | A bordered panel |
-| `panel-2` | `#16302a` | The selected state inside one |
-| `line` | `#22423a` | Rules, the heavier weight |
-| `line-2` | `#1a332c` | Rules, the lighter weight |
-| `fg` | `#eef3f0` | Body and headings |
-| `fg-2` | `#9db3aa` | Secondary copy |
-| `fg-3` | `#708f86` | Notation labels |
-| `survey` | `#5fd9a8` | The one saturated colour |
-| `survey-2` | `#3e7f6b` | Its dimmed partner, for linework |
-| `survey-ink` | `#06251a` | Type on a survey fill |
-| `warn` | `#e2b24a` | A genuinely different hue |
+| Token | Dark (default) | Light | What it is |
+| --- | --- | --- | --- |
+| `ground` | `#050807` | `#f7f9f8` | The page |
+| `ground-2` | `#080d0b` | `#eef2f0` | A banded section |
+| `panel` | `#0a100d` | `#ffffff` | A bordered panel |
+| `panel-2` | `#0f1714` | `#e9eeec` | The selected state inside one |
+| `line` | `#1f2a25` | `#c9d3cf` | Rules, the heavier weight |
+| `line-2` | `#151d19` | `#e0e7e4` | Rules, the lighter weight |
+| `fg` | `#edf2ef` | `#0a110e` | Body and headings |
+| `fg-2` | `#9aa9a2` | `#45534d` | Secondary copy |
+| `fg-3` | `#74847d` | `#5b6a64` | Notation labels |
+| `survey` | `#4cc596` | `#0b6b48` | The one saturated colour |
+| `survey-2` | `#3a7d65` | `#3c7962` | Its dimmed partner, for linework |
+| `survey-ink` | `#03140d` | `#f4fbf7` | Type on a survey fill |
+| `warn` | `#e2b24a` | `#8a5a00` | A genuinely different hue |
 
 **Three surface steps, two rule weights, three text levels, one accent.** The
 accent is used for the thing being measured and never for emphasis in general;
@@ -61,17 +61,22 @@ accent is used for the thing being measured and never for emphasis in general;
 colour rather than a lighter shade of the same one, which would have read as a
 variant of Origan rather than as the alternative to it.
 
-**Light is the default; dark is a choice.** The site first shipped dark only,
-and read as too green: three ink-green surfaces under a mint accent is a lot of
-one hue. Light is now what every first visit sees, whatever the operating
-system prefers: a pale survey-green sheet with ink linework, the way a drawing
-is plotted on paper. The accent darkens to `#0a7550` so it holds 4.5:1 as text
-on it. The table above is the dark palette, which a switch in the header
-applies, stores, and restores before first paint on the next visit.
+**Ink: dark is the default; light is a choice.** Decided 13 October 2026. The
+site first shipped on ink-green surfaces under a mint accent, which read as
+too green; a pale survey-green light default followed, and still read as a
+lot of one hue. The ink palette takes the green out of the field: near-black
+surfaces with only an undertone of green, near-white type, and the accent
+muted to an emerald (`#4cc596`) so it is the only colour on the page and reads
+as a measurement rather than as a brand wash. Every first visit sees it,
+whatever the operating system prefers. Light is the same drawing on
+near-white paper, with the accent deepened to `#0b6b48` to hold 4.5:1 as text.
+A switch in the header applies light, stores it, and restores it before first
+paint on the next visit.
 
 Both palettes share every token name, so no component knows which ground it is
-on. The light values live in `@theme`; dark is an unlayered
-`:root[data-theme="dark"]` block over them.
+on. The dark values live in `@theme`, so a visitor without JavaScript still
+gets the default; light is an unlayered `:root[data-theme="light"]` block over
+them. The decks and the explainer film use the dark column.
 
 **Contrast.** `pnpm check:contrast` measures sixteen pairs, in both palettes, against WCAG 2.1 AA
 and prints every one. `fg-3` began at `#6b8880` and measured 4.16:1 on a panel,
@@ -325,8 +330,8 @@ few hundred milliseconds.
 **The phone register lists the page's sections** beneath the sheet list, so a
 reader at 390px has the same wayfinding as one at 1440.
 
-**Light rules darkened a step** (`line` #a8c3b5, `line-2` #c8dbd0) so a ruled
-panel grid reads as ruled rather than as faint grey boxes.
+**Light rules darkened a step** so a ruled panel grid reads as ruled rather
+than as faint grey boxes. (Superseded by the ink palette's own rule values.)
 
 **Copy is shorter everywhere.** Openers and closers keep their length; every
 other headline is a clause, every body a sentence or two. Hints sit under form

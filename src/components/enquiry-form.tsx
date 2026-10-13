@@ -52,13 +52,13 @@ export function EnquiryForm() {
    * and it needs no ref, which `next/dynamic` does not forward cleanly anyway.
    */
   const [captchaKey, setCaptchaKey] = useState(0);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
   const id = useId();
 
   // The widget takes its theme once, at mount, so it is read at the moment
   // the reader engages rather than when the page loaded.
   function engage() {
-    setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+    setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
     setEngaged(true);
   }
 

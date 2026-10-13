@@ -5,10 +5,10 @@ import { useSyncExternalStore } from "react";
 import { THEME_KEY } from "@/lib/theme";
 
 /**
- * Light or dark. Light is the default for everyone, whatever the operating
+ * Dark or light. Dark is the default for everyone, whatever the operating
  * system prefers: it is the first impression the site is designed around.
- * Dark is a reader's choice, stored, and applied by the inline script in the
- * layout before first paint, so a returning reader never sees a light flash.
+ * Light is a reader's choice, stored, and applied by the inline script in the
+ * layout before first paint, so a returning reader never sees a dark flash.
  *
  * The theme lives on `<html data-theme>`, outside React, so this reads it as an
  * external store rather than mirroring it into state.
@@ -18,7 +18,7 @@ const EVENT = "origan-theme";
 type Theme = "light" | "dark";
 
 function read(): Theme {
-  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark";
 }
 
 function subscribe(onChange: () => void) {
@@ -28,7 +28,7 @@ function subscribe(onChange: () => void) {
 
 function apply(theme: Theme) {
   const root = document.documentElement;
-  if (theme === "dark") root.dataset.theme = "dark";
+  if (theme === "light") root.dataset.theme = "light";
   else delete root.dataset.theme;
 
   // Private windows and locked-down browsers can refuse storage. The switch
@@ -41,8 +41,8 @@ function apply(theme: Theme) {
 }
 
 export function ThemeToggle() {
-  // The server cannot know, and light is what it renders.
-  const theme = useSyncExternalStore(subscribe, read, () => "light" as Theme);
+  // The server cannot know, and dark is what it renders.
+  const theme = useSyncExternalStore(subscribe, read, () => "dark" as Theme);
   const next: Theme = theme === "dark" ? "light" : "dark";
 
   return (

@@ -16,8 +16,8 @@ export type Palette = Record<string, string>;
 
 export function palette(): Palette {
   const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
-  // The light palette only, from the `@theme` block: the card shows the site
-  // the way a first visit does. The dark override that follows is ignored.
+  // The default dark palette only, from the `@theme` block: the card shows the
+  // site the way a first visit does. The light override that follows is ignored.
   const start = css.indexOf("@theme");
   const block = css.slice(css.indexOf("{", start) + 1, css.indexOf("}", start));
   const tokens = Object.fromEntries(

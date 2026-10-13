@@ -6,4 +6,4 @@
 export const THEME_KEY = "origan-theme";
 
 /** Inlined into `<head>` and run before first paint. */
-export const themeScript = `try{if(localStorage.getItem(${JSON.stringify(THEME_KEY)})==="dark")document.documentElement.dataset.theme="dark"}catch(e){}`;
+export const themeScript = `try{if(localStorage.getItem(${JSON.stringify(THEME_KEY)})==="light")document.documentElement.dataset.theme="light"}catch(e){}`;
