@@ -18,14 +18,14 @@ ${site.name} is built by ${site.studio} in ${site.location}.
 
 ## Pages
 
-- ${site.url}/ — the overview.
-- ${site.url}/product/ — what the platform is and what a student does with it.
-- ${site.url}/features/ — the named parts of the platform.
-- ${site.url}/analytics/ — the kinds of cohort-level views a college's dashboard,
+- ${site.url}/: the overview.
+- ${site.url}/product/: what the platform is and what a student does with it.
+- ${site.url}/features/: the named parts of the platform.
+- ${site.url}/analytics/: the kinds of cohort-level views a college's dashboard,
   Datum, is built toward. Every chart on that page uses illustrative data.
-- ${site.url}/coach/ — the Campus Coach: the person assigned to a college for
+- ${site.url}/coach/: the Campus Coach: the person assigned to a college for
   the length of the partnership.
-- ${site.url}/partnership/ — how the partnership is structured, the two
+- ${site.url}/partnership/: how the partnership is structured, the two
   engagement modes, the term, and what is delivered when.
 
 ## What it is

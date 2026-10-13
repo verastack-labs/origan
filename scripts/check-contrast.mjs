@@ -54,7 +54,7 @@ for (const [theme, tokens] of Object.entries(themes)) {
     const ok = r >= min;
     if (!ok) failed += 1;
     rows.push(
-      `  ${ok ? "ok  " : "FAIL"}  ${r.toFixed(2).padStart(5)}:1  (min ${String(min).padStart(3)})  ${fg} on ${bg}  — ${what}`,
+      `  ${ok ? "ok  " : "FAIL"}  ${r.toFixed(2).padStart(5)}:1  (min ${String(min).padStart(3)})  ${fg} on ${bg}  ${what}`,
     );
   }
 
