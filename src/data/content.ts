@@ -8,17 +8,29 @@
 
 export const hero = {
   notation: "Origan · Software placement preparation for engineering colleges",
-  // `accent` is set in survey mint inside the headline. Kept to one short
-  // sentence: the first viewport is carrying a drawing, and a headline that
-  // runs to four lines buries it.
-  headline: { before: "We mark the ", accent: "ground", after: ", all four years." },
-  body: "A Campus Coach on your campus. A platform your students use from first semester to final drive.",
+  // The line the carousel and the film close on, so the site opens on it. The
+  // newline is a deliberate break: the hero's figure owns the right of the frame.
+  heading: "Four years,\nnot four [weeks].",
+  sub: "Placement preparation that starts in first semester. A Campus Coach on your campus, and a platform your students open from day one to the final drive.",
   secondary: { label: "See the four years", href: "#profile" },
 } as const;
 
 export const datum = {
-  statement: { before: "Campus training arrives ", accent: "too late", after: "." },
-  body: "A fortnight in final year, against a fixed syllabus. By then the students who were going to be ready already were.",
+  kicker: "Campus training usually arrives as a fortnight in final year, against a fixed syllabus.",
+  heading: "Final year is too [late].",
+  body: "By then, the students who were going to be ready already are.",
+} as const;
+
+export const profile = {
+  notation: "Longitudinal section",
+  heading: "Every semester has a [job].",
+  sub: "Eight of them, from first direction to final drive. Pick one to see what happens in it.",
+} as const;
+
+export const strandsHead = {
+  notation: "Levels observed",
+  heading: "Four strands, all four [years].",
+  sub: "Direction, practice, readiness and evidence, woven through every semester instead of stacked at the end.",
 } as const;
 
 /** The eight semesters of the longitudinal section, in order. */
@@ -77,36 +89,36 @@ export const strands = [
   {
     glyph: "traverse",
     key: "Direction",
-    heading: "Knowing what to learn next",
+    heading: "Know what's next",
     body: "Bearing builds a roadmap from a short questionnaire. Sightline puts a curated playlist in every block.",
     aside: "Heaviest in the first two years, when drifting is invisible until it is expensive.",
   },
   {
     glyph: "spotHeights",
     key: "Practice",
-    heading: "Doing the work, repeatedly",
+    heading: "Practice that comes back",
     body: "Chain, for data structures with revisit marking. Bench Mark, a test engine covering aptitude and technical topics, spread across years.",
     aside: "The strand every branch uses. Mass recruiters screen on aptitude and hire well beyond computer science.",
   },
   {
     glyph: "station",
     key: "Readiness",
-    heading: "Turning preparation into applications",
+    heading: "From preparation to applications",
     body: "Elevation for résumés. Avsar moves campus drives and internship applications off WhatsApp groups into one place.",
     aside: "Third and fourth year, and where the outcome data comes from.",
   },
   {
     glyph: "sheet",
     key: "Evidence",
-    heading: "What your placement cell sees",
+    heading: "A record your cell can read",
     body: "Datum: cohorts across years, never a score against a name. A report every two to four weeks, shaped with your cell.",
     aside: "Built so students never experience it as being watched.",
   },
 ] as const;
 
 export const alongside = {
-  heading: { before: "Alongside your training, not ", accent: "instead", after: " of it." },
-  body: "Keep your trainers. Origan changes what students are like when they walk in.",
+  heading: "Alongside, not [instead].",
+  sub: "Keep your trainers and your training week. Origan changes who walks into the room.",
   training: {
     label: "A training programme",
     items: [
@@ -128,8 +140,8 @@ export const alongside = {
 } as const;
 
 export const consultant = {
-  heading: "Someone who has sat with your students.",
-  body: "Five to ten conversations a campus day, and what they hear becomes the roadmap.",
+  heading: "Someone on your [campus].",
+  sub: "A Campus Coach sits with your students, five to ten conversations a campus day, and turns what they hear into the roadmap.",
   stats: [
     { value: "5 – 10", label: "Student conversations per campus day" },
     { value: "8", label: "Semesters the partnership covers" },
@@ -139,8 +151,8 @@ export const consultant = {
 } as const;
 
 export const close = {
-  heading: "Two years is the shortest term that shows anything.",
-  body: "Long enough for a cohort to move through it. One year is available.",
+  heading: "Give it two [years].",
+  sub: "The shortest term that can show anything. One year is available.",
   secondary: { label: "How the partnership works", href: "/partnership/" },
 } as const;
 
@@ -226,8 +238,8 @@ export const enquiry = {
 export const interest = {
   cta: "Register your interest",
   notation: "Interest list",
-  heading: "Keep your college on the list.",
-  body: "Three fields. We write back with a time to talk, and nothing else lands in your inbox.",
+  heading: "Join the [list].",
+  sub: "Three fields. We'll write back with a time to talk, and nothing else.",
   subject: "Origan interest list",
   fields: [
     { name: "email", label: "Email", type: "email", placeholder: "you@college.ac.in", autoComplete: "email" },
@@ -236,8 +248,8 @@ export const interest = {
   ] as const,
   submit: "Register",
   sending: "Sending",
-  sentHeading: "Registered.",
-  sent: "You will hear from Rigan within two working days. If your season is close, write to him directly at the foot of the page.",
+  sentHeading: "You're on the list.",
+  sent: "You'll hear from Rigan within two working days. If your season is close, write to him directly at the foot of the page.",
   done: "Back to the page",
   assurance: "One inbox. No mailing list.",
   awaitingCaptcha: "Complete the check above to register.",
@@ -249,16 +261,14 @@ export const interest = {
 
 export const product = {
   notation: "The platform",
-  headline: {
-    before: "A place a student opens in ",
-    accent: "first year",
-    after: ", and still opens in fourth.",
-  },
-  body: "Not a course. The thing a student returns to for eight semesters: what to learn next, the practice that makes it stick, and the applications at the end.",
+  kicker: "Not a course you finish. The place a student comes back to for eight semesters.",
+  heading: "From first year to [fourth].",
+  description:
+    "Not a course. The thing a student returns to for eight semesters: what to learn next, the practice that makes it stick, and the applications at the end.",
 
   roadmap: {
-    heading: "Bearing builds the roadmap, then it stays put.",
-    body: "A short questionnaire on domain, language and existing skill produces an ordered set of blocks, each with a curated playlist. The blocks do not shuffle. A student who wants another direction generates a second roadmap and keeps both.",
+    heading: "A roadmap that [stays].",
+    sub: "Bearing builds it from a short questionnaire, in blocks that don't reshuffle. Want another direction? Generate a second roadmap and keep both.",
     points: [
       {
         glyph: "traverse",
@@ -279,8 +289,8 @@ export const product = {
   },
 
   practice: {
-    heading: "Chain and Bench Mark, across four years.",
-    body: "Chain is curated data structure sheets with a revisit flag, so a hard question comes back in a week or two. Bench Mark is a test engine that selects by topic, two tests a day, so it stays a habit rather than a binge.",
+    heading: "Practice that comes [back].",
+    sub: "Chain brings a hard question back in a week or two. Bench Mark sets two tests a day, so practice becomes a habit, not a binge.",
     aptitude: {
       glyph: "spotHeights",
     label: "Aptitude sits inside the test engine",
@@ -294,14 +304,15 @@ export const product = {
   },
 
   avsar: {
-    heading: "Avsar, where applications happen.",
-    body: "Campus openings in one place instead of across WhatsApp groups. Students apply in a click from a saved résumé. Your cell stops chasing spreadsheets.",
+    heading: "Off the WhatsApp [groups].",
+    sub: "Avsar puts every campus opening in one place. Students apply in a click from a saved résumé, and your cell stops chasing spreadsheets.",
     aside: "Also the measurement layer: without a record of who applied where, preparation can never be shown to have mattered.",
   },
 
   rest: {
-    heading: "The rest of it",
-    body: "Nine named parts, and one view for your college.",
+    notation: "The rest of it",
+    heading: "And the [rest].",
+    sub: "Nine named parts, and one view for your college.",
     link: { label: "Every feature, by name", href: "/features/" },
   },
 } as const;
@@ -310,12 +321,10 @@ export const product = {
 
 export const partnership = {
   notation: "The partnership",
-  headline: {
-    before: "Two things, one ",
-    accent: "partnership",
-    after: ".",
-  },
-  body: "A platform your students use every week, and a person who has sat with them. One without the other is a fraction of the value.",
+  heading: "Two things, one [partnership].",
+  description:
+    "A platform your students use every week, and a person who has sat with them. One without the other is a fraction of the value.",
+  sub: "A platform your students use every week, and a person who has sat with them. Either alone is a fraction of the value.",
 
   shape: [
     {
@@ -333,8 +342,8 @@ export const partnership = {
   ],
 
   modes: {
-    heading: "Two modes, and the difference is presence.",
-    body: "Same platform, same Campus Coach. What changes is how often they are physically on your campus, and that cadence is agreed per contract.",
+    heading: "Two modes, one [difference].",
+    sub: "Same platform, same Campus Coach. What changes is how often they're physically on campus, agreed per contract.",
     items: [
       {
         glyph: "instrument",
@@ -350,8 +359,9 @@ export const partnership = {
   },
 
   term: {
-    heading: "Two years, because one shows nothing.",
-    body: "A single year ends before any student reaches the part that pays off. Two years is the shortest term that can demonstrate itself. One year is available, and anything can be negotiated.",
+    kicker: "A single year ends before any student reaches the part that pays off.",
+    heading: "Two years, at [least].",
+    body: "One year is available, and anything can be negotiated.",
     timeline: [
       { when: "Day one", what: "The platform is live for students. Nothing is gated behind an assessment period." },
       { when: "Week one onward", what: "Your Campus Coach begins student conversations on the agreed cadence." },
@@ -362,7 +372,9 @@ export const partnership = {
   },
 
   who: {
-    heading: "Who this involves",
+    notation: "Who this involves",
+    heading: "Who's in the [room].",
+    sub: "The people who sign, the people who run it, and the people it's for.",
     items: [
       {
         glyph: "benchmark",
@@ -394,13 +406,13 @@ export const partnership = {
   },
 
   cost: {
-    heading: "On cost",
-    body: "Not published. It depends on headcount, mode and term, and a number here would be the wrong one. It is the first thing a conversation covers.",
+    heading: "On [cost].",
+    sub: "Not published. It depends on headcount, mode and term, and it's the first thing a conversation covers.",
   },
 } as const;
 
 export const talk = {
-  heading: "Start the conversation.",
-  body: "Tell us a little about your college and we will come back with a time.",
-  orRegister: "Not ready for a conversation? Three fields keeps your college on the list.",
+  heading: "Let's [talk].",
+  sub: "Tell us about your college, and we'll come back with a time within two working days.",
+  orRegister: "Not ready to talk yet? Three fields keeps your college on the list.",
 } as const;

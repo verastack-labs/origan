@@ -6,8 +6,9 @@ import { Reveal } from "@/components/reveal";
 import { Action } from "@/components/action";
 import { InterestButton } from "@/components/interest";
 import { TalkSection } from "@/components/talk-section";
-import { h2, section, shell } from "@/components/page-head";
-import { close, consultant, datum } from "@/data/content";
+import { section, shell } from "@/components/page-head";
+import { close, consultant, datum, profile, strandsHead } from "@/data/content";
+import { HeadingPair } from "@/components/heading-pair";
 
 export default function Home() {
   return (
@@ -18,16 +19,8 @@ export default function Home() {
         {/* More room above the statement than below it: it belongs to the
             section it introduces, and the profile follows immediately. */}
         <section className="border-b border-line-2 pb-[clamp(44px,6vw,80px)] pt-[clamp(70px,11vw,150px)]">
-          <Reveal
-            as="p"
-            variant="plot"
-            className="max-w-[20ch] text-[clamp(25px,4.4vw,48px)] font-semibold leading-[1.16] tracking-[-0.032em]"
-          >
-            {datum.statement.before}
-            <em className="not-italic text-survey">{datum.statement.accent}</em>
-            {datum.statement.after}
-          </Reveal>
-          <Reveal as="p" className="mt-[22px] max-w-[46ch] text-[17px] text-fg-2">
+          <HeadingPair pair={datum} />
+          <Reveal as="p" className="mt-4 max-w-[54ch] text-fg-2">
             {datum.body}
           </Reveal>
         </section>
@@ -35,23 +28,16 @@ export default function Home() {
 
       <section id="profile" className={`border-y border-line bg-ground-2 ${section}`}>
         <div className={shell}>
-          <Reveal variant="label" className="notation">Longitudinal section</Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            Eight semesters, marked.
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[52ch] text-fg-2">
-            Select a semester.
-          </Reveal>
+          <Reveal variant="label" className="notation">{profile.notation}</Reveal>
+          <HeadingPair pair={profile} className="mt-3.5" />
           <LongitudinalProfile />
         </div>
       </section>
 
       <section id="strands" className={section}>
         <div className={shell}>
-          <Reveal variant="label" className="notation">Levels observed</Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            Four strands, running the <em className="not-italic text-survey">whole way</em>.
-          </Reveal>
+          <Reveal variant="label" className="notation">{strandsHead.notation}</Reveal>
+          <HeadingPair pair={strandsHead} className="mt-3.5" />
           <Strands />
         </div>
       </section>
@@ -59,12 +45,7 @@ export default function Home() {
       <section id="consultant" className={section}>
         <div className={shell}>
           <Reveal variant="label" className="notation">Field observation</Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            {consultant.heading}
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[52ch] text-fg-2">
-            {consultant.body}
-          </Reveal>
+          <HeadingPair pair={consultant} className="mt-3.5" />
           <ConsultantStats />
           <Reveal className="mt-7">
             <Action href="/coach/" tone="secondary">
@@ -77,12 +58,7 @@ export default function Home() {
       <section className={section}>
         <div className={shell}>
           <Reveal variant="label" className="notation">The terms, in short</Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            {close.heading}
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[52ch] text-fg-2">
-            {close.body}
-          </Reveal>
+          <HeadingPair pair={close} className="mt-3.5" />
           <Reveal className="mt-7 flex flex-wrap gap-3">
             <InterestButton />
             <Action href={close.secondary.href} tone="secondary">

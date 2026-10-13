@@ -17,6 +17,7 @@ import { interest } from "@/data/content";
 import { submissionBody } from "@/lib/enquiry";
 import { actionClass } from "./action";
 import { BenchmarkMark } from "./benchmark-mark";
+import { accented } from "./heading-pair";
 
 /**
  * The interest list: three fields in a dialog, reachable from every call to
@@ -168,9 +169,9 @@ export function InterestProvider({ children }: { children: ReactNode }) {
             ) : (
               <form onSubmit={onSubmit}>
                 <h2 id={`${id}-title`} className="text-[clamp(22px,3vw,28px)] font-bold tracking-[-0.03em]">
-                  {interest.heading}
+                  {accented(interest.heading)}
                 </h2>
-                <p className="mt-2.5 text-[15.5px] text-fg-2">{interest.body}</p>
+                <p className="mt-2.5 text-[15.5px] text-fg-2">{interest.sub}</p>
 
                 <input
                   type="checkbox"

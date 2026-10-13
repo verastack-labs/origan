@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { Action } from "@/components/action";
 import { FieldBook } from "@/components/field-book";
-import { PageHead, h2, section, shell } from "@/components/page-head";
+import { PageHead, section, shell } from "@/components/page-head";
 import { Reveal } from "@/components/reveal";
+import { HeadingPair, accented } from "@/components/heading-pair";
 import { Glyph, type GlyphName } from "@/components/survey-glyphs";
 import { TalkSection } from "@/components/talk-section";
 import { coachPage } from "@/data/coach";
 
 export const metadata: Metadata = {
   title: "The Campus Coach",
-  description: coachPage.body,
+  description: coachPage.description,
   alternates: { canonical: "/coach/" },
 };
 
@@ -18,19 +19,14 @@ export default function Coach() {
 
   return (
     <>
-      <PageHead notation={coachPage.notation} headline={coachPage.headline} body={coachPage.body} />
+      <PageHead notation={coachPage.notation} pair={coachPage} />
 
       <section id="role" className={section}>
         <div className={shell}>
           <Reveal variant="label" className="notation">
             Duties of the station
           </Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            {role.heading}
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[54ch] text-fg-2">
-            {role.body}
-          </Reveal>
+          <HeadingPair pair={role} className="mt-3.5" />
 
           {/* A ruled schedule rather than a grid of tiles: five duties read
               down a page the way a specification lists them. */}
@@ -59,12 +55,7 @@ export default function Coach() {
           <Reveal variant="label" className="notation">
             Booked on the day
           </Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            {coachPage.day.heading}
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[54ch] text-fg-2">
-            {coachPage.day.body}
-          </Reveal>
+          <HeadingPair pair={coachPage.day} className="mt-3.5" />
           <FieldBook />
         </div>
       </section>
@@ -72,7 +63,7 @@ export default function Coach() {
       <section className={section}>
         <div className={`${shell} flex flex-wrap items-center justify-between gap-x-10 gap-y-5`}>
           <Reveal as="p" className="max-w-[52ch] text-[clamp(18px,2.2vw,24px)] font-semibold tracking-[-0.02em]">
-            {modes.heading} <span className="font-normal text-fg-2">{modes.body}</span>
+            {accented(modes.heading)} <span className="font-normal text-fg-2">{modes.sub}</span>
           </Reveal>
           <Reveal>
             <Action href={modes.link.href} tone="secondary">
@@ -87,12 +78,7 @@ export default function Coach() {
           <Reveal variant="label" className="notation">
             Reference that holds
           </Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            {continuity.heading}
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[58ch] text-fg-2">
-            {continuity.body}
-          </Reveal>
+          <HeadingPair pair={continuity} className="mt-3.5" />
 
           <div className="mt-[clamp(24px,3.4vw,44px)] grid gap-px overflow-hidden rounded-panel border border-line bg-line md:grid-cols-3">
             {continuity.not.map((item) => (

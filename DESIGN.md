@@ -99,13 +99,28 @@ monospaced, it is notation.
 Display sizes are fluid and set with `clamp()` so they resolve against the
 viewport rather than at breakpoints:
 
-- Hero headline `clamp(40px, 7.6vw, 100px)`, at `max-w-[13ch]`
-- Page headline `clamp(32px, 6vw, 68px)`
-- Section heading `clamp(27px, 4.6vw, 50px)`, at `max-w-[17ch]`
+- Hero heading `clamp(40px, 7vw, 92px)`
+- Page heading `clamp(32px, 5.4vw, 64px)`
+- Section heading `clamp(27px, 4.2vw, 48px)`
+- Subheading or kicker `clamp(16.5px, 1.6vw, 19px)` to `clamp(17px, 1.9vw, 21px)`
 - Body 17px, secondary 15.5px, notation 9.5–11px
 
-The character-count limits do more work than the sizes. A headline capped at
-13ch breaks where it should at every width without a single breakpoint.
+**Headings come in pairs.** Decided 13 October 2026. Every heading is one short
+line, and it never stands alone. It is paired in one of two shapes:
+
+- **Heading first:** the heading hits, then a subheading lands the impact.
+- **Kicker first:** a setup line, then the heading lands the point.
+
+The data carries the shape (`sub` or `kicker`), and `HeadingPair` renders it.
+One word per heading can take the accent, marked with square brackets in the
+data. Headings are held to 34 characters by `copy.test.ts`, so they sit on one
+line on a laptop; on a phone a heading may break once. The hero is the one
+heading broken on purpose, at a newline in the data ("Four years, / not four
+weeks."), because the figure owns the right of the frame. Every pair on the
+site is listed in `origan-internal/docs/copy-deck.md`.
+
+Contractions ("don't", "we'll") are allowed in subheadings and kickers, where
+they read warmer. Headings and body copy keep the full forms.
 
 ---
 

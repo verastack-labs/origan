@@ -13,19 +13,17 @@
 
 export const analyticsPage = {
   notation: "Analytics",
-  headline: {
-    before: "What your placement cell ",
-    accent: "sees",
-    after: ", every few weeks.",
-  },
-  body: "Datum, your college's dashboard, is its view of the record. How closely it reads is yours to set: a whole batch down to a single section, by branch, semester and topic. A first draft within month one, shaped with your placement cell.",
+  heading: "What your cell [sees].",
+  sub: "Datum reads the record as a whole batch or a single section, by branch, semester and topic. A first draft within month one.",
+  description:
+    "Datum, your college's dashboard, is its view of the record. How closely it reads is yours to set: a whole batch down to a single section, by branch, semester and topic. A first draft within month one, shaped with your placement cell.",
   disclaimer: "Illustrative data",
   direction:
     "Drafted with each college, so these views show the direction, not a fixed product. Every number here is invented.",
 
   trajectory: {
-    heading: "Eight semesters, not eight weeks.",
-    body: "Median Bench Mark score for one cohort, first semester to last. A line that starts early has room to rise.",
+    heading: "Eight semesters, not eight [weeks].",
+    sub: "One cohort's median score, first semester to last. A line that starts early has room to rise.",
     caption: "Median test score by semester",
     unit: "%",
     series: [
@@ -38,8 +36,8 @@ export const analyticsPage = {
   },
 
   branches: {
-    heading: "Every branch.",
-    body: "Share of each branch practising in the last four weeks. A gap is a conversation for your Campus Coach, not a verdict on a department.",
+    heading: "Every branch, side by [side].",
+    sub: "Who's practising, branch by branch. A gap is a conversation for your Campus Coach, not a verdict on a department.",
     caption: "Practising in the last four weeks, by branch",
     rows: [
       { label: "Computer Science", value: 82 },
@@ -52,8 +50,8 @@ export const analyticsPage = {
   },
 
   topics: {
-    heading: "Where a cohort is stuck.",
-    body: "Accuracy by topic and year. Weak cells are where next term's content and practice go.",
+    heading: "Where a cohort is [stuck].",
+    sub: "Accuracy by topic and year. The weak cells decide next term's content.",
     caption: "Accuracy by topic and year",
     years: ["Year 1", "Year 2", "Year 3", "Year 4"],
     rows: [
@@ -69,8 +67,8 @@ export const analyticsPage = {
   },
 
   report: {
-    heading: "A report a dean reads in five minutes.",
-    body: "Every two to four weeks: the readings, what your Campus Coach observed, and what happens next.",
+    kicker: "Every two to four weeks: the readings, what your Campus Coach saw, and what happens next.",
+    heading: "Read in five [minutes].",
     title: "Datum · Report",
     period: "Semester 5 · Weeks 9 to 12",
     readings: [
@@ -97,7 +95,7 @@ export const analyticsPage = {
   },
 
   principle: {
-    heading: "Cohorts, not league tables.",
-    body: "Groups of students over time, to show a college where to help. Nothing in it ranks an individual student.",
+    heading: "Cohorts, not league [tables].",
+    sub: "Groups of students over time, to show a college where to help. Nothing ranks an individual.",
   },
 } as const;

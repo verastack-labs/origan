@@ -2,6 +2,7 @@ import { Reveal } from "./reveal";
 import { EnquiryForm } from "./enquiry-form";
 import { talk } from "@/data/content";
 import { InterestButton } from "./interest";
+import { HeadingPair } from "./heading-pair";
 
 /**
  * The close, identical on every page. The nav's call to action points at
@@ -18,16 +19,7 @@ export function TalkSection() {
         <Reveal variant="label" className="notation">
           Establishing the partnership
         </Reveal>
-        <Reveal
-          as="h2"
-          variant="plot"
-          className="mt-3.5 max-w-[17ch] text-[clamp(27px,4.6vw,50px)] font-bold leading-[1.05] tracking-[-0.035em]"
-        >
-          {talk.heading}
-        </Reveal>
-        <Reveal as="p" className="mt-[18px] max-w-[52ch] text-fg-2">
-          {talk.body}
-        </Reveal>
+        <HeadingPair pair={talk} className="mt-3.5" />
 
         <Reveal className="mt-7 flex max-w-[560px] flex-wrap items-center gap-x-5 gap-y-3 rounded-panel border border-line bg-panel px-5 py-4">
           <InterestButton tone="secondary" />

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { PageHead, h2, section, shell } from "@/components/page-head";
+import { PageHead, section, shell } from "@/components/page-head";
 import { Action } from "@/components/action";
 import { Reveal } from "@/components/reveal";
+import { HeadingPair } from "@/components/heading-pair";
 import { Glyph, type GlyphName } from "@/components/survey-glyphs";
 import { SurfaceStudy } from "@/components/surface-study";
 import { TalkSection } from "@/components/talk-section";
@@ -9,26 +10,21 @@ import { product } from "@/data/content";
 
 export const metadata: Metadata = {
   title: "The platform",
-  description: product.body,
+  description: product.description,
   alternates: { canonical: "/product/" },
 };
 
 export default function Product() {
   return (
     <>
-      <PageHead notation={product.notation} headline={product.headline} body={product.body} />
+      <PageHead notation={product.notation} pair={product} />
 
       <section id="roadmap" className={section}>
         <div className={shell}>
           <Reveal variant="label" className="notation">
             Setting out
           </Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            {product.roadmap.heading}
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[54ch] text-fg-2">
-            {product.roadmap.body}
-          </Reveal>
+          <HeadingPair pair={product.roadmap} className="mt-3.5" />
 
           <div className="mt-[clamp(24px,3.4vw,44px)] grid gap-px overflow-hidden rounded-panel border border-line bg-line md:grid-cols-3">
             {product.roadmap.points.map((point) => (
@@ -49,12 +45,7 @@ export default function Product() {
           <Reveal variant="label" className="notation">
             Repeated observation
           </Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            {product.practice.heading}
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[54ch] text-fg-2">
-            {product.practice.body}
-          </Reveal>
+          <HeadingPair pair={product.practice} className="mt-3.5" />
 
           <Reveal className="mt-[clamp(24px,3.4vw,44px)] flex max-w-[64ch] gap-4 rounded-panel border border-survey-2 bg-panel p-[clamp(22px,3vw,34px)]">
             <Glyph name={product.practice.aptitude.glyph as GlyphName} />
@@ -76,12 +67,7 @@ export default function Product() {
           <Reveal variant="label" className="notation">
             The terminal station
           </Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            {product.avsar.heading}
-          </Reveal>
-          <Reveal as="p" className="mt-[18px] max-w-[54ch] text-fg-2">
-            {product.avsar.body}
-          </Reveal>
+          <HeadingPair pair={product.avsar} className="mt-3.5" />
           <Reveal
             as="p"
             className="mt-6 max-w-[54ch] border-l border-survey-2 pl-5 text-[15.5px] text-fg-3"
@@ -95,11 +81,9 @@ export default function Product() {
         <div className={`${shell} grid gap-[clamp(24px,4vw,56px)] md:grid-cols-[minmax(0,1fr)_auto] md:items-end`}>
           <div>
             <Reveal variant="label" className="notation">
-              {product.rest.heading}
+              {product.rest.notation}
             </Reveal>
-            <Reveal as="h2" variant="plot" className={h2}>
-              {product.rest.body}
-            </Reveal>
+            <HeadingPair pair={product.rest} className="mt-3.5" />
           </div>
           <Reveal>
             <Action href={product.rest.link.href} tone="secondary">
@@ -114,9 +98,7 @@ export default function Product() {
           <Reveal variant="label" className="notation">
             The surface
           </Reveal>
-          <Reveal as="h2" variant="plot" className={h2}>
-            What a student opens on a Tuesday.
-          </Reveal>
+          <HeadingPair pair={{ heading: "What a student opens on a Tuesday." }} className="mt-3.5" />
           <SurfaceStudy />
           <p className="mt-[11px] font-mono text-[9.5px] uppercase tracking-[0.08em] text-fg-3">
             Interface study. Values are illustrative and no deployment exists yet.

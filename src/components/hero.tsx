@@ -4,6 +4,7 @@ import { Reveal } from "./reveal";
 import { Action } from "./action";
 import { InterestButton } from "./interest";
 import { NorthArrow } from "./survey-glyphs";
+import { HeadingPair } from "./heading-pair";
 
 /**
  * The first viewport is the drawing, and the drawing is a triangulation
@@ -52,19 +53,10 @@ export function Hero() {
           {hero.notation}
         </Reveal>
 
-        <Reveal
-          as="h1"
-          variant="plot"
-          className="mt-4 max-w-[13ch] text-[clamp(40px,7.6vw,100px)] font-extrabold leading-[0.94] tracking-[-0.045em]"
-        >
-          {hero.headline.before}
-          <em className="not-italic text-survey">{hero.headline.accent}</em>
-          {hero.headline.after}
-        </Reveal>
-
-        <Reveal as="p" className="mt-5 max-w-[44ch] text-[clamp(16px,1.9vw,18.5px)] text-fg-2">
-          {hero.body}
-        </Reveal>
+        {/* The one heading on the site allowed two lines, broken where the
+            data says: the figure owns the right of the frame, so the line sets
+            as "Four years, / not four weeks." in the left column. */}
+        <HeadingPair pair={hero} as="h1" size="hero" className="mt-4" />
 
         <Reveal className="mt-[26px] flex flex-wrap gap-3">
           <InterestButton />
