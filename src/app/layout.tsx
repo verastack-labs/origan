@@ -91,7 +91,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       // there is JavaScript to bring it back. Without this the hiding class
       // arrives in an effect, and every heading paints, vanishes, then
       // animates in, which reads as a bug rather than as an entrance. The same
-      // script applies a stored dark theme, for the same reason.
+      // script applies a stored light theme, for the same reason.
       suppressHydrationWarning
     >
       <head>

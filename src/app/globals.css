@@ -7,39 +7,39 @@
  * `pnpm check:components` fails the build if a hex literal appears outside
  * this file.
  *
- * World: survey and levelling notation, drawn on two grounds. Light is the
- * default and the first thing anyone sees: a pale survey-green sheet with ink
- * linework, the way a drawing is plotted on paper. Dark is the same drawing
- * read as light lines on a dark field, and is the reader's choice, kept in
- * localStorage and applied before first paint by an inline script in the
- * layout.
+ * World: survey and levelling notation, drawn on two grounds. Dark is the
+ * default and the first thing anyone sees: ink linework on a near-black field
+ * with only an undertone of green, so the one accent carries all the colour.
+ * Light is the same drawing plotted on near-white paper, and is the reader's
+ * choice, kept in localStorage and applied before first paint by an inline
+ * script in the layout.
  *
  * Both palettes use the same token names, so no component knows which one it
  * is on. `pnpm check:contrast` checks every pair against both.
  */
 @theme {
   /* --- surfaces, three steps from the page down to a panel --- */
-  --color-ground: #eef6f1;
-  --color-ground-2: #e3eee7;
-  --color-panel: #f9fcfa;
-  --color-panel-2: #deebe3;
+  --color-ground: #050807;
+  --color-ground-2: #080d0b;
+  --color-panel: #0a100d;
+  --color-panel-2: #0f1714;
 
   /* --- rules, two weights only --- */
-  --color-line: #a8c3b5;
-  --color-line-2: #c8dbd0;
+  --color-line: #1f2a25;
+  --color-line-2: #151d19;
 
   /* --- text, three levels --- */
-  --color-fg: #0e211a;
-  --color-fg-2: #3b5a4f;
-  --color-fg-3: #4f6b5f;
+  --color-fg: #edf2ef;
+  --color-fg-2: #9aa9a2;
+  --color-fg-3: #74847d;
 
   /* --- the one saturated colour, plus its dimmed partner for linework --- */
-  --color-survey: #0a7550;
-  --color-survey-2: #3c7962;
-  --color-survey-ink: #f3fbf7;
+  --color-survey: #4cc596;
+  --color-survey-2: #3a7d65;
+  --color-survey-ink: #03140d;
 
   /* --- a genuinely different hue, never a shade of the accent --- */
-  --color-warn: #8a5a00;
+  --color-warn: #e2b24a;
 
   /* --- faces --- */
   --font-display: var(--font-archivo), system-ui, sans-serif;
@@ -54,34 +54,32 @@
 }
 
 /*
- * The dark drawing. Unlayered, so it outranks the @theme defaults above.
+ * The light drawing. Unlayered, so it outranks the @theme defaults above.
  */
-:root[data-theme="dark"] {
-  color-scheme: dark;
+:root[data-theme="light"] {
+  color-scheme: light;
 
-  --color-ground: #0d1815;
-  --color-ground-2: #101f1b;
-  --color-panel: #13251f;
-  --color-panel-2: #16302a;
+  --color-ground: #f7f9f8;
+  --color-ground-2: #eef2f0;
+  --color-panel: #ffffff;
+  --color-panel-2: #e9eeec;
 
-  --color-line: #22423a;
-  --color-line-2: #1a332c;
+  --color-line: #c9d3cf;
+  --color-line-2: #e0e7e4;
 
-  --color-fg: #eef3f0;
-  --color-fg-2: #9db3aa;
-  /* Lightened from #6b8880, which measured 4.16:1 against a panel and so
-     failed AA for the notation labels that sit on one. */
-  --color-fg-3: #708f86;
+  --color-fg: #0a110e;
+  --color-fg-2: #45534d;
+  --color-fg-3: #5b6a64;
 
-  --color-survey: #5fd9a8;
-  --color-survey-2: #3e7f6b;
-  --color-survey-ink: #06251a;
+  --color-survey: #0b6b48;
+  --color-survey-2: #3c7962;
+  --color-survey-ink: #f4fbf7;
 
-  --color-warn: #e2b24a;
+  --color-warn: #8a5a00;
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 @layer base {

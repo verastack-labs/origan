@@ -38,9 +38,10 @@ export function parseTokens(css) {
 }
 
 /**
- * Both palettes. Light is the `@theme` block; dark is the
- * `:root[data-theme="dark"]` block laid over it, so a token dark does not
- * redefine falls back to its light value exactly as the browser would.
+ * Both palettes. The `@theme` block is the default; each of
+ * `:root[data-theme="light"]` and `:root[data-theme="dark"]`, where present, is
+ * laid over it, so a token a theme does not redefine falls back to the default
+ * exactly as the browser would.
  */
 export function parseThemes(css) {
   const block = (marker) => {
@@ -49,7 +50,8 @@ export function parseThemes(css) {
     const open = css.indexOf("{", at);
     return css.slice(open + 1, css.indexOf("}", open));
   };
-  const light = parseTokens(block("@theme"));
-  const dark = { ...light, ...parseTokens(block(':root[data-theme="dark"]')) };
+  const base = parseTokens(block("@theme"));
+  const light = { ...base, ...parseTokens(block(':root[data-theme="light"]')) };
+  const dark = { ...base, ...parseTokens(block(':root[data-theme="dark"]')) };
   return { light, dark };
 }

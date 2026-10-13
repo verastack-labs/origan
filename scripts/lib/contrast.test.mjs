@@ -86,4 +86,18 @@ describe("parseThemes", () => {
       dark: { ground: "#0d1815", warn: "#8a5a00" },
     });
   });
+
+  it("reads dark from @theme and lays light over it", () => {
+    const css = `@theme {
+      --color-ground: #050807;
+      --color-warn: #e2b24a;
+    }
+    :root[data-theme="light"] {
+      --color-ground: #f7f9f8;
+    }`;
+    expect(parseThemes(css)).toEqual({
+      light: { ground: "#f7f9f8", warn: "#e2b24a" },
+      dark: { ground: "#050807", warn: "#e2b24a" },
+    });
+  });
 });

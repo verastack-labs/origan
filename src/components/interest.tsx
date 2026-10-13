@@ -47,7 +47,7 @@ export function InterestProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState("");
   const [token, setToken] = useState("");
   const [captchaKey, setCaptchaKey] = useState(0);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
   const id = useId();
 
   // Where focus was when the dialog opened, so closing hands it back.
@@ -59,7 +59,7 @@ export function InterestProvider({ children }: { children: ReactNode }) {
     setMounted(true);
     // The widget inside follows the page's theme, read at open rather than at
     // mount, because the reader may have switched since.
-    setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+    setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
     setIsOpen(true);
   }, []);
 
