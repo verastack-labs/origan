@@ -3,9 +3,9 @@
  */
 export const site = {
   name: "Origan",
-  tagline: "Four years of preparation for software placements",
+  tagline: "A record of what each batch has covered",
   description:
-    "A software placement preparation partnership for engineering colleges. A Campus Coach on your campus, a platform your students use from their first semester, and a record of everything covered between entry and placement.",
+    "The record of what each student has actually covered, from first semester to the final drive. For engineering colleges, built with a platform students use every week and a Campus Coach on campus.",
   url: "https://origan.verastack.dev",
   studio: "VeraStack Labs",
   studioUrl: "https://verastack-labs.github.io",
