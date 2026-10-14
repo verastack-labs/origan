@@ -12,7 +12,7 @@ export const site = {
   location: "Indiranagar, Bangalore",
   founder: "Rigan Burnwal",
   phone: "+91 93806 54730",
-  email: "verastack.labs@gmail.com",
+  email: "rigan@verastack.dev",
 } as const;
 
 /**
