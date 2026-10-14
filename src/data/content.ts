@@ -7,18 +7,19 @@
  */
 
 export const hero = {
-  notation: "Origan · Software placement preparation for engineering colleges",
-  // The line the carousel and the film close on, so the site opens on it. The
-  // newline is a deliberate break: the hero's figure owns the right of the frame.
-  heading: "Four years,\nnot four [weeks].",
-  sub: "Placement preparation that starts in first semester. A Campus Coach on your campus, and a platform your students open from day one to the final drive.",
+  notation: "Origan · The record of what a batch has covered",
+  // The cadence the carousel and the film close on, with the record as the
+  // payload rather than the time horizon. The newline is a deliberate break:
+  // the hero's figure owns the right of the frame.
+  heading: "Four years,\none [record].",
+  sub: "What each student has actually covered, from first semester to the final drive. They see where they are thin while there is still time. Your cell sees the same record as a cohort, never a ranking.",
   secondary: { label: "See the four years", href: "#profile" },
 } as const;
 
 export const datum = {
-  kicker: "Campus training usually arrives as a fortnight in final year, against a fixed syllabus.",
-  heading: "Final year is too [late].",
-  body: "By then, the students who were going to be ready already are.",
+  kicker: "Ask what a batch covered in second year and you get a shrug, or a spreadsheet nobody trusts.",
+  heading: "Nobody owns the [record].",
+  body: "So the gaps that were still fixable in year two are found in year four, when they are simply late.",
 } as const;
 
 export const profile = {
@@ -110,9 +111,9 @@ export const strands = [
   {
     glyph: "sheet",
     key: "Evidence",
-    heading: "A record your cell can read",
-    body: "Datum: cohorts across years, never a score against a name. A report every two to four weeks, shaped with your cell.",
-    aside: "Built so students never experience it as being watched.",
+    heading: "One record, two readers",
+    body: "A student sees what they have covered and where they are thin. Datum shows your cell the same record as cohorts across years, never a score against a name.",
+    aside: "A record a student reads about themselves is not surveillance of them.",
   },
 ] as const;
 
