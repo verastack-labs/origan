@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildLlmsTxt, sheetSummaries } from "./llms";
-import { lessonUrl } from "@/data/rust-dsa";
+import { courses, courseUrl } from "@/data/courses";
 import { sheets, site } from "@/data/site";
 import { getLessons } from "@/lib/lessons";
 
@@ -19,16 +19,16 @@ describe("llms.txt", () => {
     }
   });
 
-  it("links the DSA in Rust index and every published lesson", () => {
-    expect(pages).toContain(`](${site.url}/learn/rust-dsa/): `);
-    for (const lesson of getLessons()) {
-      expect(pages).toContain(`- [${lesson.title}](${lessonUrl(lesson.slug)}): ${lesson.sub}`);
+  it.each(courses.map((c) => [c.name, c] as const))("links the %s index and every published lesson", (_, course) => {
+    expect(pages).toContain(`](${site.url}${course.path}): `);
+    for (const lesson of getLessons(course)) {
+      expect(pages).toContain(`- [${lesson.title}](${courseUrl(course, lesson.slug)}): ${lesson.sub}`);
     }
   });
 
   it("writes every page entry as a Markdown link and a description", () => {
     const entries = pages.split("\n").filter((l) => l.startsWith("- "));
-    expect(entries.length).toBeGreaterThanOrEqual(sheets.length + 1);
+    expect(entries.length).toBeGreaterThanOrEqual(sheets.length + courses.length);
     for (const line of entries) expect(line).toMatch(/^- \[[^\]]+\]\(https:\/\/[^)]+\): \S/);
   });
 

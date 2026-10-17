@@ -3,6 +3,7 @@ import * as content from "./content";
 import { analyticsPage } from "./analytics";
 import { coachPage } from "./coach";
 import { featuresPage } from "./features";
+import { javaCourse, rustCourse } from "./courses";
 import { resourcesPage } from "./resources";
 
 /**
@@ -32,6 +33,11 @@ collect(analyticsPage, "analyticsPage", found);
 collect(coachPage, "coachPage", found);
 collect(featuresPage, "featuresPage", found);
 collect(resourcesPage, "resourcesPage", found);
+// The course index headings. They live in the course config, not in the MDX.
+for (const course of [rustCourse, javaCourse]) {
+  collect({ heading: course.hero.heading, sub: course.hero.sub }, `${course.id}.hero`, found);
+  collect({ heading: course.listingHeading, sub: "listing" }, `${course.id}.listing`, found);
+}
 
 const plain = (s: string) => s.replace(/\[([^\]]+)\]/g, "$1");
 

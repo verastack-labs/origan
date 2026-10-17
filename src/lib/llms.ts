@@ -1,4 +1,4 @@
-import { curriculum, lessonUrl, rustDsa } from "@/data/rust-dsa";
+import { courses, courseUrl, type Course } from "@/data/courses";
 import { sheets, site } from "@/data/site";
 import { getLessons } from "@/lib/lessons";
 
@@ -21,18 +21,36 @@ export const sheetSummaries: Record<string, string> = {
   "/resources/": `Free study material for students, made by ${site.studio}. Separate from the partnership, no sign-up.`,
 };
 
-export function buildLlmsTxt(): string {
-  const lessons = getLessons();
-  const sheetLines = sheets
-    .map((sheet) => `- [${sheet.label}](${site.url}${sheet.href}): ${sheetSummaries[sheet.href]}`)
+/** The course's index and every published lesson, as Markdown links. */
+function coursePages(course: Course): string {
+  const lessonLines = getLessons(course)
+    .map((lesson) => `- [${lesson.title}](${courseUrl(course, lesson.slug)}): ${lesson.sub}`)
     .join("\n");
-  const lessonLines = lessons
-    .map((lesson) => `- [${lesson.title}](${lessonUrl(lesson.slug)}): ${lesson.sub}`)
-    .join("\n");
-  const comingNext = curriculum
+  return `- [${course.name}](${site.url}${course.path}): the course index, listing all ${course.curriculum.length} lessons planned for Part 1.
+${lessonLines}`;
+}
+
+/** What the course is, and which lessons are still to come. */
+function courseSection(course: Course): string {
+  const lessons = getLessons(course);
+  const comingNext = course.curriculum
     .filter((entry) => !lessons.some((lesson) => lesson.slug === entry.slug))
     .map((entry) => entry.title)
     .join("; ");
+  return `## ${course.name}
+
+${course.description} It is free, open to anyone, and made by ${site.studio}
+(${site.labsUrl}).
+
+Coming next, not yet published: ${comingNext}.`;
+}
+
+export function buildLlmsTxt(): string {
+  const sheetLines = sheets
+    .map((sheet) => `- [${sheet.label}](${site.url}${sheet.href}): ${sheetSummaries[sheet.href]}`)
+    .join("\n");
+  const coursePageLines = courses.map(coursePages).join("\n");
+  const courseSections = courses.map(courseSection).join("\n\n");
 
   return `# ${site.name}
 
@@ -43,15 +61,9 @@ ${site.name} is built by ${site.studio} in ${site.location}.
 ## Pages
 
 ${sheetLines}
-- [${rustDsa.name}](${site.url}${rustDsa.path}): the course index, listing all ${curriculum.length} lessons planned for Part 1.
-${lessonLines}
+${coursePageLines}
 
-## ${rustDsa.name}
-
-${rustDsa.description} It is free, open to anyone, and made by ${site.studio}
-(${site.labsUrl}).
-
-Coming next, not yet published: ${comingNext}.
+${courseSections}
 
 ## What it is
 

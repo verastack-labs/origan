@@ -2,16 +2,21 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 /**
- * Rust snippets for the lesson pages.
+ * Snippets for the lesson pages.
  *
- * The code on a page is never typed into the MDX. It lives in the crate at
- * `rust/rust-dsa/`, between `// region: name` and `// endregion` markers, where
- * `cargo test` compiles and runs it. A page names a file and a region, and
- * this module cuts the lines out. So the page shows exactly what was tested.
+ * The code on a page is never typed into the MDX. It lives in a tested project
+ * (the crate at `rust/rust-dsa/`, the classes at `java/java-collections/`),
+ * between `// region: name` and `// endregion` markers, where the tests
+ * compile and run it. A page names a file and a region, and this module cuts
+ * the lines out. So the page shows exactly what was tested. Both languages use
+ * `//` comments, so one marker syntax serves both.
  *
  * Node-only, and safe because every route is prerendered at build time.
  */
-const CRATE = join(process.cwd(), "rust", "rust-dsa", "src");
+export type SnippetSource = { readonly dir: readonly string[]; readonly ext: string };
+
+/** DSA in Rust, the default so the original callers keep working. */
+const RUST: SnippetSource = { dir: ["rust", "rust-dsa", "src"], ext: ".rs" };
 
 const START = /^\s*\/\/ region: ([a-z0-9-]+)\s*$/;
 const END = /^\s*\/\/ endregion\s*$/;
@@ -58,26 +63,27 @@ function dedent(lines: string[]): string {
 
 const cache = new Map<string, Map<string, string>>();
 
-export function regionsOf(file: string): Map<string, string> {
-  let regions = cache.get(file);
+export function regionsOf(file: string, source: SnippetSource = RUST): Map<string, string> {
+  const path = join(process.cwd(), ...source.dir, `${file}${source.ext}`);
+  let regions = cache.get(path);
   if (!regions) {
-    regions = parseRegions(readFileSync(join(CRATE, `${file}.rs`), "utf8"));
-    cache.set(file, regions);
+    regions = parseRegions(readFileSync(path, "utf8"));
+    cache.set(path, regions);
   }
   return regions;
 }
 
 /** One region, or a loud failure: a missing snippet must stop the build. */
-export function region(file: string, name: string): string {
-  const code = regionsOf(file).get(name);
+export function region(file: string, name: string, source: SnippetSource = RUST): string {
+  const code = regionsOf(file, source).get(name);
   if (code === undefined) {
-    throw new Error(`No region "${name}" in rust/rust-dsa/src/${file}.rs`);
+    throw new Error(`No region "${name}" in ${source.dir.join("/")}/${file}${source.ext}`);
   }
   return code;
 }
 
-export function hasRegion(file: string, name: string): boolean {
-  return regionsOf(file).has(name);
+export function hasRegion(file: string, name: string, source: SnippetSource = RUST): boolean {
+  return regionsOf(file, source).has(name);
 }
 
 const indent = (code: string) =>
@@ -133,11 +139,14 @@ export type SnippetProps = {
  * no link. This mirrors what `snippet.tsx` does, so a test can compile exactly
  * what a reader would open.
  */
-export function snippetProgram({ file, name, also, demo, play = true }: SnippetProps): string | undefined {
+export function snippetProgram(
+  { file, name, also, demo, play = true }: SnippetProps,
+  source: SnippetSource = RUST,
+): string | undefined {
   if (!play) return undefined;
-  const code = region(file, name);
+  const code = region(file, name, source);
   const demoName = demo ?? `${name}-demo`;
-  const demoCode = hasRegion(file, demoName) ? region(file, demoName) : undefined;
-  const before = also ? also.split(",").map((r) => region(file, r.trim())) : [];
+  const demoCode = hasRegion(file, demoName, source) ? region(file, demoName, source) : undefined;
+  const before = also ? also.split(",").map((r) => region(file, r.trim(), source)) : [];
   return playgroundCode([...before, code].join("\n\n"), demoCode);
 }

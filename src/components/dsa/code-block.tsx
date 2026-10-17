@@ -14,11 +14,13 @@ const theme = createCssVariablesTheme({
   fontStyle: true,
 });
 
-const labels: Record<string, string> = { rust: "Rust", bash: "Terminal", text: "Output" };
+const labels: Record<string, string> = { rust: "Rust", java: "Java", bash: "Terminal", text: "Output" };
 
 /**
  * One block of code: the label, a copy button, and, for Rust, a link that
- * opens the same program in the Rust Playground.
+ * opens the same program in the Rust Playground. Java has no official browser
+ * playground, so a Java block carries a small tip instead: paste it into
+ * jshell, the console that ships with the JDK.
  *
  * `code` is what is shown and copied. `program` is what the Playground gets,
  * which differs when the snippet is not a whole program and needs a `main`.
@@ -27,10 +29,13 @@ export async function CodeBlock({
   code,
   lang = "rust",
   program,
+  tip = true,
 }: {
   code: string;
   lang?: string;
   program?: string;
+  /** Java only: the "paste into jshell" note. Left off whole programs, which are saved and compiled instead. */
+  tip?: boolean;
 }) {
   const html = await codeToHtml(code, { lang, theme });
 
@@ -53,6 +58,11 @@ export async function CodeBlock({
         </span>
       </figcaption>
       <div dangerouslySetInnerHTML={{ __html: html }} />
+      {lang === "java" && tip && (
+        <p className="border-t border-line-2 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-fg-3">
+          Paste into jshell to try it
+        </p>
+      )}
     </figure>
   );
 }

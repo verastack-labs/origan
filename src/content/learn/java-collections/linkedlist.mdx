@@ -1,0 +1,171 @@
+---
+title: LinkedList
+sub: A chain of nodes, and why you will rarely want one.
+description: Learn LinkedList in Java. Follow a chain of nodes, build a small one, compare it with ArrayList honestly, and solve rotate, reverse and cycle problems, with a cost table and three practice problems.
+order: 4
+part: 1
+updated: 2026-10-17
+slug: linkedlist
+---
+
+<Part id="what" heading="Follow the [clues]" sub="Each node knows its neighbours." />
+
+Picture a treasure hunt. You are handed the first clue. It does not hold the treasure. It says where the *next* clue is hidden. That clue points to the next, and so on, until the last one shows you the prize. There is no list of every clue. The only way to reach clue number 5 is to follow clues 1 to 4.
+
+A **`LinkedList`** is that hunt. Its items live in separate little objects called **nodes**. Each node holds one item and a **link**, which is a reference saying where another node is. Java's `LinkedList` goes one step further than the hunt: every clue card also says where you came from. Each node has a link to the next node and a link to the one before, so it is **doubly linked** and can be walked in either direction.
+
+The list itself only remembers where the chain begins and where it ends. Everything else is reached by following links.
+
+Here is an honest note before we start. `LinkedList` gets a lot of attention in books and interviews, but in everyday Java it is **rarely the right choice**. An `ArrayList` is usually faster even for jobs where a linked list sounds better on paper. So why learn it? Because it shows the opposite trade-off to `ArrayList`, because it teaches you to think in nodes and links, and because interviewers love it.
+
+**Remember:** in everyday Java, use an `ArrayList`. Learn the `LinkedList` to understand the trade-off, and to pass the interview.
+
+<Part id="idea" heading="Nodes, and the [links]" sub="Two links each, so it walks both ways." />
+
+<JavaLinkedListDiagram />
+
+The picture shows three nodes. Each has three parts: a link back (`prev`), the item, and a link forward (`next`). `first` points at the first node and `last` at the final one. The first node's `prev` and the last node's `next` are `null`, which means "no node there".
+
+Adding to the front is quick. Make a node, point its `next` at the old first node, point the old first node's `prev` back at it, and move `first`. Nothing else moves, however long the list is. Adding at the end works the same way, using `last`. Taking an item off either end is just as quick.
+
+Reading item number 5 is the problem. There is no table of addresses. You start at `first` and follow four links. The real `LinkedList` is a little clever: it starts from whichever end is nearer. But in the middle of a long list, it still has to walk a long way.
+
+<Part id="use" heading="A list that is [also] a queue" sub="addFirst, removeFirst, and friends." />
+
+`LinkedList` is a `List`, so everything from the last lesson works on it. On top of that it has methods for working at the two ends. Every block below can be pasted into jshell.
+
+<Snippet file="Lesson4LinkedList" name="hunt" />
+
+```text
+[clue 1, clue 2, clue 3]
+clue 1
+clue 1
+clue 3
+2
+```
+
+`addFirst` and `addLast` add at either end. `getFirst` and `getLast` look at the ends without removing anything, and `removeFirst` takes the first item off and hands it to you. After that, two clues remain.
+
+Because it also implements `Queue`, you can use it as a waiting line:
+
+<Snippet file="Lesson4LinkedList" name="as-queue" />
+
+```text
+Asha
+Ravi
+```
+
+`offer` joins the back and `poll` takes from the front, just as in lesson 1. It works, but for a plain queue Java has a better class, `ArrayDeque`, which lesson 9 covers. The only reason to pick `LinkedList` as a queue is if you need to allow `null` items, which `ArrayDeque` refuses.
+
+<Part id="inside" heading="Build a [singly] linked one" sub="One link per node is enough to learn." />
+
+To see how it works, build a smaller version. Java's real `LinkedList` has two links per node. We will use one, because the idea is the same and the code is half as long. This is also the shape of the linked lists in most interview questions.
+
+First, the node.
+
+<Snippet file="Lesson4LinkedList" name="node" />
+
+A `Node<T>` holds a `value` and a `next` link. The `T` is the placeholder from lesson 2, so one node class can hold anything. `next` is `null` for the last node.
+
+Now the list.
+
+<Snippet file="Lesson4LinkedList" name="tiny-linked-list" />
+
+Go through it in order.
+
+- `head` is the first node and `tail` is the last. Keeping `tail` is what lets `addLast` be quick, because we don't need to walk to the end to find it.
+- `addFirst` makes a new node whose `next` is the old head, then makes it the head. If the list was empty, that new node is also the tail.
+- `addLast` makes a node and hooks it after the tail. If the list was empty, it becomes the head too.
+- `removeFirst` reads the head's value and moves `head` along to the next node. If that leaves the list empty, `tail` must be cleared as well. Forgetting that is a classic bug.
+- `get` has no shortcut. It starts at `head` and follows `next` links, `index` times.
+
+<Snippet file="Lesson4LinkedList" name="tiny-linked-list-demo" />
+
+```text
+clue 3
+clue 1
+2
+```
+
+Asking for item 2 took two steps along the chain. The cost of `get` depends on how far in the item is, and that is the weakness of the whole idea.
+
+Why is it often slower than an `ArrayList` in practice, even for the jobs it seems to suit? Each node is a separate object, so the nodes are scattered around memory, and each one carries extra links. A computer reads memory fastest when it is read in order and close together, which is exactly what an array gives it. Following scattered links is slower. You don't need to remember the details, only the conclusion: "inserts in the middle are O(1)" is true for the relinking, but finding the spot costs O(n) first.
+
+<Part id="cost" heading="What each move [costs]" sub="n is the number of items in the list." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `addFirst`, `addLast` | O(1) | Only the end links change |
+| `removeFirst`, `removeLast` | O(1) | Only the end links change |
+| `getFirst`, `getLast` | O(1) | The list remembers both ends |
+| `get(i)`, `set(i, x)` | O(n) | Follows links from the nearer end |
+| `add(i, x)`, `remove(i)` | O(n) | Finding position `i` costs O(n); the relinking is O(1) |
+| `contains(x)`, `indexOf(x)` | O(n) | Looks at nodes one by one |
+| `size()` | O(1) | The count is stored |
+| Space used | O(n) | One node per item, each with two links |
+
+Compare this with the `ArrayList` table from lesson 3. The two are almost mirror images: `ArrayList` is fast at `get(i)` and slow at the front, and `LinkedList` is the other way round. The catch is that the mirror is not even. Per item, a `LinkedList` uses more memory, and its `get(i)` weakness hits far more often than its front-and-back strength.
+
+<Part id="practise" heading="Three problems, [one] chain" sub="Rotate, reverse, and detect a loop." />
+
+The first uses Java's own `LinkedList`. The other two use the `Node` class from above, as an interview would.
+
+<Practice
+  number={1}
+  title="Rotate to the left"
+  file="Lesson4LinkedList"
+  start="rotate-left-start"
+  solution="rotate-left"
+  hints={[
+    "Rotating by 1 means the first item moves to the back. `[1, 2, 3]` becomes `[2, 3, 1]`.",
+    "A `LinkedList` can take from the front with `removeFirst()` and add to the back with `addLast(...)`. Do both, `k` times.",
+    "Rotating by the length changes nothing, so you can use `k % list.size()` moves. Check for an empty list first, because `%` by zero fails.",
+  ]}
+  explain="`addLast(removeFirst())` moves one item from the front to the back, and both ends of a `LinkedList` are O(1). The remainder `k % list.size()` removes pointless full laps. The empty check comes first, because `% 0` would throw an `ArithmeticException`. The work is O(k % n), which is at most O(n). On an `ArrayList` the same job would shift every item on every `remove(0)`."
+>
+Write `rotateLeft`, which moves the first `k` items to the back, keeping their order. For `[1, 2, 3, 4, 5]` and `k = 2` the list becomes `[3, 4, 5, 1, 2]`. It changes the list in place. `k` may be larger than the list, and the list may be empty.
+</Practice>
+
+<Practice
+  number={2}
+  title="Reverse a chain"
+  file="Lesson4LinkedList"
+  start="reverse-start"
+  solution="reverse"
+  hints={[
+    "You are given only the head. Walk the chain once, and as you pass each node, turn its `next` link to point backwards.",
+    "Keep three variables: `reversed` (the part already flipped, starting as `null`), `current` (the node in front of you), and `next` (the node after it).",
+    "Before you overwrite `current.next`, save it in `next`. Otherwise you lose the rest of the chain.",
+  ]}
+  explain="At each step, `current` is detached from the rest of the chain and pointed at the already reversed part, then becomes the new front of that part. Saving `next` first is what stops the rest of the chain being lost. When `current` is `null`, `reversed` is the old tail and the new head. One pass with a few variables gives O(n) time and O(1) space. An empty chain, where the head is `null`, returns `null` without any special case."
+>
+Write `reverse`, which takes the head of a chain of nodes and returns the head of the same chain in reverse order. For `1, 2, 3` it returns the node holding `3`, which links to `2`, which links to `1`. For `null`, return `null`. Do it by changing the links, without building new nodes.
+</Practice>
+
+<Practice
+  number={3}
+  title="Does the chain loop?"
+  file="Lesson4LinkedList"
+  start="has-cycle-start"
+  solution="has-cycle"
+  hints={[
+    "If a chain loops, following `next` never reaches `null`. A plain loop over it would run forever.",
+    "Picture two runners on a circular track. If one runs twice as fast, it will eventually lap the slower one and they meet. On a straight road the fast one just reaches the end.",
+    "Move `slow` one step and `fast` two steps each time. If they are ever the same node, there is a loop. If `fast` reaches `null`, there isn't.",
+  ]}
+  explain="This is called Floyd's tortoise and hare. In a loop, the hare gains one step on the tortoise each round, so the gap closes and they must meet. In a straight chain the hare falls off the end first. `fast != null && fast.next != null` makes sure we never step from a missing node. It uses O(n) time and only two variables, so O(1) space. The obvious alternative, keeping a set of visited nodes, needs O(n) space."
+>
+Write `hasCycle`, which takes the head of a chain and returns `true` if following `next` links eventually leads back to a node you've already visited, and `false` if the chain ends. An empty chain has no cycle. Use no extra collection.
+</Practice>
+
+<Part id="interview" heading="LinkedList in the [interview]" sub="What to ask, and what to say." />
+
+`LinkedList` is a favourite interview topic, in two different ways: choosing it, and writing code with nodes.
+
+- **"ArrayList or LinkedList?"** `ArrayList` almost always. It has O(1) `get(i)`, uses less memory, and is quick to read because its items sit together. `LinkedList` wins only when you work at both ends all the time, and then `ArrayDeque` is usually better still.
+- **"Isn't inserting in a LinkedList O(1)?"** Only once you are at the spot. Finding position `i` takes O(n), so `add(i, x)` is O(n) overall. This is the most common half-right answer, so saying it clearly stands out.
+- **"Why is `get(i)` slow?"** There is no index to jump to. The list follows links from the nearer end.
+- **"Can a `LinkedList` hold `null`?"** Yes. `ArrayDeque` can't, which is one real reason to choose the former.
+- **Reverse a linked list.** Problem 2 is the standard answer: three variables, one pass, O(1) space. Say out loud that you save `next` before overwriting the link.
+- **Detect a cycle.** Problem 3's slow and fast pointers is the expected answer. A set of visited nodes works but costs O(n) space, so mention it and then offer the better one.
+- **Say the cost.** "Both ends are O(1), anything by position is O(n), and each item costs a whole node" is a complete answer.

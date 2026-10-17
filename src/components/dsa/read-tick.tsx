@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 
 /**
  * "Read" ticks, kept in this browser only. Nothing is sent anywhere and there
@@ -8,17 +8,19 @@ import { useSyncExternalStore } from "react";
  * data), so every access is guarded and the page works without it: the tick
  * simply does not stick.
  */
-const KEY = "origan:rust-dsa:read";
-const EVENT = "origan-rust-dsa-read";
+/** Per course, so two lessons with the same slug never share a tick. DSA in Rust keeps its original key. */
+const keyOf = (course: string) => `origan:${course}:read`;
+const eventOf = (course: string) => `origan-${course}-read`;
 
 // Only set when storage refuses a write, so the tick still toggles for the
 // visit rather than sitting dead.
-let fallback: string | null = null;
+const fallback = new Map<string, string>();
 
-function readAll(): string {
-  if (fallback !== null) return fallback;
+function readAll(course: string): string {
+  const held = fallback.get(course);
+  if (held !== undefined) return held;
   try {
-    return window.localStorage.getItem(KEY) ?? "[]";
+    return window.localStorage.getItem(keyOf(course)) ?? "[]";
   } catch {
     return "[]";
   }
@@ -33,43 +35,49 @@ function parse(raw: string): string[] {
   }
 }
 
-function subscribe(onChange: () => void) {
-  window.addEventListener(EVENT, onChange);
-  window.addEventListener("storage", onChange);
-  return () => {
-    window.removeEventListener(EVENT, onChange);
-    window.removeEventListener("storage", onChange);
+function subscribe(course: string) {
+  return (onChange: () => void) => {
+    window.addEventListener(eventOf(course), onChange);
+    window.addEventListener("storage", onChange);
+    return () => {
+      window.removeEventListener(eventOf(course), onChange);
+      window.removeEventListener("storage", onChange);
+    };
   };
 }
 
-function useRead(slug: string): boolean {
-  const raw = useSyncExternalStore(subscribe, readAll, () => "[]");
+function useRead(course: string, slug: string): boolean {
+  const raw = useSyncExternalStore(
+    useMemo(() => subscribe(course), [course]),
+    () => readAll(course),
+    () => "[]",
+  );
   return parse(raw).includes(slug);
 }
 
-function toggle(slug: string) {
-  const list = parse(readAll());
+function toggle(course: string, slug: string) {
+  const list = parse(readAll(course));
   const next = JSON.stringify(
     list.includes(slug) ? list.filter((s) => s !== slug) : [...list, slug],
   );
   try {
-    window.localStorage.setItem(KEY, next);
+    window.localStorage.setItem(keyOf(course), next);
   } catch {
     // Storage is unavailable. The tick just does not outlive the visit.
-    fallback = next;
+    fallback.set(course, next);
   }
-  window.dispatchEvent(new Event(EVENT));
+  window.dispatchEvent(new Event(eventOf(course)));
 }
 
 /** The button at the foot of a lesson. */
-export function ReadTick({ slug }: { slug: string }) {
-  const read = useRead(slug);
+export function ReadTick({ course, slug }: { course: string; slug: string }) {
+  const read = useRead(course, slug);
 
   return (
     <button
       type="button"
       aria-pressed={read}
-      onClick={() => toggle(slug)}
+      onClick={() => toggle(course, slug)}
       className={`inline-flex items-center gap-2.5 rounded-control border px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors ${
         read
           ? "border-survey bg-survey text-survey-ink"
@@ -94,8 +102,8 @@ export function ReadTick({ slug }: { slug: string }) {
 }
 
 /** A bare tick for tight places such as the chapters sidebar. */
-export function ReadCheck({ slug }: { slug: string }) {
-  const read = useRead(slug);
+export function ReadCheck({ course, slug }: { course: string; slug: string }) {
+  const read = useRead(course, slug);
   if (!read) return null;
 
   return (
@@ -109,8 +117,8 @@ export function ReadCheck({ slug }: { slug: string }) {
 }
 
 /** A small tick beside a lesson in the index, for lessons already read here. */
-export function ReadMark({ slug }: { slug: string }) {
-  const read = useRead(slug);
+export function ReadMark({ course, slug }: { course: string; slug: string }) {
+  const read = useRead(course, slug);
   if (!read) return null;
 
   return (

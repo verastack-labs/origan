@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { sheetFor, sheets, site } from "@/data/site";
+import { javaCollections } from "@/data/java-collections";
 import { rustDsa } from "@/data/rust-dsa";
 import { studentReferral } from "@/data/content";
 import { BenchmarkMark } from "./benchmark-mark";
@@ -47,13 +48,16 @@ export function SiteFooter() {
               <ReferralButton tone="link">{studentReferral.footerLink}</ReferralButton>
             </div>
             {/* Free study material, linked here rather than from the header. */}
-            <div className="mt-3">
-              <Link
-                href={rustDsa.path}
-                className="text-[13.5px] text-fg-2 underline decoration-line decoration-1 underline-offset-4 transition-colors hover:text-survey hover:decoration-survey-2"
-              >
-                {rustDsa.name}
-              </Link>
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+              {[rustDsa, javaCollections].map((course) => (
+                <Link
+                  key={course.path}
+                  href={course.path}
+                  className="text-[13.5px] text-fg-2 underline decoration-line decoration-1 underline-offset-4 transition-colors hover:text-survey hover:decoration-survey-2"
+                >
+                  {course.name}
+                </Link>
+              ))}
             </div>
           </div>
 

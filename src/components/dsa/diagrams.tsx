@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
  * dimension lines, one accent. Inline SVG, so there is nothing to load, and
  * every colour is a token so they follow the dark and light palettes.
  */
-function Figure({
+export function Figure({
   id,
   title,
   caption,
@@ -35,11 +35,11 @@ function Figure({
   );
 }
 
-const label = "font-mono fill-fg-2";
-const faint = "font-mono fill-fg-3";
+export const label = "font-mono fill-fg-2";
+export const faint = "font-mono fill-fg-3";
 
 /** A dimension line: a rule between two ticks, with its reading above. */
-function Dimension({ x1, x2, y, text }: { x1: number; x2: number; y: number; text: string }) {
+export function Dimension({ x1, x2, y, text }: { x1: number; x2: number; y: number; text: string }) {
   return (
     <g className="stroke-survey-2" strokeWidth={1}>
       <line x1={x1} x2={x2} y1={y} y2={y} />
@@ -227,7 +227,7 @@ export function BytesDiagram() {
 }
 
 /** An arrowhead at the end of a line that runs left to right, or top to bottom. */
-function Head({ x, y, dir = "right" }: { x: number; y: number; dir?: "right" | "down" | "up" }) {
+export function Head({ x, y, dir = "right" }: { x: number; y: number; dir?: "right" | "down" | "up" }) {
   const d =
     dir === "right"
       ? `M${x - 8} ${y - 4} L${x} ${y} L${x - 8} ${y + 4} Z`
