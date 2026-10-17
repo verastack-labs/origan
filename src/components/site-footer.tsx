@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { sheets, site } from "@/data/site";
+import { studentReferral } from "@/data/content";
 import { BenchmarkMark } from "./benchmark-mark";
-import { InterestButton } from "./interest";
+import { InterestButton, ReferralButton } from "./interest";
 import { TitleBlock } from "./title-block";
 
 /**
@@ -40,6 +41,9 @@ export function SiteFooter() {
             <p className="mt-4 max-w-[38ch] text-[15.5px] text-fg-2">{site.tagline}.</p>
             <div className="mt-6">
               <InterestButton tone="secondary" />
+            </div>
+            <div className="mt-5">
+              <ReferralButton tone="link">{studentReferral.footerLink}</ReferralButton>
             </div>
           </div>
 
@@ -87,7 +91,7 @@ export function SiteFooter() {
               </a>
             </address>
             <p className="mt-5 max-w-[26ch] text-[13.5px] text-fg-3">
-              Forms on this site reach one inbox, and nothing here is a mailing list.
+              Forms on this site reach one inbox, and nothing here is a mailing list. Visits are counted without cookies.
             </p>
           </div>
         </div>

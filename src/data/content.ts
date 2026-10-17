@@ -258,6 +258,67 @@ export const interest = {
   fallbackEmail: "rigan@verastack.dev",
 } as const;
 
+/**
+ * The student referral: a student names their college and, if they know one,
+ * someone there worth talking to. Any college contact counts, because a
+ * non-decider is a bridge to the right person. It is an invitation, never a
+ * report on staff or students, and the copy keeps to that.
+ */
+export const studentReferral = {
+  cta: "Bring Origan to your college",
+  footerLink: "Students: bring Origan to your college",
+  notation: "From a student",
+  heading: "Bring it to your [college].",
+  sub: "Tell us where you study and who we should talk to. We'll take it from there.",
+  subject: "Origan student referral",
+  fields: [
+    { name: "name", label: "Your name", type: "text", placeholder: "", autoComplete: "name" },
+    { name: "college", label: "College", type: "text", placeholder: "", autoComplete: "organization" },
+    { name: "city", label: "City", type: "text", placeholder: "", autoComplete: "address-level2" },
+    {
+      name: "branch_year",
+      label: "Branch and year",
+      type: "text",
+      placeholder: "e.g. ECE, 2nd year",
+      autoComplete: "off",
+      required: false,
+    },
+    {
+      name: "contact",
+      label: "Email or phone",
+      type: "text",
+      placeholder: "",
+      autoComplete: "off",
+      contact: true,
+    },
+    {
+      name: "talk_to",
+      label: "Who should we talk to?",
+      type: "text",
+      placeholder: "Placement officer or a faculty member, if you know one",
+      autoComplete: "off",
+      required: false,
+      multiline: true,
+    },
+  ] as const,
+  contactInvalid: "Enter an email address or a phone number.",
+  submit: "Send",
+  sending: "Sending",
+  sentHeading: "Thank you.",
+  sent: "We'll reach out to your college. You don't need to do anything else.",
+  done: "Back to the page",
+  assurance: "We only use this to contact your college. Nothing you write is shared with them.",
+  awaitingCaptcha: "Complete the check above to send.",
+  failed: "That did not send. Please write to",
+  fallbackEmail: "rigan@verastack.dev",
+} as const;
+
+/** The quiet band on the overview and the platform sheet that opens it. */
+export const studentBand = {
+  kicker: "Studying somewhere without Origan?",
+  heading: "Bring it to your [college].",
+} as const;
+
 /* ------------------------------------------------------------------ product */
 
 export const product = {
