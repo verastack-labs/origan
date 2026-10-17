@@ -70,30 +70,6 @@ function Cells({
   );
 }
 
-/** A line running from one point to another, ending in a small head. */
-function Pointer({ x, y1, y2, text }: { x: number; y1: number; y2: number; text?: string }) {
-  const down = y2 > y1;
-  const tip = y2;
-  return (
-    <g>
-      <line x1={x} x2={x} y1={y1} y2={down ? tip - 7 : tip + 7} className="stroke-survey-2" strokeWidth={1.5} />
-      <path
-        d={
-          down
-            ? `M${x - 4} ${tip - 8} L${x} ${tip} L${x + 4} ${tip - 8} Z`
-            : `M${x - 4} ${tip + 8} L${x} ${tip} L${x + 4} ${tip + 8} Z`
-        }
-        className="fill-survey-2"
-      />
-      {text && (
-        <text x={x} y={down ? y1 - 6 : y1 + 15} textAnchor="middle" fontSize={11} className="font-mono fill-survey">
-          {text}
-        </text>
-      )}
-    </g>
-  );
-}
-
 /** Lesson 13: insertion sort, one card at a time, like sorting a hand. */
 export function SortingDiagram() {
   const rows: { values: number[]; hand: number; fresh: number; note: string }[] = [
@@ -242,6 +218,91 @@ export function WindowDiagram() {
           </g>
         );
       })}
+    </Figure>
+  );
+}
+
+/** Lesson 16: the take-or-skip tree behind subsets of 1, 2, 3. */
+export function BacktrackingDiagram() {
+  const leafX = (i: number) => 70 + i * 82;
+  const leaves = ["{ }", "{3}", "{2}", "{2,3}", "{1}", "{1,3}", "{1,2}", "{1,2,3}"];
+  const rowY = [44, 104, 164, 224];
+  // The road the caption talks about: take 1, skip 2, take 3.
+  const road = new Set(["1", "10", "101"]);
+
+  // A node at depth d, number i, sits above the middle of the leaves it covers.
+  const nodeX = (d: number, i: number) => {
+    const span = 2 ** (3 - d);
+    return (leafX(i * span) + leafX(i * span + span - 1)) / 2;
+  };
+
+  const edges: ReactNode[] = [];
+  const nodes: ReactNode[] = [];
+  for (let d = 0; d <= 3; d++) {
+    for (let i = 0; i < 2 ** d; i++) {
+      const x = nodeX(d, i);
+      const y = rowY[d];
+      const path = d === 0 ? "" : i.toString(2).padStart(d, "0");
+      const onRoad = d === 0 || road.has(path);
+      if (d > 0) {
+        const px = nodeX(d - 1, i >> 1);
+        edges.push(
+          <line
+            key={`e${d}-${i}`}
+            x1={px}
+            y1={rowY[d - 1]}
+            x2={x}
+            y2={y}
+            className={onRoad ? "stroke-survey" : "stroke-line"}
+            strokeWidth={onRoad ? 2 : 1}
+          />,
+        );
+      }
+      nodes.push(
+        <circle
+          key={`n${d}-${i}`}
+          cx={x}
+          cy={y}
+          r={d === 3 ? 6 : 5}
+          className={onRoad ? "fill-panel-2 stroke-survey" : "fill-ground stroke-fg-3"}
+          strokeWidth={1.5}
+        />,
+      );
+    }
+  }
+
+  return (
+    <Figure
+      id="backtracking"
+      title="The take-or-skip tree for the items 1, 2 and 3"
+      caption="Every fork is a choice: skip the item (left) or take it (right). Each of the eight leaves is one finished subset. The outlined road takes 1, skips 2 and takes 3. After each leaf, the search steps back up to the nearest fork that still has a road untried, which is backtracking."
+      viewBox="0 0 720 290"
+    >
+      {edges}
+      {nodes}
+      {[1, 2, 3].map((item, d) => (
+        <text key={item} x={14} y={rowY[d] + 24} fontSize={10} className={faint}>
+          {`ITEM ${item}`}
+        </text>
+      ))}
+      <text x={(nodeX(0, 0) + nodeX(1, 0)) / 2 - 10} y={72} textAnchor="end" fontSize={11} className="font-mono fill-fg-2">
+        skip
+      </text>
+      <text x={(nodeX(0, 0) + nodeX(1, 1)) / 2 + 10} y={72} fontSize={11} className="font-mono fill-fg-2">
+        take
+      </text>
+      {leaves.map((text, i) => (
+        <text
+          key={i}
+          x={leafX(i)}
+          y={252}
+          textAnchor="middle"
+          fontSize={12}
+          className={i === 5 ? "font-mono fill-survey" : "font-mono fill-fg"}
+        >
+          {text}
+        </text>
+      ))}
     </Figure>
   );
 }
