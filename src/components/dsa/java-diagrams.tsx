@@ -681,3 +681,62 @@ export function HeapQueueDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 10: binary search halves the part still in play at every step. */
+export function BinarySearchDiagram() {
+  const values = [10, 20, 30, 40, 50, 60, 70, 80];
+  const left = 80;
+  const w = 70;
+
+  // lo and hi are inclusive; mid is the item looked at.
+  const row = (y: number, lo: number, hi: number, mid: number, note: string, key: string) => (
+    <g key={key}>
+      {values.map((v, i) => {
+        const inPlay = i >= lo && i <= hi;
+        return (
+          <g key={i}>
+            <rect
+              x={left + i * w}
+              y={y}
+              width={w}
+              height={38}
+              className={i === mid ? "fill-panel-2 stroke-survey" : inPlay ? "fill-panel stroke-line" : "fill-ground stroke-line"}
+              strokeWidth={i === mid ? 1.8 : 1}
+              strokeDasharray={inPlay ? undefined : "4 3"}
+            />
+            <text
+              x={left + i * w + w / 2}
+              y={y + 24}
+              textAnchor="middle"
+              fontSize={13}
+              className={inPlay ? "font-mono fill-fg" : faint}
+            >
+              {v}
+            </text>
+          </g>
+        );
+      })}
+      <text x={left} y={y + 62} fontSize={12} className={label}>
+        {note}
+      </text>
+    </g>
+  );
+
+  return (
+    <Figure
+      id="binary-search"
+      title="Binary search for 60 in a sorted row of eight takes two looks"
+      caption="Look at the middle. If it is too small, the whole left half is out. Each look throws away half of what is left, so even a million items need only about twenty looks. It only works if the row is sorted."
+      viewBox="0 0 720 240"
+    >
+      <text x={left} y={26} fontSize={10} className={faint}>
+        LOOK 1: THE MIDDLE IS 40, TOO SMALL
+      </text>
+      {row(34, 0, 7, 3, "so everything up to 40 is out", "r1")}
+      <text x={left} y={146} fontSize={10} className={faint}>
+        LOOK 2: THE MIDDLE OF WHAT IS LEFT IS 60
+      </text>
+      {row(154, 4, 7, 5, "found at index 5", "r2")}
+    </Figure>
+  );
+}
