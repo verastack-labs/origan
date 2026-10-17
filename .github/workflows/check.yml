@@ -47,3 +47,14 @@ jobs:
       - name: cargo test
         working-directory: rust/rust-dsa
         run: cargo test
+
+      # The Playground link on each lesson must also compile on its own, not
+      # only inside the crate. This builds every link with rustc.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Playground links compile
+        run: pnpm check:playground

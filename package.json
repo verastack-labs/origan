@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "check:contrast": "node scripts/check-contrast.mjs",
     "check:components": "node scripts/check-components.mjs",
+    "check:playground": "cross-env RUST_PLAYGROUND=1 vitest run src/lib/playground.test.ts",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm check:contrast && pnpm check:components"
   },
   "dependencies": {
