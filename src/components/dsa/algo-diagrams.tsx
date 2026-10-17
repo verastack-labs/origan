@@ -190,3 +190,58 @@ export function BinarySearchDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 15: a window of three sliding along six numbers, one step at a time. */
+export function WindowDiagram() {
+  const values = [2, 1, 5, 1, 3, 2];
+  const k = 3;
+  const rows: { at: number; note: string }[] = [
+    { at: 0, note: "add them all: 2 + 1 + 5 = 8" },
+    { at: 1, note: "8 - 2 + 1 = 7" },
+    { at: 2, note: "7 - 1 + 3 = 9, the best so far" },
+    { at: 3, note: "9 - 5 + 2 = 6" },
+  ];
+  const left = 40;
+  const w = 56;
+  const top = 50;
+  const gap = 54;
+
+  return (
+    <Figure
+      id="window"
+      title="A window of three sliding along 2, 1, 5, 1, 3, 2"
+      caption="Like a train window, the box shows three numbers at a time. To move one step, the number on the right comes in and the number on the left leaves. That is two small changes to the total, instead of adding up three numbers again."
+      viewBox="0 0 720 280"
+    >
+      <text x={left} y={26} fontSize={10} className={faint}>
+        THE WINDOW IS THE OUTLINED BOX
+      </text>
+      {rows.map((row, r) => {
+        const y = top + r * gap;
+        return (
+          <g key={r}>
+            <Cells
+              x={left}
+              y={y}
+              values={values}
+              kind={(i) => (i >= row.at && i < row.at + k ? "hand" : "out")}
+            />
+            <rect
+              x={left + row.at * w - 4}
+              y={y - 5}
+              width={k * w + 8}
+              height={48}
+              fill="none"
+              className="stroke-survey"
+              strokeWidth={2}
+              rx={3}
+            />
+            <text x={left + 6 * w + 24} y={y + 24} fontSize={12} className={label}>
+              {row.note}
+            </text>
+          </g>
+        );
+      })}
+    </Figure>
+  );
+}
