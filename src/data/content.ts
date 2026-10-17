@@ -172,7 +172,7 @@ export const faq = {
   items: [
     {
       q: "So what is Origan, really?",
-      a: "It's a four-year placement prep partnership for engineering colleges. Students get a platform from their first semester, the college gets a Campus Coach, and the two come together.",
+      a: "It's a record of what each engineering student has covered, from first semester to the final drive. Students use a platform from year one, and a Campus Coach on campus keeps the record honest.",
     },
     {
       q: "Is it only for computer science students?",
@@ -187,8 +187,8 @@ export const faq = {
       a: "No, keep them. Origan runs alongside your trainers, from first year onward instead of one fortnight in the final year.",
     },
     {
-      q: "Will the placement cell see my scores?",
-      a: "No. The college sees groups, like a batch, a branch or a semester, never a ranking of students. Nothing in its dashboard is built to rank you.",
+      q: "Will the college see my scores?",
+      a: "No. It sees groups, like a batch or a branch, never one student's results or a ranking.",
     },
     {
       q: "How long do we have to commit?",
