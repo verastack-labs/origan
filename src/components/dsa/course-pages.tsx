@@ -8,7 +8,7 @@ import { ChaptersLayout, type Chapter } from "@/components/dsa/chapters";
 import { ContentsBlock, LessonNav, StudioCredit } from "@/components/dsa/lesson-chrome";
 import { componentsFor } from "@/components/dsa/mdx-components";
 import { ReadMark, ReadTick } from "@/components/dsa/read-tick";
-import { coursePath, courseUrl, navOf, type Course } from "@/data/courses";
+import { coursePath, courseUrl, navOf, partsFor, type Course } from "@/data/courses";
 import { partOf } from "@/data/rust-dsa";
 import { site } from "@/data/site";
 import { breadcrumbJsonLd, courseJsonLd, jsonLdScript, lessonJsonLd } from "@/lib/course-jsonld";
@@ -214,6 +214,8 @@ export async function LessonView({ course, slug }: { course: Course; slug: strin
   if (!lesson) notFound();
 
   const Content = await compileLesson(lesson.body);
+  // A reference page lists its topic groups where the other lessons list their seven parts.
+  const shown: Course = { ...course, parts: partsFor(course, slug) };
   const lessons = getLessons(course);
   const published = new Set(lessons.map((l) => l.slug));
   const chapters: Chapter[] = course.curriculum.map((entry) => ({
@@ -233,7 +235,7 @@ export async function LessonView({ course, slug }: { course: Course; slug: strin
       />
 
       <ChaptersLayout
-        course={navOf(course)}
+        course={navOf(shown)}
         chapters={chapters}
         current={lesson.slug}
         contentClass={`${shell} pb-[clamp(60px,8vw,110px)] pt-[clamp(28px,4vw,52px)]`}
@@ -256,9 +258,9 @@ export async function LessonView({ course, slug }: { course: Course; slug: strin
             <StudioCredit />
           </div>
 
-          <ContentsBlock parts={course.parts} />
+          <ContentsBlock parts={shown.parts} />
 
-          <Content components={componentsFor(course)} />
+          <Content components={componentsFor(shown)} />
 
           <div className="mt-[clamp(40px,5vw,64px)] flex flex-wrap items-center justify-between gap-4 border-t border-line pt-8">
             <ReadTick course={course.id} slug={lesson.slug} />

@@ -29,7 +29,7 @@ export function Part({
       className="mt-[clamp(40px,5.4vw,64px)] scroll-mt-[132px] lg:scroll-mt-[88px] border-t border-line pt-[clamp(32px,4.4vw,52px)] first:mt-0 first:border-t-0 first:pt-0"
     >
       <Reveal variant="label" className="notation">
-        {`Part ${index + 1} of 7 · ${parts[index].label}`}
+        {`Part ${index + 1} of ${parts.length} · ${parts[index].label}`}
       </Reveal>
       <HeadingPair pair={{ heading, sub }} as="h2" size="card" className="mb-5 mt-3" />
     </div>

@@ -86,10 +86,19 @@ describe("the published lessons of The Switch", () => {
   });
 });
 
+/**
+ * Lesson 12 is a reference page. It has topic groups where the others have the
+ * seven parts, and compact rows where the others have a practice set.
+ */
+const reference = new Set(["the-cheat-sheet"]);
+const standard = lessons.filter((l) => !reference.has(l.slug));
+const references = lessons.filter((l) => reference.has(l.slug));
+
 describe("each Switch lesson's seven parts", () => {
-  it.each(lessons.map((l) => [l.slug, l]))("%s has them in order, as pairs", (_, lesson) => {
+  it.each(lessons.map((l) => [l.slug, l]))("%s has its parts in order, as pairs", (_, lesson) => {
     const tags = [...lesson.body.matchAll(/<Part\b[^>]*\/>/g)].map((m) => m[0]);
-    expect(tags.map((t) => attr(t, "id"))).toEqual(switchCourse.parts.map((p) => p.id));
+    const expected = switchCourse.lessonParts?.[lesson.slug] ?? switchCourse.parts;
+    expect(tags.map((t) => attr(t, "id"))).toEqual(expected.map((p) => p.id));
     for (const tag of tags) {
       const heading = attr(tag, "heading");
       const sub = attr(tag, "sub");
@@ -99,7 +108,7 @@ describe("each Switch lesson's seven parts", () => {
     }
   });
 
-  it.each(lessons.map((l) => [l.slug, l]))("%s has three practice problems with hints", (_, lesson) => {
+  it.each(standard.map((l) => [l.slug, l]))("%s has three practice problems with hints", (_, lesson) => {
     const problems = [...lesson.body.matchAll(/<Practice\b[\s\S]*?\n>/g)].map((m) => m[0]);
     expect(problems).toHaveLength(3);
     for (const problem of problems) {
@@ -108,13 +117,39 @@ describe("each Switch lesson's seven parts", () => {
     }
   });
 
-  it.each(lessons.map((l) => [l.slug, l]))("%s has a Remember line and interview notes", (_, lesson) => {
+  it.each(standard.map((l) => [l.slug, l]))("%s has a Remember line and interview notes", (_, lesson) => {
     expect(lesson.body).toContain("**Remember:**");
     expect(lesson.body).toMatch(/<Part id="interview"/);
   });
 
-  it.each(lessons.map((l) => [l.slug, l]))("%s shows JavaScript beside TypeScript", (_, lesson) => {
+  it.each(standard.map((l) => [l.slug, l]))("%s shows JavaScript beside TypeScript", (_, lesson) => {
     expect(lesson.body).toMatch(/<Compare\b/);
+  });
+
+  it.each(references.map((l) => [l.slug, l]))("%s is rows of JavaScript beside TypeScript, grouped by topic", (_, lesson) => {
+    const rows = [...lesson.body.matchAll(/<CheatRow\b/g)];
+    expect(rows.length).toBeGreaterThanOrEqual(30);
+    expect(lesson.body).not.toMatch(/<Practice\b/);
+    // Every group has at least one row under it.
+    const groups = lesson.body.split(/<Part\b[^>]*\/>/).slice(1);
+    expect(groups.length).toBe(switchCourse.lessonParts?.[lesson.slug]?.length);
+    for (const group of groups) expect(group).toMatch(/<CheatRow\b/);
+  });
+
+  it.each(references.map((l) => [l.slug, l]))("%s links back to every earlier lesson", (_, lesson) => {
+    const linked = new Set(
+      [...lesson.body.matchAll(/<CheatRow\b(?:"[^"]*"|[^>"])*>/g)].flatMap((m) => {
+        const order = /\blesson="(\d+)"/.exec(m[0])?.[1];
+        return order ? [Number(order)] : [];
+      }),
+    );
+    // Lessons 0 and 1 are about whether and how to start, so they have no code to compare.
+    // The page links them in its opening words instead.
+    for (const other of lessons.filter((l) => l.order >= 2 && l.order < lesson.order)) {
+      expect(linked.has(other.order), `no row links back to lesson ${other.order}`).toBe(true);
+    }
+    expect(lesson.body).toContain("/learn/js-to-ts/why-switch/");
+    expect(lesson.body).toContain("/learn/js-to-ts/setting-up/");
   });
 });
 
@@ -135,6 +170,14 @@ describe("Switch snippets", () => {
       const name = attr(m[0], "name")!;
       named.push([file, name, "js"]);
       const fail = attr(m[0], "fail");
+      if (fail) named.push([`errors/${fail}`, "code", "ts"]);
+      else named.push([file, name, "ts"]);
+    }
+    for (const m of lesson.body.matchAll(/<CheatRow\b((?:"[^"]*"|[^>"])*)>/g)) {
+      const file = attr(m[1], "file")!;
+      const name = attr(m[1], "name")!;
+      named.push([file, name, "js"]);
+      const fail = attr(m[1], "fail");
       if (fail) named.push([`errors/${fail}`, "code", "ts"]);
       else named.push([file, name, "ts"]);
     }

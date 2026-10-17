@@ -54,6 +54,24 @@ function programsOf(mdx: string, page: string): Program[] {
     }
   }
 
+  // A cheat sheet row is a Compare with a title, so it is held to the same rules.
+  for (const m of mdx.matchAll(/<CheatRow\b((?:"[^"]*"|[^>"])*)>/g)) {
+    const file = attr(m[1], "file");
+    const name = attr(m[1], "name");
+    const fail = attr(m[1], "fail");
+    if (!file || !name) continue;
+    if (fail) {
+      const snippet = errorSnippet(fail);
+      out.push({
+        label: `${page}: row ${fail}`,
+        code: snippet.code,
+        expect: { code: snippet.errorCode, line: [...snippet.errorLines][0] + 1 },
+      });
+    } else {
+      out.push({ label: `${page}: row ${file} ${name}`, code: region(file, name, TS_SOURCE) });
+    }
+  }
+
   for (const m of mdx.matchAll(/<Fails\s+([\s\S]*?)\/>/g)) {
     const file = attr(m[1], "file");
     // JSDoc snippets are JavaScript. They are checked as JavaScript by scripts/check-ts-snippets.mjs.

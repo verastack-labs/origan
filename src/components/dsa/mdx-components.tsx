@@ -20,7 +20,9 @@ import {
 } from "./diagrams";
 import * as algoDiagrams from "./algo-diagrams";
 import * as javaDiagrams from "./java-diagrams";
+import { CheatRow } from "./cheat-sheet";
 import { Part } from "./part";
+import { PrintButton } from "./print-button";
 import { Practice } from "./practice";
 import { Snippet } from "./snippet";
 import { Compare, Fails } from "./ts-code";
@@ -121,6 +123,7 @@ const shared: MDXComponents = {
   // The Switch: JavaScript beside TypeScript, and a snippet that is meant to fail.
   Compare,
   Fails,
+  PrintButton,
   SetupDiagram,
   ArrayDiagram,
   BytesDiagram,
@@ -149,6 +152,7 @@ export function componentsFor(course: Course): MDXComponents {
     Part: (props: ComponentProps<typeof Part>) => <Part parts={course.parts} {...props} />,
     Snippet: (props: ComponentProps<typeof Snippet>) => <Snippet course={course} {...props} />,
     Practice: (props: ComponentProps<typeof Practice>) => <Practice course={course} {...props} />,
+    CheatRow: (props: Omit<ComponentProps<typeof CheatRow>, "course">) => <CheatRow course={course} {...props} />,
   };
 }
 
