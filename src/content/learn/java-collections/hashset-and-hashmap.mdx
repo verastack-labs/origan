@@ -1,0 +1,220 @@
+---
+title: HashSet and HashMap
+sub: Look things up by name, almost instantly.
+description: Learn HashSet and HashMap in Java. Use put, get, getOrDefault, merge and computeIfAbsent, see how hashing and buckets work, with a cost table and three practice problems.
+order: 6
+part: 1
+updated: 2026-10-17
+slug: hashset-and-hashmap
+---
+
+<Part id="what" heading="Your phone's [contacts]" sub="Type a name, get a number." />
+
+Open the contacts app on your phone and type "Ra". Ravi's number appears. The phone did not read every contact from the top to find him. It went to the right place straight away.
+
+A **`HashMap`** is that contact list. It stores **pairs**: a **key** (the name you search by) and a **value** (what you want back, such as a number). You give it a key, and it gives you the value, in about the same time whether it holds ten contacts or ten million. Each key can appear only once, so saving "Ravi" a second time replaces his number instead of adding a second Ravi.
+
+A **`HashSet`** is the same machine with the values taken away. It keeps only the keys, so it answers one question very quickly: "have I seen this before?" Think of a guest list at a door.
+
+These two are the most useful collections after `ArrayList`. They turn many slow "look through everything" loops into one quick lookup.
+
+**Remember:** a `HashMap` finds a value from its key without searching. A `HashSet` is a `HashMap` that only cares about the keys.
+
+<Part id="idea" heading="Keys become [buckets]" sub="A number picks the shelf, so no searching." />
+
+<JavaHashDiagram />
+
+How can it find "Ravi" without searching? By turning the key into a shelf number.
+
+Every Java object has a method called **`hashCode()`**. It returns an `int` that acts like a fingerprint of the object. For a `String`, the number is worked out from its letters by a fixed formula, so "Asha" always gives 2050251.
+
+The map owns a row of **buckets**, which are numbered shelves. It squeezes the fingerprint into the range 0 to (number of buckets - 1), and that is the shelf. In the picture, "Asha" belongs on shelf 3. To find Asha again, the map repeats the sum, goes straight to shelf 3, and looks there. No other shelf is touched.
+
+Two different keys can land on the same shelf. That is called a **collision**. Kiran and Divya do in the picture. It is not an error. The shelf simply keeps a short chain of everything that landed on it, and the map checks the items on that one shelf with `equals`, the method that asks "are these two the same?" As long as the chains stay short, a lookup stays quick. Keeping them short is why the map grows its row of buckets when it gets crowded.
+
+<Part id="use" heading="Sets, maps, and [counting]" sub="put, get, getOrDefault, merge, computeIfAbsent." />
+
+Every block below can be pasted into jshell. Start with a `HashSet`, the guest list.
+
+<Snippet file="Lesson6HashSetAndHashMap" name="set-basics" />
+
+```text
+true
+true
+false
+true
+2
+```
+
+`add` answers `true` when it added something new, and `false` when the item was already there. That answer is useful on its own, and problem 1 uses it. A set never holds duplicates, so adding "Asha" twice leaves the size at 2.
+
+Now the contact list, as a `HashMap`.
+
+<Snippet file="Lesson6HashSetAndHashMap" name="map-basics" />
+
+```text
+98450 22222
+null
+true
+98450 11111
+2
+```
+
+`put(key, value)` stores a pair. `get(key)` reads it back, and gives `null` when the key is missing. Be careful with that `null`: if your map holds `Integer` values and you write `int n = map.get("x")` for a missing key, Java tries to unbox `null` and throws a `NullPointerException`. Check with `containsKey`, or use one of the helpers below.
+
+The last `put` replaced Asha's number, and handed back the old one. The size stayed at 2.
+
+### The counting problem
+
+A very common job: count how many times each word appears. The first attempt reads the old count, adds one, and puts it back.
+
+<Snippet file="Lesson6HashSetAndHashMap" name="count-by-hand" />
+
+```text
+3
+2
+1
+```
+
+`getOrDefault(word, 0)` means "the count so far, or 0 if this word is new". It saves you an `if`. There is a shorter way still.
+
+<Snippet file="Lesson6HashSetAndHashMap" name="merge" />
+
+```text
+3
+2
+1
+```
+
+`merge(key, 1, Integer::sum)` says: "if the key is new, store 1. If it already has a value, combine the old value and 1 with `sum`." The `Integer::sum` part is a **method reference**, which is a shorthand for passing an existing method as the rule. Counting is the use you will meet most.
+
+Another common job: sort things into groups, such as names by their first letter. Each group is a list, and the list must exist before you can add to it.
+
+<Snippet file="Lesson6HashSetAndHashMap" name="compute-if-absent" />
+
+```text
+[Asha, Anil]
+[Ravi, Ravindra]
+[Meera]
+```
+
+`computeIfAbsent(key, rule)` looks for the key. If it is missing, it runs the rule to make the value (here, a new empty list), stores it, and returns it. If the key is there, it returns what is stored. Either way you get a list back and can call `add` on it straight away. The `letter -> new ArrayList<>()` is a lambda, and it only runs the first time each letter appears. Ask for a letter that no name starts with, and `get` gives you `null`, as it does for any missing key.
+
+Last, walking over a map. `entrySet()` gives you every key-value pair.
+
+<Snippet file="Lesson6HashSetAndHashMap" name="walk" />
+
+```text
+20
+pads = 5
+pens = 12
+tape = 3
+```
+
+A `HashMap` makes **no promise about the order** of its pairs. They might come out in any order, and the order can differ between Java versions. That is why the code sorts the keys before printing. Never write code that depends on the order. If you want a fixed order, lesson 8 has the collections for that.
+
+**Remember:** `getOrDefault` reads with a fallback. `merge` combines values. `computeIfAbsent` creates a value the first time a key shows up.
+
+<Part id="inside" heading="Build a [tiny] HashMap" sub="An array of shelves and a short chain on each." />
+
+Here is a small map with the same idea as the real one. It is an array of buckets, and each bucket is a chain of **nodes** (small objects holding a key, a value and a link to the next node).
+
+<Snippet file="Lesson6HashSetAndHashMap" name="tiny-hash-map" />
+
+Go through it in order.
+
+- `buckets` starts with 8 shelves. The real `HashMap` starts with 16.
+- `bucketFor` turns a key into a shelf. `hashCode()` can be negative, and a negative number is not a valid shelf. `Math.floorMod` always answers from 0 up, so it is safe.
+- `get` goes straight to one shelf and walks only that chain, comparing keys with `equals`. A miss gives `null`.
+- `put` also walks the chain first. If the key is already there it replaces the value. If not, it adds a new node at the front of the chain and counts it.
+- `grow` doubles the number of shelves once the map is more than three-quarters full. That fraction is called the **load factor**, and the real `HashMap` starts with the same 0.75. Every node must be moved to its new shelf, because the shelf number depends on how many shelves exist. We save `n.next` before moving each node, since moving it overwrites the link.
+
+<Snippet file="Lesson6HashSetAndHashMap" name="tiny-hash-map-demo" />
+
+```text
+2050251 -> bucket 3
+2539842 -> bucket 2
+98450 33333
+2
+```
+
+Asha's key gave shelf 3 and Ravi's gave shelf 2, matching the picture. Saving Asha twice kept the size at 2. The numbers come from the formula Java documents for `String`, so you will see the same ones.
+
+A `HashSet` is built on a `HashMap` and stores each item as a key. That is the whole trick.
+
+<Part id="cost" heading="What lookups [cost]" sub="n is the number of items stored." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `put`, `get`, `containsKey` | O(1) on average | One shelf is chosen, and its chain is short |
+| `remove(key)` | O(1) on average | Same shelf lookup, then unlink |
+| `HashSet` `add`, `contains`, `remove` | O(1) on average | It is a `HashMap` underneath |
+| `containsValue(v)` | O(n) | Values have no shelves, so every pair is checked |
+| Walking all pairs | O(n + shelves) | Every shelf is visited, even empty ones |
+| Growing the table | O(n), but rare | Every node moves to a new shelf |
+| Space used | O(n) | One node per pair, plus the row of shelves |
+
+"On average" is doing real work here. If many keys land on the same shelf, that chain gets long and lookups slow down. Good `hashCode` methods spread keys out, and lesson 7 shows what goes wrong when one does not.
+
+<Part id="practise" heading="Three problems, [fast] lookups" sub="Duplicates, pairs, and groups." />
+
+<Practice
+  number={1}
+  title="The first repeat"
+  file="Lesson6HashSetAndHashMap"
+  start="first-duplicate-start"
+  solution="first-duplicate"
+  hints={[
+    "Walk the words once. You need a memory of the words already seen, with a very quick \"have I seen this?\" check.",
+    "A `HashSet<String>` is that memory. Remember what `add` returns when the item is already in the set.",
+    "If `seen.add(word)` is `false`, this word is a repeat: return it. If the loop ends, return `null`.",
+  ]}
+  explain="`add` does the check and the insert in one call, so there is no need for a separate `contains`. Each word costs O(1) on average, so the whole walk is O(n) time and O(n) space. The slow alternative compares every word with every earlier word, which is O(n squared). Returning at the first repeat means a long list may not be read to the end."
+>
+Write `firstDuplicate`, which returns the first word that has already appeared earlier in the list, or `null` if every word is different. For `["tea", "chai", "tea", "chai"]` it returns `"tea"`, because the second "tea" is the first word to repeat.
+</Practice>
+
+<Practice
+  number={2}
+  title="Two numbers that add up"
+  file="Lesson6HashSetAndHashMap"
+  start="two-sum-start"
+  solution="two-sum"
+  hints={[
+    "The slow way checks every pair, which is O(n squared). Try asking a different question at each number: what partner would I need?",
+    "At position `i` the partner you need is `target - numbers[i]`. Keep a `HashMap<Integer, Integer>` from each number you passed to its position.",
+    "Look up the partner first. If it is in the map, you are done. Only then store the current number, so a number is never paired with itself.",
+  ]}
+  explain="At each step you ask the map \"have I already passed the number that completes this one?\" That is an O(1) lookup instead of a walk through the rest of the array, so the whole job is one pass: O(n) time and O(n) space. Storing the current number after the check is what stops `{3}` with target 6 from pairing with itself, while `{3, 3}` still works because the first 3 is stored by the time the second arrives. The map keeps the position as the value, which is the whole reason this needs a map rather than a set."
+>
+Write `twoSum`, which finds two different positions whose numbers add up to `target`, and returns them as `{earlier, later}`. For `{2, 7, 11, 15}` and target 9 it returns `{0, 1}`. If no pair works, return an empty array. You may assume at most one pair works.
+</Practice>
+
+<Practice
+  number={3}
+  title="Group by length"
+  file="Lesson6HashSetAndHashMap"
+  start="group-by-length-start"
+  solution="group-by-length"
+  hints={[
+    "You want a map from a length to a list of words. The value type is `List<String>`.",
+    "The trouble is the first word of each length, when no list exists yet. This is exactly what `computeIfAbsent` is for.",
+    "For each word: `groups.computeIfAbsent(word.length(), length -> new ArrayList<>()).add(word)`. Then return `groups`.",
+  ]}
+  explain="`computeIfAbsent` makes the empty list the first time a length is seen, and returns the existing list every time after. Chaining `.add(word)` on its result handles both cases with no `if`. Words keep their original order inside each group, because each is appended as it is met. The walk is O(n), and each lookup is O(1) on average. Without `computeIfAbsent` you would write `get`, a null check, a `put`, and then the `add`."
+>
+Write `groupByLength`, which returns a map from each word length to the list of words with that length, in the order they appeared. For `["pen", "cup", "bottle", "ink"]` it gives 3 mapped to `[pen, cup, ink]` and 6 mapped to `[bottle]`. An empty list gives an empty map.
+</Practice>
+
+<Part id="interview" heading="Hashing in the [interview]" sub="What to ask, and what to say." />
+
+`HashMap` is probably the most asked-about class in Java interviews. These are the usual questions.
+
+- **"How does a `HashMap` work?"** It has an array of buckets. `hashCode()` of the key picks a bucket, and `equals` finds the right entry inside it. Say "buckets", "hashCode", "equals" and "collision" in that order and you have most of the answer.
+- **"What is a collision, and what happens?"** Two different keys land in the same bucket. Both are kept in that bucket and told apart with `equals`. Lookups slow down only if the chains get long.
+- **"What are the capacity and load factor?"** The capacity is the number of buckets, and 16 to start. The load factor, 0.75 by default, says how full the map may get before it doubles the capacity and moves every entry.
+- **"Can a key be `null`?"** In a `HashMap`, yes, one `null` key. Do not rely on it. Some other maps refuse `null` keys.
+- **"Does a `HashMap` keep order?"** No, and never depend on it. A fixed order needs a `LinkedHashMap` or a `TreeMap`, which lesson 8 covers.
+- **"`HashMap` or `HashSet`?"** A map if you need to look something up by key. A set if you only need to ask "is this in there?" or want to remove duplicates.
+- **Count words, or find two numbers that add up.** Problems 2 and 3 are the standard answers. Say the cost: one pass, O(n) time, O(n) extra space.
+- **Say the cost.** "Lookup, insert and remove are O(1) on average. That is an average and not a promise, because it depends on the keys spreading out."

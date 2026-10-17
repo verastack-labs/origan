@@ -406,3 +406,89 @@ export function IteratingDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 6: a key is turned into a bucket number; a bucket can hold a short chain. */
+export function JavaHashDiagram() {
+  const top = 28;
+  const rowH = 26;
+  const bx = 400;
+  // Real bucket numbers from "name".hashCode() with 8 buckets.
+  const chains: Record<number, string[]> = {
+    1: ["Kiran", "Divya"],
+    2: ["Ravi"],
+    3: ["Asha"],
+    4: ["Meera"],
+  };
+
+  return (
+    <Figure
+      id="java-hash"
+      title="A key is turned into a bucket number, and each bucket holds a short chain"
+      caption="The key's hashCode, squeezed into the number of buckets, picks the bucket at once. Kiran and Divya land in the same bucket, so that bucket keeps a short chain and checks them one by one with equals."
+      viewBox="0 0 720 270"
+    >
+      <text x={20} y={top + 62} fontSize={13} className="font-mono fill-fg">
+        &quot;Asha&quot;
+      </text>
+      <line x1={86} x2={150} y1={top + 58} y2={top + 58} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={152} y={top + 58} />
+      <rect x={156} y={top + 36} width={136} height={44} className="fill-panel-2 stroke-survey" strokeWidth={1.5} />
+      <text x={224} y={top + 55} textAnchor="middle" fontSize={11} className={label}>
+        hashCode()
+      </text>
+      <text x={224} y={top + 72} textAnchor="middle" fontSize={12} className="font-mono fill-fg">
+        2050251
+      </text>
+      <line x1={292} x2={bx - 54} y1={top + 58} y2={top + 3 * rowH + 13} className="stroke-survey-2" strokeWidth={1.5} />
+      <text x={330} y={top + 112} fontSize={11} className={faint}>
+        2050251 mod 8 = 3
+      </text>
+
+      {Array.from({ length: 8 }, (_, i) => {
+        const y = top + i * rowH;
+        const chain = chains[i] ?? [];
+        return (
+          <g key={i}>
+            <rect
+              x={bx - 50}
+              y={y}
+              width={50}
+              height={rowH}
+              className={i === 3 ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+              strokeWidth={i === 3 ? 1.8 : 1}
+            />
+            <text x={bx - 25} y={y + 17} textAnchor="middle" fontSize={12} className={faint}>
+              {i}
+            </text>
+            {chain.map((name, j) => (
+              <g key={name}>
+                <rect
+                  x={bx + 14 + j * 112}
+                  y={y + 2}
+                  width={92}
+                  height={rowH - 4}
+                  className="fill-ground stroke-line"
+                  strokeWidth={1}
+                />
+                <text x={bx + 60 + j * 112} y={y + 17} textAnchor="middle" fontSize={12} className="font-mono fill-fg">
+                  {name}
+                </text>
+                <line
+                  x1={j === 0 ? bx : bx + 106 + (j - 1) * 112}
+                  x2={bx + 14 + j * 112}
+                  y1={y + rowH / 2}
+                  y2={y + rowH / 2}
+                  className="stroke-fg-3"
+                  strokeWidth={1}
+                />
+              </g>
+            ))}
+          </g>
+        );
+      })}
+      <text x={bx - 50} y={top + 8 * rowH + 20} fontSize={10} className={faint}>
+        BUCKET NUMBER
+      </text>
+    </Figure>
+  );
+}
