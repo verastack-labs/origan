@@ -1,0 +1,166 @@
+---
+title: Linked lists in Rust
+sub: Box, Option, and why a chain of nodes is hard in Rust.
+description: Learn linked lists in Rust. Build one from Box and Option, see why ownership makes it tricky, and compare it with Vec, with a cost table and three practice problems.
+order: 3
+part: 1
+updated: 2026-10-17
+slug: linked-lists
+---
+
+<Part id="what" heading="Chains of [nodes]" sub="Each item knows where the next one is." />
+
+A **linked list** is a chain. Each item, called a **node**, holds a value and a link to the next node. The list itself only remembers where the chain starts, which is called the **head**. To reach any other item, you start at the head and follow the links.
+
+That is the opposite of an array, where the items sit side by side and you can jump straight to any position. In a linked list the items can be anywhere in memory, because each one says where the next is.
+
+Reach for a linked list when most of your work happens at the front of the list, such as adding and removing there, and you never need to read item number 500 directly.
+
+Here is an honest note before we start. In everyday Rust you will almost always use a `Vec` or a `VecDeque` instead (lesson 5), because they are simpler and usually faster. So why learn this? Because a linked list is the best small example of how Rust's **ownership** rules work. Ownership is the rule that every value has exactly one owner, and the value is cleaned up when its owner goes away. A chain of nodes makes you think about that rule in every line, and linked lists are also a very common interview topic.
+
+<Part id="idea" heading="One owner for [each] node" sub="The picture is simple. The ownership is not." />
+
+<LinkedListDiagram />
+
+The picture shows three nodes. `head` points at the first. Each node holds a value and a link to the next, and the last node's link leads nowhere.
+
+Adding at the front is quick. Make a new node, point it at the old first node, and move `head` to the new node. Nothing else moves, however long the list is. Removing from the front is the same in reverse. Reading item number 5, though, means following four links from the head, so the cost grows with the position.
+
+Now the Rust part. Rust has no `null`, the "nothing here" value that many languages use for an empty link. Instead it has `Option<T>`, which is either `Some(value)` or `None`, and the compiler makes you handle both. So "a link to the next node, or no next node" is an `Option`.
+
+A node also cannot simply contain another node. A `Node` that held a whole `Node` inside it would contain another `Node`, and so on forever, so Rust could never work out its size. The fix is `Box<Node>`. A **`Box`** puts a value on the heap (the large area of memory for values whose size or lifetime is decided while the program runs) and keeps only a small pointer to it. A pointer has a known size, so the problem goes away.
+
+Put together, a link is `Option<Box<Node>>`: either nothing, or a pointer to the next node, which this node **owns**. When a node is dropped, the node it owns is dropped too. That is also why a doubly linked list, with links in both directions, is much harder: each node would need two owners, and Rust allows only one. Doing that properly needs shared ownership types that go beyond this lesson.
+
+<Part id="build" heading="Build it, [carefully]" sub="A few moves, and one trick called take." />
+
+Here is a list that can push, pop and peek at the front.
+
+<Snippet file="lesson3_linked_list" name="list-basic" />
+
+Go through it in order.
+
+- `struct Node` has a `value` and a `next` link. `LinkedList` holds the `head` link and a count, `len`.
+- `push_front` builds a new `Box<Node>` whose `next` is the old head, then makes the new node the head. The old head has to be *moved* into the new node, and that is what `self.head.take()` does.
+- `pop_front` does the reverse. It takes the head out, makes the second node the new head, and hands back the value.
+- `peek_front` returns `Option<&i32>`, a borrowed look at the value. `as_ref()` turns the `Option<Box<Node>>` into an `Option` of a reference, so the head is looked at but not moved.
+
+<Note title="Why take() exists">
+`self.head` is only borrowed (through `&mut self`), so Rust will not let you move the value out and leave nothing behind: the list would then hold a value that had already been given away. The `Option::take` method gets around this safely. It moves the value out and puts `None` in its place in one step, so the field is never left empty-handed.
+</Note>
+
+<Snippet file="lesson3_linked_list" name="take-demo" />
+
+Without `take`, the `push_front` method would not compile, and the error message about moving out of borrowed content is one every Rust learner meets.
+
+Now adding at the back. The list only knows its head, so it has to walk to the last node.
+
+<Snippet file="lesson3_linked_list" name="list-push-back" also="list-basic" />
+
+`cursor` is a mutable reference to a link. It starts at `self.head`. While the link holds a node, the loop moves the cursor to that node's `next` link. When the loop stops, `cursor` points at the empty link after the last node, and `*cursor = Some(...)` fills it. Notice that the walk makes this O(n). Keeping a second pointer to the tail would make it quick, but two pointers into the same chain is exactly what Rust's rules push back on, and it is why this is the hard case.
+
+To look at every value without removing any, the list needs an **iterator**, which is a small object that hands out items one at a time.
+
+<Snippet file="lesson3_linked_list" name="list-iter" also="list-basic" />
+
+`Iter<'a>` holds a reference to the next node. The `'a` is a **lifetime**: a label that says how long a borrow lasts. Here it says the iterator cannot outlive the list it is looking into, which stops you from changing or dropping the list while you are halfway through reading it. The `as_deref()` call turns an `Option<Box<Node>>` into an `Option<&Node>`, so the iterator borrows each node instead of taking it.
+
+One last piece. When a list is dropped, Rust drops the head, which drops the node it owns, and so on down the chain. For a very long list that chain of drops is as deep as the list is long, and it can overflow the stack (the limited area of memory used to keep track of function calls). So a careful list frees its nodes in a loop:
+
+<Snippet file="lesson3_linked_list" name="list-drop" also="list-basic" />
+
+Each pass takes one node, detaches its `next`, and lets the node go. The chain never goes deep.
+
+<Part id="std" heading="What Rust [gives] you" sub="A LinkedList exists. You rarely want it." />
+
+The standard library does have a linked list, and unlike ours it links in both directions.
+
+<Snippet file="lesson3_linked_list" name="std-linked-list" />
+
+You will almost never need it. Its own documentation points readers to `Vec` or `VecDeque` for most uses. The reason is how computers read memory. A processor keeps a small, very fast store called a **cache**, and it loads memory into the cache in chunks. A `Vec` keeps its items next to each other, so one chunk brings in many items. A linked list's nodes are scattered, so following each link can mean going back to slow memory. A list wins only in special cases, such as when you must keep a hold on a node while other nodes are added and removed around it.
+
+<Part id="cost" heading="What each move [costs]" sub="n is the number of nodes in the list." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `push_front` | O(1) | Make a node, point it at the old head |
+| `pop_front` | O(1) | Move the head along one link |
+| `peek_front` | O(1) | Look at the head |
+| `push_back` (our list) | O(n) | Walk to the last node first |
+| Read item number i | O(i) | Follow i links from the head |
+| Search for a value | O(n) | May visit every node |
+| Insert after a node you already hold | O(1) | Change two links |
+| Drop the list | O(n) | Every node is freed |
+| Space used | O(n) | A value and a pointer per node, each on the heap |
+
+The row to remember is reading by position. On a `Vec` it is O(1), and here it is O(i). Linked lists trade that away for cheap changes at one end, and in practice a `Vec` is quick enough that the trade rarely pays off.
+
+<Part id="practise" heading="Three problems, [one] chain" sub="Reverse it, find the middle, merge two." />
+
+These three use a node type with public fields, so that you can build a list and check the result. `from_slice` builds a list from a slice, and `to_vec` reads one back. Open the Playground link to get all of this with each problem.
+
+<Snippet file="lesson3_linked_list" name="list-node" />
+
+Two of the problems take the list *by value*, which means they get ownership of the nodes and may re-link them freely. `middle` only borrows the list, because it just reads it.
+
+<Practice
+  number={1}
+  title="Reverse a list"
+  file="lesson3_linked_list"
+  also="list-node"
+  start="reverse-list-start"
+  solution="reverse-list"
+  hints={[
+    "Walk along the list once. For each node, make it point backwards instead of forwards.",
+    "Keep two lists in your hands: `reversed`, which starts empty, and `rest`, which starts as the whole input. Each step moves the front node of `rest` onto the front of `reversed`.",
+    "Inside `while let Some(mut node) = rest`, call `node.next.take()` to cut the node loose and get the remaining nodes back. Then set `node.next = reversed;` and `reversed = Some(node);`. Return `reversed` at the end.",
+  ]}
+  explain="Each pass moves one node from `rest` onto the front of `reversed`, which is `push_front` on a second list. `take()` is what makes it allowed: it moves the rest of the chain out of the node and leaves `None`, so the node can be given a new `next` without any node having two owners. It is O(n) time and O(1) extra space, because no nodes are created, only re-linked. Empty and one-node lists work without a special case: the loop runs zero or one times."
+>
+Write `reverse_list`, which reverses a linked list and returns the new front. `1 -> 2 -> 3` becomes `3 -> 2 -> 1`. Re-link the nodes you were given instead of building new ones. An empty list stays empty.
+</Practice>
+
+<Practice
+  number={2}
+  title="Find the middle"
+  file="lesson3_linked_list"
+  also="list-node"
+  start="middle-start"
+  solution="middle"
+  hints={[
+    "One way is to count the nodes, then walk half that far. That is two passes. Can you do it in one?",
+    "Use two walkers that start at the front. Each time the `fast` one moves two nodes, the `slow` one moves one. When `fast` runs out of nodes, where is `slow`?",
+    "Hold both as `Option<&Box<ListNode>>` by starting from `head.as_ref()`. In the loop, get `fast.next.as_ref()` for the first step and stop if it is `None`. Take its `next` for the second step. Move `slow` with `slow.and_then(|node| node.next.as_ref())`.",
+  ]}
+  explain="The fast walker covers two nodes for each one the slow walker covers, so when fast reaches the end, slow is halfway. With an even number of nodes fast runs off the end one step later, which leaves slow on the second of the two middles. Both walkers only borrow: `as_ref()` turns the `Option<Box<ListNode>>` into an `Option` of a reference, a look at the node without taking it. It is a single pass, O(n) time, and O(1) extra space."
+>
+Write `middle`, which returns the value in the middle of a list. For `1 -> 2 -> 3 -> 4 -> 5` the answer is `Some(3)`. If there are two middle nodes, return the second one: `1 -> 2 -> 3 -> 4` gives `Some(3)`. An empty list gives `None`. The list is only borrowed, so don't change it.
+</Practice>
+
+<Practice
+  number={3}
+  title="Merge two sorted lists"
+  file="lesson3_linked_list"
+  also="list-node"
+  start="merge-sorted-start"
+  solution="merge-sorted"
+  hints={[
+    "Look at the front of both lists. The smaller value comes next in the answer. Then look again.",
+    "You need a way to add to the back of the answer without walking to it each time. Keep `tail`, a `&mut Option<Box<ListNode>>` that always points at the empty link after the last node.",
+    "Use `while let (Some(x), Some(y)) = (&a, &b)` to loop while both lists have nodes. Choose which list to take from, `take()` its front node, move that list on to the node's `next`, and attach the node at `tail`. When the loop ends, at most one list is left, so attach all of it with `a.or(b)`.",
+  ]}
+  explain="The loop always moves the smaller front node, so the result stays in order. `tail` avoids walking to the end each time: `tail.insert(node)` places the node in the empty link and returns a mutable reference to it, so `&mut` of its `next` is the new empty link. When one list runs out, the other is already sorted and nothing in it is smaller than what was taken, so it can be attached whole. Using `<=` takes from the first list when values tie. It is O(n + m) time for lists of n and m nodes, and O(1) extra space because no node is copied."
+>
+Write `merge_sorted`, which joins two sorted lists into one sorted list by re-linking the nodes you were given. `1 -> 3 -> 5` and `2 -> 4` give `1 -> 2 -> 3 -> 4 -> 5`. Either list can be empty. When two values are equal, take the one from the first list first.
+</Practice>
+
+<Part id="interview" heading="Lists in the [interview]" sub="What to ask, and what to say." />
+
+Linked list questions are a classic because they test careful handling of links rather than clever maths. A few habits help.
+
+- **Draw it first.** Sketch the nodes and arrows, and move one arrow at a time. Most mistakes are an arrow changed too early, which loses the rest of the list.
+- **Know the standard patterns.** Reversing a list (problem 1), two walkers at different speeds (problem 2), and merging with a tail pointer (problem 3) come up again and again. Two other familiar questions are removing the *n*th node from the end, and detecting a cycle, where a chain loops back on itself. Safe Rust's `Box` lists cannot form a cycle, but the questions are asked in other languages, and the fast and slow walkers are how they are solved.
+- **Check the edges.** An empty list, a list of one node, and removing or changing the head are where answers usually break.
+- **Say the cost.** "One pass, so O(n) time, and I only re-link, so O(1) extra space" is a complete answer.
+- **In Rust, say why the types look like they do.** Explaining that `Option<Box<Node>>` means "maybe a node, which I own", and that you use `take()` to move a link out without leaving a hole, shows you understand ownership, not just syntax.
+- **Know when not to use a list.** Saying that you would reach for a `Vec` or a `VecDeque` in real code, and why, is a strong answer.

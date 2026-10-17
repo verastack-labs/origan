@@ -225,3 +225,422 @@ export function BytesDiagram() {
     </Figure>
   );
 }
+
+/** An arrowhead at the end of a line that runs left to right, or top to bottom. */
+function Head({ x, y, dir = "right" }: { x: number; y: number; dir?: "right" | "down" | "up" }) {
+  const d =
+    dir === "right"
+      ? `M${x - 8} ${y - 4} L${x} ${y} L${x - 8} ${y + 4} Z`
+      : dir === "down"
+        ? `M${x - 4} ${y - 8} L${x} ${y} L${x + 4} ${y - 8} Z`
+        : `M${x - 4} ${y + 8} L${x} ${y} L${x + 4} ${y + 8} Z`;
+  return <path d={d} className="fill-survey-2" />;
+}
+
+/** Lesson 3: nodes that each own the next, ending in nothing. */
+export function LinkedListDiagram() {
+  const xs = [130, 330, 530];
+  const values = [10, 20, 30];
+  const top = 70;
+  const mid = top + 28;
+
+  return (
+    <Figure
+      id="list"
+      title="Three nodes in a chain, each pointing at the next"
+      caption="A linked list. head points at the first node. Each node holds a value and a link to the next, and the last link holds nothing."
+      viewBox="0 0 720 220"
+    >
+      <text x={64} y={mid + 4} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+        head
+      </text>
+      <line x1={90} x2={xs[0] - 2} y1={mid} y2={mid} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={xs[0] - 2} y={mid} />
+
+      {xs.map((x, i) => (
+        <g key={x}>
+          <rect x={x} y={top} width={130} height={56} className="fill-panel-2 stroke-survey" strokeWidth={1.5} />
+          <line x1={x + 86} x2={x + 86} y1={top} y2={top + 56} className="stroke-line" strokeWidth={1} />
+          <text x={x + 43} y={mid + 6} textAnchor="middle" fontSize={17} className="font-mono fill-fg">
+            {values[i]}
+          </text>
+          <circle cx={x + 108} cy={mid} r={4} className="fill-survey" />
+          <text x={x} y={top - 12} fontSize={10} className={faint}>
+            {`NODE ${i + 1}`}
+          </text>
+          {i < xs.length - 1 && (
+            <>
+              <line
+                x1={x + 108}
+                x2={xs[i + 1] - 2}
+                y1={mid}
+                y2={mid}
+                className="stroke-survey-2"
+                strokeWidth={1.5}
+              />
+              <Head x={xs[i + 1] - 2} y={mid} />
+            </>
+          )}
+        </g>
+      ))}
+
+      {/* The last link leads nowhere. */}
+      <text x={xs[2] + 108} y={top + 78} textAnchor="middle" fontSize={12} className="font-mono fill-warn">
+        None
+      </text>
+      <text x={xs[0] + 43} y={top + 78} textAnchor="middle" fontSize={11} className={faint}>
+        value
+      </text>
+      <text x={xs[0] + 108} y={top + 78} textAnchor="middle" fontSize={11} className={faint}>
+        next
+      </text>
+
+      <Dimension x1={xs[0]} x2={xs[2] + 130} y={192} text="each node owns the next one" />
+    </Figure>
+  );
+}
+
+/** Lesson 4: a pile where only the top moves. */
+export function StackDiagram() {
+  const x = 270;
+  const w = 180;
+  const h = 44;
+  const bottom = 190;
+  const items = [10, 20, 30];
+  const topRow = bottom - 3 * h;
+
+  return (
+    <Figure
+      id="stack"
+      title="A stack of three values with an empty slot above the top"
+      caption="A stack. push puts a value on the top and pop takes the top value off. Nothing below the top can be reached."
+      viewBox="0 0 720 270"
+    >
+      {/* The slot the next push lands in. */}
+      <rect
+        x={x}
+        y={topRow - h}
+        width={w}
+        height={h}
+        className="fill-ground stroke-line"
+        strokeWidth={1}
+        strokeDasharray="4 3"
+      />
+      {items.map((value, i) => {
+        const y = bottom - (i + 1) * h;
+        const isTop = i === items.length - 1;
+        return (
+          <g key={value}>
+            <rect
+              x={x}
+              y={y}
+              width={w}
+              height={h}
+              className={isTop ? "fill-panel-2 stroke-survey" : "fill-panel-2 stroke-line"}
+              strokeWidth={isTop ? 1.5 : 1}
+            />
+            <text x={x + w / 2} y={y + h / 2 + 6} textAnchor="middle" fontSize={17} className="font-mono fill-fg">
+              {value}
+            </text>
+            <text x={x + w + 14} y={y + h / 2 + 4} fontSize={12} className={faint}>
+              {i}
+            </text>
+          </g>
+        );
+      })}
+      <line x1={x - 20} x2={x + w + 20} y1={bottom} y2={bottom} className="stroke-fg-3" strokeWidth={1} />
+
+      <text x={x - 70} y={topRow + h / 2 + 4} textAnchor="end" fontSize={13} className="font-mono fill-fg">
+        top
+      </text>
+      <line
+        x1={x - 62}
+        x2={x - 6}
+        y1={topRow + h / 2}
+        y2={topRow + h / 2}
+        className="stroke-survey-2"
+        strokeWidth={1.5}
+      />
+      <Head x={x - 6} y={topRow + h / 2} />
+
+      {/* Both moves go through the top. */}
+      <line x1={x + 60} x2={x + 60} y1={14} y2={topRow - h - 4} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={x + 60} y={topRow - h - 4} dir="down" />
+      <text x={x + 48} y={30} textAnchor="end" fontSize={13} className="font-mono fill-fg">
+        push
+      </text>
+      <line x1={x + 120} x2={x + 120} y1={topRow - 4} y2={14} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={x + 120} y={14} dir="up" />
+      <text x={x + 132} y={30} fontSize={13} className="font-mono fill-fg">
+        pop
+      </text>
+
+      <text x={x + w + 14} y={bottom + 28} fontSize={10} className={faint}>
+        INDEX
+      </text>
+      <g className="stroke-survey-2" strokeWidth={1}>
+        <line x1={x + w + 66} x2={x + w + 66} y1={topRow} y2={bottom} />
+        <line x1={x + w + 61} x2={x + w + 71} y1={topRow} y2={topRow} />
+        <line x1={x + w + 61} x2={x + w + 71} y1={bottom} y2={bottom} />
+      </g>
+      <text x={x + w + 82} y={bottom - 1.5 * h + 4} fontSize={12} className="font-mono fill-survey">
+        len = 3
+      </text>
+    </Figure>
+  );
+}
+
+/** Lesson 5: a ring of eight slots, with the queue wrapped round the end. */
+export function QueueDiagram() {
+  const left = 56;
+  const w = 76;
+  const filled = new Map([
+    [6, 10],
+    [7, 20],
+    [0, 30],
+    [1, 40],
+  ]);
+  const mid = (i: number) => left + i * w + w / 2;
+
+  return (
+    <Figure
+      id="queue"
+      title="A queue of four values wrapped round the end of an eight-slot ring"
+      caption="A ring buffer. The queue holds 10, 20, 30, 40, with 10 at the front. After slot 7 the queue carries on in slot 0."
+      viewBox="0 0 720 220"
+    >
+      {Array.from({ length: 8 }, (_, i) => {
+        const x = left + i * w;
+        const value = filled.get(i);
+        return (
+          <g key={i}>
+            <rect
+              x={x}
+              y={62}
+              width={w}
+              height={52}
+              className={value !== undefined ? "fill-panel-2 stroke-survey" : "fill-ground stroke-line"}
+              strokeWidth={value !== undefined ? 1.5 : 1}
+              strokeDasharray={value !== undefined ? undefined : "4 3"}
+            />
+            {value !== undefined && (
+              <text x={x + w / 2} y={94} textAnchor="middle" fontSize={16} className="font-mono fill-fg">
+                {value}
+              </text>
+            )}
+            <text x={x + w / 2} y={134} textAnchor="middle" fontSize={12} className={faint}>
+              {i}
+            </text>
+          </g>
+        );
+      })}
+
+      <text x={mid(6)} y={24} textAnchor="middle" fontSize={12} className="font-mono fill-survey">
+        front
+      </text>
+      <line x1={mid(6)} x2={mid(6)} y1={32} y2={54} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={mid(6)} y={54} dir="down" />
+      <text x={mid(1)} y={24} textAnchor="middle" fontSize={12} className="font-mono fill-survey">
+        back
+      </text>
+      <line x1={mid(1)} x2={mid(1)} y1={32} y2={54} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={mid(1)} y={54} dir="down" />
+
+      {/* The queue runs off slot 7 and carries on in slot 0. */}
+      <path
+        d={`M${mid(7)} 146 C ${mid(7)} 206, ${mid(0)} 206, ${mid(0)} 148`}
+        fill="none"
+        strokeDasharray="4 4"
+        className="stroke-fg-3"
+        strokeWidth={1}
+      />
+      <Head x={mid(0)} y={146} dir="up" />
+      <text x={(mid(0) + mid(7)) / 2} y={176} textAnchor="middle" fontSize={12} className={label}>
+        after slot 7, back to slot 0
+      </text>
+      <text x={left} y={160} fontSize={10} className={faint}>
+        INDEX
+      </text>
+    </Figure>
+  );
+}
+
+/** Lesson 6: keys hashed into buckets, with two keys sharing one. */
+export function HashDiagram() {
+  const row = (i: number) => 40 + i * 26;
+  const keys = [
+    { text: "3", y: 90, bucket: 3 },
+    { text: "11", y: 140, bucket: 3 },
+    { text: "-1", y: 196, bucket: 7 },
+  ];
+  const pairs = [
+    { bucket: 3, at: 0, text: "3 : 30" },
+    { bucket: 3, at: 1, text: "11 : 110" },
+    { bucket: 7, at: 0, text: "-1 : 70" },
+  ];
+
+  return (
+    <Figure
+      id="hash"
+      title="Three keys sent to eight buckets, two of them to the same bucket"
+      caption="A hash map. Each key is turned into a bucket number. Keys 3 and 11 both land in bucket 3, so that bucket holds a short chain of two pairs."
+      viewBox="0 0 720 270"
+    >
+      <text x={40} y={18} fontSize={10} className={faint}>
+        KEYS
+      </text>
+      <text x={320} y={18} fontSize={10} className={faint}>
+        BUCKETS
+      </text>
+      <text x={392} y={18} fontSize={10} className={faint}>
+        PAIRS IN EACH BUCKET
+      </text>
+
+      {keys.map((key) => (
+        <g key={key.text}>
+          <line x1={110} x2={320} y1={key.y} y2={row(key.bucket)} className="stroke-survey-2" strokeWidth={1.2} />
+          <circle cx={320} cy={row(key.bucket)} r={3} className="fill-survey" />
+          <rect x={40} y={key.y - 14} width={70} height={28} className="fill-panel-2 stroke-line" strokeWidth={1} />
+          <text x={75} y={key.y + 5} textAnchor="middle" fontSize={14} className="font-mono fill-fg">
+            {key.text}
+          </text>
+        </g>
+      ))}
+      <text x={200} y={64} textAnchor="middle" fontSize={12} className="font-mono fill-survey">
+        key % 8
+      </text>
+
+      {Array.from({ length: 8 }, (_, i) => {
+        const used = i === 3 || i === 7;
+        return (
+          <g key={i}>
+            <rect
+              x={320}
+              y={row(i) - 11}
+              width={44}
+              height={22}
+              className={used ? "fill-panel-2 stroke-survey" : "fill-ground stroke-line"}
+              strokeWidth={used ? 1.5 : 1}
+            />
+            <text
+              x={342}
+              y={row(i) + 4}
+              textAnchor="middle"
+              fontSize={11}
+              className={used ? "font-mono fill-fg" : faint}
+            >
+              {i}
+            </text>
+          </g>
+        );
+      })}
+
+      {pairs.map((pair) => {
+        const x = 392 + pair.at * 112;
+        const y = row(pair.bucket);
+        return (
+          <g key={pair.text}>
+            <line
+              x1={pair.at === 0 ? 364 : x - 20}
+              x2={x - 2}
+              y1={y}
+              y2={y}
+              className="stroke-survey-2"
+              strokeWidth={1.2}
+            />
+            <Head x={x - 2} y={y} />
+            <rect x={x} y={y - 11} width={92} height={22} className="fill-panel-2 stroke-line" strokeWidth={1} />
+            <text x={x + 46} y={y + 4} textAnchor="middle" fontSize={12} className="font-mono fill-fg">
+              {pair.text}
+            </text>
+          </g>
+        );
+      })}
+      <text x={612} y={row(3) + 4} fontSize={12} className="font-mono fill-warn">
+        collision
+      </text>
+    </Figure>
+  );
+}
+
+/** Lesson 7: a binary search tree, with the path of a search marked. */
+export function TreeDiagram() {
+  const at: Record<number, [number, number]> = {
+    50: [360, 46],
+    30: [200, 114],
+    70: [520, 114],
+    20: [120, 182],
+    40: [280, 182],
+    60: [440, 182],
+    80: [600, 182],
+  };
+  const edges: [number, number][] = [
+    [50, 30],
+    [50, 70],
+    [30, 20],
+    [30, 40],
+    [70, 60],
+    [70, 80],
+  ];
+  const onPath = new Set([50, 30, 40]);
+
+  return (
+    <Figure
+      id="tree"
+      title="A binary search tree of seven values, with a search for 40 marked"
+      caption="A binary search tree. Smaller values sit to the left and larger to the right. Searching for 40 visits 50, then 30, then 40, and skips the other four."
+      viewBox="0 0 720 266"
+    >
+      {edges.map(([from, to]) => {
+        const hot = onPath.has(from) && onPath.has(to);
+        return (
+          <line
+            key={`${from}-${to}`}
+            x1={at[from][0]}
+            y1={at[from][1]}
+            x2={at[to][0]}
+            y2={at[to][1]}
+            className={hot ? "stroke-survey" : "stroke-line"}
+            strokeWidth={hot ? 2 : 1}
+          />
+        );
+      })}
+      {Object.entries(at).map(([value, [x, y]]) => {
+        const hot = onPath.has(Number(value));
+        return (
+          <g key={value}>
+            <circle
+              cx={x}
+              cy={y}
+              r={21}
+              className={hot ? "fill-panel-2 stroke-survey" : "fill-ground stroke-line"}
+              strokeWidth={hot ? 1.5 : 1}
+            />
+            <text x={x} y={y + 5} textAnchor="middle" fontSize={15} className="font-mono fill-fg">
+              {value}
+            </text>
+          </g>
+        );
+      })}
+
+      <text x={262} y={78} textAnchor="end" fontSize={12} className={label}>
+        smaller
+      </text>
+      <text x={458} y={78} fontSize={12} className={label}>
+        larger
+      </text>
+      {[
+        { y: 50, text: "LEVEL 1" },
+        { y: 118, text: "LEVEL 2" },
+        { y: 186, text: "LEVEL 3" },
+      ].map((level) => (
+        <text key={level.text} x={24} y={level.y} fontSize={10} className={faint}>
+          {level.text}
+        </text>
+      ))}
+      <text x={360} y={248} textAnchor="middle" fontSize={12} className="font-mono fill-survey">
+        search for 40: 50, 30, 40
+      </text>
+    </Figure>
+  );
+}

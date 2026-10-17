@@ -1,0 +1,163 @@
+---
+title: Hash maps and sets in Rust
+sub: HashMap, HashSet, the entry API, and how hashing works.
+description: Learn hash maps and sets in Rust. Build a tiny hash map, then use HashMap, HashSet and the entry API, with a cost table and three practice problems.
+order: 6
+part: 1
+updated: 2026-10-17
+slug: hash-maps-and-sets
+---
+
+<Part id="what" heading="Look it up by [name]" sub="A key goes in and its value comes out." />
+
+A **hash map** stores pairs. Each pair is a **key** and a **value**: a student's roll number and their name, or a word and how many times it appears. You give the map a key, and it gives you the matching value back, without looking through every pair.
+
+Other languages call this a dictionary, an object or a map. A **hash set** is the same machine with keys only and no values. It answers one question quickly: "is this thing in here?"
+
+Reach for a hash map when you need to look things up by something other than position, or when you need to count, group or remember things. It is the most useful single structure for solving interview problems, because it turns a slow search through a list into a quick lookup.
+
+<Part id="idea" heading="A number from every [key]" sub="Hashing picks a bucket." />
+
+<HashDiagram />
+
+A hash map keeps its pairs in a row of **buckets**, which are small containers numbered from 0. To decide which bucket a key belongs in, it runs the key through a **hash function**. A hash function turns any key into a number, and the same key always gives the same number. The map reduces that number to a bucket number, and the pair goes there.
+
+To find a key later, the map does the same thing: hash the key, jump straight to that bucket, and look only inside it. It does not touch the other buckets.
+
+Two different keys can land in the same bucket. This is called a **collision**, and it is normal. The picture shows it: keys 3 and 11 both end up in bucket 3. The simple answer, used here, is for each bucket to hold a short list of pairs, and to compare keys inside the bucket to find the right one. This is called **chaining**.
+
+As long as the buckets stay short, lookups are quick. A real hash map watches how full it is and, when the buckets get crowded, grows the row of buckets and moves the pairs to spread them out. That is why the cost is O(1) *on average* and not always. A map where every key collides would be one long list.
+
+Two things follow from this design. A key must be able to be hashed and compared for equality. And the map does not remember the order you added things, so never rely on the order a hash map gives you back.
+
+<Part id="build" heading="Build a tiny [map]" sub="Eight buckets and a remainder." />
+
+This map goes from `i32` keys to `i32` values. It has eight buckets and never grows, so it only shows the idea.
+
+<Snippet file="lesson6_hash" name="tiny-map" />
+
+Go through it in order.
+
+- `buckets` is a `Vec` of `Vec`s. Each inner `Vec` is a bucket holding `(key, value)` pairs, and `len` counts all the pairs.
+- `bucket_of` is the hash. It takes the key's **remainder** after dividing by the number of buckets, so every key lands in a bucket from 0 to 7. `rem_euclid` is used rather than `%` because `-1 % 8` is `-1` in Rust, which is not a valid bucket, while `(-1).rem_euclid(8)` is `7`.
+- `insert` looks in the key's bucket. If the key is already there, `std::mem::replace` swaps in the new value and returns the old one. Otherwise it pushes a new pair.
+- `get` searches only inside the one bucket for a matching key.
+- `remove` finds the pair's position and takes it out with `swap_remove`, which fills the gap with the last pair instead of shifting everything. The order inside a bucket doesn't matter, so that is fine.
+- `bucket_sizes` is only here so you can see collisions.
+
+Here it is in use. The Playground link on the code above runs this.
+
+<Snippet file="lesson6_hash" name="tiny-map-demo" play={false} />
+
+Keys 3 and 11 share bucket 3, and both are still found, because `get` compares the keys themselves and not just the bucket. The key `-1` goes to bucket 7. The printed bucket sizes show the collision as a 2.
+
+<Part id="std" heading="HashMap and [HashSet]" sub="The entry API does the heavy lifting." />
+
+The standard library's `HashMap` is this idea, finished: it grows when needed, it takes any key type that can be hashed and compared, and it is carefully tested.
+
+<Snippet file="lesson6_hash" name="hash-map-basics" />
+
+`insert` returns the old value if the key was already there. `get` returns an `Option<&V>`, a borrowed look at the value, and `None` if the key is missing. The key you pass to `get` is a reference, and you can look up a `String` key with a `&str`.
+
+Counting is the job you will do most. The first idea is to check whether the key exists, then add or insert. Rust has a better tool, the **entry API**:
+
+<Snippet file="lesson6_hash" name="hash-map-entry" />
+
+`counts.entry(word)` finds the slot for that key, whether or not it has a value yet. `or_insert(0)` fills the slot with 0 if it was empty, and in both cases it returns a mutable reference to the value. The `*` in `*... += 1` writes through that reference. The key is looked up once, not twice, and there is no way to forget a case.
+
+Notice how the example ends. It sorts before printing, because a `HashMap` does not promise any order. If you need keys in order, lesson 9 introduces `BTreeMap`.
+
+The entry API has more forms:
+
+<Snippet file="lesson6_hash" name="hash-map-entry-variants" />
+
+`or_default()` fills in the type's default value, which for a `Vec` is an empty one, so it is perfect for grouping. `and_modify` runs only if the key exists, and `or_insert` covers the case where it doesn't.
+
+A `HashSet` is a map with only keys.
+
+<Snippet file="lesson6_hash" name="hash-set" />
+
+`insert` returns `true` if the value was new and `false` if it was already there, which makes de-duplicating and "have I seen this?" checks very short. Sets also have operations like `intersection`, `union` and `difference`.
+
+Finally, your own types can be keys if they can be hashed and compared:
+
+<Snippet file="lesson6_hash" name="hash-derive" />
+
+`#[derive(Hash, PartialEq, Eq)]` asks the compiler to write the code for you. A rule to keep: if two keys are equal, they must hash to the same number, and the derive guarantees that. By default, Rust's hash function is chosen to be hard to attack with keys picked to collide. It is a little slower than the simplest hash functions, and that is a good trade for most programs.
+
+<Part id="cost" heading="What each move [costs]" sub="n is the number of pairs in the map." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `insert` | O(1) average | Hash, go to one bucket, add or replace |
+| `get`, `contains_key` | O(1) average | Hash, search one short bucket |
+| `remove` | O(1) average | Same as `get`, then take out |
+| `entry(...).or_insert(...)` | O(1) average | One lookup |
+| Worst case for any of these | O(n) | Every key collides into one bucket |
+| Loop over everything | O(n) | Visit every pair, in no useful order |
+| Space used | O(n) | The pairs, plus some spare buckets |
+
+"Average" means that over many operations on ordinary keys, each one takes a constant number of steps, even though one unlucky case could take longer. In practice, a `HashMap` is the way to turn an O(n) search into an O(1) lookup, at the cost of extra memory. Compare it with a `Vec`, where `contains` has to look at every item.
+
+<Part id="practise" heading="Three problems, [one] map" sub="Remember what you have seen." />
+
+All three have a slow answer that compares many things with each other, and a quick answer that remembers something as it goes. The quick answers use a map or a set to do the remembering.
+
+<Practice
+  number={1}
+  title="Two numbers that add up"
+  file="lesson6_hash"
+  start="two-sum-start"
+  solution="two-sum"
+  hints={[
+    "The slow way tries every pair, which is O(n squared). Instead, for each number, ask what other number you would need.",
+    "When you reach a number `n`, you need `target - n`. Have you already seen it? A map from value to position answers that in one step.",
+    "Loop with `enumerate`. Look up `target - n` in a `HashMap<i32, usize>` first, and return `(j, i)` if it is found. Only then insert `n`. Doing the lookup before the insert stops a number pairing with itself.",
+  ]}
+  explain="Each number asks one question: has its partner already gone by? The map stores each value with the place it was seen, so the answer comes back in O(1) on average. That makes it one pass, with O(n) time and O(n) space, against O(n squared) for trying every pair. Looking up before inserting means an item can't be matched with itself, while two equal values (3 and 3 for a target of 6) still work, because the first is stored by the time the second arrives."
+>
+Write `two_sum`, which finds two different positions in `nums` whose values add up to `target`, and returns them as `Some((i, j))` with `i < j`. If no pair works, return `None`. If several pairs work, any one is fine. Every value and the target are between -1,000,000,000 and 1,000,000,000. `[2, 7, 11, 15]` with a target of 9 gives `Some((0, 1))`.
+</Practice>
+
+<Practice
+  number={2}
+  title="Group the anagrams"
+  file="lesson6_hash"
+  start="group-anagrams-start"
+  solution="group-anagrams"
+  hints={[
+    "Words made of the same letters look identical once their letters are sorted. `eat` and `tea` both become `aet`.",
+    "Use the sorted letters as the key of a `HashMap<String, Vec<String>>`. Every word with the same key belongs in the same group.",
+    "For each word, collect its `chars()` into a `Vec<char>`, sort it, and collect back into a `String` for the key. Then `groups.entry(key).or_default().push(word.to_string())`. Finish with `groups.into_values().collect()`.",
+  ]}
+  explain="The sorted letters are a canonical form, one standard shape that every anagram of a word shares, so they make a good key. The entry API finds the group or creates an empty one with `or_default`, and then the word is pushed onto it. Sorting a word of length L costs O(L log L), so for n words the total is about O(n times L log L). `into_values` consumes the map and hands over the groups without copying them again. The order of the groups comes from the map, which is why the problem allows any order."
+>
+Write `group_anagrams`, which sorts words into groups where every word in a group uses exactly the same letters. `eat`, `tea`, `tan`, `nat` and `bat` give three groups: `eat` with `tea`, `tan` with `nat`, and `bat` on its own. The groups, and the words inside them, can come back in any order.
+</Practice>
+
+<Practice
+  number={3}
+  title="Longest run of consecutive numbers"
+  file="lesson6_hash"
+  start="longest-consecutive-start"
+  solution="longest-consecutive"
+  hints={[
+    "Sorting would work in O(n log n). To reach O(n), you need to ask whether a number is in the list in constant time. Which structure does that?",
+    "Put every number in a `HashSet`. A number is the *start* of a run when the number just below it is not in the set.",
+    "For each start, count upwards with `while set.contains(&(end + 1))`. Skip any number whose `n - 1` is in the set, because a run should only be counted from its start.",
+  ]}
+  explain="Without the check for a start, every number in a long run would count upwards by itself, which is O(n squared) for one long run. With the check, each run is walked once, from its first number. Every number is visited at most twice, once by the outer loop and once while some run counts through it, so it is O(n) on average, with O(n) space for the set. The bounds in the problem keep `start - 1` and `end + 1` from overflowing an `i32`."
+>
+Write `longest_consecutive`, which returns the length of the longest run of values that go up by exactly one, such as 1, 2, 3, 4, in a slice that is in any order and may repeat values. `[100, 4, 200, 1, 3, 2]` gives 4. An empty slice gives 0. Every value is between -1,000,000,000 and 1,000,000,000. Aim for O(n) time.
+</Practice>
+
+<Part id="interview" heading="Hash maps in the [interview]" sub="The helper that appears everywhere." />
+
+If you only get good at one structure for interviews, make it this one. A few habits help.
+
+- **Ask "can I remember something?"** When a first idea compares every item with every other, try a map or a set that remembers what has been seen. This turns O(n squared) into O(n), and it is the idea behind all three problems here.
+- **Know the patterns.** Counting how often things appear (the entry API), looking up a partner or complement (problem 1), grouping by a shared key (problem 2), and checking for membership (problem 3) cover a large share of questions.
+- **Ask about duplicates and the key type.** Can values repeat? Are the keys small numbers, where a plain array might do, or strings? Do you need the answer in order?
+- **Be honest about "O(1)".** Say "O(1) on average". A strong answer adds that the worst case is O(n) if many keys collide, and that the map uses extra space to buy the speed.
+- **Remember that order is not kept.** A `HashMap` returns items in no useful order. If you need sorted keys, say you would use a `BTreeMap` instead.
+- **In Rust, use the entry API.** Writing `*counts.entry(x).or_insert(0) += 1` rather than checking and inserting separately shows you know the idiom, and it does one lookup instead of two.

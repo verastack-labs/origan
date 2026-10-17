@@ -1,0 +1,148 @@
+---
+title: Trees in Rust
+sub: Binary search trees, Option<Box<Node>>, and recursion.
+description: Learn trees and binary search trees in Rust. Build one from Option and Box, walk it with recursion, and compare it with BTreeSet, with a cost table and three practice problems.
+order: 7
+part: 1
+updated: 2026-10-17
+slug: trees
+---
+
+<Part id="what" heading="A list that [branches]" sub="Each node can have two children." />
+
+A **tree** is like a linked list where each node can point to more than one next node. The first node is the **root**. A node below another is its **child**, and the node above is its **parent**. A node with no children is a **leaf**. Any node together with everything below it is a **subtree**, which is a smaller tree in its own right.
+
+In a **binary tree**, each node has at most two children, called the left and the right. A **binary search tree** (BST) adds one rule: for every node, everything in its left subtree is smaller, and everything in its right subtree is larger.
+
+That rule is what makes it useful. Reach for a BST when you want to keep values in sorted order and find them quickly. Trees also describe anything that nests: folders inside folders, the parts of a sentence, or the way a maths expression is built from smaller expressions.
+
+<Part id="idea" heading="Smaller left, [larger] right" sub="Each step leaves half the tree behind." />
+
+<TreeDiagram />
+
+The picture shows a BST with seven values. To search for 40, start at the root, 50. Since 40 is smaller than 50, go left to 30. Since 40 is larger than 30, go right, and there it is. Three nodes visited, and the other four never touched.
+
+Every comparison throws away a whole subtree. If the tree is well spread out, which is called **balanced**, each step cuts the remaining nodes roughly in half. Doubling the number of values adds only one more step. That growth is written O(log n), and it is why searching a million values takes about twenty steps.
+
+The catch is the shape. If you insert already-sorted values one after another (1, 2, 3, 4 and so on), every new value goes to the right of the last, and the tree becomes a list with extra steps. Searching then visits every node, which is O(n). So the speed depends on the **height**, the number of levels from the root down to the lowest leaf.
+
+Trees are a good place to meet **recursion**: a function that solves a problem by calling itself on a smaller piece. A tree is a natural fit, because a tree is a node plus two smaller trees. A recursive function needs a **base case**, an answer that needs no more calls. For trees it is nearly always "an empty tree".
+
+<Part id="build" heading="Build a search [tree]" sub="Insert, search, and walk in order." />
+
+A node owns its two children, the same way a linked list node owns the next node in lesson 3. A child is either missing or present, which is `Option<Box<Node>>` again.
+
+<Snippet file="lesson7_tree" name="bst-build" />
+
+Go through it in order.
+
+- `Node` has a `value` and two optional children. `Bst` holds the root and a count.
+- `insert_into` takes `link`, a mutable reference to a slot that is either empty or holds a node. If it is empty (`None`), that is where the value belongs, so it fills the slot. If it holds a node, `value.cmp(&node.value)` compares the two and returns an `Ordering`: `Less`, `Greater` or `Equal`. The function then calls itself on the left or right slot. `Equal` means the value is already there, so nothing is added.
+- `contains` follows the same path in a loop instead of recursion. `current` is a shared reference that moves down to `&node.left` or `&node.right`. It never needs to change anything, so it only borrows.
+
+<Note title="Why there is no parent pointer">
+Many textbook trees give each node a link to its parent. Here that would be a second owner of every node, which Rust does not allow without extra tools. So the code never goes upwards. It goes down by recursion, and the function calls themselves remember the way back. For most tree problems that is all you need.
+</Note>
+
+Now the walks. The values in a BST come out in sorted order if you visit the left subtree, then the node, then the right subtree. That visiting order is called **in-order**.
+
+<Snippet file="lesson7_tree" name="bst-walk" also="bst-build" />
+
+`collect_in_order` is recursive. For a node, it first handles everything on the left, then pushes the node's value, then handles everything on the right. When the link is `None`, the `if let` finds nothing, and that is the base case. `height_of` is the same shape: an empty link has height 0, and any other node is 1 plus the taller of its two sides.
+
+The demo in the Playground builds a tree from seven values that arrive in a good order, which has height 3. It then inserts seven values that arrive already sorted, and that tree has height 7.
+
+One honest limit: deleting a value is the fiddliest part of a BST, so we don't build it here. Also, a very lopsided tree makes the recursion go as deep as the tree is tall, which could overflow the stack, as the long linked list did in lesson 3. Balanced trees avoid this.
+
+<Part id="std" heading="Trees inside [BTreeSet]" sub="Balanced search trees, ready made." />
+
+Rust's standard library has no general-purpose `Tree` type, since trees come in so many shapes. What it does have are sorted collections that are trees inside. `BTreeSet` and `BTreeMap` keep their keys in order and stay balanced, so they never degrade to a list.
+
+<Snippet file="lesson7_tree" name="btree-set" />
+
+The values come back in order without you doing anything, and `first` and `last` give the smallest and largest. Inside, a **B-tree** keeps many values in each node, so the tree is wide and shallow, and that suits how computers read memory. Lesson 9 covers `BTreeMap` and range queries in full.
+
+So when do you write your own tree? When the shape *is* the point: a tree of folders, a parse tree, or a trie (lesson 11). When you only need a sorted collection, use a `BTreeSet` or `BTreeMap`.
+
+<Part id="cost" heading="What each move [costs]" sub="h is the height of the tree." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Insert into a BST | O(h) | Walk down one path, then fill an empty slot |
+| Search a BST | O(h) | Walk down one path, discarding a side each step |
+| Smallest or largest | O(h) | Keep going left, or keep going right |
+| Visit every value (in-order) | O(n) | Each node is visited once |
+| Height | O(n) | Has to look at every node |
+| Space used | O(n) | One node per value, plus O(h) recursion |
+
+The height is the key. For a balanced tree, h is about log n, so insert and search are O(log n). For a lopsided tree, h can be n, and they are O(n). A `BTreeSet` stays balanced for you, so its insert and search are always O(log n).
+
+<Part id="practise" heading="Three problems, [one] shape" sub="Measure it, check it, list it by level." />
+
+These use a node type with public fields, so you can build trees and check results. `node` builds a node from a value and two optional children, and `leaf` builds a node with none. Open the Playground link to get all of it with each problem.
+
+<Snippet file="lesson7_tree" name="tree-node" />
+
+The functions borrow the tree as `&Option<Box<TreeNode>>`. They only read it, and the caller keeps ownership.
+
+<Practice
+  number={1}
+  title="How deep is the tree?"
+  file="lesson7_tree"
+  also="tree-node"
+  start="max-depth-start"
+  solution="max-depth"
+  hints={[
+    "Think of a tree as a root with two smaller trees under it. The depth of the whole is 1 for the root, plus the deeper of the two smaller trees.",
+    "An empty tree has depth 0. That is your base case, the answer that needs no further calls.",
+    "Write `match root { None => 0, Some(node) => ... }`. In the `Some` arm, call `max_depth(&node.left)` and `max_depth(&node.right)`, take the larger with `.max(...)`, and add 1.",
+  ]}
+  explain="The function mirrors the definition: an empty tree has depth 0, and any other tree is one more than its deeper child. The recursion reaches every node once, so it is O(n) time. It uses stack space equal to the depth, which is O(log n) for a balanced tree and O(n) for a lopsided one. Taking `&Option<Box<TreeNode>>` lets the function look at the tree without taking ownership of it."
+>
+Write `max_depth`, which returns the number of levels in a binary tree: the number of nodes on the longest path from the root down to a leaf. A tree with only a root has depth 1, and an empty tree has depth 0.
+</Practice>
+
+<Practice
+  number={2}
+  title="Is it a search tree?"
+  file="lesson7_tree"
+  also="tree-node"
+  start="is-valid-bst-start"
+  solution="is-valid-bst"
+  hints={[
+    "Checking that each node is bigger than its left child and smaller than its right child is not enough. A value deep in the left subtree must still be smaller than the root.",
+    "Pass limits down as you recurse: every value in this subtree must be greater than `low` and smaller than `high`. At the root there are no limits.",
+    "Use `Option<i32>` for the limits, where `None` means no limit. Going left, this node's value becomes the new `high`. Going right, it becomes the new `low`. An inner function `check(link, low, high)` keeps the public signature simple.",
+  ]}
+  explain="Each node inherits limits from all of its ancestors, not only its parent. Going left tightens the upper limit to this node's value, and going right raises the lower limit, so a value in the wrong subtree is caught however far down it is. Using `Option` for the limits avoids picking a fake smallest or largest number, which would wrongly reject `i32::MIN` or `i32::MAX`. Every node is checked once, so it is O(n) time, plus O(h) stack for the recursion."
+>
+Write `is_valid_bst`, which returns `true` if a binary tree is a valid binary search tree: for every node, all values in its left subtree are smaller and all values in its right subtree are larger. Equal values are not allowed. An empty tree is valid.
+</Practice>
+
+<Practice
+  number={3}
+  title="List it level by level"
+  file="lesson7_tree"
+  also="tree-node"
+  start="level-order-start"
+  solution="level-order"
+  hints={[
+    "Recursion goes deep first. Level by level needs a different order: everything at one level before anything at the next. That is a queue, from lesson 5.",
+    "Put the root in a `VecDeque`. Each time round the loop, everything in the queue is one level.",
+    "At the start of each round, note `queue.len()`. Pop exactly that many nodes into the current level, and push each one's left and right children, when present, onto the back. Those children are the next level.",
+  ]}
+  explain="The queue holds the nodes of the current level, with the children of the nodes already handled queued behind them. Reading `queue.len()` at the start of a round fixes how many nodes belong to this level, because everything added during the round belongs to the next. This is called a breadth-first traversal, and the same pattern is used to explore graphs later. The queue holds references to the nodes, not copies. Each node is queued and removed once, so it is O(n) time, and the queue holds at most one level, which is O(n) space in the worst case."
+>
+Write `level_order`, which returns the values of a binary tree level by level, from the top, and left to right within each level, as a `Vec` of `Vec`s. A tree with 3 at the root, 9 on its left, and 20 on its right with children 15 and 7, gives `[[3], [9, 20], [15, 7]]`. An empty tree gives an empty `Vec`.
+</Practice>
+
+<Part id="interview" heading="Trees in the [interview]" sub="What to ask, and what to say." />
+
+Tree questions are everywhere in coding tests, and almost all of them are recursion in disguise. A few habits help.
+
+- **Start with the base case.** For nearly every tree problem, ask "what is the answer for an empty tree?" first. Then ask how the answer for a node follows from the answers for its two children.
+- **Know the traversal names.** In **pre-order** you handle the node, then left, then right. **In-order** is left, node, right, which gives a BST's values in sorted order. **Post-order** is left, right, node. **Level order**, from problem 3, uses a queue.
+- **Pass information down.** Problem 2 shows the trick: when a node's answer depends on its ancestors, carry the limits down as extra arguments.
+- **Ask about the shape.** Is the tree balanced? Can values repeat? Is it a binary search tree, or just a binary tree? The answers decide which tricks are available.
+- **Say the cost in terms of height.** "O(h), which is O(log n) if the tree is balanced and O(n) if it is not" is a complete and honest answer. Mention the recursion's stack use too.
+- **In Rust, show you know why the types look as they do.** `Option<Box<Node>>` means "maybe a child, which this node owns". Borrowing with `&node.left` instead of cloning shows that you understand ownership.

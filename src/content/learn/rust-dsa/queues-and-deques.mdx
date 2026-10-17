@@ -1,0 +1,147 @@
+---
+title: Queues and deques in Rust
+sub: First in, first out, ring buffers, and VecDeque.
+description: Learn queues and deques in Rust. Build a ring buffer, then use VecDeque, and solve sliding window problems, with a cost table and three practice problems.
+order: 5
+part: 1
+updated: 2026-10-17
+slug: queues-and-deques
+---
+
+<Part id="what" heading="First in, [first] out" sub="Like a line at a counter." />
+
+A **queue** is a collection where new items join at the back and items leave from the front. The item that has waited longest is served first. This rule is called **FIFO**, short for "first in, first out". It is the mirror image of a stack from lesson 4.
+
+A **deque** (say "deck", short for double-ended queue) is a queue that lets you add and remove at *both* ends. It can behave as a queue, as a stack, or as a mix.
+
+Reach for a queue whenever things should be handled in the order they arrived: tasks waiting for a worker, messages waiting to be processed, or print jobs. You will meet it again in breadth-first search, a way of exploring a graph one layer at a time.
+
+<Part id="idea" heading="A line that [wraps] round" sub="Two ends, and a clever use of an array." />
+
+<QueueDiagram />
+
+A queue needs to work at both ends: add at the back, remove from the front. If you store the items in a plain array and remove from the front, everything behind has to shift one place to fill the gap, which gets slower as the queue grows.
+
+The trick is not to move the items at all. Keep a note of where the front is, called `start`, and how many items there are, called `len`. Removing from the front just moves `start` forward by one. The slot it left behind is free to reuse.
+
+When `start` or the back reaches the last slot, it wraps round to slot 0, as if the row of slots were bent into a ring. The picture shows this: the queue holds four values, the first two in slots 6 and 7, and the others have wrapped to slots 0 and 1. A structure built this way is called a **ring buffer** (or circular buffer).
+
+The tool that does the wrapping is the **remainder** operator, `%`. Slot number `8` doesn't exist in an array of eight, but `8 % 8` is `0`, which is the first slot. So the next free slot is always `(start + len) % capacity`.
+
+<Part id="build" heading="Build a ring [buffer]" sub="Eight slots that wrap round." />
+
+This queue sits on an array of exactly eight slots, like the fixed array in lesson 1. It refuses new items when it is full, handing the value back, rather than losing it.
+
+<Snippet file="lesson5_queue" name="ring-buffer" />
+
+Go through it in order.
+
+- `slots` is the array, `start` is the slot of the oldest value, and `len` is how many slots are in use.
+- `push_back` finds the next free slot with `(self.start + self.len) % self.slots.len()`, writes the value there, and adds one to `len`. If `len` already equals the number of slots, it returns `Err(value)`.
+- `pop_front` reads the value at `start`, moves `start` forward by one (wrapping with `%`), and takes one off `len`. An empty queue gives `None`.
+- `front` looks at the oldest value without removing it.
+
+Nothing is ever copied from one slot to another, so both adding and removing take one step. That is the whole point of the ring.
+
+<Note title="Why not just use Vec::remove(0)?">
+You can remove the first item of a `Vec` with `remove(0)`, but every other item then shifts one place to the left. For a queue with a million items, each removal would move a million values. The ring buffer avoids that by moving a number instead of the data.
+</Note>
+
+<Part id="std" heading="Use [VecDeque] instead" sub="A growable ring buffer, ready made." />
+
+`VecDeque` is the standard library's ring buffer. It grows when it is full, it holds any type, and it works at both ends.
+
+<Snippet file="lesson5_queue" name="vec-deque-queue" />
+
+`push_back` and `pop_front` are the queue moves. `front()` is a borrowed look at the oldest item, and it returns an `Option<&T>`, because the queue might be empty.
+
+Because it is a deque, the other end works too:
+
+<Snippet file="lesson5_queue" name="vec-deque-both-ends" />
+
+`push_front` is O(1) on a `VecDeque`. On a `Vec` it would be `insert(0, x)`, which shifts everything. You can also read by position with `deque[0]` and loop over it with `iter()`, and it is the one to reach for whenever you need fast work at the front.
+
+Here, for contrast, is the slow way that a `VecDeque` exists to avoid:
+
+<Snippet file="lesson5_queue" name="vec-remove-front" />
+
+For three items, that is nothing. For a long queue, it adds up. Use `VecDeque` for queues and deques, and `Vec` when you only work at the end.
+
+<Part id="cost" heading="What each move [costs]" sub="n is the number of items in the queue." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `push_back` | O(1) amortised | Write into the next slot; now and then it grows |
+| `pop_front` | O(1) | Move `start` along by one |
+| `push_front`, `pop_back` | O(1) amortised, O(1) | The same idea at the other end |
+| `front`, `back` | O(1) | Read one slot |
+| `deque[i]` | O(1) | Slot is `(start + i) % capacity` |
+| Insert or remove in the middle | O(n) | Items on one side must shift |
+| `Vec::remove(0)` | O(n) | Every other item shifts left |
+| Search for a value | O(n) | May look at every item |
+| Space used | O(n) | One slot per item, plus spare capacity |
+
+The pattern to remember: a `Vec` is cheap at the back, and a `VecDeque` is cheap at both ends. Neither is cheap in the middle.
+
+<Part id="practise" heading="Three problems, [one] line" sub="Generate, count and slide." />
+
+Each problem uses a `VecDeque` as the line of things waiting. They get harder in order, and the last one is the deque's best-known trick.
+
+<Practice
+  number={1}
+  title="Binary numbers in order"
+  file="lesson5_queue"
+  start="binary-numbers-start"
+  solution="binary-numbers"
+  hints={[
+    "Write out the first few by hand: 1, 10, 11, 100, 101, 110, 111. Each one is an earlier number with a 0 or a 1 added on the end.",
+    "Start a queue holding just the text for 1. Take the front, and that is the next number in your answer.",
+    "Each time you take a number off the front, push two new ones onto the back: the number followed by `0`, and the number followed by `1`. `format!` builds the new text. Stop once you have `n` results.",
+  ]}
+  explain="The queue holds numbers that have been found but not yet extended, in order. Taking the front gives the next number, and its two extensions go to the back, behind everything already waiting. So all numbers of one length come out before any of the next length, and within a length they stay in order, which is exactly numeric order. Each number is built once. That is O(n) steps, though each text is as long as the number's bits, so about O(n log n) characters in all. This is the same shape as breadth-first search, which you will meet later."
+>
+Write `binary_numbers`, which returns the first `n` positive whole numbers written in binary, as text, in order. `n = 5` gives `1`, `10`, `11`, `100`, `101`. `n = 0` gives an empty `Vec`.
+</Practice>
+
+<Practice
+  number={2}
+  title="Count recent requests"
+  file="lesson5_queue"
+  start="recent-counter-start"
+  solution="recent-counter"
+  hints={[
+    "Requests arrive in time order, so the oldest request is always the first to expire. That is the front of a queue.",
+    "Keep a `VecDeque<u32>` of request times. On each ping, `push_back` the new time.",
+    "Then, while the front is older than the window, `pop_front`. The answer is the length of the queue. Test with `time - oldest <= 3000`: the times never go down, so that subtraction can't go below zero.",
+  ]}
+  explain="Arrival order and expiry order are the same, so a queue is the right shape: new requests join the back and old ones leave the front. Each request is pushed once and popped at most once, so a ping is O(1) amortised, which means some pings pop several old requests but the average is constant. The queue never holds more than the requests from the last 3000 ms, so the space stays bounded however long the counter runs."
+>
+Write a `RecentCounter` with a `new` function and a `ping` method. `ping(time)` records a request at `time`, in milliseconds, and returns how many requests, including this one, happened in the last 3000 ms, meaning at times from `time - 3000` up to `time`. Every call has a `time` at least as large as the one before.
+</Practice>
+
+<Practice
+  number={3}
+  title="Largest in a sliding window"
+  file="lesson5_queue"
+  start="window-max-start"
+  solution="window-max"
+  hints={[
+    "Checking every window from scratch costs O(n times k). To do better, ask which numbers in the window could ever become the maximum.",
+    "If a new number is bigger than one behind it in the window, the older, smaller number can never be the maximum again. It leaves the window first and it is smaller, so you can throw it away.",
+    "Keep a `VecDeque` of indexes whose values fall from front to back. For each new number, `pop_back` while the back value is not larger, then `push_back` the new index. Drop the front if it left the window (`index + k <= i`). The front is then the maximum.",
+  ]}
+  explain="The deque holds the only candidates that could still be a maximum, with the largest at the front. A new value removes every smaller candidate behind it. They are smaller and will expire sooner, so they can never win. The front is removed once its index slides out of the window, which is why the deque stores indexes and not values. Each index is pushed once and popped at most once, so the whole thing is O(n), compared with O(n times k) for rescanning every window. A deque is needed because we remove from the back (smaller candidates) and from the front (expired ones)."
+>
+Write `window_max`, which takes a slice and a window size `k`, and returns the largest value in every window of `k` neighbouring items as the window slides one step at a time. `[1, 3, -1, -3, 5, 3, 6, 7]` with `k = 3` gives `[3, 3, 5, 5, 6, 7]`. If `k` is 0 or bigger than the slice, return an empty `Vec`.
+</Practice>
+
+<Part id="interview" heading="Queues in the [interview]" sub="What to ask, and what to say." />
+
+Queues come up in their own right and as part of bigger ideas. A few habits help.
+
+- **Spot the signals.** "Process in arrival order", "level by level", and "the last k items" all point to a queue or a deque.
+- **Know the sliding window pattern.** Problem 3 is the classic use of a deque. Seeing that the answer only needs the *candidates* that might still win turns an O(n times k) idea into O(n).
+- **Expect the classics.** Two common questions are building a queue out of two stacks, and building a fixed-size circular queue, which is the ring buffer from this lesson. Draw the `start` and `len` values as you go.
+- **Ask whether it is bounded.** Is there a maximum size? What happens when it is full: refuse, overwrite the oldest, or grow? The answer decides your design.
+- **Say the cost.** "Each item is pushed once and popped once, so O(n) in total" is the sentence for most queue problems.
+- **In Rust, name `VecDeque`.** Saying you would use a `VecDeque` and not `Vec::remove(0)`, and why, shows you know both the standard library and the cost of shifting.
