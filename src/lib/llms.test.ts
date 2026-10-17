@@ -29,6 +29,7 @@ describe("llms.txt", () => {
   it("lists each course as the brand with its descriptor", () => {
     expect(pages).toContain("[Oxidise (DSA in Rust)]");
     expect(pages).toContain("[Filter Coffee (Java Collections)]");
+    expect(pages).toContain("[The Switch (JavaScript to TypeScript)]");
   });
 
   it("writes every page entry as a Markdown link and a description", () => {

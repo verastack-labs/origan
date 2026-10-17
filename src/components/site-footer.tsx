@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { sheetFor, sheets, site } from "@/data/site";
 import { javaCollections } from "@/data/java-collections";
 import { rustDsa } from "@/data/rust-dsa";
+import { theSwitch } from "@/data/the-switch";
 import { studentReferral } from "@/data/content";
 import { BenchmarkMark } from "./benchmark-mark";
 import { InterestButton, ReferralButton } from "./interest";
@@ -49,7 +50,7 @@ export function SiteFooter() {
             </div>
             {/* Free study material, linked here rather than from the header. */}
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
-              {[rustDsa, javaCollections].map((course) => (
+              {[rustDsa, javaCollections, theSwitch].map((course) => (
                 <Link
                   key={course.path}
                   href={course.path}

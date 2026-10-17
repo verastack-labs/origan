@@ -1,0 +1,222 @@
+---
+title: Setting up
+sub: Five minutes, one config file, and a seatbelt.
+description: Install TypeScript, create a tsconfig.json with strict mode on, check a file with tsc --noEmit, run a .ts file with Node's built-in type stripping, or skip it all and use the Playground.
+order: 1
+part: 1
+updated: 2026-10-17
+slug: setting-up
+---
+
+<Part id="hook" heading="A seatbelt for your [code]" sub="Setup is quick. Strict mode is the seatbelt." />
+
+Nobody enjoys fastening a seatbelt. It takes two seconds, it adds nothing to the journey, and on a good day you never notice it. On a bad day it is the reason you walk away.
+
+TypeScript has a seatbelt too. It is called **strict mode**, and it is one line in a settings file. With it on, the checker is thorough. With it off, the checker lets a lot slide, and you get the weight of TypeScript without most of the protection.
+
+So this lesson does three things. It installs TypeScript. It creates the settings file and turns the seatbelt on. And it shows you how to check a file and run it.
+
+If you would rather not install anything yet, skip to the end of "How it works". The **TypeScript Playground** is a free editor in your browser, run by the TypeScript team, and every code block in this guide has a button that opens it. You can finish this whole guide there.
+
+**Remember:** strict mode is the seatbelt. Turn it on at the start, when it costs nothing.
+
+<Part id="js" heading="Run it and [hope]" sub="JavaScript needs no setup, and no checking." />
+
+In JavaScript there is nothing to set up. You write a file and run it with Node.js.
+
+<Snippet file="lesson1-setup" name="hello" js />
+
+```bash
+node hello.js
+```
+
+```text
+HELLO, TYPESCRIPT!
+```
+
+That is the whole workflow. It is why JavaScript is so easy to start with. It is also why nothing looks at your code before it runs.
+
+Here is a function with a small gap in it.
+
+<Snippet file="lesson1-setup" name="implicit" js />
+
+What kind of thing is `n`? A number? Text? A list? JavaScript doesn't ask. The function will happily take anything, and then do its best.
+
+**Remember:** in JavaScript, "setup" means a text file and Node. Nothing checks the file until it runs.
+
+<Part id="ts" heading="Five steps to [red lines]" sub="Install, configure, write, check, run." />
+
+Here is the same project in TypeScript, step by step. You need Node.js installed, and a folder to work in.
+
+**Step 1: install TypeScript.** If the folder has no `package.json` yet, make one first.
+
+```bash
+npm init -y
+npm install --save-dev typescript
+```
+
+`--save-dev` (or `-D` for short) means "only needed while I'm building". TypeScript is a tool you use on your code, not code your users run. This gives you a command called `tsc`, short for **TypeScript compiler**. You will mostly use it as a checker.
+
+**Step 2: create the settings file.** It is called `tsconfig.json`, and `tsc` can write a first one for you.
+
+```bash
+npx tsc --init
+```
+
+`npx` runs a command that was installed in this project. The file it creates has many options, most of them commented out. You only need to care about a few. This is a small config you can write by hand.
+
+<Snippet file="tsconfig.json" name="config" />
+
+- `target` says which version of JavaScript the output should be. `ES2022` is recent, and fine for current versions of Node.
+- `module` says which module system to use, meaning how files import each other. `NodeNext` matches what Node does.
+- **`strict`** is the seatbelt. It turns on a whole bundle of checks at once.
+- `noEmit` says "check the files, but don't write any `.js` files". We only want the checking for now.
+
+Recent versions of `tsc --init` already switch `strict` on. Older ones left it as a comment. Open the file and make sure it says `true`.
+
+**Step 3: write a TypeScript file.** Make `hello.ts`. Here it is beside the JavaScript from before.
+
+<Compare file="lesson1-setup" name="hello" />
+
+The only change is the two labels in the first line: `message: string` says the input is text, and `: string` after the brackets says the output is text.
+
+**Step 4: check it.** This is the step that earns its keep. Add a mistake to the bottom of `hello.ts`:
+
+<Fails file="lesson1-wrong-argument" />
+
+Now ask the checker.
+
+```bash
+npx tsc --noEmit
+```
+
+```text
+hello.ts(5,19): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+```
+
+Read it from left to right. `hello.ts(5,19)` is the file, then line 5, then column 19. Then the error code, then the plain-English reason. Your editor shows the same message as a red underline, without you running anything.
+
+Here is what the seatbelt does. Without labels, strict mode refuses to guess.
+
+<Fails file="lesson1-implicit-any" />
+
+`implicitly has an 'any' type` means "you didn't say what `n` is, so I would have to treat it as anything". `any` is TypeScript's "switch the checker off for this value" type. Strict mode won't let you get there by accident. You have to say so.
+
+**Step 5: run it.** Once the checker is happy, run the file. Recent versions of Node can run `.ts` files directly.
+
+```bash
+node hello.ts
+```
+
+```text
+HELLO, TYPESCRIPT!
+```
+
+This works in Node 22.18 and newer, and in Node 24. On older 22.x releases, add `--experimental-strip-types` after `node`. Node does this by **type stripping**: it blanks out the labels and runs what is left. That is all it does, and the next part explains why that matters.
+
+**Remember:** `tsc --noEmit` is the checker. `node file.ts` is the runner. They are different jobs.
+
+<Part id="how" heading="Check, then [run]" sub="Two jobs, and who does which." />
+
+The most useful thing to understand in this lesson is that there are two separate jobs.
+
+1. **Checking:** reading the code, comparing every value with its label, and reporting mistakes.
+2. **Running:** turning the code into something that executes.
+
+TypeScript's own tool, `tsc`, does the checking. Running is done by Node or a browser, and they only understand JavaScript. So the labels have to go before the code runs. There are a few ways to make that happen.
+
+| Tool | Checks types? | Removes the labels? |
+| --- | --- | --- |
+| `tsc` | Yes | Yes, when you leave `noEmit` off. It writes `.js` files. |
+| `tsc --noEmit` | Yes | No. It only reports. |
+| `node file.ts` | **No** | Yes, by stripping. |
+| A bundler such as Vite (a tool that packs your code for the browser) | **No**, usually | Yes |
+| The Playground | Yes, as you type | Yes, and it runs the result |
+
+Look at the "Checks types?" column. When you run `node hello.ts`, Node does not check anything. If you leave the mistake in `hello.ts` and run it, Node strips the labels and runs the code. The crash comes straight back.
+
+```text
+TypeError: message.toUpperCase is not a function
+```
+
+That is why most projects do both: `tsc --noEmit` to check, then something else to run. Many teams run the check in their editor all day and again before they publish code.
+
+If you want to skip the setup entirely, the Playground does both jobs in your browser. Open any block in this guide with the **Open in TypeScript Playground** button, and you will see your red lines as you type.
+
+**Remember:** checking and running are separate. Run the check yourself, because nothing else will.
+
+<Part id="watch" heading="Three setup [traps]" sub="Each one has caught plenty of people." />
+
+**Trap 1: `tsc hello.ts` ignores your `tsconfig.json`.** When you name a file on the command line, `tsc` uses its default settings and skips the config file. That means no `strict`. To use your settings, run `tsc` with no file names, as in `npx tsc --noEmit`.
+
+**Trap 2: `tsc` writes `.js` files even when there are errors.** Unless you ask it not to, errors don't stop the output. The checker tells you about the problem, and the JavaScript is written anyway. Use `noEmit` while you are only checking, and `noEmitOnError` if you want a failed check to stop the build.
+
+**Trap 3: Node's type stripping only understands the parts that can simply be erased.** Labels like `: string` can be blanked out and the rest still works. A few TypeScript features can't. An `enum`, for example, turns into real code, and Node won't do that for you. Lesson 11 comes back to this. For now, stick to the labels this guide teaches and you are fine.
+
+There is also a trap that isn't a bug. Turning strict mode off because the errors are annoying is like unbuckling because the belt is tight. If the errors feel like too many, leave strict on and fix them one at a time. Lesson 10 shows how to do that in an existing project.
+
+**Remember:** run `npx tsc --noEmit` with no file names, so your config is used.
+
+<Part id="practise" heading="Three files, [one] habit" sub="Write, check, fix. Do it in the Playground." />
+
+Each problem starts with JavaScript. Open it in the Playground, add types, and watch the red lines appear. Then fix whatever the checker found.
+
+<Practice
+  number={1}
+  title="Label the sentence"
+  file="lesson1-setup"
+  start="describe-start"
+  solution="describe"
+  hints={[
+    "There are two parameters, so there are two labels. One is text and one is a number.",
+    "`name` is a `string` and `age` is a `number`.",
+    "Add a return type as well: the function gives back a sentence, which is a `string`.",
+  ]}
+  explain="Each parameter gets its own label: `name: string` and `age: number`. The return type `: string` after the brackets promises the function gives back text. Adding the number to the text with `+` is allowed in TypeScript, and gives a sentence."
+>
+Add types to `describe` so it takes a name and an age and returns a sentence. `describe("Asha", 21)` should give "Asha is 21 years old".
+</Practice>
+
+<Practice
+  number={2}
+  title="Make strict mode happy"
+  file="lesson1-setup"
+  start="average-start"
+  solution="average"
+  hints={[
+    "Open it in the Playground. Both parameters are underlined, with 'implicitly has an any type'.",
+    "Label both parameters as `number`, and the result too.",
+    "The second call, `average(4, \"6\")`, should now be underlined. In JavaScript it quietly gave 23. Remove it.",
+  ]}
+  explain="Strict mode refuses to guess what `a` and `b` are, which is what the first red lines say. Once both are numbers, the call that passes the text `'6'` is refused. In plain JavaScript it was accepted, joined into the text `'46'`, and divided by 2 to give 23."
+>
+`average(4, 6)` is 5, but `average(4, "6")` quietly gives 23. Add types so the checker refuses the second call, then remove that call.
+</Practice>
+
+<Practice
+  number={3}
+  title="Even or odd, honestly"
+  file="lesson1-setup"
+  start="is-even-start"
+  solution="is-even"
+  hints={[
+    "The input is a whole number. TypeScript has one number type: `number`.",
+    "The function answers yes or no. The label for yes or no is `boolean`.",
+    "`isEven(\"4\")` should be underlined. JavaScript turned the text into a number without telling you. Remove that call.",
+  ]}
+  explain="`n: number` stops text getting in. The return type `: boolean` states that the answer is true or false. In JavaScript, `'4' % 2` quietly turned the text into a number, so the function said `true`, and it would have said so for any text that looks like a number."
+>
+`isEven("4")` returns `true` in JavaScript, because the text is silently turned into a number. Add types so only real numbers are accepted.
+</Practice>
+
+<Part id="interview" heading="Setup in the [interview]" sub="The questions that test whether you've done it." />
+
+Setup questions check that you have used TypeScript, not just read about it.
+
+- **"What is `tsconfig.json`?"** The settings file for the TypeScript compiler. It says which files to include, which JavaScript to produce, and how strict to be. `tsc` finds it in the project folder.
+- **"What does `strict` do?"** It turns on a group of checks at once, including `noImplicitAny` (refuse to guess a value's type) and `strictNullChecks` (lesson 6). It is the recommended setting for new code.
+- **"What does `noEmit` mean?"** Check the code but don't write any output files. It is how you use `tsc` as a pure checker.
+- **"Does `tsc` run your code?"** No. It checks it and, if you leave `noEmit` off, converts it to JavaScript. Node or the browser runs that.
+- **"How does Node run a `.ts` file?"** By type stripping: it erases the labels and runs the rest. It does not check types, so you still need `tsc --noEmit`.
+- **"Why does `tsc file.ts` ignore my config?"** When you name files on the command line, `tsc` uses its defaults and doesn't read `tsconfig.json`.
+- **Say it simply.** "`tsc` checks, something else runs, and `strict` should be on from the start" covers most of it.

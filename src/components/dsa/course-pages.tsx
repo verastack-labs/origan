@@ -96,7 +96,7 @@ export function CourseIndex({ course }: { course: Course }) {
 
       <PageHead
         notation={`${course.descriptor} · Free lessons`}
-        pair={{ heading: course.hero.heading, sub: `${course.hero.sub} ${course.origin}` }}
+        pair={{ heading: course.hero.heading, sub: course.origin ? `${course.hero.sub} ${course.origin}` : course.hero.sub }}
         cta={false}
         compact
         crumbs={[{ label: "Resources", href: "/resources/" }]}
@@ -184,7 +184,7 @@ export function CourseIndex({ course }: { course: Course }) {
             How a lesson is built
           </Reveal>
           <HeadingPair
-            pair={{ heading: "Seven parts, every [time]", sub: "So you always know where the cost table is." }}
+            pair={course.shape ?? { heading: "Seven parts, every [time]", sub: "So you always know where the cost table is." }}
             className="mt-3.5"
           />
 

@@ -1,0 +1,184 @@
+---
+title: Your first types
+sub: Labels on boxes, and a friend who finishes your sentences.
+description: Learn string, number and boolean, how a type annotation works, and why you often don't need one. See how TypeScript infers types, the const versus let difference, and the any trap.
+order: 2
+part: 1
+updated: 2026-10-17
+slug: your-first-types
+---
+
+<Part id="hook" heading="Labels on the [boxes]" sub="A type says what is inside, before you open it." />
+
+You are moving house. The boxes are taped up, and each one has a word on the side in marker pen: KITCHEN, BOOKS, FRAGILE. You never open them to find out. The label tells you what is inside, and where it goes.
+
+If someone hands you a box marked BOOKS and it rattles with plates, something went wrong earlier. The label made the mistake easy to spot.
+
+A **type** in TypeScript is that label. `string` means text. `number` means a number. `boolean` means yes or no, which code writes as `true` or `false`. A variable (a named box you keep a value in) gets a label, and TypeScript refuses to put the wrong thing in the wrong box.
+
+Here is the nice part. You will rarely write the labels yourself. TypeScript is like a friend who finishes your sentences, and gets them right. You write `let age = 21`, and it fills in "that's a number" without being told. This is called **inference**: working out the type from the value.
+
+So this lesson has two halves. First, how to write a label when you want to. Then, how to stop writing them when you don't need to.
+
+**Remember:** a type is a label on a box. Often you don't write the label, because TypeScript reads the contents and writes it for you.
+
+<Part id="js" heading="Boxes with [no labels]" sub="JavaScript lets a box hold anything, any time." />
+
+In JavaScript, a variable can hold a number now and a piece of text a minute later. Nothing minds.
+
+<Snippet file="lesson2-types" name="reassign" js />
+
+```text
+twenty-one1
+```
+
+We started with `age = 21`. Later, someone (maybe you, on a tired afternoon) put text into it. Then `age + 1` joined the text and the digit, instead of adding. Nothing crashed. The answer is just wrong.
+
+Now the simpler case: a function that takes two numbers.
+
+<Snippet file="lesson2-types" name="function-labels" js />
+
+```text
+20
+```
+
+That works. But the function never says it wants numbers. Nothing stops `area("5", "4")` from running, and the answer would depend on how JavaScript decides to turn text into numbers.
+
+**Remember:** a JavaScript variable has no fixed kind. It is whatever you last put in it.
+
+<Part id="ts" heading="Let it [infer]" sub="The checker reads the value and writes the label." />
+
+Start with the same bug. Look at the TypeScript side. We wrote **no labels at all**.
+
+<Compare file="lesson2-types" name="reassign" fail="lesson2-reassign" />
+
+TypeScript read `let age = 21` and decided that `age` is a `number`. Putting text into it later is refused. That is inference, and it is why TypeScript feels lighter than it sounds.
+
+When you do want to write a label, you put a colon after the name, then the type. That is a **type annotation**.
+
+<Compare file="lesson2-types" name="annotations" />
+
+Both sides do the same thing. The labels on the right are *redundant*: TypeScript would have worked them out from `499`, `"Chai"` and `true`. Writing them is allowed, but it is extra noise. A good rule: don't annotate a variable when you give it a value in the same line.
+
+So where **do** you write labels? On the inputs of a function. TypeScript can't guess what a caller will pass in.
+
+<Compare file="lesson2-types" name="function-labels" />
+
+Only the parameters (the names inside the brackets) have labels. The result, `width * height`, is a number times a number, so TypeScript knows the function returns a `number`. You didn't have to say so. Hover over `area` in your editor and it will tell you.
+
+Inference has one more trick worth seeing. It treats `const` and `let` differently.
+
+<Snippet file="lesson2-types" name="inference" />
+
+A `const` can never change, so its type is as exact as possible: not "some text" but exactly `"Pune"`. A `let` might change to another piece of text, so its type is the wider `string`. This is called **widening**. You don't need to do anything about it now. It shows up again in lesson 5, where exact types become useful.
+
+**Remember:** annotate the inputs of functions. Let inference handle everything else.
+
+<Part id="how" heading="What [inference] sees" sub="It looks at the value, and sometimes at the place." />
+
+Inference works from three places.
+
+- **The value you assign.** `let total = 3` is a `number`, because `3` is a number.
+- **The return statements.** A function's result type is worked out from what it returns.
+- **The place the value is used.** In `prices.map((price) => price * 2)`, TypeScript knows `price` is a number because `prices` is a list of numbers. Lesson 4 shows this.
+
+When there is nothing to read, inference has nowhere to start. A function parameter has no value, and an empty variable has no contents. Those are the places that need your labels. Strict mode (lesson 1) turns the silence into an error, so you can't forget.
+
+It also helps to know the three basic types and how they behave.
+
+| Type | Holds | Examples |
+| --- | --- | --- |
+| `string` | Text | `"Chai"`, `'Pune'`, `` `Hello` `` |
+| `number` | Any number, whole or not | `499`, `3.14`, `-2` |
+| `boolean` | Yes or no | `true`, `false` |
+
+TypeScript has one `number` type. There is no separate "integer" and "float", because JavaScript has none either.
+
+**Remember:** a label is needed where there is no value to read. Everywhere else, it is optional.
+
+<Part id="watch" heading="The [any] hole" sub="One word that switches the checker off." />
+
+TypeScript has a way out of its own rules, and you will see it everywhere. It is a type called `any`. A value of type `any` can be anything, and the checker stops looking at it.
+
+<Snippet file="lesson2-types" name="any-hole" />
+
+```text
+TypeError: anything.toFixed is not a function
+```
+
+This passes the checker. There are no red lines. And it crashes, because by then `anything` holds text and text has no `toFixed`. We told TypeScript to stop checking, and it did as it was told.
+
+`any` is sometimes the right tool, for example while you are moving old code over. But it is a hole in the seatbelt. Every `any` is a place where the bugs from lesson 0 can come back. Use it on purpose, and rarely.
+
+There is another trap, and it is a spelling one. TypeScript also has types called `String`, `Number` and `Boolean`, with capital letters. They are different from the lowercase ones, and you almost never want them.
+
+<Fails file="lesson2-wrapper-type" />
+
+`String` with a capital means the wrapper object that JavaScript can build around text. It is not the same as text. The checker's own message says what to do: use `string`.
+
+**Remember:** write `string`, `number` and `boolean` in lowercase. Treat `any` as an escape hatch, not a default.
+
+<Part id="practise" heading="Three conversions, [few] labels" sub="Annotate the inputs. Let the rest be inferred." />
+
+Each problem starts with JavaScript. Open it in the Playground, add the labels the checker asks for, and no more.
+
+<Practice
+  number={1}
+  title="Celsius to Fahrenheit"
+  file="lesson2-types"
+  start="to-fahrenheit-start"
+  solution="to-fahrenheit"
+  hints={[
+    "The function has one input. That is where a label is needed.",
+    "`celsius: number`. Do you also need to label the result? Try without, and hover over the function name.",
+    "Adding `: number` after the brackets is allowed, and makes the promise visible. Then remove the call with the text `hot`.",
+  ]}
+  explain="The parameter needs a label, because nothing tells TypeScript what a caller will pass in. The result type could be inferred, since a number times 9, divided by 5, plus 32 is a number. Writing it anyway documents the promise. The call that passes text is refused, which JavaScript answered with NaN."
+>
+Add types to `toFahrenheit`. `toFahrenheit(100)` should be 212, and the call with the text "hot" should become an error you then remove.
+</Practice>
+
+<Practice
+  number={2}
+  title="What does it cost?"
+  file="lesson2-types"
+  start="describe-price-start"
+  solution="describe-price"
+  hints={[
+    "Three inputs, so three labels: one text, one number, one yes or no.",
+    "`item` is a `string`, `price` is a `number`, and `inStock` is a `boolean`.",
+    "You don't need to label `text` inside the function, or the result. Both are inferred. Remove the call that passes the text `ten`.",
+  ]}
+  explain="Only the three parameters get labels. The variable `text` is built from a string and a number, so it is a string, and the function returns a string either way, so that is inferred too. The call with `ten` is refused, because a price has to be a number."
+>
+Add types to `describePrice`, and label as little as you can. Only the inputs need labels. Remove the bad call once the checker flags it.
+</Practice>
+
+<Practice
+  number={3}
+  title="Count the vowels"
+  file="lesson2-types"
+  start="count-vowels-start"
+  solution="count-vowels"
+  hints={[
+    "There is only one input.",
+    "`text: string`. That is the only label you must write.",
+    "`count` starts as `0`, so it is a number. `letter` comes from a string, so it is a string. Both are inferred. A label on `count` would be redundant.",
+  ]}
+  explain="The loop needs exactly one label, on the parameter. `count` is inferred as a number from `0`, and `letter` is inferred as a string because looping over a string gives its letters. The result type is a number, which you can write for documentation but TypeScript works out without it."
+>
+Add types to `countVowels` with exactly one required label. `countVowels("Origan")` is 3.
+</Practice>
+
+<Part id="interview" heading="Types in the [interview]" sub="The basic questions, with plain answers." />
+
+The first type questions are about the basics and about inference.
+
+- **"What are the basic types?"** `string`, `number` and `boolean`. Others you will meet later include `null`, `undefined`, arrays, objects and `any`.
+- **"What is type inference?"** TypeScript working out a type from the value, so you don't have to write it. `let age = 21` is a `number` without an annotation.
+- **"When do you need an annotation?"** Where there is no value to read from, mainly function parameters. Elsewhere, annotations are optional.
+- **"What is the difference between `const x = 3` and `let x = 3`?"** `const x` has the exact type `3`, because it can't change. `let x` has the wider type `number`. This is called widening.
+- **"What does `any` do?"** It switches off type checking for that value. It is an escape hatch, and it removes the protection TypeScript gives you.
+- **"What is the difference between `string` and `String`?"** `string` is the primitive type for text. `String` is the wrapper object type. Use lowercase.
+- **"Does TypeScript have an integer type?"** No. It has one `number` type, as JavaScript does.
+- **Say it simply.** "Annotate inputs, infer the rest, and avoid `any`" is a short answer that shows you get it.

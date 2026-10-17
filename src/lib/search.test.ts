@@ -77,7 +77,8 @@ describe("matching", () => {
 
   it("matches the language", () => {
     expect(languages("rust")).toEqual(new Set(["Rust"]));
-    expect(languages("JAVA")).toEqual(new Set(["Java"]));
+    // "java" is also the start of "JavaScript", in The Switch's descriptor.
+    expect(languages("JAVA")).toEqual(new Set(["Java", "TypeScript"]));
   });
 
   it("matches part names and topic pills", () => {
@@ -105,11 +106,14 @@ describe("matching", () => {
     expect(titles("dfs")).toContain("BFS and DFS");
   });
 
-  it("keeps ts and js for later, matching nothing today", () => {
-    expect(titles("ts")).toEqual([]);
-    // "js" only finds the Java setup lesson, because jshell starts with it.
-    expect(titles("js")).toEqual(["Setting up, and how to read these pages"]);
-    expect(languages("js")).toEqual(new Set(["Java"]));
+  it("finds The Switch for ts and js", () => {
+    expect(languages("ts")).toEqual(new Set(["TypeScript"]));
+    expect(titles("ts")).toContain("The Switch");
+    // "js" finds the Java setup lesson (jshell starts with it) and The Switch's
+    // JSON and JavaScript lessons.
+    expect(titles("js")).toContain("Setting up, and how to read these pages");
+    expect(titles("js")).toContain("Data from outside");
+    expect(languages("js")).toEqual(new Set(["Java", "TypeScript"]));
   });
 
   it("finds nothing for an empty or punctuation-only query", () => {
@@ -132,6 +136,11 @@ describe("brand and descriptor", () => {
     ["coffee", "course:java-collections"],
     ["java", "course:java-collections"],
     ["java collections", "course:java-collections"],
+    ["the switch", "course:js-to-ts"],
+    ["typescript", "course:js-to-ts"],
+    ["ts", "course:js-to-ts"],
+    ["javascript", "course:js-to-ts"],
+    ["js", "course:js-to-ts"],
   ])("finds the right course for %s", (query, id) => {
     expect(firstCourse(query)).toBe(id);
   });

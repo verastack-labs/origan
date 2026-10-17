@@ -200,7 +200,7 @@ export const faq = {
     },
     {
       q: "Are Oxidise (DSA in Rust) and Filter Coffee (Java Collections) free?",
-      a: "Yes, both are free to read, with no sign-up. They are made by VeraStack Labs and sit apart from the partnership.",
+      a: "Yes, both are free to read, with no sign-up. They sit on The Open Shelf, our free study material, made by VeraStack Labs and apart from the partnership.",
     },
   ],
 } as const;

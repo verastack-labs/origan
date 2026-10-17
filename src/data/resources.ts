@@ -1,5 +1,6 @@
 import { javaCollections } from "./java-collections";
 import { rustDsa } from "./rust-dsa";
+import { theSwitch } from "./the-switch";
 
 /**
  * What the Resources page lists. Add an entry here and it appears on the page,
@@ -47,12 +48,25 @@ export const resources: readonly Resource[] = [
       "Collections helpers", "Choosing a collection",
     ],
   },
+  {
+    id: "the-switch",
+    name: theSwitch.name,
+    descriptor: theSwitch.descriptor,
+    summary: "JavaScript to TypeScript, one lesson at a time, with the costs as plain as the benefits.",
+    href: theSwitch.path,
+    unit: ["lesson", "lessons"],
+    topics: [
+      "Why switch", "Setup", "Types", "Objects", "Functions", "Unions", "Narrowing",
+      "null and undefined", "Generics", "Utility types", "unknown vs any", "Migrating",
+      "Cheat sheet",
+    ],
+  },
 ];
 
 export const resourcesPage = {
-  notation: "Resources",
+  notation: "The Open Shelf",
   heading: "Free [study] material",
   sub: "Made by VeraStack Labs. Open to anyone, no sign-up.",
   description:
-    "Free study material for engineering students, made by VeraStack Labs. Oxidise is DSA in Rust: data structures and algorithms in Rust. Filter Coffee is Java Collections: the Java Collections Framework. Every code sample is compiled and tested.",
+    "The Open Shelf is free study material for engineering students, made by VeraStack Labs. Oxidise is DSA in Rust: data structures and algorithms in Rust. Filter Coffee is Java Collections: the Java Collections Framework. Every code sample is compiled and tested.",
 };

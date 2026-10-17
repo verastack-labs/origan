@@ -23,6 +23,7 @@ import * as javaDiagrams from "./java-diagrams";
 import { Part } from "./part";
 import { Practice } from "./practice";
 import { Snippet } from "./snippet";
+import { Compare, Fails } from "./ts-code";
 
 /** A short aside: an idea that earns a box of its own, such as ownership. */
 function Note({ title, children }: { title: string; children: ReactNode }) {
@@ -30,6 +31,20 @@ function Note({ title, children }: { title: string; children: ReactNode }) {
     <aside className="my-6 rounded-panel border border-line border-l-2 border-l-survey bg-panel px-[clamp(16px,2.4vw,24px)] py-4">
       <p className="notation">{title}</p>
       <div className="mt-2 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0">{children}</div>
+    </aside>
+  );
+}
+
+/**
+ * A short list of questions to tick off in your head, as a box of its own. The
+ * list inside is ordinary Markdown; the stylesheet draws a small square in
+ * front of each item. Used by The Switch's "is it worth it for you?" lists.
+ */
+function Checklist({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <aside className="checklist my-6 rounded-panel border border-line bg-panel px-[clamp(16px,2.4vw,24px)] py-4">
+      <p className="notation">{title}</p>
+      <div className="mt-3 [&>ul]:my-0">{children}</div>
     </aside>
   );
 }
@@ -96,6 +111,10 @@ const shared: MDXComponents = {
   ),
   hr: () => <hr className="my-10 border-line" />,
   Note,
+  Checklist,
+  // The Switch: JavaScript beside TypeScript, and a snippet that is meant to fail.
+  Compare,
+  Fails,
   SetupDiagram,
   ArrayDiagram,
   BytesDiagram,

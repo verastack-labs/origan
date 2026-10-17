@@ -18,8 +18,11 @@ export const sheetSummaries: Record<string, string> = {
   "/analytics/": "The cohort-level views a college's dashboard, Datum, is built toward. Every chart uses illustrative data.",
   "/coach/": "The Campus Coach: the person assigned to a college for the length of the partnership.",
   "/partnership/": "How the partnership is structured, the two engagement modes, the term, and what is delivered when.",
-  "/resources/": `Free study material for students, made by ${site.studio}. Separate from the partnership, no sign-up.`,
+  "/resources/": `The Open Shelf: free study material for students, made by ${site.studio}. Separate from the partnership, no sign-up.`,
 };
+
+/** "Oxidise (DSA in Rust)": the brand, then the plain name. */
+const listedName = (course: Course) => `${course.name} (${course.descriptor})`;
 
 /** The course's index and every published lesson, as Markdown links. */
 function coursePages(course: Course): string {
@@ -28,7 +31,7 @@ function coursePages(course: Course): string {
     .join("\n");
   const parts = Object.keys(course.partNames).length;
   const planned = parts > 1 ? `across ${parts} parts` : "for Part 1";
-  return `- [${course.name} (${course.descriptor})](${site.url}${course.path}): the course index, listing all ${course.curriculum.length} lessons planned ${planned}.
+  return `- [${listedName(course)}](${site.url}${course.path}): the course index, listing all ${course.curriculum.length} lessons planned ${planned}.
 ${lessonLines}`;
 }
 
@@ -39,7 +42,7 @@ function courseSection(course: Course): string {
     .filter((entry) => !lessons.some((lesson) => lesson.slug === entry.slug))
     .map((entry) => entry.title)
     .join("; ");
-  return `## ${course.name} (${course.descriptor})
+  return `## ${listedName(course)}
 
 ${course.description} It is free, open to anyone, and made by ${site.studio}
 (${site.labsUrl}).

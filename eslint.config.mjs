@@ -15,6 +15,9 @@ const eslintConfig = defineConfig([
     // `next.config.ts` sends the production build here instead of `.next`, so
     // it needs ignoring explicitly or lint walks the compiled bundle.
     ".next-build/**",
+    // The Switch's snippets: lesson code that is checked by tsc and Vitest, and
+    // programs that are meant to fail. They are teaching code, not site code.
+    "ts/**",
   ]),
 ]);
 

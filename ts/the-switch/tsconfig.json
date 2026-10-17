@@ -1,0 +1,13 @@
+// The options every snippet in The Switch is type-checked with.
+// scripts/check-ts-snippets.mjs reads this file, so the config that lesson 1
+// shows is the config that was used.
+// region: config
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "strict": true,
+    "noEmit": true
+  }
+}
+// endregion
