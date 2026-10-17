@@ -344,3 +344,547 @@ export function JavaLinkedListDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 5: an iterator remembers the list's version, and notices a change. */
+export function IteratingDiagram() {
+  const left = 90;
+  const w = 100;
+  const items = ["Asha", "Ravi", "Meera", "Kiran"];
+
+  return (
+    <Figure
+      id="iterating"
+      title="An iterator keeps a copy of the list's version and compares it on every step"
+      caption="The iterator wrote down the list's version when it started. Remove an item behind its back and the two numbers disagree, so the next step stops with a ConcurrentModificationException."
+      viewBox="0 0 720 260"
+    >
+      <text x={left} y={34} fontSize={10} className={faint}>
+        THE LIST
+      </text>
+      {items.map((v, i) => (
+        <g key={v}>
+          <rect
+            x={left + i * w}
+            y={46}
+            width={w}
+            height={42}
+            className={i === 1 ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+            strokeWidth={i === 1 ? 1.8 : 1}
+          />
+          <text x={left + i * w + w / 2} y={72} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+            {v}
+          </text>
+        </g>
+      ))}
+      <line x1={left + w * 1.5} x2={left + w * 1.5} y1={128} y2={94} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={left + w * 1.5} y={92} dir="up" />
+      <text x={left + w * 1.5} y={146} textAnchor="middle" fontSize={12} className="font-mono fill-survey">
+        iterator is here
+      </text>
+
+      <rect x={left} y={176} width={190} height={44} className="fill-panel stroke-line" strokeWidth={1} />
+      <text x={left + 95} y={196} textAnchor="middle" fontSize={11} className={label}>
+        list version
+      </text>
+      <text x={left + 95} y={212} textAnchor="middle" fontSize={13} className="font-mono fill-warn">
+        5
+      </text>
+      <text x={left + 224} y={204} textAnchor="middle" fontSize={20} className="font-mono fill-warn">
+        !=
+      </text>
+      <rect x={left + 258} y={176} width={190} height={44} className="fill-panel stroke-line" strokeWidth={1} />
+      <text x={left + 353} y={196} textAnchor="middle" fontSize={11} className={label}>
+        iterator&apos;s copy
+      </text>
+      <text x={left + 353} y={212} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+        4
+      </text>
+      <text x={left + 480} y={202} fontSize={11} className="font-mono fill-warn">
+        next() stops here
+      </text>
+      <Dimension x1={left} x2={left + 4 * w} y={244} text="someone removed an item behind the loop's back" />
+    </Figure>
+  );
+}
+
+/** Lesson 6: a key is turned into a bucket number; a bucket can hold a short chain. */
+export function JavaHashDiagram() {
+  const top = 28;
+  const rowH = 26;
+  const bx = 400;
+  // Real bucket numbers from "name".hashCode() with 8 buckets.
+  const chains: Record<number, string[]> = {
+    1: ["Kiran", "Divya"],
+    2: ["Ravi"],
+    3: ["Asha"],
+    4: ["Meera"],
+  };
+
+  return (
+    <Figure
+      id="java-hash"
+      title="A key is turned into a bucket number, and each bucket holds a short chain"
+      caption="The key's hashCode, squeezed into the number of buckets, picks the bucket at once. Kiran and Divya land in the same bucket, so that bucket keeps a short chain and checks them one by one with equals."
+      viewBox="0 0 720 270"
+    >
+      <text x={20} y={top + 62} fontSize={13} className="font-mono fill-fg">
+        &quot;Asha&quot;
+      </text>
+      <line x1={86} x2={150} y1={top + 58} y2={top + 58} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={152} y={top + 58} />
+      <rect x={156} y={top + 36} width={136} height={44} className="fill-panel-2 stroke-survey" strokeWidth={1.5} />
+      <text x={224} y={top + 55} textAnchor="middle" fontSize={11} className={label}>
+        hashCode()
+      </text>
+      <text x={224} y={top + 72} textAnchor="middle" fontSize={12} className="font-mono fill-fg">
+        2050251
+      </text>
+      <line x1={292} x2={bx - 54} y1={top + 58} y2={top + 3 * rowH + 13} className="stroke-survey-2" strokeWidth={1.5} />
+      <text x={224} y={top + 100} textAnchor="middle" fontSize={11} className={faint}>
+        2050251 mod 8 = 3
+      </text>
+
+      {Array.from({ length: 8 }, (_, i) => {
+        const y = top + i * rowH;
+        const chain = chains[i] ?? [];
+        return (
+          <g key={i}>
+            <rect
+              x={bx - 50}
+              y={y}
+              width={50}
+              height={rowH}
+              className={i === 3 ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+              strokeWidth={i === 3 ? 1.8 : 1}
+            />
+            <text x={bx - 25} y={y + 17} textAnchor="middle" fontSize={12} className={faint}>
+              {i}
+            </text>
+            {chain.map((name, j) => (
+              <g key={name}>
+                <rect
+                  x={bx + 14 + j * 112}
+                  y={y + 2}
+                  width={92}
+                  height={rowH - 4}
+                  className="fill-ground stroke-line"
+                  strokeWidth={1}
+                />
+                <text x={bx + 60 + j * 112} y={y + 17} textAnchor="middle" fontSize={12} className="font-mono fill-fg">
+                  {name}
+                </text>
+                <line
+                  x1={j === 0 ? bx : bx + 106 + (j - 1) * 112}
+                  x2={bx + 14 + j * 112}
+                  y1={y + rowH / 2}
+                  y2={y + rowH / 2}
+                  className="stroke-fg-3"
+                  strokeWidth={1}
+                />
+              </g>
+            ))}
+          </g>
+        );
+      })}
+      <text x={bx - 50} y={top + 8 * rowH + 20} fontSize={10} className={faint}>
+        BUCKET NUMBER
+      </text>
+    </Figure>
+  );
+}
+
+/** Lesson 7: twins that must agree. Equal objects must send you to the same shelf. */
+export function TwinsDiagram() {
+  const shelf = (x: number, n: number, hit: boolean, key: string) => (
+    <g key={key}>
+      <rect
+        x={x}
+        y={150}
+        width={70}
+        height={34}
+        className={hit ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+        strokeWidth={hit ? 1.8 : 1}
+      />
+      <text x={x + 35} y={172} textAnchor="middle" fontSize={12} className={hit ? "font-mono fill-fg" : faint}>
+        {`shelf ${n}`}
+      </text>
+    </g>
+  );
+
+  return (
+    <Figure
+      id="twins"
+      title="Two equal objects must hash to the same shelf, or the lookup misses"
+      caption="Left: a broken pair. a and b are equal, but their hash codes differ, so b goes to shelf 6 while a sits on shelf 11. Right: a fixed pair. Equal objects share a hash code, so b finds a on shelf 11."
+      viewBox="0 0 720 250"
+    >
+      <text x={20} y={30} fontSize={10} className={faint}>
+        BROKEN
+      </text>
+      <text x={20} y={70} fontSize={13} className="font-mono fill-fg">
+        a (1, &quot;Asha&quot;)
+      </text>
+      <text x={20} y={100} fontSize={13} className="font-mono fill-fg">
+        b (1, &quot;Asha K&quot;)
+      </text>
+      <line x1={150} x2={265} y1={66} y2={150} className="stroke-survey-2" strokeWidth={1.4} />
+      <line x1={150} x2={195} y1={96} y2={150} strokeDasharray="4 3" className="stroke-warn" strokeWidth={1.4} />
+      {shelf(160, 6, false, "b6")}
+      {shelf(230, 11, true, "a11")}
+      <text x={20} y={204} fontSize={12} className="font-mono fill-warn">
+        equals says yes, hashCode says no
+      </text>
+
+      <line x1={360} x2={360} y1={24} y2={226} className="stroke-line" strokeWidth={1} />
+
+      <text x={390} y={30} fontSize={10} className={faint}>
+        FIXED
+      </text>
+      <text x={390} y={70} fontSize={13} className="font-mono fill-fg">
+        a (1, &quot;Asha&quot;)
+      </text>
+      <text x={390} y={100} fontSize={13} className="font-mono fill-fg">
+        b (1, &quot;Asha&quot;)
+      </text>
+      <line x1={520} x2={560} y1={66} y2={150} className="stroke-survey-2" strokeWidth={1.4} />
+      <line x1={520} x2={570} y1={96} y2={150} className="stroke-survey-2" strokeWidth={1.4} />
+      {shelf(530, 11, true, "ab11")}
+      <text x={390} y={204} fontSize={12} className="font-mono fill-survey">
+        equal objects, equal hashCode
+      </text>
+    </Figure>
+  );
+}
+
+/** Lesson 8: a sorted tree. Smaller to the left, bigger to the right, and reading left to right is sorted. */
+export function SortedIndexDiagram() {
+  const node = (cx: number, cy: number, text: string, key: string, root = false) => (
+    <g key={key}>
+      <rect
+        x={cx - 44}
+        y={cy - 18}
+        width={88}
+        height={36}
+        className={root ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+        strokeWidth={root ? 1.8 : 1}
+      />
+      <text x={cx} y={cy + 5} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+        {text}
+      </text>
+    </g>
+  );
+  const edge = (x1: number, y1: number, x2: number, y2: number, key: string) => (
+    <line key={key} x1={x1} y1={y1} x2={x2} y2={y2} className="stroke-fg-3" strokeWidth={1.2} />
+  );
+
+  return (
+    <Figure
+      id="sorted-index"
+      title="A sorted tree: smaller names go left, bigger names go right"
+      caption="Looking for Meera, you start at Kiran. Meera comes after Kiran, so go right, and the whole left side is ignored. Reading the tree from left to right gives the names in alphabetical order."
+      viewBox="0 0 720 270"
+    >
+      {edge(360, 52, 200, 108, "e1")}
+      {edge(360, 52, 520, 108, "e2")}
+      {edge(520, 126, 430, 182, "e3")}
+      {node(360, 34, "Kiran", "n1", true)}
+      {node(200, 126, "Asha", "n2")}
+      {node(520, 126, "Ravi", "n3")}
+      {node(430, 200, "Meera", "n4")}
+
+      <text x={60} y={126} fontSize={11} className={faint}>
+        BEFORE KIRAN
+      </text>
+      <text x={580} y={130} fontSize={11} className={faint}>
+        AFTER KIRAN
+      </text>
+      <Dimension x1={140} x2={600} y={252} text="read left to right: Asha, Kiran, Meera, Ravi" />
+    </Figure>
+  );
+}
+
+/** Lesson 9: a min-heap as a tree and as the array it is really stored in. */
+export function HeapQueueDiagram() {
+  const values = [1, 2, 8, 5, 3, 9];
+  // Slot i sits at these tree positions.
+  const pos = [
+    { x: 360, y: 40 },
+    { x: 240, y: 100 },
+    { x: 480, y: 100 },
+    { x: 180, y: 160 },
+    { x: 300, y: 160 },
+    { x: 540, y: 160 },
+  ];
+  const parentOf = (i: number) => Math.floor((i - 1) / 2);
+  const left = 150;
+  const w = 70;
+
+  return (
+    <Figure
+      id="heap-queue"
+      title="A priority queue is a heap: the smallest item is always at the top"
+      caption="Every parent is smaller than its children, so the top is the smallest and poll() takes it first. The same tree lives in a plain array: the children of slot i are slots 2i+1 and 2i+2."
+      viewBox="0 0 720 300"
+    >
+      {pos.map((p, i) =>
+        i === 0 ? null : (
+          <line
+            key={`e${i}`}
+            x1={pos[parentOf(i)].x}
+            y1={pos[parentOf(i)].y + 16}
+            x2={p.x}
+            y2={p.y - 16}
+            className="stroke-fg-3"
+            strokeWidth={1.2}
+          />
+        ),
+      )}
+      {pos.map((p, i) => (
+        <g key={i}>
+          <circle
+            cx={p.x}
+            cy={p.y}
+            r={17}
+            className={i === 0 ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+            strokeWidth={i === 0 ? 1.8 : 1}
+          />
+          <text x={p.x} y={p.y + 5} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+            {values[i]}
+          </text>
+        </g>
+      ))}
+      <text x={392} y={30} fontSize={11} className="font-mono fill-survey">
+        poll() takes this
+      </text>
+
+      <text x={left} y={222} fontSize={10} className={faint}>
+        THE SAME HEAP IN AN ARRAY
+      </text>
+      {values.map((v, i) => (
+        <g key={`a${i}`}>
+          <rect
+            x={left + i * w}
+            y={232}
+            width={w}
+            height={34}
+            className={i === 0 ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+            strokeWidth={i === 0 ? 1.8 : 1}
+          />
+          <text x={left + i * w + w / 2} y={254} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+            {v}
+          </text>
+          <text x={left + i * w + w / 2} y={286} textAnchor="middle" fontSize={11} className={faint}>
+            {i}
+          </text>
+        </g>
+      ))}
+    </Figure>
+  );
+}
+
+/** Lesson 10: binary search halves the part still in play at every step. */
+export function BinarySearchDiagram() {
+  const values = [10, 20, 30, 40, 50, 60, 70, 80];
+  const left = 80;
+  const w = 70;
+
+  // lo and hi are inclusive; mid is the item looked at.
+  const row = (y: number, lo: number, hi: number, mid: number, note: string, key: string) => (
+    <g key={key}>
+      {values.map((v, i) => {
+        const inPlay = i >= lo && i <= hi;
+        return (
+          <g key={i}>
+            <rect
+              x={left + i * w}
+              y={y}
+              width={w}
+              height={38}
+              className={i === mid ? "fill-panel-2 stroke-survey" : inPlay ? "fill-panel stroke-line" : "fill-ground stroke-line"}
+              strokeWidth={i === mid ? 1.8 : 1}
+              strokeDasharray={inPlay ? undefined : "4 3"}
+            />
+            <text
+              x={left + i * w + w / 2}
+              y={y + 24}
+              textAnchor="middle"
+              fontSize={13}
+              className={inPlay ? "font-mono fill-fg" : faint}
+            >
+              {v}
+            </text>
+          </g>
+        );
+      })}
+      <text x={left} y={y + 62} fontSize={12} className={label}>
+        {note}
+      </text>
+    </g>
+  );
+
+  return (
+    <Figure
+      id="binary-search"
+      title="Binary search for 60 in a sorted row of eight takes two looks"
+      caption="Look at the middle. If it is too small, the whole left half is out. Each look throws away half of what is left, so even a million items need only about twenty looks. It only works if the row is sorted."
+      viewBox="0 0 720 240"
+    >
+      <text x={left} y={26} fontSize={10} className={faint}>
+        LOOK 1: THE MIDDLE IS 40, TOO SMALL
+      </text>
+      {row(34, 0, 7, 3, "so everything up to 40 is out", "r1")}
+      <text x={left} y={146} fontSize={10} className={faint}>
+        LOOK 2: THE MIDDLE OF WHAT IS LEFT IS 60
+      </text>
+      {row(154, 4, 7, 5, "found at index 5", "r2")}
+    </Figure>
+  );
+}
+
+/** Lesson 11: the decision guide as a flow. Three questions lead to one class. */
+export function ChoosingDiagram() {
+  const question = (cx: number, cy: number, w: number, text: string, key: string) => (
+    <g key={key}>
+      <rect x={cx - w / 2} y={cy - 20} width={w} height={40} className="fill-panel-2 stroke-survey" strokeWidth={1.5} />
+      <text x={cx} y={cy + 5} textAnchor="middle" fontSize={14} className="font-mono fill-fg">
+        {text}
+      </text>
+    </g>
+  );
+  const leaf = (x: number, y: number, name: string, hint: string) => (
+    <g key={name}>
+      <rect x={x} y={y} width={220} height={46} className="fill-ground stroke-line" strokeWidth={1} />
+      <text x={x + 10} y={y + 20} fontSize={15} className="font-mono fill-fg">
+        {name}
+      </text>
+      <text x={x + 10} y={y + 37} fontSize={12} className={label}>
+        {hint}
+      </text>
+    </g>
+  );
+  const line = (x1: number, y1: number, x2: number, y2: number, key: string) => (
+    <line key={key} x1={x1} y1={y1} x2={x2} y2={y2} className="stroke-fg-3" strokeWidth={1.2} />
+  );
+
+  const top = 250;
+  const col = { map: 10, set: 250, list: 490 };
+
+  return (
+    <Figure
+      id="choosing"
+      title="Which collection? Answer up to three questions"
+      caption="Start at the top. Do you look things up by a key? If not, must each item appear once? If not, how will the items be used? The class at the end of the path is your first choice."
+      viewBox="0 0 720 420"
+    >
+      {question(360, 34, 300, "Do you look things up by a key?", "q1")}
+      {line(290, 54, 120, top - 24, "q1-yes")}
+      <text x={170} y={122} fontSize={13} className="font-mono fill-survey">
+        yes
+      </text>
+      {line(430, 54, 480, 88, "q1-no")}
+      <text x={470} y={68} fontSize={13} className="font-mono fill-survey">
+        no
+      </text>
+
+      {question(480, 108, 250, "Each item only once?", "q2")}
+      {line(430, 128, 360, top - 24, "q2-yes")}
+      <text x={330} y={180} fontSize={13} className="font-mono fill-survey">
+        yes
+      </text>
+      {line(550, 128, 600, 162, "q2-no")}
+      <text x={592} y={146} fontSize={13} className="font-mono fill-survey">
+        no
+      </text>
+
+      {question(600, 182, 230, "How is it used?", "q3")}
+      {line(600, 202, 600, top - 24, "q3-go")}
+
+      <text x={col.map} y={top - 8} fontSize={11} className={faint}>
+        A MAP, WHEN ORDER IS...
+      </text>
+      {leaf(col.map, top, "HashMap", "any order, fastest")}
+      {leaf(col.map, top + 56, "LinkedHashMap", "in the order added")}
+      {leaf(col.map, top + 112, "TreeMap", "keys sorted")}
+
+      <text x={col.set} y={top - 8} fontSize={11} className={faint}>
+        A SET, WHEN ORDER IS...
+      </text>
+      {leaf(col.set, top, "HashSet", "any order, fastest")}
+      {leaf(col.set, top + 56, "LinkedHashSet", "in the order added")}
+      {leaf(col.set, top + 112, "TreeSet", "items sorted")}
+
+      <text x={col.list} y={top - 8} fontSize={11} className={faint}>
+        A LIST OR QUEUE, WHEN YOU...
+      </text>
+      {leaf(col.list, top, "ArrayList", "read by position")}
+      {leaf(col.list, top + 56, "ArrayDeque", "stack or queue")}
+      {leaf(col.list, top + 112, "PriorityQueue", "most urgent first")}
+    </Figure>
+  );
+}
+
+/** Lesson 12: fail-fast stops on a change; fail-safe reads a private snapshot. */
+export function FailFastDiagram() {
+  const cell = (x: number, y: number, text: string, kind: "live" | "snap" | "new", key: string) => (
+    <g key={key}>
+      <rect
+        x={x}
+        y={y}
+        width={64}
+        height={34}
+        className={kind === "new" ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+        strokeWidth={kind === "new" ? 1.8 : 1}
+        strokeDasharray={kind === "snap" ? "4 3" : undefined}
+      />
+      <text x={x + 32} y={y + 22} textAnchor="middle" fontSize={12} className="font-mono fill-fg">
+        {text}
+      </text>
+    </g>
+  );
+
+  return (
+    <Figure
+      id="fail-fast"
+      title="Fail-fast stops when the list changes. Fail-safe reads a private snapshot."
+      caption="Left: an ArrayList iterator reads the live list, so a change makes it stop. Right: a CopyOnWriteArrayList iterator holds the old array, and a change builds a new array beside it, so the loop never notices."
+      viewBox="0 0 720 270"
+    >
+      <text x={20} y={26} fontSize={10} className={faint}>
+        FAIL-FAST: ARRAYLIST
+      </text>
+      {["Asha", "Ravi", "Meera"].map((n, i) => cell(20 + i * 70, 44, n, "live", `l${i}`))}
+      <text x={20} y={108} fontSize={12} className="font-mono fill-survey">
+        loop reads the live list
+      </text>
+      <line x1={20} x2={230} y1={134} y2={134} className="stroke-warn" strokeWidth={1.4} strokeDasharray="4 3" />
+      <text x={20} y={156} fontSize={12} className="font-mono fill-fg">
+        someone removes Ravi
+      </text>
+      <text x={20} y={190} fontSize={12} className="font-mono fill-warn">
+        next step: ConcurrentModificationException
+      </text>
+
+      <line x1={360} x2={360} y1={20} y2={250} className="stroke-line" strokeWidth={1} />
+
+      <text x={390} y={26} fontSize={10} className={faint}>
+        FAIL-SAFE: COPYONWRITEARRAYLIST
+      </text>
+      <text x={390} y={64} fontSize={11} className={label}>
+        loop holds
+      </text>
+      {["Asha", "Ravi", "Meera"].map((n, i) => cell(480 + i * 70, 44, n, "snap", `s${i}`))}
+      <text x={390} y={124} fontSize={11} className={label}>
+        list now
+      </text>
+      {["Asha", "Ravi", "Meera", "Kiran"].map((n, i) =>
+        cell(390 + i * 70, 134, n, i === 3 ? "new" : "live", `n${i}`),
+      )}
+      <text x={390} y={196} fontSize={12} className="font-mono fill-survey">
+        an add copies the array first
+      </text>
+      <text x={390} y={218} fontSize={12} className="font-mono fill-fg-2">
+        the loop finishes on the old one
+      </text>
+    </Figure>
+  );
+}

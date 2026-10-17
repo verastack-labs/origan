@@ -15,7 +15,7 @@ export function Hero() {
   return (
     <header
       id="top"
-      className="relative flex min-h-[clamp(540px,88vh,880px)] flex-col justify-end overflow-hidden border-b border-line"
+      className="relative flex min-h-[clamp(540px,88svh,880px)] flex-col justify-end overflow-hidden border-b border-line"
     >
       {/* Only a little larger than the frame. The old field was oversized so
           its texture ran off every edge; a figure that is placed wants to stay

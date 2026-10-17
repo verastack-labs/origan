@@ -1,0 +1,219 @@
+---
+title: Ordered collections
+sub: When the order of things matters, pick one that keeps it.
+description: Learn LinkedHashMap, TreeMap and TreeSet in Java. Keep insertion order or sorted order, write Comparable and Comparator, build a small sorted tree, with a cost table and three practice problems.
+order: 8
+part: 1
+updated: 2026-10-17
+slug: ordered-collections
+---
+
+<Part id="what" heading="A dictionary's [index]" sub="Everything in order, so nothing needs hunting." />
+
+Open a dictionary. The words are not in the order someone thought of them. They are in alphabetical order, and that is the whole reason you can flip to "mango" without reading from "apple". The order is the feature.
+
+Last lesson's `HashMap` and `HashSet` are the opposite. They make no promise about order at all. That is fine when you only look things up. It is not fine when you need to print a leaderboard, show names from A to Z, or answer "which is the nearest price below my budget?"
+
+Java gives you two families for this.
+
+- **Insertion order.** `LinkedHashMap` and `LinkedHashSet` remember the order you added things in, like a diary.
+- **Sorted order.** `TreeMap` and `TreeSet` keep their keys sorted, like a dictionary.
+
+This lesson covers both, and the two helpers that tell Java what "sorted" means: **`Comparable`** and **`Comparator`**.
+
+**Remember:** `HashMap` has no order. `LinkedHashMap` keeps the order you added. `TreeMap` keeps its keys sorted.
+
+<Part id="idea" heading="Smaller left, bigger [right]" sub="A sorted tree throws half the search away." />
+
+<SortedIndexDiagram />
+
+A `TreeMap` keeps its keys in a **tree**, which is a set of boxes joined from a top box downwards. Each box has at most two children. The rule is simple: everything on the **left** is smaller than the box, and everything on the **right** is bigger.
+
+Search for "Meera" in the picture. Start at the top, "Kiran". Meera comes after Kiran, so go right. You reach "Ravi". Meera comes before Ravi, so go left, and there she is. You never looked at "Asha", and with a tree of a million names, each step ignores about half of what is left. That is why a sorted tree finds things in a handful of steps.
+
+Reading the tree from left to right gives the keys in sorted order for free. That is how `TreeMap` can print itself alphabetically.
+
+A `LinkedHashMap` works differently. It is an ordinary hash map, so lookups stay quick, with a chain of links running through its entries in the order they were added. The chain gives it a memory of the order.
+
+<Part id="use" heading="Order, on [purpose]" sub="LinkedHashMap, TreeMap, Comparable, Comparator." />
+
+Every block below can be pasted into jshell. First, the diary: a `LinkedHashMap`.
+
+<Snippet file="Lesson8Ordered" name="linked-hash-map" />
+
+```text
+{Ravi=3, Asha=5, Meera=1}
+```
+
+The entries come out in the order they were first added. The second `put` for "Ravi" changed his value, but he kept his place. This map is the one to pick when you want hash-map speed **and** a predictable order, for example to print things the way the user entered them.
+
+Now the dictionary: a `TreeMap`.
+
+<Snippet file="Lesson8Ordered" name="tree-map" />
+
+```text
+{Asha=91, Kiran=80, Meera=65, Ravi=72}
+Asha
+Ravi
+```
+
+Whatever order you add keys in, they come out sorted, here from A to Z. `firstKey` and `lastKey` give you the two ends at once. Keys of type `String` sort alphabetically and keys of type `Integer` sort from smallest to biggest, because those classes already know how to sort themselves.
+
+A sorted map can do more than a hash map, because "next to" means something. These calls look for the neighbours of a key, even one that isn't stored:
+
+<Snippet file="Lesson8Ordered" name="navigation" />
+
+```text
+Kiran
+Meera
+{Asha=91, Kiran=80}
+null
+```
+
+`floorKey("L")` is the biggest key that is not past "L", so Kiran. `ceilingKey("L")` is the smallest key from "L" onwards, so Meera. `headMap("Meera")` is everything before Meera. When nothing qualifies, you get `null`, as with `floorKey("A")`. `TreeSet` has the same ideas under the names `floor`, `ceiling`, `lower` and `higher`.
+
+### Teaching Java how to sort your own class
+
+How does Java know that "Asha" comes before "Kiran"? `String` has a method that compares itself with another string. For your own classes you have to supply that rule, in one of two ways.
+
+The first is **`Comparable`**. You make the class say how its objects sort by default, by adding a `compareTo` method. It returns a negative number if this object comes first, zero if they tie, and a positive number if this one comes later.
+
+<Snippet file="Lesson8Ordered" name="result-comparable" />
+
+`Integer.compare(a, b)` does the subtraction safely. (Writing `marks - other.marks` can overflow with big numbers, so use `compare`.) A `record`, the short class form from lesson 7, can implement an interface just like any class.
+
+<Snippet file="Lesson8Ordered" name="comparable-demo" />
+
+```text
+Meera 65
+Ravi 72
+Asha 91
+```
+
+`results.sort(null)` means "sort with the natural order", which is our `compareTo`: lowest marks first.
+
+But a class can have only one natural order. What if you want highest marks first, or sort by name this time? The second tool is a **`Comparator`**, a separate little object that holds a sorting rule. You can make as many as you like, and pass one in when you need it.
+
+<Snippet file="Lesson8Ordered" name="comparator-demo" />
+
+```text
+Meera 91
+Asha 72
+Ravi 72
+```
+
+Read the comparator like a sentence: compare by marks, `reversed()` so the biggest comes first, and `thenComparing` the name to break ties. Asha and Ravi both have 72, so the name decides, and Asha comes first. `Comparator.comparingInt(...)` takes a method reference (the `Result::marks` shorthand from lesson 6) which says what to compare.
+
+There is one trap with sorted sets and maps. They decide that two things are the same by asking the comparator, not `equals`:
+
+<Snippet file="Lesson8Ordered" name="tree-set-gotcha" />
+
+```text
+[Asha, Meera]
+2
+```
+
+"Asha" and "Ravi" are both four letters long, so this comparator says they tie, and the `TreeSet` treats "Ravi" as a duplicate and quietly refuses it. Your comparator must tell apart everything you want to keep as separate. For safety, make a comparator end with a tie-breaker, such as `thenComparing(Result::name)`.
+
+**Remember:** `Comparable` is the one natural order a class carries. A `Comparator` is a sorting rule you hand in. In a `TreeSet`, "compares as equal" means "is a duplicate".
+
+<Part id="inside" heading="Build a tiny sorted [tree]" sub="Insert, search, and read in order." />
+
+The real `TreeMap` uses a **red-black tree**, a tree that rebalances itself so it never leans too far to one side. Rebalancing is fiddly, so here is the plain version without it. It shows the idea, which is the same.
+
+<Snippet file="Lesson8Ordered" name="tiny-sorted-set" />
+
+Go through it in order.
+
+- Each `Node` holds a value and two links, `left` for smaller things and `right` for bigger things.
+- `add` starts at the top, compares the new value with the node it is standing on, and goes left or right. When it finds an empty spot, it hangs the new node there. If `compareTo` returns 0, the value is already present and nothing is added.
+- `contains` follows the same walk. Every step drops one whole side of the tree.
+- `toList` visits the left side, then the node itself, then the right side. That is called an **in-order walk**, and it comes out sorted. The method calls itself, which is called **recursion**: each call handles one smaller piece of the tree.
+- The `T extends Comparable<T>` in the class line is a promise that anything stored knows how to compare itself.
+
+<Snippet file="Lesson8Ordered" name="tiny-sorted-set-demo" />
+
+```text
+[Asha, Kiran, Meera, Ravi]
+true
+false
+4
+```
+
+"Asha" was added twice and counted once. The names come out sorted, though they were added in a different order. The catch of this plain version: if you add names that are already sorted, every one goes right, and the tree becomes a long line, as slow as a list. Self-balancing trees such as the red-black tree exist to prevent that.
+
+`LinkedHashMap`, meanwhile, is a `HashMap` plus a doubly linked list of its entries, the same pair of links you saw in lesson 4. Looking up uses the hash part and walking uses the list part.
+
+<Part id="cost" heading="What order [costs]" sub="n is the number of entries." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `LinkedHashMap` `put`, `get`, `remove` | O(1) on average | A hash map, plus a link update |
+| Walking a `LinkedHashMap` | O(n) | Follows the chain, so no empty shelves to skip |
+| `TreeMap` `put`, `get`, `remove` | O(log n) | One step per level of the tree |
+| `TreeMap` `firstKey`, `lastKey` | O(log n) | Walk down one edge of the tree |
+| `floorKey`, `ceilingKey`, `headMap` | O(log n) | A search that remembers the nearest candidate |
+| Walking a `TreeMap` | O(n) | An in-order walk visits each node once |
+| Sorting a list with a `Comparator` | O(n log n) | Comparison sorting needs this many steps |
+
+**O(log n)** means the number of steps grows very slowly: about doubling the data adds one step. It is a little slower than a hash map's O(1) and gives you sorted order and neighbour searches in return. Pick `TreeMap` only when you need the order.
+
+<Part id="practise" heading="Three problems, [ordered]" sub="Rank, find the nearest, and evict." />
+
+<Practice
+  number={1}
+  title="Rank the results"
+  file="Lesson8Ordered"
+  start="rank-start"
+  solution="rank"
+  hints={[
+    "A `Result` has a `name` and `marks`. You want a new list, in a new order, and the caller's list left alone.",
+    "Copy the list first with `new ArrayList<>(results)`, then call `sort` on the copy with a `Comparator`.",
+    "Use `Comparator.comparingInt(Result::marks).reversed().thenComparing(Result::name)`: highest marks first, and ties broken by name.",
+  ]}
+  explain="Sorting a copy is a good habit, since a method that rearranges the list it was given can surprise its caller. `reversed()` flips the marks order so the highest comes first, and `thenComparing` only matters when the marks tie. The comparator is built from small parts rather than a hand-written `compare` method. The sort takes O(n log n) time."
+>
+Write `rank`, which returns a new list of the results with the highest marks first. When two results have equal marks, the one whose name comes first alphabetically goes first. Do not change the list you are given.
+</Practice>
+
+<Practice
+  number={2}
+  title="Dearest you can afford"
+  file="Lesson8Ordered"
+  start="best-fit-start"
+  solution="best-fit"
+  hints={[
+    "You are given a `TreeSet<Integer>` of prices, which is already sorted. Do not loop over all of them.",
+    "You want the biggest price that is not above the budget. One of the navigation methods does this: `floor`, `ceiling`, `lower` or `higher`.",
+    "`prices.floor(budget)` returns the greatest element less than or equal to `budget`, or `null` if there is none. Return it.",
+  ]}
+  explain="`floor` is a search down the tree, so it takes O(log n) steps instead of the O(n) a loop over every price would need. 'Less than or equal' is what counts an exact match as affordable. `lower` would leave it out. The result is an `Integer` and not an `int`, so that `null` can mean 'nothing fits'."
+>
+Write `bestFit`, which takes a sorted set of prices and a budget, and returns the highest price that does not go over the budget, or `null` if every price is too high. For prices 120, 250, 400, 800 and a budget of 500, the answer is 400.
+</Practice>
+
+<Practice
+  number={3}
+  title="A cache that forgets"
+  file="Lesson8Ordered"
+  start="lru-start"
+  solution="lru"
+  hints={[
+    "A cache keeps recent results close. When it is full, it drops the entry that was used longest ago. This idea is called LRU, short for least recently used.",
+    "`LinkedHashMap` can order its entries by when they were last used instead of when they were added. Look at its three-argument constructor: the last argument turns on that mode.",
+    "Call `super(16, 0.75f, true)` in your constructor and keep `capacity` in a field. Then override `removeEldestEntry`, which Java calls after every `put`, and return `size() > capacity`.",
+  ]}
+  explain="In the access-order mode, every `get` or `put` moves that entry to the end of the chain, so the front is always the entry used longest ago. `removeEldestEntry(eldest)` is a hook: after each `put`, the map asks whether to drop that front entry, and we say yes when the map has grown past its capacity. All the work happens inside the map, so `get` and `put` stay O(1) on average. The `serialVersionUID` line is only there to keep the compiler quiet, because `LinkedHashMap` can be serialised, meaning turned into bytes."
+>
+Complete `LruCache`, a map that holds at most `capacity` entries. When a `put` would go over the limit, it must drop the entry that was used least recently. A `get` counts as a use. Everything else works as in any `Map`.
+</Practice>
+
+<Part id="interview" heading="Ordering in the [interview]" sub="What to ask, and what to say." />
+
+- **"HashMap, LinkedHashMap or TreeMap?"** `HashMap` when order doesn't matter. `LinkedHashMap` when you need insertion order, or to build a cache. `TreeMap` when you need sorted keys, or ranges and neighbours. Give one reason for each.
+- **"What data structure is a `TreeMap`?"** A red-black tree, which is a self-balancing binary search tree. Say "balanced", which is why it stays O(log n).
+- **"Comparable or Comparator?"** `Comparable` is the one natural order that sits inside the class. A `Comparator` is outside the class, so you can have many and choose per sort. Sorting by something that isn't the natural order needs a `Comparator`.
+- **"What should `compareTo` be consistent with?"** `equals`. If `compareTo` returns 0 for two objects that `equals` calls different, a `TreeSet` will treat them as one. The earlier gotcha is exactly that.
+- **"Can a `TreeMap` take a `null` key?"** Not with natural ordering, since `null` can't be compared. It throws a `NullPointerException`. A `HashMap` allows one `null` key.
+- **"How would you build an LRU cache?"** A `LinkedHashMap` with access order on, overriding `removeEldestEntry`. Problem 3 is that answer. A good follow-up mention is that it is not thread-safe.
+- **Say the cost.** "Hash map: O(1) on average. Tree map: O(log n), and sorted. Linked hash map: O(1) on average, in insertion order."
