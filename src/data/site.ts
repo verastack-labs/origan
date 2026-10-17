@@ -16,6 +16,16 @@ export const site = {
 } as const;
 
 /**
+ * Cloudflare Web Analytics. The token is public by design: the beacon script
+ * sends it from every visitor's browser, so it identifies the site and grants
+ * no access. The analytics are cookieless and keep no per-visitor profile, so
+ * no consent banner is needed.
+ */
+export const analytics = {
+  cloudflareToken: "f246879e3bb04ff6b3eba98bea0e8fc2",
+} as const;
+
+/**
  * The enquiry form posts here.
  *
  * The access key is public by design. Web3Forms uses it to identify the
