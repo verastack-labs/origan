@@ -306,3 +306,93 @@ export function BacktrackingDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 17: a search spreading from a start vertex in rings, like ripples. */
+export function RipplesDiagram() {
+  const cx = 230;
+  const cy = 150;
+  const r1 = 70;
+  const r2 = 120;
+  const polar = (r: number, degrees: number): [number, number] => [
+    cx + r * Math.cos((degrees * Math.PI) / 180),
+    cy + r * Math.sin((degrees * Math.PI) / 180),
+  ];
+
+  // Vertex numbers are the order a breadth-first search visits them.
+  const at: [number, number][] = [
+    [cx, cy],
+    polar(r1, 210),
+    polar(r1, 330),
+    polar(r1, 90),
+    polar(r2, 190),
+    polar(r2, 305),
+    polar(r2, 350),
+    polar(r2, 90),
+  ];
+  const edges: [number, number][] = [
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [1, 4],
+    [2, 5],
+    [2, 6],
+    [3, 7],
+  ];
+
+  return (
+    <Figure
+      id="ripples"
+      title="A breadth-first search spreading from vertex 0 in rings"
+      caption="Throw a stone in at vertex 0. The first ripple reaches everything one step away (1, 2, 3), and the next reaches everything two steps away (4, 5, 6, 7). The numbers show the order of visiting. A depth-first search would instead run down one road to its end, in the order 0, 1, 4, 2, 5, 6, 3, 7."
+      viewBox="0 0 720 300"
+    >
+      <circle cx={cx} cy={cy} r={r1} fill="none" className="stroke-fg-3" strokeWidth={1} strokeDasharray="4 4" />
+      <circle cx={cx} cy={cy} r={r2} fill="none" className="stroke-fg-3" strokeWidth={1} strokeDasharray="4 4" />
+      <text x={cx + 6} y={cy - r1 - 5} fontSize={10} className={faint}>
+        1 STEP
+      </text>
+      <text x={cx + 6} y={cy - r2 - 5} fontSize={10} className={faint}>
+        2 STEPS
+      </text>
+
+      {edges.map(([a, b]) => (
+        <line
+          key={`${a}-${b}`}
+          x1={at[a][0]}
+          y1={at[a][1]}
+          x2={at[b][0]}
+          y2={at[b][1]}
+          className="stroke-survey-2"
+          strokeWidth={1.5}
+        />
+      ))}
+      {at.map(([x, y], v) => (
+        <g key={v}>
+          <circle
+            cx={x}
+            cy={y}
+            r={17}
+            className={v === 0 ? "fill-panel-2 stroke-survey" : "fill-ground stroke-fg-3"}
+            strokeWidth={v === 0 ? 2 : 1}
+          />
+          <text x={x} y={y + 5} textAnchor="middle" fontSize={15} className="font-mono fill-fg">
+            {v}
+          </text>
+        </g>
+      ))}
+
+      <text x={470} y={96} fontSize={12} className="font-mono fill-survey">
+        Ring 0: the stone
+      </text>
+      <text x={470} y={136} fontSize={12} className={label}>
+        Ring 1: found first
+      </text>
+      <text x={470} y={176} fontSize={12} className={label}>
+        Ring 2: found next
+      </text>
+      <text x={470} y={226} fontSize={12} className={faint}>
+        Queue: first in, first out
+      </text>
+    </Figure>
+  );
+}
