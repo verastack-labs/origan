@@ -41,6 +41,8 @@ export async function Snippet({
 
   if (course.language === "typescript") {
     const text = region(file, name, js ? JS_SOURCE : source);
+    // A tsconfig.json is shown as JSON, with no Playground link.
+    if (file.endsWith(".json")) return <TsBlock code={text} lang="json" play={false} />;
     return <TsBlock code={text} lang={js ? "javascript" : "typescript"} play={play} />;
   }
   const code = region(file, name, source);

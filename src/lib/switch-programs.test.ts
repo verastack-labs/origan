@@ -32,7 +32,7 @@ function programsOf(mdx: string, page: string): Program[] {
   for (const m of mdx.matchAll(/<Snippet\s+([\s\S]*?)\/>/g)) {
     const file = attr(m[1], "file");
     const name = attr(m[1], "name");
-    if (!file || !name || /\sjs(\s|$)/.test(m[1])) continue;
+    if (!file || !name || file.endsWith(".json") || /\sjs(\s|$)/.test(m[1])) continue;
     out.push({ label: `${page}: ${file} ${name}`, code: region(file, name, TS_SOURCE) });
   }
 

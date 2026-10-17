@@ -20,9 +20,9 @@ const theme = createCssVariablesTheme({
   fontStyle: true,
 });
 
-export type Lang = "typescript" | "javascript";
+export type Lang = "typescript" | "javascript" | "json";
 
-const labels: Record<Lang, string> = { typescript: "TypeScript", javascript: "JavaScript" };
+const labels: Record<Lang, string> = { typescript: "TypeScript", javascript: "JavaScript", json: "tsconfig.json" };
 
 export type Marks = { diff?: ReadonlySet<number>; error?: ReadonlySet<number> };
 
