@@ -36,9 +36,9 @@ const partLinks = (
 );
 
 /**
- * The contents of a lesson are the same seven links in two shapes: a block
- * that opens and closes above the text on a phone, and a rail beside it on a
- * desktop. Both are plain links to the seven parts, so neither needs script.
+ * The seven parts of a lesson as a block that opens and closes above the text
+ * on a phone. On a desktop the chapters sidebar lists them beside the text, so
+ * this stays out of the way there. Plain links, so it needs no script.
  */
 export function ContentsBlock() {
   return (
@@ -57,15 +57,6 @@ export function ContentsBlock() {
       </summary>
       <div className="border-t border-line-2 p-2">{partLinks}</div>
     </details>
-  );
-}
-
-export function ContentsRail() {
-  return (
-    <nav aria-label="On this page" className="sticky top-[88px] hidden lg:block">
-      <p className="notation mb-3 px-2">On this page</p>
-      {partLinks}
-    </nav>
   );
 }
 

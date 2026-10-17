@@ -282,6 +282,96 @@
     opacity: 1;
     animation: station-in 0.42s var(--ease-survey) both;
   }
+
+  /*
+   * The lesson chapters sidebar. Its folded state is `data-chapters` on <html>,
+   * set before first paint by an inline script, so everything below keys off
+   * that attribute and nothing waits for React.
+   */
+  .chapters-layout {
+    --rail-open: clamp(232px, 22vw, 288px);
+    --rail-shut: 56px;
+    --rail: var(--rail-open);
+    --read: 720px;
+  }
+
+  html[data-chapters="collapsed"] .chapters-layout {
+    --rail: var(--rail-shut);
+    --read: 780px;
+  }
+
+  .lesson-article {
+    max-width: var(--read);
+    margin-inline: auto;
+    transition: max-width 200ms var(--ease-survey);
+  }
+
+  @media (min-width: 1024px) {
+    .chapters-layout {
+      display: grid;
+      grid-template-columns: var(--rail) minmax(0, 1fr);
+      column-gap: clamp(32px, 4vw, 64px);
+      transition: grid-template-columns 200ms var(--ease-survey);
+    }
+  }
+
+  /* What goes away when the sidebar folds. `visibility` as well as opacity, so
+     the hidden links leave the tab order once the fade has finished. */
+  .chapters-fade {
+    transition: opacity 160ms ease-out 60ms;
+  }
+
+  html[data-chapters="collapsed"] .chapters-fade {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 100ms ease-out,
+      visibility 0s linear 100ms;
+  }
+
+  .chapters-rail-label {
+    opacity: 0;
+    transition: opacity 120ms ease-out;
+  }
+
+  html[data-chapters="collapsed"] .chapters-rail-label {
+    opacity: 1;
+    transition: opacity 160ms ease-out 120ms;
+  }
+
+  .chapters-icon-show {
+    display: none;
+  }
+
+  html[data-chapters="collapsed"] .chapters-icon-show {
+    display: block;
+  }
+
+  html[data-chapters="collapsed"] .chapters-icon-hide {
+    display: none;
+  }
+
+  /* The drawer slides in from the left. The native backdrop is turned off:
+     the dimming is its own element, so it can fade on the same clock. */
+  .chapters-drawer::backdrop {
+    background: transparent;
+  }
+
+  .chapters-drawer[open] .drawer-panel {
+    animation: drawer-in 220ms var(--ease-survey) both;
+  }
+
+  .chapters-drawer[open] .drawer-backdrop {
+    animation: backdrop-in 220ms ease-out both;
+  }
+
+  .chapters-drawer[data-closing] .drawer-panel {
+    animation: drawer-out 190ms var(--ease-survey) both;
+  }
+
+  .chapters-drawer[data-closing] .drawer-backdrop {
+    animation: backdrop-out 190ms ease-out both;
+  }
 }
 
 @keyframes plot-ink {
@@ -396,6 +486,24 @@ body > div:has(> div > iframe[src*="hcaptcha.com"][src*="frame=challenge"]) {
   }
 }
 
+@keyframes backdrop-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes drawer-out {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -438,6 +546,20 @@ body > div:has(> div > iframe[src*="hcaptcha.com"][src*="frame=challenge"]) {
 
   .js .rv-label .plot-char {
     opacity: 1;
+  }
+
+  .chapters-drawer[open] .drawer-panel,
+  .chapters-drawer[open] .drawer-backdrop,
+  .chapters-drawer[data-closing] .drawer-panel,
+  .chapters-drawer[data-closing] .drawer-backdrop {
+    animation: none;
+  }
+
+  .chapters-layout,
+  .lesson-article,
+  .chapters-fade,
+  .chapters-rail-label {
+    transition: none !important;
   }
 }
 
