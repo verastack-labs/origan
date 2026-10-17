@@ -1,4 +1,4 @@
-import { courseUrl, type Course } from "@/data/courses";
+import { courseUrl, fullName, type Course } from "@/data/courses";
 import { site } from "@/data/site";
 import type { Lesson } from "@/lib/lessons";
 
@@ -25,7 +25,7 @@ export function lessonJsonLd(course: Course, lesson: Lesson) {
     position: lesson.order,
     dateModified: lesson.updated,
     isAccessibleForFree: true,
-    isPartOf: { "@type": "Course", name: course.name, url: indexUrl(course) },
+    isPartOf: { "@type": "Course", name: fullName(course), url: indexUrl(course) },
     provider,
     author: provider,
   };
@@ -36,7 +36,8 @@ export function courseJsonLd(course: Course, lessons: Lesson[]) {
   return {
     "@context": "https://schema.org",
     "@type": "Course",
-    name: course.name,
+    name: fullName(course),
+    ...(course.descriptor ? { alternateName: course.descriptor } : {}),
     description: course.description,
     url: indexUrl(course),
     inLanguage: "en",

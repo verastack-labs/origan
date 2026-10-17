@@ -30,5 +30,8 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  // `ts/` is The Switch's own project, checked by scripts/check-ts-snippets.mjs
+  // with its own tsconfig. It holds snippets that are meant to fail, which this
+  // one must not see.
+  "exclude": ["node_modules", "ts"]
 }

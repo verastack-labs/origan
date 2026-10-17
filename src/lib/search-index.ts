@@ -33,7 +33,7 @@ export function buildSearchIndex(
       published: true,
       lessonCount: live.size,
       topics,
-      text: [course.summary, ...Object.values(course.partNames)],
+      text: [course.summary, ...(course.descriptor ? [course.descriptor] : []), ...Object.values(course.partNames)],
     });
 
     for (const entry of course.curriculum) {

@@ -10,7 +10,7 @@ const control =
  * a blocked permission), and then the label says so instead of claiming it
  * worked. The code is still on the page to select by hand.
  */
-export function CopyButton({ code }: { code: string }) {
+export function CopyButton({ code, hint }: { code: string; /** Said to a screen reader after the label, when "Copy" alone would not say what. */ hint?: string }) {
   const [state, setState] = useState<"idle" | "done" | "failed">("idle");
 
   async function copy() {
@@ -28,6 +28,7 @@ export function CopyButton({ code }: { code: string }) {
       <span aria-live="polite">
         {state === "done" ? "Copied" : state === "failed" ? "Select and copy" : "Copy"}
       </span>
+      {hint && <span className="sr-only"> {hint}</span>}
     </button>
   );
 }

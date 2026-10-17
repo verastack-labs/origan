@@ -4,7 +4,7 @@ import { PageHead, sectionCompact, shell } from "@/components/page-head";
 import { Reveal } from "@/components/reveal";
 import { StudioCredit } from "@/components/dsa/lesson-chrome";
 import { resources, resourcesPage } from "@/data/resources";
-import { javaCourse, rustCourse } from "@/data/courses";
+import { javaCourse, rustCourse, switchCourse } from "@/data/courses";
 import { getLessons } from "@/lib/lessons";
 import { buildSearchIndex } from "@/lib/search-index";
 import { ResourceSearch } from "@/components/resource-search";
@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 const counts: Record<string, number> = {
   "dsa-in-rust": getLessons(rustCourse).length,
   "java-collections": getLessons(javaCourse).length,
+  "the-switch": getLessons(switchCourse).length,
 };
 
 export default function Resources() {
@@ -54,7 +55,12 @@ export default function Resources() {
                       <span className="font-mono text-[10px] uppercase tracking-[0.13em] text-fg-3">
                         Free · {count} {count === 1 ? one : many}
                       </span>
-                      <span className="mt-3 text-[clamp(22px,2.6vw,30px)] font-bold tracking-[-0.03em] text-fg">
+                      {resource.descriptor && (
+                        <span className="mt-3 font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-fg-3">
+                          {resource.descriptor}
+                        </span>
+                      )}
+                      <span className={`${resource.descriptor ? "mt-1" : "mt-3"} text-[clamp(22px,2.6vw,30px)] font-bold tracking-[-0.03em] text-fg`}>
                         {resource.name}
                       </span>
                       <span className="mt-2.5 max-w-[44ch] text-[15.5px] text-fg-2">{resource.summary}</span>

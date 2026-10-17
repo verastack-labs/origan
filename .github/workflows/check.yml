@@ -74,3 +74,24 @@ jobs:
           java-version: 21
       - name: javac and java -ea
         run: java/java-collections/run-tests.sh
+
+  # Every TypeScript snippet on The Switch pages is a real file under
+  # ts/the-switch/, and the pages are built from it. This type-checks them with
+  # strict on, confirms that each snippet meant to fail fails with the error
+  # code, line and message the lesson shows, runs the JavaScript versions, and
+  # runs the Vitest tests on the TypeScript ones.
+  typescript:
+    name: TypeScript snippets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: tsc --strict, expected errors, JavaScript runs
+        run: pnpm check:ts-snippets
+      - name: Snippet tests and Playground programs
+        run: pnpm exec vitest run ts src/lib/switch-programs.test.ts src/lib/ts-playground.test.ts

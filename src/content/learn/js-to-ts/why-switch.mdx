@@ -1,0 +1,231 @@
+---
+title: Why switch? The honest list
+sub: What you gain, what you pay, and when to stay put.
+description: Should you move from JavaScript to TypeScript? The pros and the costs side by side, three real bugs it catches, what it cannot catch, and a short checklist to decide.
+order: 0
+part: 1
+updated: 2026-10-17
+slug: why-switch
+---
+
+<Part id="hook" heading="A red line before you [send]" sub="TypeScript is a spell-checker for code." />
+
+You are texting a friend. You type "tomorow", and your phone draws a red line under it. You fix it in two seconds. Nobody ever sees the mistake.
+
+Now imagine a phone that says nothing. You send it. Your friend reads "tomorow", shrugs, and works it out. But if you had typed the wrong *address*, your friend would be standing at the wrong door, and you would only find out when they called.
+
+JavaScript is the second phone. It sends whatever you write, and finds out what went wrong while the program is running, sometimes in front of a user. **TypeScript** is the first phone. It reads your code *before* you run it, and draws a red line under the mistakes it can see.
+
+How does it see them? You add small **types** to your code. A type is a label that says what kind of thing a value is: a piece of text, a number, an object with a name and an age. A tool called the **type checker** reads the labels and tells you when something doesn't fit.
+
+That is the whole idea. TypeScript is the JavaScript you already know, with labels on top and a checker that reads them.
+
+This lesson is a sales pitch and a warning label in one. You will see what TypeScript catches, what it costs, and what it can never catch. Then you decide whether to bother. Both answers are fine.
+
+**Remember:** TypeScript is JavaScript plus labels, and a checker that reads the labels before the code runs.
+
+<Part id="js" heading="Bugs that [run]" sub="JavaScript lets all three through." />
+
+Here are three small bugs. Each one is plain JavaScript, and each one *runs*. Nothing stops. Nothing crashes. You just get a wrong answer.
+
+The first is a typo. We have an order and want its total.
+
+<Snippet file="lesson0-why" name="typo" js />
+
+```text
+NaN
+```
+
+We typed `prise`, not `price`. JavaScript doesn't mind. When you ask an object for a property it doesn't have, you get `undefined`, and `2 * undefined` is `NaN`. That stands for "Not a Number", JavaScript's way of saying a sum made no sense. It prints happily and moves on.
+
+The second forgets an argument. An **argument** is a value you hand to a function when you call it.
+
+<Snippet file="lesson0-why" name="missing-argument" js />
+
+```text
+NaN
+```
+
+`addGst` wants a price and a rate. We gave it only the price. The missing `rate` becomes `undefined`, and the sum turns into `NaN` again.
+
+The third passes the wrong kind of value.
+
+<Snippet file="lesson0-why" name="wrong-kind" js />
+
+```text
+2121
+```
+
+We meant the number 21. We passed the *text* "21", because that is what a form field gives you. With text, `+` joins instead of adding. So `"21" + "21"` is `"2121"`.
+
+None of these three says a word. They sit in your code until a user, or a tester, or you at midnight, notices that a number looks odd.
+
+**Remember:** JavaScript checks your code while it runs. A mistake can sit there for weeks until the line that holds it finally runs.
+
+<Part id="ts" heading="The same code, [underlined]" sub="Each bug becomes a red line in your editor." />
+
+Now the same three programs, with types. Each block shows the JavaScript beside the TypeScript. On a phone, use the two tabs. The lines that differ are tinted, and the line that TypeScript refuses is marked.
+
+A word before you read. The `: number` you will see after a name is a **type annotation**. It is a label that says "this is a number". Lesson 2 teaches them properly. For now, just read them as labels.
+
+First, the typo. We didn't add a single label, and TypeScript still catches it.
+
+<Compare file="lesson0-why" name="typo" fail="lesson0-typo" />
+
+TypeScript looked at `order`, saw that it holds `item`, `quantity` and `price`, and noticed that `prise` is none of them. It even guessed what you meant. In an editor, this line gets a red wavy underline the moment you type it. No running needed.
+
+The error code, `TS2551`, is the compiler's own reference number. You can search for it.
+
+Second, the missing argument. Now `addGst` says what it takes.
+
+<Compare file="lesson0-why" name="missing-argument" fail="lesson0-missing-argument" />
+
+`price: number, rate: number` says the function takes two numbers. The call gives one. TypeScript counts, and it refuses.
+
+Third, the wrong kind of value.
+
+<Compare file="lesson0-why" name="wrong-kind" fail="lesson0-wrong-kind" />
+
+`n: number` says "only numbers in here". The text `"21"` is the wrong kind, so the call is refused before anything runs.
+
+All three bugs are now red lines, found at the moment you typed them. That is the best thing TypeScript does. The rest of this guide is about getting you comfortable with it, one step at a time.
+
+**Remember:** a type is a promise about what a value is. The checker's job is to hold you to your own promises.
+
+<Part id="how" heading="The honest [ledger]" sub="What you gain, and what you pay." />
+
+First, how it works, in four short steps.
+
+1. You write code in a `.ts` file, with types.
+2. The checker reads it and compares every value with its label.
+3. If something doesn't fit, you get an error. You fix it.
+4. When it fits, the labels are removed, and what is left is plain JavaScript. That is what runs.
+
+Step 4 matters a lot, and we will come back to it. Browsers and Node.js only ever run JavaScript. Types are for *you* and for your tools, and they are gone by the time the program runs.
+
+Now the list this lesson promised. Some of it is good news. Some of it isn't. Both columns are true.
+
+| What you gain | What it costs |
+| --- | --- |
+| **Bugs caught before you run.** A typo or a wrong argument is underlined as you type. | **A check step.** Something has to check the types, or strip them, before the code runs. That is a build, or the `tsc` command. |
+| **Autocomplete and safe renames.** The editor knows what every value has, so it can list it, and it can rename a thing everywhere at once. | **A learning curve.** There are new words and new rules, and some error messages are long. |
+| **Types as documentation that can't go stale.** A function's labels say what goes in and what comes out, and the checker fails if they stop being true. | **More typing up front.** You write labels as well as code. TypeScript can work out many of them for you, which lesson 2 shows. |
+| **Widely used.** You will meet it in open-source projects and in teams' codebases. | **The occasional fight with the checker.** Sometimes your code is right, and you have to work to explain why. |
+| **Gradual.** You can move one file at a time. Nobody makes you rewrite everything. | **Types vanish at runtime.** Data from a server or a form still has to be checked while the program runs. |
+
+Read the right-hand column twice. None of those costs is a deal-breaker. All of them are real.
+
+**Remember:** you are trading some effort up front for fewer surprises later. Whether that trade is good depends on your project.
+
+<Part id="watch" heading="What it [can't] do" sub="Types are labels, and labels can be wrong." />
+
+The last cost in the table is the one that surprises people most. Look at this program.
+
+<Compare file="lesson0-why" name="runtime" />
+
+The TypeScript side has no red lines. It passes the checker. And it crashes, just like the JavaScript side.
+
+```text
+TypeError: Cannot read properties of undefined (reading 'toUpperCase')
+```
+
+Why? We told TypeScript that `fromServer` is a `User`, and it believed us. But `JSON.parse` turns text into data, and TypeScript can't know what is inside the text. The text had `nam`, not `name`, so the data didn't match the label. The label was a promise, and nobody checked it while the program ran.
+
+This is not a flaw you can fix with a setting. It is how it works: types are removed before the program runs, so they can't check data that arrives *while* it runs. Data from outside needs its own check. Lesson 9 shows how.
+
+Two more things TypeScript will not do, so nobody is disappointed.
+
+- **It won't make your code faster.** The labels are removed. The JavaScript that runs is the same JavaScript.
+- **It won't replace tests.** Types catch one kind of mistake: a value of the wrong kind in the wrong place. They don't know whether your discount sum is the *right* sum.
+
+**Remember:** TypeScript checks what you wrote against what you said. It can't check the world outside your program.
+
+### Is it worth it for you?
+
+Tick the ones that sound like you. There is no score. If most of one box sounds like your project, that box is your answer.
+
+<Checklist title="Lean towards TypeScript if">
+
+- The code will live for months or years, or more than one person edits it.
+- You keep meeting bugs like "undefined is not a function", or a wrong value in a wrong place.
+- You change code often, and want the editor to find everything a change touches.
+- You use libraries a lot, and want autocomplete for them.
+- You don't mind learning some new words.
+
+</Checklist>
+
+<Checklist title="Plain JavaScript is fine if">
+
+- It is a small script, a quick experiment, or something you will throw away.
+- You are still learning JavaScript itself. Get comfortable first. TypeScript makes more sense once you have felt the bugs it prevents.
+- It is a one-person project with a short life, and a few tests catch what you care about.
+- You can't add a check step to how the code is built or run.
+
+</Checklist>
+
+Neither list is a judgement on you. Plenty of careful developers write plain JavaScript, and plenty write TypeScript. The rest of this guide is for the first group, or for anyone who wants to know what they are choosing.
+
+<Part id="practise" heading="Three bugs, [three] fixes" sub="Paste each into the Playground and look for red." />
+
+Each problem starts with JavaScript that has a bug. Open it in the TypeScript Playground (the button above the code). Add types until the checker draws a red line on the buggy call, then fix the call.
+
+<Practice
+  number={1}
+  title="Double with care"
+  file="lesson0-why"
+  start="double-start"
+  solution="double"
+  hints={[
+    "A label goes after the name, with a colon: `n: number`.",
+    "Once `n` is a number, the call `double(\"21\")` should get a red line. The function was fine. Which part is wrong?",
+    "Give the function a return type too, after the parentheses: `): number`. Then change the call to pass the number `21`.",
+  ]}
+  explain="The label `n: number` says only numbers are welcome, so the checker underlines the call that passes text. The function was never the problem, the call was. The return type `: number` is a second promise, and the checker verifies it too."
+>
+`double("21")` should give 42, but JavaScript gives `"2121"`. Add types so the checker catches the bad call, then fix the call.
+</Practice>
+
+<Practice
+  number={2}
+  title="Count the arguments"
+  file="lesson0-why"
+  start="area-start"
+  solution="area"
+  hints={[
+    "Label both parameters: `width: number, height: number`.",
+    "The call `area(5)` should now be underlined. What is it missing?",
+    "Change the call to give both numbers, such as `area(5, 4)`. That should give 20.",
+  ]}
+  explain="With two labelled parameters, the checker expects two arguments, so `area(5)` is refused with 'Expected 2 arguments, but got 1'. In plain JavaScript the missing `height` was silently `undefined`, and the answer was `NaN`."
+>
+`area(5)` gives `NaN`, because `height` is missing. Add types so the checker notices, then fix the call so it gives 20.
+</Practice>
+
+<Practice
+  number={3}
+  title="Say hello to a name"
+  file="lesson0-why"
+  start="greet-start"
+  solution="greet"
+  hints={[
+    "The parameter is text. The label for text is `string`.",
+    "Add `: string` to the parameter, and to the return type as well.",
+    "`greet()` with nothing inside the brackets should now be underlined. Pass a name, such as `\"Asha\"`.",
+  ]}
+  explain="`name: string` says a name is needed, and the checker refuses `greet()` with no argument. In JavaScript, the missing name became the text 'undefined', and the greeting happily said 'Hello, undefined'."
+>
+`greet()` forgot the name and says "Hello, undefined". Add types so the checker catches it, then fix the call.
+</Practice>
+
+<Part id="interview" heading="TypeScript in the [interview]" sub="The questions that come up first." />
+
+The first TypeScript questions are about what it *is*. Short, plain answers do best.
+
+- **"What is TypeScript?"** JavaScript with a type system on top. You write types, a tool checks them before the code runs, and then the types are removed and plain JavaScript is what runs. People call it a **superset** of JavaScript, meaning it adds to the language rather than replacing it.
+- **"Does the browser run TypeScript?"** No. Browsers and Node.js run JavaScript. The types are removed first, by the `tsc` command, by a bundler (a tool that packs your code into files for the browser), or by Node's built-in type stripping (lesson 1).
+- **"Do types exist at runtime?"** No. They are erased. That is why data from a server still needs to be checked while the program runs.
+- **"What is static typing?"** Checking types *before* the program runs, as TypeScript does. JavaScript has **dynamic typing**: it works out what each value is while the program runs.
+- **"What is the difference between a compile-time error and a runtime error?"** A compile-time error is found by the checker before anything runs. A runtime error happens while the program runs, like the `TypeError` above. TypeScript turns some runtime errors into compile-time ones. It can't turn them all.
+- **"What are the downsides?"** A check step, a learning curve, more typing up front, the occasional fight with the checker, and no help with data that arrives at runtime.
+- **"When would you not use it?"** For a small throwaway script, for a first look at JavaScript itself, or when you can't add a check step to the build.
+- **Say it simply.** "It catches a whole class of mistakes while I type, in return for some labels and a check step" is a good answer.

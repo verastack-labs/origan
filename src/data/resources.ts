@@ -1,13 +1,17 @@
 import { javaCollections } from "./java-collections";
 import { rustDsa } from "./rust-dsa";
+import { theSwitch } from "./the-switch";
 
 /**
  * What the Resources page lists. Add an entry here and it appears on the page,
- * as a card with its name, a line and a count. DSA in Rust is first, then Java Collections.
+ * as a card with its name, a line and a count. DSA in Rust is first, then Java Collections,
+ * then The Switch.
  */
 export type Resource = {
   id: string;
   name: string;
+  /** What it teaches, shown beside the name where the name alone would not say. */
+  descriptor?: string;
   /** One line. */
   summary: string;
   href: string;
@@ -42,6 +46,19 @@ export const resources: readonly Resource[] = [
       "Collections helpers", "Choosing a collection",
     ],
   },
+  {
+    id: "the-switch",
+    name: theSwitch.name,
+    descriptor: theSwitch.descriptor,
+    summary: "JavaScript to TypeScript, one lesson at a time, with the costs as plain as the benefits.",
+    href: theSwitch.path,
+    unit: ["lesson", "lessons"],
+    topics: [
+      "Why switch", "Setup", "Types", "Objects", "Functions", "Unions", "Narrowing",
+      "null and undefined", "Generics", "Utility types", "unknown vs any", "Migrating",
+      "Cheat sheet",
+    ],
+  },
 ];
 
 export const resourcesPage = {
@@ -49,5 +66,5 @@ export const resourcesPage = {
   heading: "Free [study] material",
   sub: "Made by VeraStack Labs. Open to anyone, no sign-up.",
   description:
-    "Free study material for engineering students, made by VeraStack Labs. DSA in Rust teaches data structures and algorithms in Rust, and Java Collections teaches the Java Collections Framework. Every code sample is compiled and tested.",
+    "Free study material for engineering students, made by VeraStack Labs. DSA in Rust teaches data structures and algorithms in Rust, Java Collections teaches the Java Collections Framework, and The Switch takes JavaScript developers to TypeScript. Every code sample is compiled or type-checked, and tested.",
 };

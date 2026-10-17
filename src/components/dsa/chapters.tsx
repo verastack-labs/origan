@@ -231,6 +231,11 @@ function CourseTitle({ course, onNavigate }: { course: CourseNav; onNavigate?: (
       >
         {course.name}
       </Link>
+      {course.descriptor && (
+        <p className="mt-1 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.1em] text-fg-3">
+          {course.descriptor}
+        </p>
+      )}
     </>
   );
 }
