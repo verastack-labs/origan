@@ -440,7 +440,7 @@ export function JavaHashDiagram() {
         2050251
       </text>
       <line x1={292} x2={bx - 54} y1={top + 58} y2={top + 3 * rowH + 13} className="stroke-survey-2" strokeWidth={1.5} />
-      <text x={330} y={top + 112} fontSize={11} className={faint}>
+      <text x={224} y={top + 100} textAnchor="middle" fontSize={11} className={faint}>
         2050251 mod 8 = 3
       </text>
 
@@ -745,19 +745,19 @@ export function BinarySearchDiagram() {
 export function ChoosingDiagram() {
   const question = (cx: number, cy: number, w: number, text: string, key: string) => (
     <g key={key}>
-      <rect x={cx - w / 2} y={cy - 18} width={w} height={36} className="fill-panel-2 stroke-survey" strokeWidth={1.5} />
-      <text x={cx} y={cy + 5} textAnchor="middle" fontSize={12} className="font-mono fill-fg">
+      <rect x={cx - w / 2} y={cy - 20} width={w} height={40} className="fill-panel-2 stroke-survey" strokeWidth={1.5} />
+      <text x={cx} y={cy + 5} textAnchor="middle" fontSize={14} className="font-mono fill-fg">
         {text}
       </text>
     </g>
   );
   const leaf = (x: number, y: number, name: string, hint: string) => (
     <g key={name}>
-      <rect x={x} y={y} width={200} height={40} className="fill-ground stroke-line" strokeWidth={1} />
-      <text x={x + 10} y={y + 17} fontSize={13} className="font-mono fill-fg">
+      <rect x={x} y={y} width={220} height={46} className="fill-ground stroke-line" strokeWidth={1} />
+      <text x={x + 10} y={y + 20} fontSize={15} className="font-mono fill-fg">
         {name}
       </text>
-      <text x={x + 10} y={y + 32} fontSize={10} className={label}>
+      <text x={x + 10} y={y + 37} fontSize={12} className={label}>
         {hint}
       </text>
     </g>
@@ -766,59 +766,59 @@ export function ChoosingDiagram() {
     <line key={key} x1={x1} y1={y1} x2={x2} y2={y2} className="stroke-fg-3" strokeWidth={1.2} />
   );
 
-  const top = 246;
-  const col = { map: 20, set: 250, list: 480 };
+  const top = 250;
+  const col = { map: 10, set: 250, list: 490 };
 
   return (
     <Figure
       id="choosing"
       title="Which collection? Answer up to three questions"
       caption="Start at the top. Do you look things up by a key? If not, must each item appear once? If not, how will the items be used? The class at the end of the path is your first choice."
-      viewBox="0 0 720 400"
+      viewBox="0 0 720 420"
     >
-      {question(360, 34, 290, "Do you look things up by a key?", "q1")}
-      {line(300, 52, 120, top - 22, "q1-yes")}
-      <text x={190} y={120} fontSize={11} className="font-mono fill-survey">
+      {question(360, 34, 300, "Do you look things up by a key?", "q1")}
+      {line(290, 54, 120, top - 24, "q1-yes")}
+      <text x={170} y={122} fontSize={13} className="font-mono fill-survey">
         yes
       </text>
-      {line(420, 52, 470, 88, "q1-no")}
-      <text x={456} y={74} fontSize={11} className="font-mono fill-survey">
+      {line(430, 54, 480, 88, "q1-no")}
+      <text x={470} y={68} fontSize={13} className="font-mono fill-survey">
         no
       </text>
 
-      {question(470, 106, 240, "Each item only once?", "q2")}
-      {line(420, 124, 350, top - 22, "q2-yes")}
-      <text x={366} y={170} fontSize={11} className="font-mono fill-survey">
+      {question(480, 108, 250, "Each item only once?", "q2")}
+      {line(430, 128, 360, top - 24, "q2-yes")}
+      <text x={330} y={180} fontSize={13} className="font-mono fill-survey">
         yes
       </text>
-      {line(540, 124, 600, 162, "q2-no")}
-      <text x={582} y={150} fontSize={11} className="font-mono fill-survey">
+      {line(550, 128, 600, 162, "q2-no")}
+      <text x={592} y={146} fontSize={13} className="font-mono fill-survey">
         no
       </text>
 
-      {question(600, 180, 230, "How is it used?", "q3")}
-      {line(600, 198, 580, top - 22, "q3-go")}
+      {question(600, 182, 230, "How is it used?", "q3")}
+      {line(600, 202, 600, top - 24, "q3-go")}
 
-      <text x={col.map} y={top - 8} fontSize={10} className={faint}>
+      <text x={col.map} y={top - 8} fontSize={11} className={faint}>
         A MAP, WHEN ORDER IS...
       </text>
-      {leaf(col.map, top, "HashMap", "any order, fastest lookup")}
-      {leaf(col.map, top + 50, "LinkedHashMap", "the order you added")}
-      {leaf(col.map, top + 100, "TreeMap", "keys sorted")}
+      {leaf(col.map, top, "HashMap", "any order, fastest")}
+      {leaf(col.map, top + 56, "LinkedHashMap", "in the order added")}
+      {leaf(col.map, top + 112, "TreeMap", "keys sorted")}
 
-      <text x={col.set} y={top - 8} fontSize={10} className={faint}>
+      <text x={col.set} y={top - 8} fontSize={11} className={faint}>
         A SET, WHEN ORDER IS...
       </text>
-      {leaf(col.set, top, "HashSet", "any order, fastest check")}
-      {leaf(col.set, top + 50, "LinkedHashSet", "the order you added")}
-      {leaf(col.set, top + 100, "TreeSet", "items sorted")}
+      {leaf(col.set, top, "HashSet", "any order, fastest")}
+      {leaf(col.set, top + 56, "LinkedHashSet", "in the order added")}
+      {leaf(col.set, top + 112, "TreeSet", "items sorted")}
 
-      <text x={col.list} y={top - 8} fontSize={10} className={faint}>
+      <text x={col.list} y={top - 8} fontSize={11} className={faint}>
         A LIST OR QUEUE, WHEN YOU...
       </text>
       {leaf(col.list, top, "ArrayList", "read by position")}
-      {leaf(col.list, top + 50, "ArrayDeque", "work at the ends: stack, queue")}
-      {leaf(col.list, top + 100, "PriorityQueue", "need the most urgent first")}
+      {leaf(col.list, top + 56, "ArrayDeque", "stack or queue")}
+      {leaf(col.list, top + 112, "PriorityQueue", "most urgent first")}
     </Figure>
   );
 }
