@@ -55,13 +55,13 @@ export default function Resources() {
                       <span className="font-mono text-[10px] uppercase tracking-[0.13em] text-fg-3">
                         Free · {count} {count === 1 ? one : many}
                       </span>
-                      <span className="mt-3 text-[clamp(22px,2.6vw,30px)] font-bold tracking-[-0.03em] text-fg">
+                      {resource.descriptor && (
+                        <span className="mt-3 font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-fg-3">
+                          {resource.descriptor}
+                        </span>
+                      )}
+                      <span className={`${resource.descriptor ? "mt-1" : "mt-3"} text-[clamp(22px,2.6vw,30px)] font-bold tracking-[-0.03em] text-fg`}>
                         {resource.name}
-                        {resource.descriptor && (
-                          <span className="mt-1 block font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-fg-3">
-                            {resource.descriptor}
-                          </span>
-                        )}
                       </span>
                       <span className="mt-2.5 max-w-[44ch] text-[15.5px] text-fg-2">{resource.summary}</span>
                       <span className="sr-only">Topics: {resource.topics.join(", ")}.</span>

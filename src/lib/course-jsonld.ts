@@ -37,6 +37,7 @@ export function courseJsonLd(course: Course, lessons: Lesson[]) {
     "@context": "https://schema.org",
     "@type": "Course",
     name: fullName(course),
+    ...(course.descriptor ? { alternateName: course.descriptor } : {}),
     description: course.description,
     url: indexUrl(course),
     inLanguage: "en",

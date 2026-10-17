@@ -238,7 +238,7 @@ export async function LessonView({ course, slug }: { course: Course; slug: strin
         contentClass={`${shell} pb-[clamp(60px,8vw,110px)] pt-[clamp(28px,4vw,52px)]`}
         head={
           <PageHead
-            notation={`${course.name} · Lesson ${lesson.order}`}
+            notation={`${course.name} · ${course.descriptor ? `${course.descriptor} · ` : ""}Lesson ${lesson.order}`}
             pair={{ heading: lesson.title, sub: lesson.sub }}
             cta={false}
             compact
