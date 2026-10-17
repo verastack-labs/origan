@@ -396,3 +396,76 @@ export function RipplesDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 18: a small road map, the direct road that is not the shortest, and the route found. */
+export function RoadMapDiagram() {
+  const places: Record<string, { x: number; y: number; dist: number; note?: string; above?: boolean }> = {
+    A: { x: 70, y: 150, dist: 0, note: "HOME" },
+    B: { x: 270, y: 70, dist: 3, above: true },
+    C: { x: 250, y: 232, dist: 2 },
+    D: { x: 450, y: 150, dist: 8 },
+    E: { x: 640, y: 150, dist: 11, note: "SCHOOL" },
+  };
+  const roads: { from: string; to: string; cost: number; on: boolean }[] = [
+    { from: "A", to: "B", cost: 4, on: false },
+    { from: "A", to: "C", cost: 2, on: true },
+    { from: "C", to: "B", cost: 1, on: true },
+    { from: "B", to: "D", cost: 5, on: true },
+    { from: "C", to: "D", cost: 8, on: false },
+    { from: "D", to: "E", cost: 3, on: true },
+  ];
+
+  return (
+    <Figure
+      id="road-map"
+      title="A road map where the direct road from A to B is not the shortest way"
+      caption="The number on each road is its length. A to B directly is 4, but A to C to B is only 2 + 1 = 3. Dijkstra's search always settles the closest unsettled place next, so it finds the highlighted route to the school, 11 in all. The small numbers show each place's shortest distance from home."
+      viewBox="0 0 720 290"
+    >
+      {roads.map((road) => {
+        const a = places[road.from];
+        const b = places[road.to];
+        return (
+          <g key={`${road.from}${road.to}`}>
+            <line
+              x1={a.x}
+              y1={a.y}
+              x2={b.x}
+              y2={b.y}
+              className={road.on ? "stroke-survey" : "stroke-fg-3"}
+              strokeWidth={road.on ? 2.5 : 1}
+            />
+            <text
+              x={(a.x + b.x) / 2}
+              y={(a.y + b.y) / 2 + 4}
+              textAnchor="middle"
+              fontSize={13}
+              strokeWidth={5}
+              strokeLinejoin="round"
+              paintOrder="stroke"
+              className={road.on ? "font-mono fill-survey stroke-panel" : "font-mono fill-fg-2 stroke-panel"}
+            >
+              {road.cost}
+            </text>
+          </g>
+        );
+      })}
+      {Object.entries(places).map(([name, p]) => (
+        <g key={name}>
+          <circle cx={p.x} cy={p.y} r={19} className="fill-panel-2 stroke-survey" strokeWidth={1.5} />
+          <text x={p.x} y={p.y + 5} textAnchor="middle" fontSize={15} className="font-mono fill-fg">
+            {name}
+          </text>
+          <text x={p.x} y={p.above ? p.y - 28 : p.y + 38} textAnchor="middle" fontSize={11} className="font-mono fill-survey">
+            {`dist ${p.dist}`}
+          </text>
+          {p.note && (
+            <text x={p.x} y={p.y - 30} textAnchor="middle" fontSize={10} className={faint}>
+              {p.note}
+            </text>
+          )}
+        </g>
+      ))}
+    </Figure>
+  );
+}

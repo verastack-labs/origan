@@ -1,0 +1,163 @@
+---
+title: Shortest paths in Rust
+sub: Fewest steps with BFS, shortest distance with Dijkstra.
+description: Learn shortest paths in Rust. Use BFS on unweighted graphs and Dijkstra with BinaryHeap and Reverse on weighted ones, with a cost table and three practice problems.
+order: 18
+part: 2
+updated: 2026-10-17
+slug: shortest-paths
+---
+
+<Part id="what" heading="What Google Maps [does]" sub="The quickest way from here to there." />
+
+You type your college into a map app, and it shows a route. Behind that route, the app has quietly looked at thousands of roads, and picked the cheapest way to add them up.
+
+That is the **shortest path** problem. You have a graph (lesson 10), a starting place, and a goal. Find the route whose total cost is as small as possible. "Cost" can be kilometres, minutes, rupees, or anything you want to keep small.
+
+There are two cases, and each has its own tool.
+
+- If every road counts the same, "shortest" just means *fewest roads*. You already have the tool: BFS from lesson 17.
+- If roads have different lengths, a route with fewer roads can be longer. You need **Dijkstra's algorithm** (said "DYKE-struh"), named after the Dutch computer scientist who invented it.
+
+Reach for these when a question asks for the fewest moves, the cheapest trip, the fastest signal, or the least effort between two things.
+
+<Part id="idea" heading="Settle the [closest] first" sub="Why a priority queue is the right list." />
+
+<RoadMapDiagram />
+
+**Fewest roads.** BFS spreads out in rings, so the first time it reaches a place, it got there in the fewest steps. To recover the *route* and not only the count, remember where you came from. Each time the search first reaches a place, write down the place before it. At the end, follow those notes backwards from the goal to the start, and flip the list round.
+
+**Roads with lengths.** Look at the map. The direct road from A to B has length 4. But A to C is 2, and C to B is 1, so going round through C costs only 3. A straight-line guess is not enough. You need a plan that is sure to find the best.
+
+Dijkstra's plan is simple. Keep the best distance known so far to every place, starting with 0 for home and "unknown" for the rest. Then repeat one move: **pick the closest place not yet settled, and use it to improve its neighbours.**
+
+Try it on the map. Home A is at 0. Its roads give B a distance of 4 and C a distance of 2. The closest unsettled place is C, at 2. Settle it. Its roads give B a new distance of 2 + 1 = 3, which beats 4, and D a distance of 2 + 8 = 10. Next closest is B, at 3. Settle it. It gives D a distance of 3 + 5 = 8, which beats 10. Then D at 8 gives E a distance of 11. Done: 0, 3, 2, 8 and 11.
+
+Why is picking the closest place safe? Because every road has a length of zero or more. Any other route to the closest place would have to go through some place that is further away already, so it cannot be shorter. Once a place is the closest, its distance is final. This is exactly why Dijkstra does **not work** if a road can have a negative length: a later detour could undo a "final" answer.
+
+Which data structure finds the closest unsettled place quickly? A **priority queue**, the heap from lesson 8. Each entry is a pair: a distance and a place. You pop the smallest distance each time.
+
+One small wrinkle: when a better distance to a place turns up, the old, longer entry for it is still in the heap. Rather than hunt it down, leave it there, and skip it when it comes out. You can tell it is stale because its distance is bigger than the best known.
+
+**Remember:** BFS for fewest roads. For roads with lengths, always settle the closest place next, using a heap.
+
+<Part id="build" heading="Two [searches] in Rust" sub="A route with BFS, distances with Dijkstra." />
+
+First, the fewest-roads route. It is BFS with a `parent` list.
+
+<Snippet file="lesson18_shortest_paths" name="bfs-path" />
+
+Go through it in order.
+
+- `parent[w]` holds the place we stepped from when we first reached `w`. It starts as `None` for everyone.
+- The BFS loop is the one from lesson 17. The only new line is `parent[w] = Some(v)`. We can stop early once we pop the goal.
+- If the goal was never reached, there is no route, and the answer is `None`.
+- Otherwise, start at `to` and keep stepping to `parent[here]` until there is none left, which only happens at the start. That gives the route backwards, so `reverse()` flips it.
+
+Now the weighted version. Each neighbour in the list also carries the length of its road, so the list holds pairs.
+
+<Snippet file="lesson18_shortest_paths" name="weighted-graph" />
+
+And Dijkstra itself.
+
+<Snippet file="lesson18_shortest_paths" name="dijkstra" also="weighted-graph" />
+
+Go through it in order.
+
+- `best` holds the shortest distance found so far for each place. `None` means "no way found yet", so an unreachable place stays `None` to the end.
+- The heap holds `Reverse((distance, place))`. `Reverse` flips the heap, so the smallest distance comes out first, exactly as in lesson 8.
+- When we pop an entry, the first check skips stale ones: if `dist` is bigger than the known best for that place, a better entry was already handled.
+- For each road out of `v`, `through_v` is the distance if we went by way of `v`. If that beats what we knew (or we knew nothing), record it, and push the new entry.
+- When the heap is empty, `best` is the answer for every place.
+
+**Remember:** only the pairs that improve something go onto the heap, and a stale pair is skipped when it comes out.
+
+<Part id="std" heading="The heap does the [work]" sub="BinaryHeap, Reverse and tuple order." />
+
+Rust has no shortest-path function in the standard library. (The `petgraph` crate has Dijkstra, if you need it in a project.) The useful pieces are the ones you met in lesson 8.
+
+<Snippet file="lesson18_shortest_paths" name="heap-order" />
+
+Two facts make `Reverse((distance, place))` work.
+
+- `BinaryHeap` is a max-heap by default, so it gives back the biggest first. `Reverse` flips the comparison, which turns it into a min-heap.
+- A tuple compares its first part first, and only looks at the second part on a tie. So the distance decides the order, and the place just rides along.
+
+Because `Reverse` and tuples already know how to compare themselves, the heap needs no extra code. Also notice the use of `Option<u32>` for distances instead of a huge number like `u32::MAX` standing for "unknown". With `u32::MAX`, adding a road length to "unknown" would overflow. `None` cannot be added to by mistake, and it reads as what it means.
+
+<Part id="cost" heading="What each search [costs]" sub="V places, E roads." />
+
+| Algorithm | Time | Space | Works for |
+| --- | --- | --- | --- |
+| BFS | O(V + E) | O(V) | Every road counts as 1 |
+| Dijkstra with a binary heap | O((V + E) log V) | O(V) | Roads with lengths of 0 or more |
+| Rebuilding the route | O(route length) | O(route length) | Following the `parent` notes back |
+| A scan for the closest place instead of a heap | O(V²) | O(V) | Fine for tiny or very dense graphs |
+
+Each road can add one entry to the heap, so the heap holds at most E entries, and each push or pop costs O(log E), which is O(log V) for any normal graph. If a graph has a negative road, neither BFS nor Dijkstra is right. A different algorithm, Bellman-Ford, handles that case, and it is slower.
+
+<Part id="practise" heading="Three problems, [one] map" sub="A knight, a signal, and a hike." />
+
+Each starter has a `todo!()`, a placeholder that panics if it runs. Replace it with your code.
+
+<Practice
+  number={1}
+  title="The knight's shortest trip"
+  file="lesson18_shortest_paths"
+  start="knight-moves-start"
+  solution="knight-moves"
+  hints={[
+    "A chessboard has 64 squares. Treat each square as a vertex, and each jump a knight can make as an edge. Every jump counts as one step, so no road lengths are needed.",
+    "That means BFS. A knight jumps two squares one way and one square the other, which gives 8 possible jumps from a square.",
+    "Keep a grid of `Option<usize>` for the jumps used to reach each square. Check that a jump stays inside the 8 by 8 board before using it. Return the count when you pop the target.",
+  ]}
+  explain="The board is a graph that is never drawn: you work out each square's neighbours as you go. The first time BFS reaches a square is by the fewest jumps, so the answer is the count stored there. There are only 64 squares with up to 8 jumps each, so it is fast. The `unreachable!` line is a promise: a knight can reach every square of a board this size, so the loop always returns before the end. `checked_add_signed` guards against stepping below zero."
+>
+Write `knight_moves`, which takes a start square and a target square on an 8 by 8 board, as `(row, column)` pairs numbered 0 to 7, and returns the fewest knight's jumps between them. From `(0, 0)` to `(7, 7)` the answer is 6.
+</Practice>
+
+<Practice
+  number={2}
+  title="When does everyone hear?"
+  file="lesson18_shortest_paths"
+  also="dijkstra"
+  start="network-delay-start"
+  solution="network-delay"
+  hints={[
+    "A signal starts at one place and travels along one-way links, each with a travel time. Everyone has heard it once the slowest place has heard it.",
+    "You need the shortest time from the source to every place. That is exactly what Dijkstra's algorithm gives.",
+    "Build the graph, run `dijkstra`, then take the biggest of the times. If any place is still `None`, it never hears, so the answer is `None`.",
+  ]}
+  explain="Dijkstra gives the earliest moment each place hears the news, and the whole network is done when the last one hears. The `try_fold` line walks the list and keeps the largest time. The `time?` inside it returns `None` for the whole fold as soon as one place has no time, which means it was never reached. The links here run one way, so the graph is built with only one push per link. It takes O((V + E) log V) time. Re-using a tested function like `dijkstra` is the point: a new problem is often an old one with a small wrapper."
+>
+Write `network_delay`, which takes the number of places `n`, a list of one-way links `(from, to, time)`, and a source place. Return the time for a signal sent from the source to reach every place, or `None` if some place is never reached. You may use the `dijkstra` function from this lesson. For links `(0,1,2)`, `(1,2,3)`, `(0,3,9)` from place 0, the answer is `Some(9)`.
+</Practice>
+
+<Practice
+  number={3}
+  title="The gentlest hike"
+  file="lesson18_shortest_paths"
+  start="easiest-hike-start"
+  solution="easiest-hike"
+  hints={[
+    "Each trail has a steepness. You do not care about the total, only about the single steepest trail on your route. You want that to be as small as possible.",
+    "That is Dijkstra with a different idea of cost. Instead of adding the trail to the distance, the route's cost is the steepest trail seen so far, which is the `max` of the two.",
+    "In the loop, `route_worst` is `worst.max(steep)` instead of `worst + steep`. Update the best known and push to the heap in the same way. Return the cost when you pop the goal.",
+  ]}
+  explain="Dijkstra works for any cost that never gets smaller as a route grows, and the biggest trail so far has that property. So the same loop works with one line changed. The first time the goal comes off the heap, its cost is final, which is why we can return at that point. This idea appears often: 'minimise the worst step' is just a shortest-path problem with `max` where `+` used to be. Unreachable goals fall out as `None`, and `from == to` costs 0 because the start is popped first."
+>
+Write `easiest_hike`, which takes `n` places, a list of two-way trails `(a, b, steepness)`, and a start and end place. Return the smallest possible value for the steepest trail on any route from start to end, or `None` if there is no route. With trails `(0,1,5)`, `(1,3,2)`, `(0,2,3)`, `(2,3,4)` from 0 to 3, the answer is 4.
+</Practice>
+
+<Part id="interview" heading="Shortest paths in the [interview]" sub="What to ask, and what to say." />
+
+"Shortest" is a loaded word. The first thing a good answer does is pin down what it means.
+
+- **Spot the signals.** "Fewest moves", "minimum steps", "cheapest route", "earliest time", and "least effort" all point here. A grid, a word puzzle, or a network can all be a graph underneath.
+- **Ask about the lengths.** Say it out loud: "are all steps equal, or do they have costs?". Equal steps mean BFS. Costs of zero or more mean Dijkstra. A negative cost means you need another algorithm, and saying so scores well.
+- **Say why the greedy step is safe.** "The closest unsettled place cannot be improved, because every other route goes through something further away." One sentence, and it shows you understand rather than recite.
+- **Name the data structure.** "A min-heap of distance and place pairs." In Rust, that is a `BinaryHeap` of `Reverse` tuples.
+- **Mention stale entries.** Saying "I skip an entry whose distance is worse than the best known" shows you have done it for real.
+- **State the cost.** BFS is O(V + E). Dijkstra with a heap is O((V + E) log V).
+- **Rebuild the path when asked.** If the question wants the route, not the length, keep a `parent` for each place and walk it back. Say that it costs one extra list.
+- **Reshape the cost.** Problems like "minimise the worst step" are Dijkstra with `max` instead of `+`. Mentioning that you can swap the rule is a strong signal.

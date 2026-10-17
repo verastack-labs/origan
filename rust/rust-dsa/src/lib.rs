@@ -31,3 +31,4 @@ pub mod lesson14_binary_search;
 pub mod lesson15_two_pointers;
 pub mod lesson16_backtracking;
 pub mod lesson17_bfs_dfs;
+pub mod lesson18_shortest_paths;
