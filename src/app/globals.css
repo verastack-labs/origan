@@ -252,6 +252,12 @@
     animation: swap 0.45s var(--ease-survey);
   }
 
+  /* The results list arriving in place of the cards. Short, and gone under
+     reduced motion with the rest. */
+  .search-results {
+    animation: search-in 200ms var(--ease-survey) both;
+  }
+
   /* Changing sheets. Short, and on the same curve as everything else, so a
      navigation reads as part of the drawing set rather than as a page load. */
   .sheet-change {
@@ -492,6 +498,13 @@ body > div:has(> div > iframe[src*="hcaptcha.com"][src*="frame=challenge"]) {
   }
 }
 
+@keyframes search-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
 @keyframes drawer-in {
   from {
     transform: translateX(-100%);
@@ -526,6 +539,7 @@ body > div:has(> div > iframe[src*="hcaptcha.com"][src*="frame=challenge"]) {
   .register[open],
   .register-backdrop,
   .swap,
+  .search-results,
   .station,
   .range,
   .set-out,

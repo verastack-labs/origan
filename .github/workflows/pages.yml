@@ -86,3 +86,31 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Tell Bing (and the other IndexNow engines) which pages exist straight after
+  # a deploy, instead of waiting for a re-crawl. ChatGPT search leans on Bing's
+  # index, so this is how new lessons reach it quickly. The key is public by
+  # design: it only proves the site owns the key file at its root.
+  indexnow:
+    name: Notify IndexNow
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit every sitemap URL
+        env:
+          KEY: 70b7e8594ca972aac7e7dba8208b4655
+          HOST: origan.verastack.dev
+        run: |
+          sleep 30
+          curl -fsSL "https://$HOST/sitemap.xml" -o sitemap.xml
+          node -e '
+            const fs = require("fs");
+            const urls = [...fs.readFileSync("sitemap.xml", "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+            const { HOST, KEY } = process.env;
+            fs.writeFileSync("body.json", JSON.stringify({ host: HOST, key: KEY, keyLocation: `https://${HOST}/${KEY}.txt`, urlList: urls.slice(0, 10000) }));
+            console.log(`Submitting ${urls.length} URLs`);
+          '
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST https://api.indexnow.org/indexnow -H 'Content-Type: application/json; charset=utf-8' --data @body.json)
+          echo "IndexNow responded $code"
+          case "$code" in 200|202) ;; *) echo "::warning::IndexNow returned $code" ;; esac
+
