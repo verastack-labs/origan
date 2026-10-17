@@ -138,6 +138,10 @@ The error says `LassiOrder` can't go where `never` is wanted. That is the checke
 Mango lassi
 ```
 
+Step through it. At each branch, watch the type of `order` shrink, until nothing is left.
+
+<NarrowingStepper />
+
 This is called an **exhaustiveness check**, meaning a check that you handled every option. If someone adds a fourth kind next year, every `switch` that forgot it lights up red. It also throws at runtime, just in case bad data slips past. Use this on any `switch` over a union.
 
 **A literal can widen.** A variable that can change gets a wider type. A plain `let strength = "strong"` becomes `string`, because later you might put any text in it.

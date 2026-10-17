@@ -720,6 +720,33 @@ html:not(.js) .js-only {
   }
 }
 
+/*
+ * The narrowing stepper lights the lines of the step it is on. The tint and
+ * the bar are tokens, so they follow both palettes, and the bar means the line
+ * is lit even where the tint is hard to see. Without script nothing is lit
+ * beyond the first step and the list of steps is shown instead.
+ */
+.js .no-js-only {
+  display: none;
+}
+
+.narrowing .line {
+  transition:
+    background-color 150ms linear,
+    box-shadow 150ms linear;
+}
+
+.narrowing .line.is-on {
+  background: color-mix(in srgb, var(--color-survey) 15%, transparent);
+  box-shadow: inset 3px 0 0 var(--color-survey);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .narrowing .line {
+    transition: none;
+  }
+}
+
 /* "Is it worth it for you?" lists: a small empty box in front of each item. */
 .checklist ul {
   list-style: none;
