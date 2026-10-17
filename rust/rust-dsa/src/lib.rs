@@ -21,3 +21,8 @@ pub mod lesson4_stack;
 pub mod lesson5_queue;
 pub mod lesson6_hash;
 pub mod lesson7_tree;
+pub mod lesson8_heap;
+pub mod lesson9_ordered;
+pub mod lesson10_graph;
+pub mod lesson11_trie;
+pub mod lesson12_union_find;

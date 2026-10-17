@@ -5,12 +5,17 @@ import { CodeBlock } from "./code-block";
 import {
   ArrayDiagram,
   BytesDiagram,
+  GraphDiagram,
   HashDiagram,
+  HeapDiagram,
   LinkedListDiagram,
+  OrderedDiagram,
   QueueDiagram,
   SetupDiagram,
   StackDiagram,
   TreeDiagram,
+  TrieDiagram,
+  UnionFindDiagram,
 } from "./diagrams";
 import { Part } from "./part";
 import { Practice } from "./practice";
@@ -99,4 +104,9 @@ export const components: MDXComponents = {
   QueueDiagram,
   HashDiagram,
   TreeDiagram,
+  HeapDiagram,
+  OrderedDiagram,
+  GraphDiagram,
+  TrieDiagram,
+  UnionFindDiagram,
 };

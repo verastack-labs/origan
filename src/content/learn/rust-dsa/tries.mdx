@@ -1,0 +1,150 @@
+---
+title: Tries in Rust
+sub: Nested maps, prefix search, and how autocomplete works.
+description: Learn tries in Rust. Build a trie from nested BTreeMaps, add prefix search and suggestions, with a cost table and three practice problems.
+order: 11
+part: 1
+updated: 2026-10-17
+slug: tries
+---
+
+<Part id="what" heading="Type a few letters, get [words]" sub="How autocomplete finds its answers." />
+
+Open the messages app on your phone and type "ca". Before you finish the word, it offers "cat", "car" and "cap". It did not read through every word in the dictionary to find them. It went straight to them.
+
+The trick is a structure called a **trie** (said like "try", from the middle of the word re-*trie*-val). It is a tree where each step down is one letter. A word is a path from the top.
+
+A **prefix** is the start of a word. "ca" is a prefix of "cat". A trie is built around prefixes: words that begin the same way share the same path for as long as they agree, and split only where they differ.
+
+Reach for a trie when you ask questions about the *start* of words: autocomplete, spell checking, "does any word begin with this?", word-game helpers, and search boxes that suggest as you type.
+
+<Part id="idea" heading="Words share a [path]" sub="One step for each letter." />
+
+<TrieDiagram />
+
+The picture holds five words: cap, car, cat, do and dog. The three "ca" words share two steps, down through c and then a. Only the last letter differs, so the path forks there.
+
+Now search for the prefix "ca". Start at the top, step to c, step to a, and you are there: two steps, one per letter. Everything below that node is a word that starts with "ca". The suggestions are simply what hangs underneath.
+
+Look at how few steps that took. It does not matter whether the trie holds five words or five million. The number of steps depends only on the *length of the prefix*. That is the superpower of a trie.
+
+There is one wrinkle. "do" is a word, and it is also the start of "dog". So reaching a node does not tell you a word ends there. Each node needs a flag, which the picture shows as a ring around the node. A ringed node means "a word ends here".
+
+Inside, every node holds two things: a map from letter to the next node, and that flag. A map holding smaller maps holding smaller maps is why people call this a structure of **nested maps**.
+
+**Remember:** a trie's speed depends on how long the word is, not on how many words it holds.
+
+<Part id="build" heading="Build a [trie]" sub="Nodes that hold a map of letters." />
+
+<Snippet file="lesson11_trie" name="trie-build" />
+
+Go through it in order.
+
+- `TrieNode` is one step. `children` maps a letter to the next `TrieNode`, and `is_word` is the ring from the picture. `#[derive(Default)]` lets Rust build an empty node on its own, with no children and `false`.
+- It uses a `BTreeMap` from lesson 9, so the letters come back in alphabetical order. That is why the suggestions later arrive already sorted.
+- A `TrieNode` holds a map of `TrieNode`s, which sounds like a type that contains itself forever. It works without a `Box` because a map keeps its contents on the heap, so the node itself has a fixed size. Lesson 7 needed `Box` because it held a child directly.
+- `insert` walks down the word one letter at a time. `entry(c).or_default()` means "go to the child for `c`, and if there is none, make an empty one". After the last letter, it sets `is_word` to `true`.
+- `find` follows a prefix down from the root. The `?` returns `None` the moment a letter has no child, meaning the path breaks off.
+- `contains` and `starts_with` both use `find`, and differ in one detail. `contains` also checks the ring. `starts_with` only needs the path to exist.
+
+<Snippet file="lesson11_trie" name="trie-build-demo" play={false} />
+
+"ca" is not a word, but it is a prefix, and the trie tells the two apart. The Playground link on the code above runs this.
+
+Now the autocomplete itself. To list every word under a prefix, walk to the prefix node and then collect everything below it.
+
+<Snippet file="lesson11_trie" name="trie-suggest" also="trie-build" />
+
+`collect_words` is recursive. At each node it first checks the ring: if a word ends here, it saves a copy of the letters so far. Then, for each child, it adds that child's letter to `word`, calls itself, and takes the letter off again with `word.pop()`. That last step is like retracing your steps: it puts `word` back as it was, so the next sibling starts from the right place. Because the children are in letter order, the words are found in alphabetical order.
+
+**Remember:** add a letter on the way down, and remove it on the way back up.
+
+<Part id="std" heading="Prefix search with [BTreeSet]" sub="No trie in std, but a trick that works." />
+
+The standard library has no trie. But if all you need is "give me the words that start with this", a sorted set can do it, using what you learned in lesson 9.
+
+<Snippet file="lesson11_trie" name="prefix-with-btree-set" />
+
+In sorted order, all the words that start with "ca" sit side by side. So `range(prefix..)` jumps to the place where "ca" would go, and `take_while` keeps going until it meets a word that no longer starts with it. That is a range query with a stopping rule.
+
+So which should you use? The sorted set is shorter and often good enough. A hand-built trie earns its keep when you need to step through the letters one at a time, attach information to each prefix, or match patterns, as in problem 3. Each lookup in the set compares whole strings, and in a trie it only follows letters.
+
+One more option, when words are only lowercase a to z: give each node an array of 26 slots instead of a map. It is faster, and it wastes memory when most slots are empty.
+
+<Part id="cost" heading="What each move [costs]" sub="m is a word's length." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Insert a word | O(m) | One step per letter |
+| Is this a whole word? | O(m) | Follow the letters, then check the ring |
+| Does any word start with this? | O(m) | Follow the letters |
+| List the suggestions | O(m + s) | Walk to the prefix, then visit the s nodes below it |
+| Space used | O(total letters) | At most one node per letter, fewer when words share a start |
+
+None of those depend on how many words are stored. That is the strength. The `BTreeMap` inside each node adds a tiny extra cost to pick the right letter, but with at most a few dozen letters to choose from, it is safe to ignore. The price you pay is memory: a trie of words that share little can use far more space than the plain words would.
+
+<Part id="practise" heading="Three problems, [one] tree" sub="Count, count a prefix, match a pattern." />
+
+These use the `Trie` you just built. The Playground link on each starter includes it, along with a small demo. Each starter has a `todo!()`, a placeholder that panics if it runs. Replace it with your code.
+
+<Practice
+  number={1}
+  title="Count the words"
+  file="lesson11_trie"
+  also="trie-build"
+  start="count-words-start"
+  solution="count-words"
+  hints={[
+    "A word ends at a node when its `is_word` flag is true. There may be more words further down.",
+    "Think recursively: the number of words at a node is 1 if a word ends there, plus the number of words under each child.",
+    "`node.children.values()` loops over the child nodes. Map each one to `count_words`, and `sum` the results. Add `usize::from(node.is_word)`, which is 1 for true and 0 for false.",
+  ]}
+  explain="Each node counts itself once if a word ends there, and adds the totals from its children. A node with no children has an empty sum, which is 0, so that is the base case and it needs no special code. Every node is visited once, so it is O(N) for a trie with N nodes. Words that were inserted twice are not counted twice, because the flag is just true or false."
+>
+Write `count_words`, which returns how many words end at or below a node. Passing the root of a trie counts every word in it.
+</Practice>
+
+<Practice
+  number={2}
+  title="Count a prefix"
+  file="lesson11_trie"
+  also="trie-build,count-words"
+  start="count-with-prefix-start"
+  solution="count-with-prefix"
+  hints={[
+    "Walk down the prefix first. If the path breaks off, no word starts with it.",
+    "Start at `trie.root()` and, for each letter, move to `node.children.get(&c)`. A `None` means the answer is 0.",
+    "Once you have walked the whole prefix, every word at or below that node starts with it. You already have a function that counts the words at or below a node. The Playground link includes a working `count_words` for you to call.",
+  ]}
+  explain="The walk takes one step per letter of the prefix, and then the answer is the number of words in that subtree. If any letter has no child, nothing starts that way, so it returns 0 at once. An empty prefix never leaves the root, so it counts every word. If the prefix is itself a word, it is counted as well, because the count includes the node you stopped at. The walk is O(m) and the count is O(s) for the s nodes below."
+>
+Write `count_with_prefix`, which returns how many stored words begin with a prefix. A word counts as beginning with itself. In a trie holding cat, car and dog, the prefix `ca` gives 2.
+</Practice>
+
+<Practice
+  number={3}
+  title="Match with wildcards"
+  file="lesson11_trie"
+  also="trie-build"
+  start="matches-start"
+  solution="matches"
+  hints={[
+    "Walk the pattern one character at a time. A normal letter has exactly one place to go. A dot could be anything, so it may have many.",
+    "Write an inner recursive function `walk(node, pattern)`. When the pattern is used up, the answer is `node.is_word`.",
+    "For a dot, try every child with `node.children.values().any(...)`, passing the rest of the pattern. For a letter, follow just that child with `get`. `pattern.split_first()` splits off the first character.",
+  ]}
+  explain="A plain letter follows exactly one branch, so the search is a single path. A dot has to try every branch, and `any` stops at the first one that works. In the worst case, a pattern of all dots visits a lot of the trie, but a pattern with letters in it cuts most branches off early. The pattern is turned into a `Vec<char>` first so it can be split into its first character and the rest without worrying about UTF-8 byte positions from lesson 2. When the pattern is used up, only `is_word` says whether a whole word ended exactly there, so `c.t` matches `cat` but `c.` matches nothing."
+>
+Write `matches`, which says whether any stored word fits a pattern. The pattern is letters and dots, and a dot stands for any one letter. The word must fit the whole pattern, not just the start. With cat, car and dog stored, `c.t` and `..g` both match, but `c.` does not.
+</Practice>
+
+<Part id="interview" heading="Tries in the [interview]" sub="What to ask, and what to say." />
+
+Trie questions almost always involve prefixes. A few habits help.
+
+- **Spot the signals.** "Starts with", "autocomplete", "dictionary of words", "longest common prefix", and "word search" are all trie territory.
+- **Draw it first.** Sketch three or four words as a tree on the board. It makes the design obvious, and it shows the interviewer you can explain the idea, not just code it.
+- **Remember the ring.** The most common bug is forgetting the end-of-word flag. "do" and "dog" both being words is the example to test with.
+- **Pick the node's map on purpose.** A `HashMap<char, Node>` is fast and unordered. A `BTreeMap` gives sorted output for free. An array of 26 is quickest for lowercase letters only. Naming the trade-off is worth more than the choice.
+- **Know the alternative.** For a simple prefix question, a sorted list or a `BTreeSet` with a range query can be enough. Saying so shows you do not reach for a trie out of habit.
+- **Say the cost.** "Insert and search are O(m) in the length of the word, whatever the number of words" is a complete answer. Add that the trade-off is memory.
