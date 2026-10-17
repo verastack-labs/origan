@@ -20,6 +20,7 @@ import {
 } from "./diagrams";
 import * as algoDiagrams from "./algo-diagrams";
 import * as javaDiagrams from "./java-diagrams";
+import * as tsDiagrams from "./ts-diagrams";
 import { CheatRow } from "./cheat-sheet";
 import { Part } from "./part";
 import { PrintButton } from "./print-button";
@@ -141,14 +142,22 @@ const shared: MDXComponents = {
   ...algoDiagrams,
 };
 
+/** Diagrams and interactive blocks that only The Switch's lessons use. */
+const switchOnly: MDXComponents = { ...tsDiagrams };
+
 /**
  * The components for one course. Part, Snippet and Practice are bound to it
  * here, so a lesson writes <Snippet file="..." name="..." /> and gets the
  * right project's code, and never has to say which course it is in.
  */
 export function componentsFor(course: Course): MDXComponents {
+  // The Switch has diagrams of its own. They are registered for it alone, so
+  // the Rust and Java lessons do not know their names.
+  const own = course.language === "typescript" ? switchOnly : {};
+
   return {
     ...shared,
+    ...own,
     Part: (props: ComponentProps<typeof Part>) => <Part parts={course.parts} {...props} />,
     Snippet: (props: ComponentProps<typeof Snippet>) => <Snippet course={course} {...props} />,
     Practice: (props: ComponentProps<typeof Practice>) => <Practice course={course} {...props} />,

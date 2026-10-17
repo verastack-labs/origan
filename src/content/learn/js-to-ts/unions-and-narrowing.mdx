@@ -124,6 +124,8 @@ Now the part the stall owner will love. Add a new kind of order: lassi. What hap
 
 TypeScript can make the checker do the counting. The trick uses the type `never`, which means "a value that can't exist". Here is how it works. After you handle chai and coffee, the only option left is lassi. If you handle lassi too, nothing is left, so `order` has the type `never`. A function that asks for `never` will only accept a call when no option is missing.
 
+<NarrowingDiagram />
+
 First, the broken version. We added `LassiOrder` to the union and forgot to serve it.
 
 <Fails file="lesson5-not-exhaustive" />

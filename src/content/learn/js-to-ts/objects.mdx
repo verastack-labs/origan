@@ -111,6 +111,8 @@ Momo is 3
 
 `pet` has a `name`, an `age` and a `tail`. A `User` only needs a name and an age, so `pet` fits, and the extra `tail` is fine. Why was `agee` an error, then? The difference is a **fresh object literal**: an object written directly where a type is expected. Fresh literals get the strict extra-property check, because a stray property there is almost always a typo. A variable that already exists doesn't.
 
+<StencilDiagram />
+
 **Remember:** TypeScript asks "does it have what's needed?", not "what is it called?". Fresh object literals also get an extra check for unknown properties.
 
 <Part id="watch" heading="Where objects [bite]" sub="Three places the form can fool you." />

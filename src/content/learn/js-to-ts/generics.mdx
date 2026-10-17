@@ -103,6 +103,8 @@ coffee
 
 Notice that `longest` gives back the same type it was given. Pass two lists, get a list. Pass two texts, get text.
 
+<CourierDiagram />
+
 **3. Keys of an object.** A common trick reads a property by name. `keyof T` means "the names of the properties of `T`, as a union of exact words". So `K extends keyof T` says "the key must be one that this object really has", and `T[K]` is the type of that property.
 
 <Snippet file="lesson7-generics" name="get-field" />

@@ -133,6 +133,8 @@ TypeScript's own tool, `tsc`, does the checking. Running is done by Node or a br
 | A bundler such as Vite (a tool that packs your code for the browser) | **No**, usually | Yes |
 | The Playground | Yes, as you type | Yes, and it runs the result |
 
+<ToolchainDiagram />
+
 Look at the "Checks types?" column. When you run `node hello.ts`, Node does not check anything. If you leave the mistake in `hello.ts` and run it, Node strips the labels and runs the code. The crash comes straight back.
 
 ```text
