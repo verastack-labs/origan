@@ -49,6 +49,11 @@ function Checklist({ title, children }: { title: string; children: ReactNode }) 
   );
 }
 
+/** Wraps a two-column table that stacks on a phone (see `.ledger` in globals.css). */
+function Ledger({ children }: { children: ReactNode }) {
+  return <div className="ledger">{children}</div>;
+}
+
 /**
  * A fenced block in the MDX. Rust is never typed here (it comes from the
  * tested crate through <Snippet>), so fences are for terminal commands and
@@ -112,6 +117,7 @@ const shared: MDXComponents = {
   hr: () => <hr className="my-10 border-line" />,
   Note,
   Checklist,
+  Ledger,
   // The Switch: JavaScript beside TypeScript, and a snippet that is meant to fail.
   Compare,
   Fails,

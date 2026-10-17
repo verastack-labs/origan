@@ -56,7 +56,7 @@ export default function Resources() {
                         Free · {count} {count === 1 ? one : many}
                       </span>
                       {resource.descriptor && (
-                        <span className="mt-3 font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-fg-3">
+                        <span className="mt-2 font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-fg-3">
                           {resource.descriptor}
                         </span>
                       )}

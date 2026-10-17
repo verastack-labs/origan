@@ -135,9 +135,9 @@ export function CompareView({
                 shown ? "" : "hidden md:block"
               } ${w === "ts" ? "md:border-survey-2/60" : "cmp-js"}`}
             >
-              <figcaption className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line-2 px-3 py-2">
+              <figcaption className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line-2 px-3 py-2 md:flex-col md:items-start md:justify-start">
                 <span className="notation hidden md:inline">{names[w]}</span>
-                <span className="ml-auto flex flex-wrap items-center gap-2 md:ml-0">
+                <span className="ml-auto flex flex-wrap items-center gap-2 md:ml-0 md:min-h-[26px]">
                   <CopyButton code={side.code} hint={`the ${names[w]}`} />
                   {play && (
                     <a href={play} target="_blank" rel="noopener noreferrer" className={control}>
