@@ -45,7 +45,7 @@ export default function RustDsa() {
 
   const listing = {
     heading: "Part 1: data [structures]",
-    sub: `${capital(numbers[total])} lessons planned. ${numbers[ready]} ${ready === 1 ? "is" : "are"} ready, and the rest are coming next.`,
+    sub: `${capital(numbers[total])} lessons planned. ${capital(numbers[ready])} ${ready === 1 ? "is" : "are"} ready, and the rest are coming next.`,
   };
 
   return (
