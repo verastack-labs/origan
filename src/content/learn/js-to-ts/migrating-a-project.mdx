@@ -99,6 +99,8 @@ We tried every rung on a small untyped cart file with a few real slips in it: a 
 | 4 | `strictNullChecks` | 7, now the value that may be missing |
 | 5 | `strict` | 7, and from now on, every new strict check is on |
 
+<LadderDiagram />
+
 Steps 1 and 2 you have seen. Here are the others.
 
 **Step 3: `noImplicitAny`.** TypeScript stops quietly giving untyped things the type `any`, and asks you to say. This is the rung with the most work, because every untyped parameter needs a label. It is also the one that pays the most.
