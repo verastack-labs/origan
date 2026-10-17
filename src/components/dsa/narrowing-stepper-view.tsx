@@ -59,7 +59,7 @@ export function NarrowingStepperView({ html, steps }: { html: string; steps: Nar
       <div ref={code} dangerouslySetInnerHTML={{ __html: html }} />
 
       <div className="js-only border-t border-line-2 bg-ground-2 px-3 py-3">
-        <div aria-live="polite" aria-atomic="true" className="min-h-[7.5rem]">
+        <div aria-live="polite" aria-atomic="true" className="min-h-[6.5rem]">
           <p className="notation">
             <span className="sr-only">Step {at + 1} of {steps.length}. </span>
             The type of <span className="text-fg">{step.expr}</span> here

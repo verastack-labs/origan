@@ -1325,13 +1325,13 @@ export function LadderDiagram() {
   };
 
   const wide: Drawing = {
-    viewBox: "0 0 680 368",
+    viewBox: "0 0 680 332",
     draw: (m) => (
       <>
         <Tag x={14} y={18}>THE STRICTNESS LADDER: PROBLEMS FOUND IN A SMALL CART FILE</Tag>
         {rungs.map((r, i) => {
           const h = 56 + i * 26;
-          const top = 250 - h;
+          const top = 214 - h;
           const x = 14 + i * 130;
           const late = i === 3;
           return (
@@ -1351,31 +1351,32 @@ export function LadderDiagram() {
             </g>
           );
         })}
-        <line x1={14} x2={666} y1={250} y2={250} className="stroke-fg-3" strokeWidth={1} />
-        {files(14, 284, 190, false, m)}
+        <line x1={14} x2={666} y1={214} y2={214} className="stroke-fg-3" strokeWidth={1} />
+        {files(14, 248, 190, false, m)}
       </>
     ),
   };
 
   const narrow: Drawing = {
-    viewBox: "0 0 340 566",
+    viewBox: "0 0 340 574",
     draw: (m) => (
       <>
         <Tag x={12} y={18}>THE STRICTNESS LADDER</Tag>
         <Txt x={12} y={36} size={12.5} tone="fg2">problems found in a small cart file</Txt>
         {rungs.map((r, i) => {
-          const x0 = 12 + i * 28;
+          const x0 = 12 + i * 24;
           const y = 48 + i * 46;
           return (
             <g key={r.name}>
               <rect x={x0} y={y} width={328 - x0} height={40} className="fill-panel-2 stroke-survey" strokeWidth={i === 4 ? 1.5 : 1} />
               <Txt x={x0 + 8} y={y + 25} size={13} tone={i === 4 ? "survey" : "fg"}>{`${i + 1} ${r.name}`}</Txt>
-              <Txt x={322} y={y + 25} size={13} anchor="end" tone="survey">{`${r.found} found`}</Txt>
+              <Txt x={322} y={y + 25} size={12.5} anchor="end" tone="survey">{`${r.found} found`}</Txt>
             </g>
           );
         })}
-        <Txt x={12} y={296} size={12.5} tone="fg2">strict also switches on every new strict check.</Txt>
-        {files(12, 334, 196, true, m)}
+        <Txt x={12} y={296} size={12.5} tone="fg2">strict also switches on every</Txt>
+        <Txt x={12} y={312} size={12.5} tone="fg2">new strict check.</Txt>
+        {files(12, 342, 196, true, m)}
       </>
     ),
   };
