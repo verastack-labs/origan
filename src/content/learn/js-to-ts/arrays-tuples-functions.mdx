@@ -1,0 +1,206 @@
+---
+title: Arrays, tuples and functions
+sub: Lockers in a row, seats with meaning, and a coin slot.
+description: Type arrays as number[] and string[], pin down fixed-length lists with tuples, and label function parameters and return values, including optional, default and rest parameters.
+order: 4
+part: 1
+updated: 2026-10-17
+slug: arrays-tuples-functions
+---
+
+<Part id="hook" heading="Lockers, seats and a [slot]" sub="Three everyday things, three kinds of label." />
+
+A row of school lockers: every one is the same size, and each holds the same kind of thing. A new locker can be added at the end. That is an **array**. You can say what is in it, as in "a row of number lockers".
+
+A train ticket reads "Coach B2, seat 14". That is two things, in a fixed order, and the *position* tells you which is which. Coach comes first, seat second. Nobody writes it as "14, B2". That is a **tuple**: a short list with a fixed length, where each position has its own kind of value.
+
+And a vending machine. You put in coins, and a snack falls out. The coin slot only takes coins. The tray only gives snacks. That is a **function**: what it takes in (its **parameters**, the named inputs) and what it gives back (its **return value**).
+
+All three get labels in TypeScript, and the labels work the way these pictures suggest.
+
+**Remember:** an array is lockers of one kind. A tuple is a fixed list where position matters. A function is a slot in and a tray out.
+
+<Part id="js" heading="Lockers with [anything]" sub="JavaScript lets any kind into any list." />
+
+A JavaScript array is happy to hold any mixture. That is useful, and it is also how a total goes wrong.
+
+<Snippet file="lesson4-functions" name="scores" js />
+
+```text
+24777
+```
+
+We pushed the text "77" in by mistake, where we meant the number 77. After that, the running total isn't a number any more. Adding text to a number joins them, so we ended up with `24777` instead of `324`. No error anywhere.
+
+Pairs are also loose. A ticket is just an array, and nothing says how long it should be.
+
+<Snippet file="lesson4-functions" name="tuple" js />
+
+```text
+B2, seat 14
+undefined
+```
+
+Asking for item number 2 of a two-item list gives `undefined`. JavaScript treats "no such seat" as a value, not a mistake.
+
+And a function's inputs have no slot shapes at all.
+
+<Snippet file="lesson4-functions" name="greet" js />
+
+```text
+Hello, Asha
+Namaste, Asha
+```
+
+This one works. But the function doesn't say what `name` or `greeting` should be.
+
+**Remember:** JavaScript arrays hold anything, pairs have no length, and function slots have no shape.
+
+<Part id="ts" heading="Give every slot a [shape]" sub="number[], tuples, and labelled parameters." />
+
+An array type is the item type with square brackets after it: `number[]` is "a list of numbers". Here is the scores program again.
+
+<Compare file="lesson4-functions" name="scores" fail="lesson4-push-string" />
+
+`push("77")` is refused, because the list only accepts numbers. The mistake is caught where you made it, not where the total went strange. You can also write `Array<number>`, which means the same thing. Most people prefer `number[]`.
+
+A tuple type lists the type of each position, in order, in square brackets. You can add names to the positions to make it readable.
+
+<Compare file="lesson4-functions" name="tuple" fail="lesson4-tuple-index" />
+
+The type `[coach: string, seat: number]` has exactly two positions. Reading position 2 is refused, because there is no third thing. Destructuring (pulling the parts out into names, as in `const [coach, seat] = ticket`) works and gives each name its own type.
+
+For functions, label the parameters. You can leave off the return type if you like, because TypeScript works it out from the code. Here is a function with a **default parameter**, one that takes a value if the caller leaves it out.
+
+<Compare file="lesson4-functions" name="greet" />
+
+`greeting = "Hello"` is a default, and TypeScript infers from it that `greeting` is a string. You didn't need to write `greeting: string = "Hello"`. A caller may leave it out, or pass their own.
+
+A call with too many arguments is refused too.
+
+<Fails file="lesson4-too-many-arguments" />
+
+`Expected 1-2 arguments` is TypeScript counting: one required, one optional.
+
+**Remember:** `number[]` is a list of numbers, `[string, number]` is exactly a string and a number, and a default value gives you a type for free.
+
+<Part id="how" heading="More ways to shape a [slot]" sub="Optional, rest, callbacks and function types." />
+
+**Optional parameters.** A question mark after the name means the caller may leave it out. Inside the function the value may be `undefined`, so you check it before use.
+
+<Snippet file="lesson4-functions" name="optional-param" />
+
+```text
+Asha
+Asha Rao
+```
+
+Use `?` when "not given" is meaningful. Use a default (`= "Hello"`) when "not given" should simply mean a standard value. An optional parameter has to come after the required ones.
+
+**Rest parameters.** Three dots gather any number of extra arguments into an array. The label is an array type.
+
+<Snippet file="lesson4-functions" name="rest" />
+
+```text
+10
+```
+
+**Callbacks.** A **callback** is a function you hand to another function to call later. Methods like `map` take one. You don't need to label the callback's parameters when TypeScript can see what will be passed in.
+
+<Snippet file="lesson4-functions" name="callbacks" />
+
+`prices` is a `number[]`, so TypeScript knows each `price` that `map` hands over is a number. And since `price * 2` is a number, `doubled` is a `number[]`. The second call turns each into text, so `labels` is a `string[]`. This is inference reading the *place* a function is used, which lesson 2 promised.
+
+**Function types.** When a parameter is itself a function, you describe its slot and tray with an arrow.
+
+<Snippet file="lesson4-functions" name="function-type" />
+
+```text
+180
+```
+
+`(price: number) => number` reads as "takes a number, gives back a number". Naming it with `type Discount = ...` lets you reuse it.
+
+**Remember:** `?` or `=` makes a parameter optional, `...name` gathers the rest into an array, and `(a: number) => number` describes a function.
+
+<Part id="watch" heading="Where lists and slots [slip]" sub="Four small traps with arrays and functions." />
+
+**`readonly` arrays.** If a function should only read a list and never change it, give it a `readonly` list. Then `push` is refused.
+
+<Fails file="lesson4-readonly-array" />
+
+It is a good habit for function parameters. Callers know their list is safe.
+
+**Empty arrays need a label.** A bare `[]` has no items to learn from. Write `const names: string[] = []`, so TypeScript knows what belongs in it.
+
+**A list isn't checked at the edge.** `scores[10]` on a list of three gives `undefined`, but its type still says `number`. TypeScript trusts you not to read past the end. A stricter setting, `noUncheckedIndexedAccess`, changes that. For now, check the length or use a loop.
+
+**A tuple isn't a general array.** `[string, number]` is for fixed pairs, like coordinates or a name and a score. If you find yourself writing a six-item tuple, an object from lesson 3 is a better fit, because its fields have names.
+
+**Remember:** `readonly` for lists you only read, labelled empty arrays, and objects instead of long tuples.
+
+<Part id="practise" heading="Three functions, [typed]" sub="A list, a pair, and a default." />
+
+Each problem starts with a JavaScript function. Open it in the Playground and type it.
+
+<Practice
+  number={1}
+  title="Total of a list"
+  file="lesson4-functions"
+  start="total-start"
+  solution="total"
+  hints={[
+    "The input is a list of numbers. The label for that is `number[]`.",
+    "`prices: number[]`. The return type is a `number`.",
+    "The second call has the text `5` inside the list. It should now be underlined. Remove it.",
+  ]}
+  explain="`prices: number[]` says every item is a number. That makes the call with the text '5' an error, where JavaScript quietly turned the sum into the text 305. The variables `sum` and `price` are inferred, so they need no labels."
+>
+Add types to `total`. `total([10, 20, 30])` is 60. The call with a text item should be refused. Remove it.
+</Practice>
+
+<Practice
+  number={2}
+  title="Smallest and largest"
+  file="lesson4-functions"
+  start="min-max-start"
+  solution="min-max"
+  hints={[
+    "The input is a list of numbers.",
+    "The result is exactly two numbers, in a fixed order: smallest first. That is a tuple.",
+    "Write the return type as `[number, number]`. Then `const [low, high] = ...` gets a number for each name.",
+  ]}
+  explain="The return type `[number, number]` says exactly two numbers come back, the smallest first. Without it, TypeScript would infer `number[]`, a list of any length, so the checker could not catch someone reading a third item. The tuple makes the length part of the promise."
+>
+Add types to `minMax`, so it takes a list of numbers and gives back a pair: the smallest, then the largest.
+</Practice>
+
+<Practice
+  number={3}
+  title="Pad on the left"
+  file="lesson4-functions"
+  start="pad-left-start"
+  solution="pad-left"
+  hints={[
+    "The first two parameters are required. Their kinds are text and a number.",
+    "`fill` can be left out. Give it a default of a single space, written `fill = \" \"`.",
+    "Now the `||` trick is not needed. A default only applies when the argument is missing. Remember that an empty fill is a real fill.",
+  ]}
+  explain="`text: string` and `width: number` are required. `fill = ' '` is a default, so TypeScript infers it as a string and callers may leave it out. A default replaces only a missing argument, so passing an empty text as the fill is respected. The old `fill || ' '` replaced an empty fill too, which was a quiet bug."
+>
+Add types to `padLeft`, and use a default parameter for `fill` instead of the `||` trick. `padLeft("7", 3, "0")` is "007", and `padLeft("7", 3)` is "  7".
+</Practice>
+
+<Part id="interview" heading="Arrays and functions in [interview]" sub="Syntax, tuples, and the optional versus default question." />
+
+These are the questions that sound easy and have a small catch.
+
+- **"How do you type an array?"** `number[]`, or `Array<number>`. They mean the same thing.
+- **"What is a tuple?"** An array with a fixed length and a known type at each position, such as `[string, number]`. Use it for short, ordered pairs.
+- **"What is the difference between an optional and a default parameter?"** An optional parameter (`last?: string`) may be `undefined` inside the function, so you check it. A default parameter (`greeting = "Hello"`) is filled in with a value when it is missing, so it is never `undefined` inside.
+- **"Do you always write the return type?"** No. TypeScript infers it. Many teams write it for public functions as documentation, and it makes the checker verify the promise.
+- **"What does `void` mean as a return type?"** The function doesn't return anything useful. It is used for functions that only do something, such as printing.
+- **"What is a rest parameter?"** `...numbers: number[]` gathers any number of extra arguments into an array.
+- **"How does TypeScript know the type of a callback's parameter?"** From where the callback is used. In `prices.map((price) => ...)`, `prices` is a `number[]`, so `price` is a number.
+- **"What does `readonly string[]` do?"** It stops you from changing the array through that name: no `push`, no assigning to an index.
+- **Say it simply.** "`T[]` for lists, `[A, B]` for fixed pairs, label the inputs, and let the return type be inferred" covers it.
