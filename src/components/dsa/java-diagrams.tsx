@@ -344,3 +344,65 @@ export function JavaLinkedListDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 5: an iterator remembers the list's version, and notices a change. */
+export function IteratingDiagram() {
+  const left = 90;
+  const w = 100;
+  const items = ["Asha", "Ravi", "Meera", "Kiran"];
+
+  return (
+    <Figure
+      id="iterating"
+      title="An iterator keeps a copy of the list's version and compares it on every step"
+      caption="The iterator wrote down the list's version when it started. Remove an item behind its back and the two numbers disagree, so the next step stops with a ConcurrentModificationException."
+      viewBox="0 0 720 260"
+    >
+      <text x={left} y={34} fontSize={10} className={faint}>
+        THE LIST
+      </text>
+      {items.map((v, i) => (
+        <g key={v}>
+          <rect
+            x={left + i * w}
+            y={46}
+            width={w}
+            height={42}
+            className={i === 1 ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+            strokeWidth={i === 1 ? 1.8 : 1}
+          />
+          <text x={left + i * w + w / 2} y={72} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+            {v}
+          </text>
+        </g>
+      ))}
+      <line x1={left + w * 1.5} x2={left + w * 1.5} y1={128} y2={94} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={left + w * 1.5} y={92} dir="up" />
+      <text x={left + w * 1.5} y={146} textAnchor="middle" fontSize={12} className="font-mono fill-survey">
+        iterator is here
+      </text>
+
+      <rect x={left} y={176} width={190} height={44} className="fill-panel stroke-line" strokeWidth={1} />
+      <text x={left + 95} y={196} textAnchor="middle" fontSize={11} className={label}>
+        list version
+      </text>
+      <text x={left + 95} y={212} textAnchor="middle" fontSize={13} className="font-mono fill-warn">
+        5
+      </text>
+      <text x={left + 224} y={204} textAnchor="middle" fontSize={20} className="font-mono fill-warn">
+        !=
+      </text>
+      <rect x={left + 258} y={176} width={190} height={44} className="fill-panel stroke-line" strokeWidth={1} />
+      <text x={left + 353} y={196} textAnchor="middle" fontSize={11} className={label}>
+        iterator&apos;s copy
+      </text>
+      <text x={left + 353} y={212} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+        4
+      </text>
+      <text x={left + 480} y={202} fontSize={11} className="font-mono fill-warn">
+        next() stops here
+      </text>
+      <Dimension x1={left} x2={left + 4 * w} y={244} text="someone removed an item behind the loop's back" />
+    </Figure>
+  );
+}
