@@ -14,6 +14,10 @@
  *    which error it ends with, in a `// expect-throw: TypeError` line.
  * 4. A .ts file runs under Node's built-in type stripping, which lesson 1
  *    teaches.
+ * 5. Every file in ts/the-switch/jsdoc/ is JavaScript with JSDoc types, checked
+ *    as JavaScript (allowJs and checkJs, with strict on), which lesson 10
+ *    teaches. A file with the expect-error headers must fail exactly as it
+ *    says. Every other file must be clean, and must also run.
  *
  * It uses the TypeScript compiler's own API rather than the `tsc` command, so
  * one run checks every file and reports error codes as data.
@@ -144,6 +148,49 @@ else if (stripped.stdout.trim() !== "HELLO, TYPESCRIPT!") {
   fail(rel(strip), `printed ${JSON.stringify(stripped.stdout.trim())} under type stripping`);
 }
 
+// --- 5. JavaScript with JSDoc types ----------------------------------------------
+
+const jsdocDir = join(dir, "jsdoc");
+const jsdocFiles = readdirSync(jsdocDir)
+  .filter((f) => f.endsWith(".js"))
+  .map((f) => join(jsdocDir, f));
+const jsdocOptions = { ...options, allowJs: true, checkJs: true };
+
+for (const file of jsdocFiles) {
+  const where = rel(file);
+  const source = readFileSync(file, "utf8");
+  const code = /^\/\/ expect-error: TS(\d+)\s*$/m.exec(source)?.[1];
+  const message = /^\/\/ expect-message: (.+?)\s*$/m.exec(source)?.[1];
+  const found = ts.getPreEmitDiagnostics(ts.createProgram([file], jsdocOptions));
+
+  if (!code) {
+    for (const d of found) fail(where, `JSDoc file has a type error: ${describe(d)}`);
+    const run = spawnSync(process.execPath, [file], { encoding: "utf8", cwd: jsdocDir });
+    if (run.status !== 0) fail(where, `crashed:
+${run.stderr}`);
+    continue;
+  }
+
+  const marked = source
+    .split(/\r?\n/)
+    .map((line, i) => (/\/\/ @error\s*$/.test(line) ? i + 1 : 0))
+    .filter(Boolean);
+  const codes = [...new Set(found.map((d) => d.code))];
+  if (found.length === 0) fail(where, `expected TS${code}, but the file checks cleanly`);
+  else if (codes.length !== 1 || codes[0] !== Number(code)) {
+    fail(where, `expected exactly TS${code}, got ${codes.map((c) => `TS${c}`).join(", ")}`);
+  } else {
+    if (message && flat(found[0].messageText) !== message) {
+      fail(where, `the message changed.
+      expected: ${message}
+      got:      ${flat(found[0].messageText)}`);
+    }
+    if (marked.length !== 1 || found.some((d) => lineOf(d) !== marked[0])) {
+      fail(where, `the error must be on the one line ending in "// @error"`);
+    }
+  }
+}
+
 // --- report -------------------------------------------------------------------------
 
 if (failures.length) {
@@ -154,5 +201,5 @@ if (failures.length) {
 console.log(
   `The Switch snippets: ${lessonFiles.length} TypeScript files strict-clean, ` +
     `${errorFiles.length} expected errors confirmed (code, line and message), ` +
-    `${jsFiles.length} JavaScript files parse and run, type stripping runs.`,
+    `${jsFiles.length} JavaScript files parse and run, ${jsdocFiles.length} JSDoc files checked as JavaScript, type stripping runs.`,
 );

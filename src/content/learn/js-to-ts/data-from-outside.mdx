@@ -1,0 +1,207 @@
+---
+title: Data from outside
+sub: Check the parcel at the door before you sign for it.
+description: Types vanish when the program runs, so data from a server or a file needs a check. Learn unknown versus any, how to type fetch, and how to check JSON with a small hand-written type guard, with no library.
+order: 9
+part: 1
+updated: 2026-10-17
+slug: data-from-outside
+---
+
+<Part id="hook" heading="Sign at the [door]" sub="A parcel's label is a claim. Open it before you trust it." />
+
+A courier rings your bell. The parcel's label says "Books, handle with care". You sign, take it in, and open it later. Inside there is a pressure cooker.
+
+The label was only a claim. The sender wrote it, and nobody checked. If you needed books, you found out too late.
+
+Your TypeScript types are labels like that. Inside your own code, the checker looks at every parcel. But data that arrives from **outside** is different. A reply from a server. A file you read. Text a user typed. Whatever `JSON.parse` gives you. Your program didn't build these, so it can't know what is inside.
+
+Here is the catch from lesson 0, now in full. Types exist only while you write the code. When the program runs, they are gone. The checker is not there at the door. So if you write "this is an `Order`" about data from a server, you have only written a label. You didn't check the parcel.
+
+The honest approach is to treat outside data as **unknown**, and open it at the door. You check its shape at runtime, with ordinary code, and only then call it an `Order`. This lesson shows how, in a small amount of code, with no library.
+
+**Remember:** types are labels, and labels can lie. Data from outside has to be checked by code that runs.
+
+<Part id="js" heading="Believing the [label]" sub="JavaScript takes the parcel as it comes." />
+
+Here is a reply from a server, as text. It is meant to be an order with a number `id`, but this one carries the `id` as text.
+
+<Snippet file="lesson9-outside" name="trust" js />
+
+```text
+71
+```
+
+We wanted `7 + 1`, which is 8. But the id arrived as the text `"7"`, so `+` joined the two and gave `"71"`. JavaScript had no way to tell us.
+
+The same thing happens with `fetch`, the built-in function that asks a server for data. Its answer has a `.json()` method that turns the reply into an object.
+
+<Snippet file="lesson9-outside" name="load-order" js />
+
+If the server sends an order with no `item`, the last line crashes on `undefined`. Whatever comes back is used as if it were right.
+
+**Remember:** in JavaScript every reply is used as is, so a wrong reply fails later, somewhere else, and not where it came in.
+
+<Part id="ts" heading="Unknown, then [checked]" sub="Let the type say 'I don't know yet'." />
+
+Now the same code with a type on top.
+
+<Compare file="lesson9-outside" name="trust" />
+
+Look closely. TypeScript said nothing, and the output is still `71`. The type says `order.id` is a `number`, and the data says otherwise. This is the trap. `JSON.parse` returns the type **`any`**, and `any` fits into every label, so the checker lets it through. The label was a lie, and the checker had no way to know.
+
+`any` is a hole in the checker. Anything you do with an `any` value is allowed, including things that crash.
+
+<Snippet file="lesson9-outside" name="any-hole" />
+
+That compiles. It crashes the moment it runs, because `"chai"` has no property called `nothing`.
+
+The safer partner is **`unknown`**. It means "a value of a kind I haven't found out yet". You can hold it, pass it around, and test it. But you can't use it until you check what it is.
+
+<Fails file="lesson9-unknown-use" />
+
+You also can't hand it to a place that wants a specific type.
+
+<Fails file="lesson9-unknown-assign" />
+
+Both errors are the checker saying "open the parcel first". And you open it with the narrowing from lesson 5.
+
+<Snippet file="lesson9-outside" name="unknown-checked" />
+
+```text
+CHAI
+21.0
+something else
+```
+
+Each `typeof` check narrows `value` from `unknown` to something real. So `unknown` is `any` with the safety on. That is why a good rule is: **data from outside is `unknown` until you check it.**
+
+**Remember:** `any` switches the checker off and `unknown` makes it wait for a check. Use `unknown` for anything you didn't make yourself.
+
+<Part id="how" heading="Write a [type guard]" sub="A small function that opens the parcel for you." />
+
+Checking each field by hand every time is tiring. So you write the check once, as a function that answers "is this an `Order`?". It has a special kind of return type called a **type predicate**, written `value is Order`. It tells TypeScript: "if this function says true, treat the value as an `Order` from then on". A function like this is called a **type guard**.
+
+<Snippet file="lesson9-outside" name="type-guard" />
+
+```text
+{ id: 7, item: 'chai' }
+undefined
+```
+
+Read the guard from the top. First, is it an object, and not `null`? (Remember `typeof null` is `"object"`.) Then, does it have an `id` property, and is that a number? Then the same for `item`. Only when every line passes does it return `true`.
+
+The `"id" in value` check does two jobs. It tests that the property is there, and it tells TypeScript the property can be read, so `typeof value.id` is allowed on a value that started as `unknown`.
+
+The second call in the example, where `id` was text, is turned away. The bad data stops at the door, and returns `undefined`, which the rest of the program must handle (lesson 6).
+
+**Lists** need one more step. Check it is a list, then check every item with the guard you already have.
+
+<Snippet file="lesson9-outside" name="guard-list" />
+
+```text
+true
+false
+false
+```
+
+**Fetch** is the same pattern. `response.json()` hands back an `any`, so the first thing you do is put it in an `unknown` variable. Then the guard does its work. Notice the `response.ok` check too. `fetch` only fails by itself when the network is down. A reply of "404 not found" arrives as a normal reply, and `ok` tells you whether the status was a success.
+
+<Snippet file="lesson9-outside" name="fetch-checked" />
+
+**Caught errors** are outside data as well. In strict mode, the `error` in `catch (error)` is `unknown`, because anything can be thrown. Check what it is before you use it.
+
+<Snippet file="lesson9-outside" name="catch-unknown" />
+
+```text
+{ id: 7, item: 'chai' }
+That was not valid JSON
+```
+
+`SyntaxError` is the error `JSON.parse` throws for text that isn't JSON. We check for that kind with `instanceof`, and rethrow anything else, because we don't know what it is.
+
+**Remember:** a type guard is a function that returns `value is Type`. It checks at runtime, and TypeScript trusts its answer afterwards.
+
+<Part id="watch" heading="Where guards [slip]" sub="Lying guards, quiet casts, and the check you skipped." />
+
+**A guard is only as honest as its body.** TypeScript trusts the promise in `value is Order` and never reads the code inside. This guard compiles, and it is useless.
+
+<Snippet file="lesson9-outside" name="lying-guard" />
+
+It says yes to anything, so the next line crashes. When you write a guard, test it with good data and with bad data. A wrong guard is worse than none, because everybody downstream believes it.
+
+**`as` is not a check.** Writing `data as Order` doesn't test anything. It tells the checker "trust me". It is the same as the label on the parcel. Lesson 11 covers when it is fair.
+
+**Check every field the code reads.** If you use `order.item`, the guard has to check that `item` is text. A guard that checks only `id` lets a missing `item` slip through.
+
+**Extra fields are fine, missing and wrong ones are not.** Your guard doesn't need to reject extra properties. The server may add new fields next year, and your code will keep working.
+
+**Big or growing shapes are tiring to guard by hand.** At some size, teams reach for a validation library. You don't need one to start, and now you know what it is doing for you.
+
+**Remember:** treat outside data as `unknown`, write a guard that checks everything you read, and test the guard.
+
+<Part id="practise" heading="Three parcels, [opened]" sub="A name, a train ticket, and a list of scores." />
+
+Each problem starts with a JavaScript function that trusts what it gets. Add the check.
+
+<Practice
+  number={1}
+  title="Read a name, safely"
+  file="lesson9-outside"
+  start="read-name-start"
+  solution="read-name"
+  hints={[
+    "The parameter should be `unknown`, because the data came from outside.",
+    "Check three things in a row: it is an object, it isn't `null`, and it has a `name` that is text.",
+    "Use `typeof data === \"object\" && data !== null && \"name\" in data && typeof data.name === \"string\"`. Return `undefined` when the check fails.",
+  ]}
+  explain="Starting from unknown forces the checks. Each part narrows the value a little more: object, then not null, then has name, then name is text. Only then is data.name known to be a string and toUpperCase allowed. The JavaScript version crashed on null and on a name that was a number."
+>
+Type `readName` so it takes `unknown`, gives the name in capitals when there is a text name, and gives `undefined` for anything else.
+</Practice>
+
+<Practice
+  number={2}
+  title="Check a train ticket"
+  file="lesson9-outside"
+  start="is-ticket-start"
+  solution="is-ticket"
+  hints={[
+    "Write the `Ticket` type first: a `coach` that is text and a `seat` that is a number.",
+    "Write `isTicket(value: unknown): value is Ticket`. Check the object, then each field's kind.",
+    "In `parseTicket`, put the parsed data in an `unknown` variable, and return it only when `isTicket` says yes. Otherwise return `undefined`.",
+  ]}
+  explain="The guard checks both fields, so a seat sent as the text '14' is turned away at the door. parseTicket keeps the parsed data as unknown until the guard says it is a Ticket. The JavaScript version handed back whatever came in, seat as text and all."
+>
+Write the `Ticket` type and an `isTicket` guard, and make `parseTicket` return a `Ticket` or `undefined`. The ticket whose seat is text should give `undefined`.
+</Practice>
+
+<Practice
+  number={3}
+  title="Load a list of scores"
+  file="lesson9-outside"
+  start="load-scores-start"
+  solution="load-scores"
+  hints={[
+    "Write a guard first: `isNumberList(value: unknown): value is number[]`.",
+    "`Array.isArray(value)` checks it is a list. Then `value.every(...)` checks each item is a number.",
+    "In `loadScores`, check `response.ok`, put `await response.json()` in an `unknown` variable, and return the data only when the guard says yes. Otherwise return an empty list.",
+  ]}
+  explain="The reply is unknown until the guard has looked at every item. A failed status, an object instead of a list, or a list with a text item all give an empty list, so the rest of the program can rely on getting numbers. The JavaScript version returned whatever json() gave."
+>
+Type `loadScores` so it always gives back a list of numbers. A bad status or a bad reply should give an empty list.
+</Practice>
+
+<Part id="interview" heading="Outside data in the [interview]" sub="unknown, any, guards, and the erased types." />
+
+This is the question that separates people who have used TypeScript on real projects from people who have only read about it.
+
+- **"What is the difference between `any` and `unknown`?"** Both accept any value. `any` also lets you do anything with it, with no checks. `unknown` lets you do nothing until you narrow it.
+- **"Does TypeScript check data at runtime?"** No. Types are erased when the code is compiled. Anything from a server, a file or user input needs a runtime check.
+- **"What does `JSON.parse` return?"** `any`. So assign it to `unknown` and check it.
+- **"What is a type guard?"** A function whose return type is a type predicate, such as `value is Order`. When it returns true, TypeScript narrows the value to that type.
+- **"How do you type a `fetch` call?"** The reply's `.json()` is `any`. Put it in `unknown`, validate it with a guard, and handle the case where it fails.
+- **"What does `fetch` do on a 404?"** It still resolves. You must check `response.ok`.
+- **"What type is the error in `catch`?"** `unknown`, in strict mode. Narrow it, for example with `instanceof Error`, before using it.
+- **"Is `as Order` a good way to type JSON?"** No, because it checks nothing. It is a promise you can't keep if the server changes.
+- **Say it simply.** "Types disappear at runtime, so I treat outside data as `unknown` and check it with a type guard" is a good answer.

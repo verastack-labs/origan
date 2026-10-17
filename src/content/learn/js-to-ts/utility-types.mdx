@@ -1,0 +1,241 @@
+---
+title: Utility types
+sub: Reshape a type you already have, instead of writing it again.
+description: Partial, Required, Pick, Omit, Record, Readonly and ReturnType explained with a profile form and a public card. Build new types from old ones, and see why a typo inside Omit is not caught.
+order: 8
+part: 1
+updated: 2026-10-17
+slug: utility-types
+---
+
+<Part id="hook" heading="One form, [many] versions" sub="Edit form, public card, price list: same data, different views." />
+
+Think about a signup form for a small app. It has four boxes: id, name, email and password. That is one shape, and you wrote it once as a type in lesson 3.
+
+Now the app needs more forms from the same data.
+
+The **edit form** lets a user change one box at a time. So every box becomes optional. The **public profile**, which other people see, must hide the password. The **price list** has one price for every drink on the menu, and not one drink may be forgotten.
+
+You could write a new type for each. Four boxes, copied and trimmed, three times. Then someone adds a "phone" box to the first type, and the other three go stale. This is the copy-and-paste trap.
+
+TypeScript gives you a better way. It ships with a toolbox of **utility types**: small, ready-made helpers that take a type you already have and give back a reshaped one. "Same as `User`, but every box optional." "Same as `User`, but without the password." You write the shape once, and the others follow it.
+
+**Remember:** a utility type is a built-in helper that makes a new type out of an old one, so you never copy a type by hand.
+
+<Part id="js" heading="Copies that [drift]" sub="JavaScript has no shape to reshape." />
+
+In JavaScript, an update function takes the user and a bag of changes. Nothing says which changes are allowed.
+
+<Snippet file="lesson8-utility" name="partial" js />
+
+```text
+Asha
+```
+
+We typed `nmae`, not `name`. The function happily added a new property called `nmae`. The name didn't change, and nobody was told.
+
+Hiding a password is worse. A function called `toPublic` should strip it out. It's easy to write one that doesn't.
+
+<Snippet file="lesson8-utility" name="omit" js />
+
+```text
+{ id: 1, name: 'Asha', email: 'asha@example.com', password: 'chai123' }
+```
+
+The "public" card shows the password. JavaScript has nothing that says "this object must not have that".
+
+And a price list with a missing drink is silent too.
+
+<Snippet file="lesson8-utility" name="record" js />
+
+```text
+undefined
+```
+
+**Remember:** in JavaScript, nothing connects the edit form, the public card and the price list to the original shape.
+
+<Part id="ts" heading="Reshape, don't [retype]" sub="Partial, Omit and Record catch the slips above." />
+
+Start with the edit form. `Partial<User>` means "a `User`, but every property is optional". The angle brackets are the generic syntax from lesson 7: a utility type is a generic type, and you pass it your type.
+
+<Compare file="lesson8-utility" name="partial" fail="lesson8-partial-typo" />
+
+The misspelled `nmae` is refused, and the error even mentions `Partial<User>`. A correct edit goes through.
+
+<Snippet file="lesson8-utility" name="partial-checked" />
+
+```text
+Asha Rao
+asha@example.com
+```
+
+Now the public card. `Omit<User, "password">` means "a `User`, without the `password`".
+
+<Compare file="lesson8-utility" name="omit" fail="lesson8-omit-password" />
+
+Now `PublicProfile` has no password property, so any code that reads one off a card is refused. That protects the readers. The writer still has to build the card properly, by really removing the password. Here is a version that does.
+
+<Snippet file="lesson8-utility" name="omit" />
+
+```text
+{ id: 1, name: 'Asha', email: 'asha@example.com' }
+```
+
+The `const { password, ...rest } = user` line pulls the password out and leaves the rest. This is plain JavaScript, called **destructuring with a rest**, and TypeScript types the rest correctly.
+
+Finally the price list. `Record<Drink, number>` means "an object with one `number` for every drink".
+
+<Compare file="lesson8-utility" name="record" fail="lesson8-record-missing" />
+
+Forget the lassi, and the checker names it. Add a fourth drink to the `Drink` type next year, and this price list turns red until you give it a price. That is the same safety as the `never` check in lesson 5.
+
+**Remember:** `Partial` makes everything optional, `Omit` takes properties away, and `Record` makes you fill in every key.
+
+<Part id="how" heading="The whole [toolbox]" sub="Seven helpers, each in one example." />
+
+Here is the set you will use most. Each takes the shape you have and gives back a new one.
+
+| Utility | What it gives you |
+| --- | --- |
+| `Partial<T>` | every property optional |
+| `Required<T>` | every property required |
+| `Pick<T, "a" \| "b">` | only the named properties |
+| `Omit<T, "a">` | everything except the named properties |
+| `Record<K, V>` | an object with every key `K`, each holding a `V` |
+| `Readonly<T>` | every property `readonly` |
+| `ReturnType<typeof f>` | whatever the function `f` gives back |
+
+**`Required`** is the opposite of `Partial`. It is useful when you fill in defaults, and want a type that promises nothing is missing afterwards.
+
+<Snippet file="lesson8-utility" name="required" />
+
+```text
+{ theme: 'dark', fontSize: 14 }
+{ theme: 'dark', fontSize: 18 }
+```
+
+**`Pick`** keeps only what you name. It is good for a small preview of a big type.
+
+<Snippet file="lesson8-utility" name="pick" />
+
+```text
+{ id: 1, name: 'Asha' }
+```
+
+Misspell a key in `Pick`, and you get an error, because `Pick` only accepts keys that exist.
+
+<Fails file="lesson8-pick-typo" />
+
+**`Readonly`** is lesson 3's `readonly`, applied to every property at once.
+
+<Compare file="lesson8-utility" name="readonly" fail="lesson8-readonly" />
+
+**`ReturnType`** borrows the result type of a function, so you never write it twice. It uses the word `typeof` in a type position, which means "the type of this thing". It's different from the `typeof` in lesson 5, which asked a question at runtime. This one is only for types.
+
+<Snippet file="lesson8-utility" name="return-type" />
+
+```text
+{ table: 4, items: [], paid: false }
+```
+
+If someone adds a field to `makeOrder` later, `OrderTicket` follows. No second place to edit.
+
+**Combine them.** Utility types stack, as you'd stack boxes. Here is "an edit form for only the name and email".
+
+<Snippet file="lesson8-utility" name="combine" />
+
+```text
+{ email: 'new@example.com' }
+```
+
+Read it from the inside out: `Pick` the two properties, then make them `Partial`.
+
+**How do they work?** There is no magic. `Partial` is a **mapped type**, a type that loops over the properties of another type and changes each one. This is the whole of it.
+
+<Snippet file="lesson8-utility" name="mapped" />
+
+`[K in keyof T]` means "for each property name `K` of `T`", and the `?` makes it optional. You will rarely write one, but it is good to know the helpers are only ordinary types.
+
+**Remember:** `Pick` and `Omit` are opposites, `Partial` and `Required` are opposites, and they stack from the inside out.
+
+<Part id="watch" heading="Four ways to get [fooled]" sub="Silent Omit, shallow Readonly, and friends." />
+
+**A typo in `Omit` is not an error.** This surprises everyone once. `Pick` checks its keys, but `Omit` doesn't.
+
+<Snippet file="lesson8-utility" name="omit-loose" />
+
+`Oops` still has the password. The wrong word removed nothing, and nothing complained. If a missing property would be a security slip, double check the spelling, or use `Pick` with the safe fields instead, because `Pick` lists what is allowed, and a typo there is caught.
+
+**`Readonly` is shallow.** It makes the top-level properties read-only. An object or list inside can still be changed.
+
+**`Partial` loosens everything.** A `Partial<User>` also allows `{}`, and also allows `{ name: undefined }`. If one field must always be there, build the type with `Pick` and `Partial` together, and keep that field required.
+
+**A `Record` with plain `string` keys trusts you.** `Record<string, number>` says any text is a key. Reading a key that isn't there gives `undefined` at runtime, but the type still says `number`. Use a list of exact words, as in `Record<Drink, number>`, when you can.
+
+**Remember:** `Omit` doesn't check its keys, `Readonly` is shallow, and `Partial` allows too much for fields that must exist.
+
+<Part id="practise" heading="Three forms, [reshaped]" sub="An update, a public card, and a price table." />
+
+Each problem starts with a JavaScript function that takes anything. Add types, and use a utility type.
+
+<Practice
+  number={1}
+  title="Change only what's given"
+  file="lesson8-utility"
+  start="patch-start"
+  solution="patch"
+  hints={[
+    "Describe the profile first, with `type Profile = { ... }`.",
+    "The changes are some of the properties, not all of them. That is what `Partial<Profile>` means.",
+    "`function patch(profile: Profile, changes: Partial<Profile>): Profile`. The call with `cty` should now be underlined. Remove it.",
+  ]}
+  explain="`Partial<Profile>` allows any subset of the profile's properties, and nothing else. The spread copies the old profile and then lays the changes over it. The typo `cty` is refused instead of being quietly added as a new property."
+>
+Type `patch` with a `Profile` type and `Partial<Profile>` for the changes. The call with the typo `cty` should be refused. Remove it.
+</Practice>
+
+<Practice
+  number={2}
+  title="A card without secrets"
+  file="lesson8-utility"
+  start="public-card-start"
+  solution="public-card"
+  hints={[
+    "Describe the account first: an id, a name, a phone and a password.",
+    "The card shows only the id and the name. That is the account `Omit`ting two properties.",
+    "Return `{ id: account.id, name: account.name }`. Building a new object means the secrets are really gone, not just hidden in the type.",
+  ]}
+  explain="`Omit<Account, 'phone' | 'password'>` is the type of a card with only the safe fields. The function builds a new object with just those two, so the phone and password are not carried along. The JavaScript version returned the whole account, secrets included."
+>
+Type `publicCard`, so it returns an account without the phone and the password, and really leaves them out.
+</Practice>
+
+<Practice
+  number={3}
+  title="Prices for every size"
+  file="lesson8-utility"
+  start="price-of-start"
+  solution="price-of"
+  hints={[
+    "The sizes are three exact words. Write them as a union: `type Size = \"small\" | \"medium\" | \"large\"`.",
+    "The table should have a price for every size. Type it as `Record<Size, number>`.",
+    "Give `priceOf` a `size: Size`. The call with `huge` should now be underlined. Remove it.",
+  ]}
+  explain="`Record<Size, number>` demands a price for every size, so adding a new size later makes the table fail until it is priced. Typing the parameter as `Size` means 'huge' is refused. In JavaScript it gave undefined."
+>
+Type the price table with `Record`, and `priceOf` with the `Size` union. The call with "huge" should be refused. Remove it.
+</Practice>
+
+<Part id="interview" heading="Utility types in the [interview]" sub="The helpers, how they work, and the Omit surprise." />
+
+You are rarely asked to write these from scratch. You are often asked to say what they do.
+
+- **"What is a utility type?"** A built-in generic type that makes a new type from an existing one, such as `Partial<T>` or `Pick<T, K>`.
+- **"What is the difference between `Pick` and `Omit`?"** `Pick` keeps the named properties. `Omit` removes them. `Pick` checks that the keys exist, and `Omit` doesn't.
+- **"How would you type an update function?"** Take a `Partial<T>` for the changes, and return a `T`.
+- **"What does `Record<K, V>` do?"** It builds an object type with keys `K` and values `V`. With a union of exact words as `K`, every key is required.
+- **"How is `Partial` implemented?"** A mapped type: `{ [K in keyof T]?: T[K] }`.
+- **"What does `ReturnType` do?"** It gives the type a function returns. It is used as `ReturnType<typeof myFunction>`.
+- **"Is `Readonly<T>` deep?"** No, only the top-level properties.
+- **"How do you make only some properties optional?"** Combine them: `Partial<Pick<T, "a">> & Omit<T, "a">`.
+- **Say it simply.** "Utility types reshape an existing type, so I write the shape once and derive the rest" is a good answer.

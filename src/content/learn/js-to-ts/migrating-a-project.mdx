@@ -1,0 +1,214 @@
+---
+title: Migrating a real project
+sub: Renovate the house one room at a time, and keep living in it.
+description: Move a real JavaScript project to TypeScript without stopping work. Use allowJs and checkJs, JSDoc types, file by file renames, the strictness ladder with a sample tsconfig progression, and @ts-expect-error.
+order: 10
+part: 1
+updated: 2026-10-17
+slug: migrating-a-project
+---
+
+<Part id="hook" heading="Renovate while you [live] there" sub="You can't move out. You fix one room at a time." />
+
+Your family has lived in the same house for twenty years. It needs work. The wiring is old, the bathroom leaks, and the kitchen is cramped.
+
+You could move out for a year, knock everything down, and rebuild. But you have jobs, school, and dinner to cook. Nobody does that. People do one room. This month the bathroom. Next month the kitchen. The house stays lived in the whole time, and each finished room is a room that stays finished.
+
+A real JavaScript project is that house. It has hundreds of files, and a team that must ship this week. A plan that says "stop everything and rewrite it in TypeScript" will fail, for a boring reason: nobody can afford to stop.
+
+The good news is that TypeScript was built for the room-by-room approach. JavaScript is already valid TypeScript, and the two kinds of file can live in one project. You turn the checker on gently, and turn it up as each room is done.
+
+This lesson is the plan. It has four moves: let TypeScript into the house, check your JavaScript without renaming anything, convert files one at a time, and climb a ladder of strictness.
+
+**Remember:** don't rewrite. Let TypeScript in, check a little, convert a file, and turn the dial up when a room is done.
+
+<Part id="js" heading="A house you can't [leave]" sub="The project runs today, and that is worth protecting." />
+
+Here is a small piece of a real project: a cart file. It is plain JavaScript. It runs, and it has no types at all.
+
+<Snippet file="lesson10-migrate" name="converted" js />
+
+```text
+30
+{ name: 'chai', price: 10 }
+```
+
+Nothing is wrong with it today. But the first time someone calls `lineTotal("10", 3)` or forgets that `findItem` may find nothing, nothing will warn them.
+
+Now picture 200 files like this one, with tests, a build, and a deadline. If every file had to be typed before anything shipped, the migration would never start.
+
+**Remember:** a working project has value. A migration should never put it at risk.
+
+<Part id="ts" heading="Four moves, one [room] at a time" sub="Let it in, check it, convert it, tighten it." />
+
+**Move 1: let TypeScript in.** Install TypeScript, as in lesson 1. Then make one setting in `tsconfig.json`: **`allowJs`**. It says "TypeScript files and JavaScript files may live in the same project". With only this, nothing is checked. Your project runs exactly as before. Here is the first rung of the ladder.
+
+<Snippet file="migrate/tsconfig.step1.json" name="config" />
+
+The `include` line says which folder TypeScript looks in. And `noEmit` means "check only". Your existing build tool still produces the code you run.
+
+**Move 2: check your JavaScript without renaming it.** Add **`checkJs`**. Now TypeScript reads your `.js` files and reports the mistakes it can find, even though they have no types. It works out what it can from the code, as lesson 2 showed.
+
+<Snippet file="migrate/tsconfig.step2.json" name="config" />
+
+On a big project, that might be too many errors at once. So you can leave `checkJs` off and ask for checking one file at a time, with a comment at the top of the file: `// @ts-check`. The opposite comment, `// @ts-nocheck`, says "skip this file for now".
+
+**Move 3: put types in comments.** A `.js` file can't have `: number` in it, because that isn't JavaScript. But it can have types in **JSDoc** comments, which are special comments that start with `/**`. Editors have understood them for years, and TypeScript reads them too.
+
+<Snippet jsdoc file="lesson10-jsdoc" name="jsdoc-checked" />
+
+```text
+30
+```
+
+Each `@param` gives a parameter its type, and `@returns` gives the result. The file is still plain JavaScript, so it runs anywhere, with no build step. And now the checker reads it.
+
+<Fails jsdoc file="lesson10-jsdoc-error" />
+
+For object shapes there is `@typedef`, which names a type, and `@type`, which labels a variable.
+
+<Snippet jsdoc file="lesson10-jsdoc" name="jsdoc-typedef" />
+
+```text
+{ name: 'chai', price: 10 }
+```
+
+**Move 4: convert a file.** When a file is ready, rename it from `.js` to `.ts`. The comments become real types. Just renaming is enough to see what is missing.
+
+<Compare file="lesson10-migrate" name="rename-first" fail="lesson10-rename-first" />
+
+Under `strict`, the bare parameters are refused. The checker wants a type for each. Now do the real conversion, with the types written out.
+
+<Compare file="lesson10-migrate" name="converted" />
+
+Same program, same output. The difference is the checker now knows what `lineTotal` takes, and that `findItem` may give back `undefined`.
+
+**Remember:** `allowJs` lets both kinds in, `checkJs` checks the old files, JSDoc adds types without renaming, and a rename to `.ts` is the last step for each file.
+
+<Part id="how" heading="The strictness [ladder]" sub="Five rungs. Each one finds more." />
+
+The best trick for a big migration is not to turn on `strict` on day one. You climb. Each rung turns on one more check, so the number of problems grows slowly and your team can fix them in small changes.
+
+We tried every rung on a small untyped cart file with a few real slips in it: a wrong call to a built-in method, parameters with no types, and a value that may be `undefined`. Here is what each rung reports.
+
+| Step | What you add | Problems found |
+| --- | --- | --- |
+| 1 | `allowJs` | 0, nothing is checked |
+| 2 | `checkJs` | 1, the wrong built-in call |
+| 3 | `noImplicitAny` | 6, now every untyped parameter is flagged too |
+| 4 | `strictNullChecks` | 7, now the value that may be missing |
+| 5 | `strict` | 7, and from now on, every new strict check is on |
+
+Steps 1 and 2 you have seen. Here are the others.
+
+**Step 3: `noImplicitAny`.** TypeScript stops quietly giving untyped things the type `any`, and asks you to say. This is the rung with the most work, because every untyped parameter needs a label. It is also the one that pays the most.
+
+<Snippet file="migrate/tsconfig.step3.json" name="config" />
+
+**Step 4: `strictNullChecks`.** This is lesson 6. Every value that might be `null` or `undefined` now has to be checked.
+
+<Snippet file="migrate/tsconfig.step4.json" name="config" />
+
+**Step 5: `strict`.** One switch for the whole family. When you reach it, you can delete the individual lines, and you also get the new strict checks that later versions of TypeScript add.
+
+<Snippet file="migrate/tsconfig.step5.json" name="config" />
+
+You don't have to move the whole project in lockstep. A common way is a **separate config for the finished rooms**, with a stricter `tsconfig` that includes only the converted folders, and a looser one for the rest. Finished rooms never slip backwards.
+
+**Which files first?** Start with the **leaves**: the small files that import nothing else from your project, such as helpers and constants. Once they are typed, the files that import them get better hints for free. Work inwards toward the big central files. Do not start with the biggest, scariest file.
+
+**When you can't fix it yet.** Sometimes an error is real, but the fix is a larger change than today allows. There is a comment for that: `@ts-expect-error`. It says "the next line has a known error, and I'm leaving it on purpose". It is better than `@ts-ignore` because TypeScript complains when the error goes away.
+
+<Fails file="lesson10-unused-expect" />
+
+That is exactly the right behaviour. The note tidies itself up once the problem is fixed. Always write a reason beside it, so the next person knows when to remove it.
+
+You can also use a temporary `any`, but say so loudly.
+
+<Snippet file="lesson10-migrate" name="temporary-any" />
+
+```text
+30
+```
+
+**Remember:** climb one rung at a time, start with the leaf files, and use `@ts-expect-error` with a reason for problems you can't fix today.
+
+<Part id="watch" heading="Ways a migration [stalls]" sub="Big bangs, hidden errors, and the any that stays." />
+
+**The big bang.** Renaming every file in one go produces thousands of errors, and one huge change nobody can review. It also blocks everyone else's work. Convert a few files per change.
+
+**A temporary `any` that stays.** Every `any` is a hole, and holes in the walls get forgotten. Search for them now and then. Some teams add a lint rule to forbid new ones.
+
+**Silencing instead of fixing.** `@ts-ignore` hides any error on the next line, including ones you haven't met yet. `@ts-expect-error` is safer, and a plain fix is best.
+
+**Thinking the build must change.** Many build tools, such as Vite, esbuild and Next.js, already read `.ts` files and strip the types, so they often need no change at all. In that setup, `tsc --noEmit` runs only as a check, often in CI (the automated tests that run on every change). Check what your build tool does before you change it.
+
+**Types that disagree with the data.** Converted code that reads a server's reply still needs the checks from lesson 9. A type on a file doesn't make the data match.
+
+**Remember:** small changes, no silent holes, and check what your build tool already does.
+
+<Part id="practise" heading="Three rooms, [renovated]" sub="Rename a file, mark a known gap, climb a rung." />
+
+Each problem starts with a JavaScript file. Convert it, as you would in a real migration.
+
+<Practice
+  number={1}
+  title="Rename and type"
+  file="lesson10-migrate"
+  start="rename-start"
+  solution="rename"
+  hints={[
+    "Start with the leaf: `discount` takes two numbers and gives back a number.",
+    "For `label`, name the object shape first: `type Product = { name: string; price: number }`.",
+    "Add `price: number, percent: number` and `: number` to `discount`, and `product: Product` and `: string` to `label`.",
+  ]}
+  explain="Both functions had no types, which strict mode refuses. discount reads two numbers and returns a number. label reads an object with a name and a price, so it gets a Product type, and returns text. The behaviour is unchanged. The checker now knows what each one takes."
+>
+Convert this file to TypeScript. Name the shape of a product, and label every parameter and result.
+</Practice>
+
+<Practice
+  number={2}
+  title="Mark a known gap"
+  file="lesson10-migrate"
+  start="expect-error-start"
+  solution="expect-error"
+  hints={[
+    "Type `legacyTotal` as `(prices: number[]): number`. That is what it is meant to take.",
+    "The last call passes a list of text. Now it is an error, and fixing it needs a bigger change.",
+    "Put `// @ts-expect-error` on the line above that call, with a short reason. The error is now acknowledged, and the file checks cleanly.",
+  ]}
+  explain="The function is typed for numbers, so the old caller with text is now an error. Fixing that caller is a separate change, so it is marked with @ts-expect-error and a reason. If someone fixes the caller, the directive becomes unused and TypeScript says so, which removes the note at the right moment."
+>
+Type `legacyTotal`, and mark the old caller that passes text with a `@ts-expect-error` and a reason, so the file checks cleanly.
+</Practice>
+
+<Practice
+  number={3}
+  title="Climb to strictNullChecks"
+  file="lesson10-migrate"
+  start="strict-null-start"
+  solution="strict-null"
+  hints={[
+    "Name the menu item type, and label the `menu` list with it.",
+    "`find` may find nothing, so `.price` on its answer is the error that rung 4 reports.",
+    "Use `?.price` so the answer is `number | undefined`, and say so in the return type.",
+  ]}
+  explain="With strictNullChecks, find gives back an item or undefined, so reading price straight off it is an error. The optional chain ?.price gives undefined when nothing was found, and the return type number | undefined says so. The caller can no longer forget to check."
+>
+Convert the file, and handle the item that may be missing, as the strictness rung 4 requires.
+</Practice>
+
+<Part id="interview" heading="Migration in the [interview]" sub="allowJs, checkJs, JSDoc, and the plan." />
+
+"How would you migrate a large project?" is a favourite for senior roles. A calm, small-steps answer is what people want to hear.
+
+- **"How would you migrate a large JavaScript codebase?"** Incrementally. Enable `allowJs`, then `checkJs` or `// @ts-check` per file. Convert leaf files first, climb the strictness ladder, and keep shipping the whole time.
+- **"What does `allowJs` do?"** It lets TypeScript include `.js` files in the project, so both kinds can live together.
+- **"What does `checkJs` do?"** It makes TypeScript report errors in JavaScript files too.
+- **"What is JSDoc, and how does TypeScript use it?"** Documentation comments with `@param`, `@returns` and `@type`. TypeScript reads them as types, so a `.js` file can be checked with no rename.
+- **"What is the difference between `@ts-ignore` and `@ts-expect-error`?"** Both silence the next line. `@ts-expect-error` itself becomes an error when the problem is gone, so it can't go stale.
+- **"What is `strict`?"** A switch that turns on a family of checks, including `noImplicitAny` and `strictNullChecks`.
+- **"Which files do you convert first?"** Leaf files: the ones with few or no imports from your own code.
+- **"Do you have to change the build?"** Often not. Many tools strip types already, and `tsc --noEmit` is only the checker.
+- **Say it simply.** "Let TypeScript in with `allowJs`, check a little at a time, convert leaf files first, and tighten one rung at a time" is a good answer.

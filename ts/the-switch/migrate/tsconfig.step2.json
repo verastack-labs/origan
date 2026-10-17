@@ -1,0 +1,14 @@
+// Step 2: check the JavaScript too, but only for plain mistakes.
+// region: config
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": false,
+    "noEmit": true,
+    "target": "ES2022",
+    "module": "NodeNext"
+  },
+  "include": ["src"]
+}
+// endregion

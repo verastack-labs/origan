@@ -58,3 +58,24 @@ export const switchParts = [
   { id: "practise", label: "Practise" },
   { id: "interview", label: "Interview notes" },
 ] as const;
+
+/**
+ * Lesson 12 is a reference page, not a seven-part lesson, so its "parts" are
+ * the topic groups of the sheet. The sidebar, the contents block and the
+ * anchors all read them from here. Each links back to the lessons it sums up.
+ */
+export const cheatSheetParts = [
+  { id: "basics", label: "Basics" },
+  { id: "shapes", label: "Objects, arrays, tuples" },
+  { id: "functions", label: "Functions" },
+  { id: "unions", label: "Unions and narrowing" },
+  { id: "missing", label: "Missing values" },
+  { id: "generics", label: "Generics" },
+  { id: "utility", label: "Utility types" },
+  { id: "outside", label: "Data from outside" },
+  { id: "migrating", label: "Migrating" },
+  { id: "hatches", label: "Escape hatches" },
+] as const;
+
+/** The lessons that are laid out in their own way, by slug. */
+export const switchLessonParts = { "the-cheat-sheet": cheatSheetParts } as const;

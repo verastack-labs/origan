@@ -1,0 +1,292 @@
+---
+title: The cheat sheet
+sub: Every pattern in the course, on one page you can print.
+description: A one-page reference for moving from JavaScript to TypeScript. Every pattern from the course as a short JavaScript and TypeScript pair, grouped by topic, with a link back to the lesson that explains it.
+order: 12
+part: 1
+updated: 2026-10-17
+slug: the-cheat-sheet
+---
+
+This page is for later. You have been through the lessons, and now you want the answer to "how do I write that again?" in ten seconds.
+
+Each row shows the JavaScript you know on the left and the TypeScript it becomes on the right, with the lines that differ tinted. Every row is real code that was type-checked and tested, like the lessons. Each row names the lesson that explains it, so you can go back for the reasons.
+
+Two lessons have no rows, because they have no code to compare. [Lesson 0](/learn/js-to-ts/why-switch/) is the honest list of what you gain and what it costs. [Lesson 1](/learn/js-to-ts/setting-up/) is setup. These are the commands from it.
+
+| You want to | Type this |
+| --- | --- |
+| Add TypeScript to a project | `npm i -D typescript` |
+| Make a `tsconfig.json` | `npx tsc --init` |
+| Check without producing files | `npx tsc --noEmit` |
+| Run a `.ts` file with Node's type stripping | `node file.ts` |
+
+Use the contents list to jump between groups. To keep a copy, print the page or save it as a PDF. The header, the sidebar and the buttons are left out of the printout.
+
+<PrintButton />
+
+<Part id="basics" heading="Start [here]" sub="Setup, labels, and letting TypeScript work it out." />
+
+<CheatRow file="lesson12-cheatsheet" name="annotate" title="Label a variable" lesson="2">
+
+A colon and a type. You rarely need to, because TypeScript works the type out from the value.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="infer" title="Let inference do it" lesson="2">
+
+No label needed when the value says it all. The comments show what TypeScript worked out.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="reassign" fail="lesson2-reassign" title="A variable keeps its type" lesson="2">
+
+The first value decides the type, so a later value of another kind is refused.
+
+</CheatRow>
+
+<Part id="shapes" heading="Objects, arrays, [tuples]" sub="The shape of your data, written once." />
+
+<CheatRow file="lesson12-cheatsheet" name="object-type" title="Name an object's shape" lesson="3">
+
+A `type` lists the properties and their kinds. An `interface` works too.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="optional" title="Optional and read-only" lesson="3">
+
+`?` means may be missing. `readonly` means set once, never changed.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="readonly" fail="lesson3-readonly" title="Changing a read-only property" lesson="3">
+
+The checker refuses the assignment. It is a promise to your teammates, and it is gone when the code runs.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="array" title="A list of one kind" lesson="4">
+
+`number[]`, or `Array<number>`. Pushing the wrong kind is refused.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="tuple" title="A fixed list, by position" lesson="4">
+
+Each position has its own type, and names make it readable.
+
+</CheatRow>
+
+<Part id="functions" heading="Functions, [labelled]" sub="Inputs, outputs, defaults and callbacks." />
+
+<CheatRow file="lesson12-cheatsheet" name="fn-types" title="Label inputs and the result" lesson="4">
+
+Label the parameters. The return type can be left to inference, but many teams write it for public functions.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="fn-defaults" title="Default and optional parameters" lesson="4">
+
+A default value gives the type for free. A `?` parameter may be `undefined` inside.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="fn-callback" title="Describe a function" lesson="4">
+
+`(n: number) => number` reads: takes a number, gives a number. Name it with `type` to reuse it.
+
+</CheatRow>
+
+<Part id="unions" heading="Unions and [narrowing]" sub="One of several, and how to find out which." />
+
+<CheatRow file="lesson12-cheatsheet" name="union" title="Text or a number" lesson="5">
+
+`A | B` means one of them. Check with `typeof` before using what only one has.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="in-narrow" title="Has this property?" lesson="5">
+
+The `in` operator tells TypeScript which member of the union you hold.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="discriminated" title="A kind field" lesson="5">
+
+Give every member a `kind` with an exact word. A `switch` on it narrows to one member.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="never" title="Check every case was handled" lesson="5">
+
+In `default`, pass the value to a function that takes `never`. A missing case becomes an error.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="literal-union" title="A few exact words" lesson="5">
+
+A union of words works like a small enum, with nothing added to your JavaScript.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="bad-literal" fail="lesson5-bad-literal" title="A word that is not on the list" lesson="5">
+
+The editor offers the allowed words as you type, and refuses the rest.
+
+</CheatRow>
+
+<Part id="missing" heading="Missing [values]" sub="null and undefined, handled before they bite." />
+
+<CheatRow file="lesson12-cheatsheet" name="find" title="Check what find returns" lesson="6">
+
+`find` gives the item or `undefined`. Look first, then use.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="maybe-undefined" fail="lesson6-possibly-undefined" title="Reaching into a maybe" lesson="6">
+
+The checker stops you at the dot, where JavaScript crashes later.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="optional-chain" title="Stop at the first empty box" lesson="6">
+
+`?.` gives `undefined` instead of crashing. The result type says it may be missing.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="nullish" title="Fallback for missing, not for zero" lesson="6">
+
+`??` replaces only `null` and `undefined`. `||` also replaces `0`, empty text and `false`.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="non-null" title="The bang, with a proof" lesson="6">
+
+`!` is a promise. Use it only when the line above proves the value is there.
+
+</CheatRow>
+
+<Part id="generics" heading="Generics, [just enough]" sub="One function for many types." />
+
+<CheatRow file="lesson12-cheatsheet" name="generic-fn" title="A blank type" lesson="7">
+
+`<T>` is a blank filled in from the arguments, so the output keeps the input's type.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="bad-constraint" fail="lesson7-constraint" title="Limit the blank" lesson="7">
+
+`T extends { length: number }` means any type that has a length.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="generic-type" title="A type with a blank" lesson="7">
+
+`Box<number>` fills the blank. `Array<T>`, `Map<K, V>` and `Promise<T>` work the same way.
+
+</CheatRow>
+
+<Part id="utility" heading="Utility [types]" sub="Reshape a type you already have." />
+
+<CheatRow file="lesson12-cheatsheet" name="partial-typo" fail="lesson8-partial-typo" title="Partial: every property optional" lesson="8">
+
+Good for update functions. A misspelled key is refused.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="pick-omit" title="Pick and Omit" lesson="8">
+
+`Pick` keeps the named properties. `Omit` removes them, and does not check the spelling of its keys.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="record" title="Record: a value for every key" lesson="8">
+
+With a union of words as the key, none may be forgotten.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="return-type" title="ReturnType: borrow a result type" lesson="8">
+
+`typeof` in a type position means the type of that value. Also see `Required` and `Readonly`.
+
+</CheatRow>
+
+<Part id="outside" heading="Data from [outside]" sub="Check the parcel at the door." />
+
+<CheatRow file="lesson12-cheatsheet" name="unknown-use" fail="lesson9-unknown-use" title="unknown must be checked" lesson="9">
+
+`any` lets everything through. `unknown` waits for a check.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="unknown" title="Narrow an unknown" lesson="9">
+
+A `typeof` check turns `unknown` into something you can use.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="guard" title="A type guard" lesson="9">
+
+`value is Ticket` tells TypeScript what a true answer means. A guard that lies is worse than none.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="fetch" title="Check what fetch gives back" lesson="9">
+
+`response.json()` is `any`. Put it in `unknown` and check it before use.
+
+</CheatRow>
+
+<Part id="migrating" heading="Migrating, [step by step]" sub="Let it in, check a little, convert a file." />
+
+<CheatRow file="lesson12-cheatsheet" name="rename" title="Rename a file, add types" lesson="10">
+
+Rename `.js` to `.ts`, then label the parameters. Climb the strictness ladder one rung at a time.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="expect-error" title="A known gap, written down" lesson="10">
+
+`@ts-expect-error` says the next line is known to fail, and complains when it stops failing.
+
+</CheatRow>
+
+<Part id="hatches" heading="Escape [hatches]" sub="Passes that skip the checker, not the crash." />
+
+<CheatRow file="lesson12-cheatsheet" name="as-const" title="as const: exact and fixed" lesson="11">
+
+Keeps the exact words and makes the properties read-only. It tells the checker more, not less.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="satisfies" title="satisfies: check, keep the keys" lesson="11">
+
+Checks a value against a type without widening it.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="satisfies-miss" fail="lesson11-satisfies" title="A key that is not there" lesson="11">
+
+The exact keys are remembered, so a missing one is an error.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="union-not-enum" title="A union, not an enum" lesson="11">
+
+An enum becomes real JavaScript and Node cannot strip it. A union is only a type.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="cast" title="Check instead of cast" lesson="11">
+
+A check proves the kind. A cast only claims it.
+
+</CheatRow>
+
+<CheatRow file="lesson12-cheatsheet" name="bad-cast" fail="lesson11-bad-cast" title="A cast between strangers" lesson="11">
+
+Even `as` is refused between unrelated types. Going through `unknown` forges the pass, so avoid it.
+
+</CheatRow>

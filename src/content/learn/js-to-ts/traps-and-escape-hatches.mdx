@@ -1,0 +1,264 @@
+---
+title: Traps and escape hatches
+sub: Passes that skip the queue, and the checker you meet anyway.
+description: When to use any, as, the non-null bang and satisfies, and when not to. Enums versus union types and why this guide prefers unions, the object versus {} trap, and a short list of what to avoid.
+order: 11
+part: 1
+updated: 2026-10-17
+slug: traps-and-escape-hatches
+---
+
+<Part id="hook" heading="A pass that skips the [queue]" sub="It gets you past the counter. The ticket checker is still on the train." />
+
+At a busy railway station, the booking counter has a long queue. Now imagine a pass that lets you walk past the queue and straight onto the platform. Very handy. You save an hour.
+
+But the pass only skips the **counter**. On the train, the ticket checker still walks down the aisle. If your ticket is wrong, you find out there, with everyone watching, and not at the counter where it was cheap to fix.
+
+TypeScript has passes like this. They are called **escape hatches**: ways to tell the checker "let me through, I know what I'm doing". There are a handful: `any`, `as`, `!`, and a few comments. Each one switches off a check, for one value or one line.
+
+They are not evil. Real projects need them, now and then. Without them, some honest code could not be written at all. The trouble is that each pass skips only the checker. It never makes the code correct. When the pass is wrong, the crash comes at runtime, which is exactly where TypeScript was supposed to keep you safe.
+
+This lesson shows each pass, what it skips, when it is fair, and the ticket checker waiting after it. It also covers two traps that are not passes at all: enums, and the types `object` and `{}`.
+
+**Remember:** an escape hatch skips the checker, not the crash. Use one only when you can say why it is safe.
+
+<Part id="js" heading="The same crash, [no pass] needed" sub="In JavaScript every line already has the pass." />
+
+In JavaScript, there is no counter at all. Everything gets the pass. Here is a function that shouts a word.
+
+<Snippet file="lesson11-traps" name="any-pass" js />
+
+```text
+CHAI
+TypeError: text.toUpperCase is not a function
+```
+
+The second call passes a number. Nothing at the counter. The crash is on the train.
+
+The same thing happens with data. We read some JSON and use it as a user, but the data has no `age`.
+
+<Snippet file="lesson11-traps" name="as-pass" js />
+
+```text
+Asha
+TypeError: Cannot read properties of undefined (reading 'toFixed')
+```
+
+**Remember:** JavaScript is one big pass. TypeScript's job is to bring the counter back, and the escape hatches are how you put the pass back, one place at a time.
+
+<Part id="ts" heading="The four [passes]" sub="any, as, !, and the double cast." />
+
+**Pass 1: `any`.** The widest pass. A value of type `any` can be used as anything: you can call it, read from it, pass it anywhere. Here is the shout function with the label `any`.
+
+<Snippet file="lesson11-traps" name="any-pass" />
+
+```text
+CHAI
+```
+
+It compiles with no complaint, and the second call crashes, as in JavaScript. Nothing was checked. Now compare with the honest label.
+
+<Compare file="lesson11-traps" name="any-pass" fail="lesson11-any-fixed" />
+
+With `text: string`, the call with `42` is refused at the counter. `any` is also **contagious**: a value that touches an `any` often becomes `any` itself, so one pass can quietly spread across a file. Prefer `unknown`, from lesson 9, which makes you check first.
+
+**Pass 2: `as`.** A **type assertion** (a cast) tells the checker "treat this value as this type". It changes nothing at runtime. It only changes what the checker believes.
+
+<Snippet file="lesson11-traps" name="as-pass" />
+
+```text
+Asha
+```
+
+The checker believes `data` is a `User`, so `user.age.toFixed(0)` compiles. At runtime there is no `age`, and the crash comes. This is lesson 9 again: `as` is the label on the parcel, not the check at the door.
+
+But the checker still looks at casts in one case. It refuses when the two types have nothing in common.
+
+<Fails file="lesson11-bad-cast" />
+
+The message even tells you the way around: go through `unknown` first. That is the double cast.
+
+**Pass 3: the double cast, `as unknown as T`.** This is the forged pass. It works on anything, and the checker believes it.
+
+<Snippet file="lesson11-traps" name="double-cast" />
+
+```text
+string
+```
+
+The variable is typed as a `number`, and holds text. If you ever write this, add a comment saying why. In most code it is a sign that the types need fixing.
+
+**Pass 4: the bang, `!`.** From lesson 6: the non-null assertion says "this is not `null` or `undefined`".
+
+<Snippet file="lesson11-traps" name="bang-pass" />
+
+`find` found no Meena, so `found` is `undefined`, and the call crashes. The `!` only hid the warning. It's fair when the line above proves the value is there, and unfair when it is a hope.
+
+**Remember:** `any` switches the checker off, `as` overrules it, `!` silences it, and a double cast forges a pass. None of them checks the data.
+
+<Part id="how" heading="When a pass is [fair]" sub="as const, satisfies, and a casting rule of thumb." />
+
+Some escape hatches are not really escapes. They tell the checker *more*, not less.
+
+**`as const`.** It says "treat this literal as exactly what it says, and don't change it". The exact words stay exact (lesson 5), and the properties become `readonly`.
+
+<Snippet file="lesson11-traps" name="as-const" />
+
+```text
+chai
+```
+
+**`satisfies`.** This checks a value against a type, without changing the value's own type. You get the check of a label and the exact keys of the value.
+
+<Snippet file="lesson11-traps" name="satisfies" />
+
+```text
+10
+```
+
+If you had written `const prices: Prices = ...`, TypeScript would only remember "a record of any text key", and `prices.lassi` would pass as a number. With `satisfies`, a missing key is an error.
+
+<Fails file="lesson11-satisfies" />
+
+**A cast to a DOM element.** The web page is outside TypeScript's sight, so it can't know that the element with id `quantity` is an input box. Here an `as` is fair, because you really do know your own HTML.
+
+<Snippet file="lesson11-traps" name="dom-cast" />
+
+Even so, the honest version checks first, with `instanceof HTMLInputElement`.
+
+Here is a rule of thumb for deciding.
+
+| Pass | Fair when | Avoid when |
+| --- | --- | --- |
+| `any` | a quick first pass in a migration, with a TODO | it can be `unknown` or a real type |
+| `as` | you know something the checker can't, such as your own HTML | it replaces checking data from outside |
+| `!` | the line above proves the value is there | it is a hope |
+| `as const`, `satisfies` | nearly always | (these add information, not remove it) |
+
+**Remember:** passes that tell the checker more, like `as const` and `satisfies`, are safe. Passes that tell it to look away, like `any` and `!`, need a reason.
+
+<Part id="watch" heading="Two traps that aren't [passes]" sub="Enums, and the types object and {}." />
+
+**Enums.** An **enum** is a built-in way to name a set of related values. Many tutorials and other languages use them.
+
+<Snippet file="lesson11-traps" name="enum" />
+
+```text
+20
+```
+
+A union of exact words does the same job, with less baggage.
+
+<Snippet file="lesson11-traps" name="union" />
+
+```text
+20
+```
+
+This guide prefers the union, for these reasons.
+
+- **An enum is real code.** Types vanish at runtime, but an enum doesn't. It becomes an object in your JavaScript. This is what the first line of that enum turns into.
+
+<Snippet js file="lesson11-traps" name="enum-output" />
+
+- **Node can't strip it.** Lesson 1 showed Node running `.ts` files by erasing the types. That only works when removing the types leaves valid JavaScript, and an enum leaves nothing to remove, so Node refuses it. A union is only a type, so it strips cleanly.
+- **A numeric enum is too trusting.** Any number is accepted where the enum is wanted.
+
+<Snippet file="lesson11-traps" name="enum-loose" />
+
+```text
+7
+```
+
+There is no drink number 7. The checker allows it anyway.
+
+- **A union reads as what it is.** In the editor, `"chai"` is what you see, and what you type. With a numeric enum, you see `0`.
+
+Enums aren't banned. Existing code has them, and that's fine. For new code, a union is the simpler default.
+
+**`object` and `{}`.** These look like "any object", and they are not.
+
+<Snippet file="lesson11-traps" name="braces" />
+
+The type `{}` means "any value that is not `null` or `undefined`". A number and a piece of text both fit, which is rarely what you meant. The lowercase `object` means "something that isn't a basic value".
+
+<Fails file="lesson11-object-primitive" />
+
+If you want "an object with keys I don't know yet", the clearest type is `Record<string, unknown>`.
+
+<Snippet file="lesson11-traps" name="plain-object" />
+
+```text
+2
+```
+
+**A last short list of what to avoid.** Capital-letter types like `Object`, `String` and `Function` (use `object`, `string` and a real function type). A `@ts-ignore` where `@ts-expect-error` would do (lesson 10). A `// @ts-nocheck` at the top of a file you mean to fix. And any cast whose reason you can't say out loud.
+
+**Remember:** prefer a union of words to an enum, `object` to `{}`, and `Record<string, unknown>` for a bag of keys.
+
+<Part id="practise" heading="Three passes, [earned]" sub="Replace any, replace an enum, use satisfies." />
+
+Each problem starts with JavaScript that has the loose version of something. Make it honest.
+
+<Practice
+  number={1}
+  title="Unknown instead of any"
+  file="lesson11-traps"
+  start="length-of-start"
+  solution="length-of"
+  hints={[
+    "The input can be anything, so type it as `unknown`, not `any`.",
+    "Use `typeof value === \"string\" || Array.isArray(value)` to find the values that have a length.",
+    "Inside that check, `value.length` is allowed. Return `0` for everything else.",
+  ]}
+  explain="unknown accepts every value but lets you do nothing with it until you check. After the check, TypeScript knows value is a string or a list, so length is allowed. The JavaScript version gave undefined for a number and crashed for null. This one answers 0 for both."
+>
+Type `lengthOf` so it accepts anything, gives the length of text or a list, and gives `0` for everything else.
+</Practice>
+
+<Practice
+  number={2}
+  title="From an object to a union"
+  file="lesson11-traps"
+  start="size-price-start"
+  solution="size-price"
+  hints={[
+    "Replace the `Size` object with a union of exact words: `type Size = \"small\" | \"large\"`.",
+    "Put the prices in a `Record<Size, number>`. Every size must have one.",
+    "Type the parameter as `Size`. The call with `huge` should now be underlined. Remove it.",
+  ]}
+  explain="The union lists exactly the sizes that exist. Record<Size, number> forces a price for each, and the parameter type refuses 'huge', which the JavaScript priced as large. Adding a size later makes the table fail until it has a price."
+>
+Replace the `Size` object with a union type, and price each size with a `Record`. The call with "huge" should be refused. Remove it.
+</Practice>
+
+<Practice
+  number={3}
+  title="Check it, keep the keys"
+  file="lesson11-traps"
+  start="satisfies-prices-start"
+  solution="satisfies-prices"
+  hints={[
+    "Write `type Menu = Record<string, number>`: any text key, each holding a number.",
+    "Put `satisfies Menu` after the object. It checks the shape without widening the type.",
+    "Remove the line that reads `lassi`. It is not on the menu, and should now be underlined.",
+  ]}
+  explain="satisfies Menu checks that every value is a number, and still remembers the exact keys, chai and coffee. So reading lassi is an error, where a plain Record<string, number> label would have allowed it and given undefined."
+>
+Add a `Menu` type and use `satisfies`, so the prices are checked and the unknown key `lassi` is refused. Remove that line.
+</Practice>
+
+<Part id="interview" heading="Escape hatches in the [interview]" sub="any, as, !, enums, and the difference between them." />
+
+Expect "when would you use `any`?" as a test of judgment. The best answers are calm and specific.
+
+- **"What is the difference between `any` and `unknown`?"** `any` turns checking off. `unknown` requires a check before use. Prefer `unknown`.
+- **"What does `as` do at runtime?"** Nothing. It exists only for the checker, and it is erased like every type.
+- **"When is `as` acceptable?"** When you know something the checker can't, such as a DOM element's type, and you can say why. Not as a replacement for checking outside data.
+- **"What does `!` do?"** The non-null assertion. It tells the checker a value isn't `null` or `undefined`, without checking.
+- **"What is `satisfies`?"** An operator that checks a value against a type without changing the value's own type.
+- **"What is `as const`?"** It makes a literal exactly what it says, with exact words and `readonly` properties.
+- **"Enums or union types?"** Unions, for new code: they are only types, they don't need extra JavaScript, and Node can strip them. Enums are fine in existing code.
+- **"What is the difference between `object` and `{}`?"** `object` is any non-primitive. `{}` is any value except `null` and `undefined`, including numbers and text.
+- **"`@ts-ignore` or `@ts-expect-error`?"** `@ts-expect-error`, because it complains when the error is gone.
+- **Say it simply.** "Escape hatches skip the checker, not the crash, so I use one only when I can say why it is safe" is a good answer.

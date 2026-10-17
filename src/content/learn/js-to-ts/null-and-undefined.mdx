@@ -1,0 +1,213 @@
+---
+title: null, undefined and strictness
+sub: The empty tiffin box, and why you check before you open it.
+description: Why most JavaScript crashes start with null or undefined. Turn on strictNullChecks, handle a value that might be missing with checks, optional chaining and ??, and use the non-null ! only when you can prove it.
+order: 6
+part: 1
+updated: 2026-10-17
+slug: null-and-undefined
+---
+
+<Part id="hook" heading="The empty [tiffin]" sub="You opened it expecting lunch." />
+
+It is lunch break. You pull your tiffin box out of the bag, open the lid, and reach in for a paratha. The box is empty. Somebody forgot to pack it.
+
+Nothing in the box told you. It looked exactly like a full one from outside. You only found out when you reached in.
+
+That is the most common crash in JavaScript. A value you expected to be there is not there. You reach into it anyway, and the program stops with "Cannot read properties of undefined".
+
+JavaScript has two words for "nothing here". **`undefined`** means "nothing was ever put here": a missing property, a function that returned nothing, a `find` that found nothing. **`null`** means "someone chose to leave this empty". The difference is small, and in practice you treat them the same way: check before you reach in.
+
+TypeScript's big idea here is simple. It can mark a tiffin box as "might be empty", and then refuse to let you reach in until you have looked. That setting is called **`strictNullChecks`**, and it is part of `strict`, which you turned on in lesson 1.
+
+**Remember:** `undefined` is "never filled", `null` is "left empty on purpose". TypeScript can make you look before you reach in.
+
+<Part id="js" heading="Reaching into [nothing]" sub="JavaScript finds out when it crashes." />
+
+Here is the empty tiffin as code. The box has an owner and a lunch, and the lunch is `null`.
+
+<Snippet file="lesson6-null" name="tiffin" js />
+
+```text
+TypeError: Cannot read properties of null (reading 'toUpperCase')
+```
+
+A **TypeError** is JavaScript's name for "you used a value in a way its kind doesn't allow". Here, you asked `null` for a method.
+
+The sneakier version comes from `find`. A **`find`** looks through a list and gives back the first match, or `undefined` if there is none.
+
+<Snippet file="lesson6-null" name="find" js />
+
+```text
+Asha
+TypeError: Cannot read properties of undefined (reading 'name')
+```
+
+Student 9 doesn't exist. `find` gave back `undefined`, and `.name` on it crashed. The code read fine. It worked in every test with a real student. It broke the first time somebody typed a wrong roll number.
+
+**Remember:** in JavaScript, any value can be `null` or `undefined`, and nothing warns you before you reach in.
+
+<Part id="ts" heading="Mark the box [maybe empty]" sub="With strictNullChecks, 'maybe' is part of the type." />
+
+In strict TypeScript, `string` means "always text". It can't be `null`. If a value might be empty, you say so with a union from lesson 5: `string | null`.
+
+<Compare file="lesson6-null" name="tiffin" fail="lesson6-possibly-null" />
+
+The error says `'tiffin.lunch' is possibly 'null'`. The checker saw the union and refused the method call. Now the fix is the narrowing you learned last lesson. Look first, then reach in.
+
+<Snippet file="lesson6-null" name="tiffin-checked" />
+
+```text
+The tiffin is empty
+```
+
+In the `else` branch, `lunch` is a plain `string`, so `toUpperCase` is allowed.
+
+The `find` bug goes the same way. TypeScript knows that `find` may find nothing, so its answer has the type `Student | undefined`.
+
+<Compare file="lesson6-null" name="find" fail="lesson6-possibly-undefined" />
+
+JavaScript was happy. TypeScript stops you at `.name`. This is the bug that crashed in production, caught in the editor. The fix is a check.
+
+<Snippet file="lesson6-null" name="find-checked" />
+
+```text
+Asha
+No such student
+```
+
+Once `found` is checked against `undefined`, the early `return` means the lines after it only run when `found` is a real `Student`.
+
+A function can't sneak a `null` or `undefined` out either. If it promises `string`, the checker refuses to let it return `undefined`.
+
+<Fails file="lesson6-no-undefined" />
+
+**Remember:** a plain type never includes `null` or `undefined`. If a value might be missing, the type says so, and you check before you use it.
+
+<Part id="how" heading="Three short [tools]" sub="Optional chaining, ??, and the ! promise." />
+
+A check after every value would get tiring. JavaScript has two short forms, and the third tool is TypeScript's own.
+
+**1. Optional chaining: `?.`** Put a question mark before the dot. It means "if the thing on the left is `null` or `undefined`, stop and give `undefined`. Otherwise carry on".
+
+<Snippet file="lesson6-null" name="optional-chain" />
+
+```text
+Pune
+undefined
+```
+
+Ravi has no address, so `customer.address?.city` stops early and gives `undefined`. It never reaches into the empty box. The result type is `string | undefined`, so the checker still reminds you that the answer may be missing.
+
+**2. Nullish coalescing: `??`.** This picks a fallback, but only when the left side is `null` or `undefined`. Compare it with the `||` you may already use. The `||` replaces every **falsy** value, meaning any value that counts as "no" in an `if`: `0`, an empty text, `false`, and also `null` and `undefined`.
+
+<Compare file="lesson6-null" name="nullish" />
+
+```text
+Runs: 82
+Runs: 0
+Runs: did not bat
+```
+
+That is the output of the TypeScript side. With `||`, a batter who scored a duck (zero runs) was shown as "did not bat", because `0` counts as "no". With `??`, only a truly missing score gets the fallback. A zero is a real answer.
+
+**3. The non-null assertion: `!`.** An exclamation mark after a value tells the checker "I promise this isn't `null` or `undefined`, so stop asking". The checker believes you, and doesn't check. If you're wrong, it crashes at runtime exactly as JavaScript would.
+
+Only use it when you can *prove* it from the lines just above. Here, we make sure the row exists, and then ask for it.
+
+<Snippet file="lesson6-null" name="non-null" />
+
+```text
+1
+2
+```
+
+We checked `seats.has(row)` and added the row when missing. So `get(row)` can't give `undefined` there. The `!` is honest. But often there is a version with no promise at all.
+
+<Snippet file="lesson6-null" name="non-null-safer" />
+
+```text
+1
+2
+```
+
+`?? 0` says "if the row isn't there yet, start from zero". No promise, no crash, same answer. Prefer this one when it reads as well.
+
+**Remember:** `?.` stops at the first empty box, `??` replaces only `null` and `undefined`, and `!` is a promise you must be able to prove.
+
+<Part id="watch" heading="Where 'maybe' [hides]" sub="Four places the checker can't see the empty box." />
+
+**`strict` has to be on.** With `strictNullChecks` off, `string` quietly includes `null` and `undefined`, and every example in this lesson compiles without a word. The checker isn't broken. You switched off its best feature. Check that your `tsconfig.json` has `"strict": true`.
+
+**`!` is a promise, not a check.** It adds no check at runtime. If you use it to silence an error you don't understand, you have only moved the crash from the editor to your user. Lesson 11 comes back to this.
+
+**`?.` can hide a real bug.** If `address` should always be there, a long chain of `?.` turns a loud crash into a quiet `undefined` that shows up three screens later. Use `?.` where "missing" is a normal case, not to avoid thinking.
+
+**List items are trusted.** `names[10]` on a list of three is `undefined` at runtime, but TypeScript still says `string`. A setting called `noUncheckedIndexedAccess` makes it `string | undefined`. It is stricter and takes some getting used to. For now, check the length, or use `find` and a loop.
+
+**Remember:** keep `strict` on, treat `!` as a promise, and use `?.` where "missing" is expected.
+
+<Part id="practise" heading="Three empty boxes, [handled]" sub="A missing city, a zero score, a missing contact." />
+
+Each problem starts with a JavaScript function that crashes or gives a wrong answer. Open it in the Playground and fix it with types.
+
+<Practice
+  number={1}
+  title="A city that may be missing"
+  file="lesson6-null"
+  start="city-label-start"
+  solution="city-label"
+  hints={[
+    "The customer's `address` is optional, and so is the `city` inside it. Mark both with a question mark in the types.",
+    "Use `customer.address?.city` so the chain stops when the address is missing.",
+    "Finish with `?? \"Unknown city\"`, which gives a fallback only when the answer is missing.",
+  ]}
+  explain="Both `address` and `city` are optional, so the type says they may be missing. The `?.` stops at a missing address instead of crashing. The `??` supplies a fallback for any missing answer. The JavaScript version crashed for a customer with no address."
+>
+Type `cityLabel`, so a customer with no address is allowed and gets the text "Unknown city". `cityLabel({ name: "Ravi" })` should not crash.
+</Practice>
+
+<Practice
+  number={2}
+  title="A duck is a score"
+  file="lesson6-null"
+  start="score-line-start"
+  solution="score-line"
+  hints={[
+    "A player's `runs` may be missing, so mark it optional: `runs?: number`.",
+    "The `||` treats `0` as missing. That is the bug.",
+    "Swap `||` for `??`. Only a truly missing score gets \"did not bat\".",
+  ]}
+  explain="`runs?: number` allows a missing score. The `??` only replaces `null` and `undefined`, so a zero stays a zero. With `||`, Kohli's duck was shown as 'did not bat', which is a quiet and unfair bug."
+>
+Type `scoreLine`, and fix it so a player who scored 0 shows "Kohli: 0", and one who didn't bat shows "did not bat".
+</Practice>
+
+<Practice
+  number={3}
+  title="Pay a contact, if there is one"
+  file="lesson6-null"
+  start="pay-to-start"
+  solution="pay-to"
+  hints={[
+    "Write a `Contact` type with a `name` and a `upi`, and type the `contacts` list.",
+    "`find` may find nothing. Keep the answer in a variable and check `contact === undefined` before using it.",
+    "Return a message like \"No contact named Meena\" for the missing case. Then the call for Meena is safe.",
+  ]}
+  explain="`find` gives back `Contact | undefined`. The check for `undefined` returns early, so the lines after it only run for a real contact, and `contact.upi` is allowed. The JavaScript version would crash for a name not in the list."
+>
+Type `payTo`, and handle a name that isn't in the list by returning a message, not by crashing.
+</Practice>
+
+<Part id="interview" heading="null in the [interview]" sub="strictNullChecks, ?., ??, and the ! promise." />
+
+These come up in almost every TypeScript interview, often as a single question about "strict mode".
+
+- **"What does `strictNullChecks` do?"** It stops `null` and `undefined` from being allowed in every type. A value that might be missing has to say so, as in `string | null`, and you must check it before use.
+- **"What is the difference between `null` and `undefined`?"** `undefined` means a value was never set. `null` means it was set to empty on purpose. TypeScript tracks them as two separate types.
+- **"What is the difference between `?.` and `??`?"** `?.` stops a chain and gives `undefined` if something on the way is missing. `??` gives a fallback when the left side is `null` or `undefined`.
+- **"Why `??` and not `||`?"** `||` replaces every falsy value, including `0`, an empty text and `false`. `??` replaces only `null` and `undefined`.
+- **"What is the `!` operator?"** The non-null assertion. It tells the checker a value isn't `null` or `undefined`. It does no checking, so use it only when you can prove the value is there.
+- **"How do you check for both `null` and `undefined`?"** `value == null` (with two equals signs) matches both. Many teams otherwise write the two checks out.
+- **"What does `find` return in TypeScript?"** The item type or `undefined`, so you must check before using it.
+- **Say it simply.** "With strict null checks, 'might be empty' is part of the type. I check, or use `?.` and `??`, before I reach in" is a good answer.

@@ -1,0 +1,223 @@
+---
+title: Unions and narrowing
+sub: Two kinds of order on one slip, and how to read it.
+description: Type a value that can be one of several things with unions. Narrow it with typeof, in and equality, build discriminated unions with a kind field, and let never check that every case is handled.
+order: 5
+part: 1
+updated: 2026-10-17
+slug: unions-and-narrowing
+---
+
+<Part id="hook" heading="One slip, two [kinds]" sub="A union says 'one of these'. Narrowing finds out which." />
+
+Picture a chai stall at a busy station. Orders arrive on paper slips. Some say "chai, 2 sugars". Others say "coffee, strong". The cook looks at the first word, and then knows what else to expect.
+
+If it says chai, there is a sugar count. If it says coffee, there is a strength. Nobody asks a chai order how strong it wants to be. That would be a silly question.
+
+Real programs are full of slips like this. An ID that is sometimes text (`"b2"`) and sometimes a number (`14`). A payment that is UPI, card or cash. A result that is either a success or an error.
+
+TypeScript has a word for "one of these": a **union type**. You write it with a bar, as in `string | number`, and read the bar as "or". The checker then makes you look at the slip before you use it. Looking at the slip, and finding out which kind it is, is called **narrowing**. Once you have narrowed, TypeScript knows which kind you are holding and lets you use what belongs to it.
+
+**Remember:** a union is "one of these". Narrowing is reading the slip to find out which one.
+
+<Part id="js" heading="Slips nobody [checks]" sub="JavaScript lets you act on the wrong kind." />
+
+Here is a function that makes a label for a ticket. The ID might be text, like `"b2"`, or a number, like `14`.
+
+<Snippet file="lesson5-unions" name="ticket" js />
+
+```text
+Ticket B2
+TypeError: id.toUpperCase is not a function
+```
+
+The first call is fine. The second crashes, because a number has no `toUpperCase`. A **method** is a function that belongs to a value, such as `toUpperCase` on text. Numbers don't have that one.
+
+Now the chai stall. Every order has a `kind`. Chai has a `sugar` count and coffee has a `strength`.
+
+<Snippet file="lesson5-unions" name="order-bug" js />
+
+```text
+chai: 2 sugars
+coffee: undefined sugars
+```
+
+The function asked every order for its sugar. A coffee order has no sugar, so JavaScript says `undefined` and carries on. The customer reads "undefined sugars". Nobody warned us.
+
+**Remember:** JavaScript will let you ask a slip a question it can't answer. You find out when it crashes, or when a customer reads the result.
+
+<Part id="ts" heading="Say what it [could be]" sub="A union lists the options. The checker makes you pick." />
+
+Start with the ticket. The ID is `string | number`, which reads "text or a number". Watch what the checker says about `toUpperCase`.
+
+<Compare file="lesson5-unions" name="ticket" fail="lesson5-union-method" />
+
+TypeScript says no, and the reason is fair. The method exists on text, but not on numbers, and the ID might be a number. With a union, you may only use what **every** option has in common. Anything else is refused until you check.
+
+Here is the fix. Ask what kind of thing it is, using `typeof`. That is the same JavaScript word you already know. TypeScript reads the check and remembers the answer inside the `if`.
+
+<Snippet file="lesson5-unions" name="ticket-narrowed" />
+
+```text
+Ticket B2
+Ticket no. 14
+```
+
+Inside the `if`, `id` is a `string`, so `toUpperCase` is allowed. After the `if` returns, the only thing left is a `number`, so TypeScript knows that too. No `as`, no guessing. You asked, and the checker listened.
+
+Now the chai stall. We describe each order with a type of its own, and the order is one or the other.
+
+<Compare file="lesson5-unions" name="order-bug" fail="lesson5-wrong-field" />
+
+Look at the first line of each order type: `kind: "chai"`. That is not "any text". It is the exact word `"chai"`. A type can be one exact value, and that is called a **literal type**. Because every order carries its own exact `kind`, the checker can tell the options apart by it. The error names the problem: `CoffeeOrder` has no `sugar`.
+
+**Remember:** with a union you may only use what all the options share. A check, like `typeof`, tells TypeScript which one you hold.
+
+<Part id="how" heading="Four ways to [check]" sub="typeof, in, equality, and a kind field." />
+
+Each of these is something you may already write in JavaScript. TypeScript simply watches you do it.
+
+**1. `typeof`.** It works for the basic kinds: `"string"`, `"number"`, `"boolean"`, `"bigint"`, `"symbol"`, `"undefined"`, `"function"` and `"object"`. It is perfect for "text or a list of text".
+
+<Snippet file="lesson5-unions" name="to-list" />
+
+```text
+[ 'chai', 'coffee' ]
+[ 'lassi' ]
+```
+
+Careful with one oddity. In JavaScript `typeof null` is `"object"`. This is an old quirk that was never fixed. Lesson 6 deals with `null` properly. To tell a list from other objects, `Array.isArray(value)` is the check. And `value instanceof Date` asks whether something was made by a certain class, and narrows the same way.
+
+**2. Equality.** Comparing with `===` narrows too. It works nicely with a **literal union**, which is a union of exact words.
+
+<Compare file="lesson5-unions" name="literals" fail="lesson5-bad-literal" />
+
+`type Strength = "mild" | "strong"` says there are exactly two allowed words. JavaScript lets `"medium"` through and quietly gives one shot. TypeScript refuses it, and the editor offers the two allowed words as you type. This beats an `if` that checks for a typo at runtime. It also beats a plain `string` that accepts anything.
+
+**3. The `in` operator.** Sometimes the options have no `kind` word, but they differ in what they have. The JavaScript `in` operator asks "does this object have a property with this name?". TypeScript uses the answer to narrow.
+
+<Snippet file="lesson5-unions" name="in-operator" />
+
+```text
+Kohli scored 82
+Bumrah took 3 wickets
+```
+
+If `"runs"` is in the player, it must be a `Batter`. Otherwise it is a `Bowler`.
+
+**4. A discriminated union.** That is the grand name for the chai stall. A **discriminated union** is a union where every option has the same property with a different literal value, such as `kind`. That property is the **discriminant**, meaning "the thing that tells them apart". You check it with `switch` or `if`, and each branch gets exactly the right option.
+
+<Snippet file="lesson5-unions" name="serve" />
+
+```text
+Chai with 2 sugars
+strong coffee
+```
+
+Inside `case "chai"`, `order` is a `ChaiOrder`, so `order.sugar` is allowed. Inside `case "coffee"`, it is a `CoffeeOrder`. This is the pattern you will see most in real TypeScript. It replaces the long `if` chains that guess at fields.
+
+**Remember:** `typeof` for basic kinds, `===` for exact words, `in` for "has this property", and a `kind` field when you design the types yourself.
+
+<Part id="watch" heading="When the checker [shouts]" sub="Exhaustiveness, and three small traps." />
+
+Now the part the stall owner will love. Add a new kind of order: lassi. What happens to the code that serves orders? In JavaScript, nothing happens. The new kind falls through the `switch` and someone gets no lassi, and no error.
+
+TypeScript can make the checker do the counting. The trick uses the type `never`, which means "a value that can't exist". Here is how it works. After you handle chai and coffee, the only option left is lassi. If you handle lassi too, nothing is left, so `order` has the type `never`. A function that asks for `never` will only accept a call when no option is missing.
+
+First, the broken version. We added `LassiOrder` to the union and forgot to serve it.
+
+<Fails file="lesson5-not-exhaustive" />
+
+The error says `LassiOrder` can't go where `never` is wanted. That is the checker saying "you forgot one". Handle lassi, and the error goes away.
+
+<Snippet file="lesson5-unions" name="exhaustive" />
+
+```text
+Mango lassi
+```
+
+This is called an **exhaustiveness check**, meaning a check that you handled every option. If someone adds a fourth kind next year, every `switch` that forgot it lights up red. It also throws at runtime, just in case bad data slips past. Use this on any `switch` over a union.
+
+**A literal can widen.** A variable that can change gets a wider type. A plain `let strength = "strong"` becomes `string`, because later you might put any text in it.
+
+<Fails file="lesson5-widened" />
+
+Use `const` and the exact word stays. Or write the type yourself: `let strength: Strength = "strong"`.
+
+<Snippet file="lesson5-unions" name="widening-fixed" />
+
+```text
+Two shots
+```
+
+**A plain `string` kind loses everything.** If you write `kind: string` instead of `kind: "chai"`, the checker can't tell the options apart. A discriminant has to be a literal.
+
+**Narrowing is about this spot in the code.** A check protects the lines it covers. If you change the variable afterwards, or leave and come back later through a callback, TypeScript may forget what it knew.
+
+**Remember:** end a `switch` over a union with a `never` check, and use `const` or a type to keep exact words from widening.
+
+<Part id="practise" heading="Three slips, [sorted]" sub="Text or number, which order, which payment." />
+
+Each problem starts with a JavaScript function. Open it in the Playground, type it, and let the checker help.
+
+<Practice
+  number={1}
+  title="GST on text or a number"
+  file="lesson5-unions"
+  start="with-gst-start"
+  solution="with-gst"
+  hints={[
+    "The amount may be a number or text. The type for that is `number | string`.",
+    "Convert text to a number first. `typeof amount === \"string\"` tells you which one you have, and `Number(amount)` does the conversion.",
+    "After the conversion you hold one `number`, so `rupees + rupees * 0.18` is safe for both calls.",
+  ]}
+  explain="`number | string` says either kind is welcome. The typeof check turns the text into a number, so the arithmetic always happens on a number. The JavaScript version returned '10018' for the text '100', because + joins text instead of adding."
+>
+Add types to `withGst`, so it accepts a number or text, and always gives back a number. `withGst("100")` should give 118, the same as `withGst(100)`.
+</Practice>
+
+<Practice
+  number={2}
+  title="Bill the order"
+  file="lesson5-unions"
+  start="bill-start"
+  solution="bill"
+  hints={[
+    "Write the two order shapes first. Each has a `kind` with its exact word, so the checker can tell them apart.",
+    "`type Order = ChaiOrder | CoffeeOrder`, and the function takes an `Order`.",
+    "The lassi call at the bottom is not in the union. It should now be underlined. Remove it.",
+  ]}
+  explain="With `kind` as a literal in each type, checking `order.kind === 'chai'` narrows the order. After the early return, TypeScript knows only a coffee order is left, so `order.strength` is allowed. The lassi call was billed as a mild coffee in JavaScript. Now it is refused."
+>
+Describe the orders as a union and add types to `bill`. Chai costs 10. Coffee costs 20, or 30 if it is strong. The call with a lassi should be refused. Remove it.
+</Practice>
+
+<Practice
+  number={3}
+  title="One receipt per payment"
+  file="lesson5-unions"
+  start="receipt-start"
+  solution="receipt"
+  hints={[
+    "A payment is one of three shapes, told apart by `method`: UPI has an `id`, card has `last4`, and cash has nothing else.",
+    "Handle `cash` in its own `case`, instead of letting `default` catch it.",
+    "Write `assertNever(value: never): never` that throws. Call it in `default`. Now a new method added to the union makes the checker complain.",
+  ]}
+  explain="The union lists exactly three methods. Each case narrows the payment, so `payment.id` and `payment.last4` are allowed only where they exist. The `default` branch is where `payment` has become `never`, and passing it to `assertNever` is the exhaustiveness check. The wallet call in the JavaScript was quietly receipted as cash."
+>
+Type `receipt` with a union, and end the `switch` with an `assertNever` check. The call with a wallet should be refused. Remove it.
+</Practice>
+
+<Part id="interview" heading="Unions in the [interview]" sub="Narrowing, discriminants, and never." />
+
+Unions come up in nearly every TypeScript interview. These are the usual ones.
+
+- **"What is a union type?"** A type that can be one of several types, written `A | B`. You may only use what all the members share, until you narrow.
+- **"What is narrowing?"** Making a type more specific using a check, such as `typeof`, `===`, `in`, `instanceof` or `Array.isArray`. TypeScript follows the check through the code.
+- **"What is a discriminated union?"** A union where every member has a common property with a literal type, such as `kind`. Checking that property narrows to one member.
+- **"How do you check a `switch` handled every case?"** Use `never`. In the `default` branch, pass the value to a function that takes `never`. If a case is missing, the code doesn't compile.
+- **"What does `never` mean?"** The type of a value that can't exist. A function that always throws returns `never`. It is also what is left after you've ruled out every option.
+- **"What is a literal type?"** A type that is one exact value, such as `"chai"` or `42`. A union of them, like `"mild" | "strong"`, works like a small enum.
+- **"Why is `let x = "a"` a string, but `const x = "a"` is exactly "a"?"** A `let` can change, so TypeScript widens it. A `const` can't, so the exact word is kept.
+- **"What is `typeof null`?"** `"object"`, a JavaScript quirk. It is why you check for `null` separately.
+- **Say it simply.** "A union is one of several types. I narrow it with a check, and a `kind` field makes that easy" is a good answer.

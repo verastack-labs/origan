@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { CopyButton } from "./copy-button";
 
 /**
@@ -20,19 +20,31 @@ type Side = { code: string; html: string };
 const control =
   "rounded-control border border-line px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.09em] text-fg-2 transition-colors hover:border-survey-2 hover:text-fg";
 
-const WIDE = "(min-width: 768px)";
-const subscribe = (onChange: () => void) => {
-  const query = window.matchMedia(WIDE);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
-};
-/** True from `md` up, where the two sides are both on show and tabs would be noise. */
-const useWide = () =>
-  useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia(WIDE).matches,
-    () => false,
-  );
+/**
+ * The layout follows the width of the Compare block itself, not the window.
+ * The lessons sidebar takes room from `lg` up, so a wide window can still
+ * leave a narrow column. Three layouts, by container width:
+ *   under 600px   tabs, one pane at a time
+ *   600 to 760px  stacked, JavaScript above TypeScript
+ *   760px and up  side by side
+ * The sizes are in the class names below (`@[600px]`, `@[760px]`) and TABS_BELOW
+ * must match the first.
+ */
+const TABS_BELOW = 600;
+/** True while the block is narrow enough for tabs. Starts true, as the server renders. */
+function useTabs(ref: React.RefObject<HTMLElement | null>): boolean {
+  const [tabs, setTabs] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setTabs(el.getBoundingClientRect().width < TABS_BELOW);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
+  return tabs;
+}
 
 const order = ["js", "ts"] as const;
 type Which = (typeof order)[number];
@@ -49,7 +61,9 @@ export function CompareView({
   tsFooter?: ReactNode;
 }) {
   const [active, setActive] = useState<Which>("js");
-  const wide = useWide();
+  const root = useRef<HTMLElement>(null);
+  const narrow = useTabs(root);
+  const wide = !narrow;
   const id = useId();
   const tabs = useRef<Record<Which, HTMLButtonElement | null>>({ js: null, ts: null });
 
@@ -79,7 +93,7 @@ export function CompareView({
   };
 
   return (
-    <section aria-label="JavaScript beside TypeScript" className="compare my-6">
+    <section ref={root} aria-label="JavaScript beside TypeScript" className="compare @container my-6">
       {/* A phone has room for one at a time. The list is hidden from `md` up
           and the roles change with it, so a wide reader meets two labelled
           groups rather than a tablist with nothing to switch. */}
@@ -88,7 +102,7 @@ export function CompareView({
         role="tablist"
         aria-label="Choose a version"
         onKeyDown={onKeyDown}
-        className="mb-2 grid grid-cols-2 gap-px overflow-hidden rounded-control border border-line bg-line md:hidden"
+        className="mb-2 grid grid-cols-2 gap-px overflow-hidden rounded-control border border-line bg-line @[600px]:hidden"
       >
         {order.map((w) => {
           const on = active === w;
@@ -116,7 +130,7 @@ export function CompareView({
       </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 @[760px]:grid-cols-2">
         {order.map((w) => {
           const { side, footer, play } = sides[w];
           const shown = wide || active === w;
@@ -132,12 +146,12 @@ export function CompareView({
               // renders the JavaScript panel only and the stylesheet shows both
               // from `md` up.
               className={`code-block cmp-code m-0 min-w-0 overflow-hidden rounded-panel border border-line bg-panel ${
-                shown ? "" : "hidden md:block"
-              } ${w === "ts" ? "md:border-survey-2/60" : "cmp-js"}`}
+                shown ? "" : "hidden @[600px]:block"
+              } ${w === "ts" ? "@[600px]:border-survey-2/60" : "cmp-js"}`}
             >
-              <figcaption className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line-2 px-3 py-2 md:flex-col md:items-start md:justify-start">
-                <span className="notation hidden md:inline">{names[w]}</span>
-                <span className="ml-auto flex flex-wrap items-center gap-2 md:ml-0 md:min-h-[26px]">
+              <figcaption className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line-2 px-3 py-2 @[760px]:flex-col @[760px]:items-start @[760px]:justify-start">
+                <span className="notation hidden @[600px]:inline">{names[w]}</span>
+                <span className="ml-auto flex flex-wrap items-center gap-2 @[760px]:ml-0 @[760px]:min-h-[26px]">
                   <CopyButton code={side.code} hint={`the ${names[w]}`} />
                   {play && (
                     <a href={play} target="_blank" rel="noopener noreferrer" className={control}>

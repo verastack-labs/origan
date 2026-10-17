@@ -1,6 +1,6 @@
 import { rustCourse, type Course } from "@/data/courses";
 import { region, snippetProgram } from "@/lib/snippets";
-import { JS_SOURCE } from "@/lib/ts-snippets";
+import { JS_SOURCE, JSDOC_SOURCE } from "@/lib/ts-snippets";
 import { CodeBlock } from "./code-block";
 import { TsBlock } from "./ts-code";
 
@@ -25,6 +25,7 @@ export async function Snippet({
   course = rustCourse,
   tip = true,
   js = false,
+  jsdoc = false,
 }: {
   file: string;
   name: string;
@@ -36,10 +37,13 @@ export async function Snippet({
   tip?: boolean;
   /** The Switch: show the plain JavaScript version of the region instead of the TypeScript one. */
   js?: boolean;
+  /** The Switch: JavaScript with JSDoc types, from the `jsdoc/` folder. It has no Playground link. */
+  jsdoc?: boolean;
 }) {
   const source = course.snippets;
 
   if (course.language === "typescript") {
+    if (jsdoc) return <TsBlock code={region(file, name, JSDOC_SOURCE)} lang="javascript" play={false} />;
     const text = region(file, name, js ? JS_SOURCE : source);
     // A tsconfig.json is shown as JSON, with no Playground link.
     if (file.endsWith(".json")) return <TsBlock code={text} lang="json" play={false} />;

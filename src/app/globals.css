@@ -728,3 +728,88 @@ body > div:has(> div > iframe[src*="hcaptcha.com"][src*="frame=challenge"]) {
     content: "What it costs";
   }
 }
+
+/*
+ * Print. Made for the cheat sheet, and kind to any lesson: the site header and
+ * footer, the sidebar, the buttons and the page navigation are left out, the
+ * dark ground becomes white paper, the entrance animations are shown in their
+ * final state, and the two sides of a row stay together on one page.
+ */
+@media print {
+  :root:not(#print-paper) {
+    color-scheme: light;
+    --color-ground: #ffffff;
+    --color-ground-2: #ffffff;
+    --color-panel: #ffffff;
+    --color-panel-2: #f1f1f1;
+    --color-line: #b9b9b9;
+    --color-line-2: #dcdcdc;
+    --color-fg: #111111;
+    --color-fg-2: #333333;
+    --color-fg-3: #555555;
+    --color-survey: #0b6b4a;
+    --color-survey-2: #0b6b4a;
+    --color-warn: #8a5a00;
+  }
+
+  body > nav,
+  body > footer,
+  body > a,
+  nav[aria-label],
+  .chapters-aside,
+  dialog,
+  details.lg\:hidden,
+  .no-print {
+    display: none !important;
+  }
+
+  .rv,
+  .js .rv {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .js .rv-plot .plot-ink {
+    clip-path: none !important;
+  }
+
+  .js .rv-label .plot-char {
+    opacity: 1 !important;
+  }
+
+  .rv-plot .plot-pen {
+    display: none !important;
+  }
+
+  .cheat-row {
+    break-inside: avoid;
+  }
+
+  /* On paper the two sides sit together, and long lines wrap instead of scrolling. */
+  .cheat-row > div.grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .code-block pre {
+    overflow: visible !important;
+    white-space: pre-wrap !important;
+    word-break: break-word;
+  }
+
+  .cmp-code pre code {
+    width: auto !important;
+  }
+
+  .cheat-row .cmp-code .line {
+    font-size: 10.5px;
+  }
+
+  .compare,
+  figure {
+    break-inside: avoid;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+}

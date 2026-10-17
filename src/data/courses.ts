@@ -1,7 +1,7 @@
 import { javaCollections, javaCurriculum, javaParts } from "./java-collections";
 import { curriculum as rustCurriculum, lessonParts as rustParts, rustDsa } from "./rust-dsa";
 import type { CurriculumEntry } from "./rust-dsa";
-import { switchCurriculum, switchParts, theSwitch } from "./the-switch";
+import { switchCurriculum, switchLessonParts, switchParts, theSwitch } from "./the-switch";
 import { site } from "./site";
 
 /**
@@ -32,6 +32,8 @@ export type Course = {
   languageName: string;
   curriculum: readonly CurriculumEntry[];
   parts: readonly LessonPart[];
+  /** Lessons that are laid out in their own way, by slug: a reference page has topic groups, not the seven parts. */
+  lessonParts?: Readonly<Record<string, readonly LessonPart[]>>;
   /** Path segments from the project root to the lesson MDX files. */
   contentDir: readonly string[];
   /** Where the tested snippets live, and the extension of their files. */
@@ -116,6 +118,7 @@ export const switchCourse: Course = {
   languageName: "TypeScript",
   curriculum: switchCurriculum,
   parts: switchParts,
+  lessonParts: switchLessonParts,
   contentDir: ["src", "content", "learn", "js-to-ts"],
   snippets: { dir: ["ts", "the-switch"], ext: ".ts" },
   about: "The TypeScript programming language, for developers who already know JavaScript",
@@ -124,11 +127,15 @@ export const switchCourse: Course = {
   listingHeading: "The [lessons]",
   shape: { heading: "Seven parts, every [time]", sub: "So you always know where the traps are." },
   verifiedNote:
-    "Every piece of TypeScript on these pages is a real file that is type-checked with strict mode on, and tested, before the page is built. The snippets that are meant to fail are checked to fail with the error shown. Your progress is kept in this browser only. Nothing is sent anywhere.",
+    "Every piece of TypeScript on these pages is a real file that is type-checked with strict mode on, and tested, before the page is built. The snippets that are meant to fail are checked to fail with the error shown. Your progress is kept in this browser only. Nothing is sent anywhere. The last lesson is the one exception to the seven parts: a one-page cheat sheet to bookmark or print.",
 };
 
 /** Every course, in the order the Resources page lists them. */
 export const courses: readonly Course[] = [rustCourse, javaCourse, switchCourse];
+
+/** The parts of one lesson: its own, if it is laid out in its own way, and the course's seven otherwise. */
+export const partsFor = (course: Pick<Course, "parts" | "lessonParts">, slug: string): readonly LessonPart[] =>
+  course.lessonParts?.[slug] ?? course.parts;
 
 export const coursePath = (course: Pick<Course, "path">, slug: string) => `${course.path}${slug}/`;
 export const courseUrl = (course: Pick<Course, "path">, slug: string) =>

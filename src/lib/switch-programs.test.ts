@@ -32,7 +32,7 @@ function programsOf(mdx: string, page: string): Program[] {
   for (const m of mdx.matchAll(/<Snippet\s+([\s\S]*?)\/>/g)) {
     const file = attr(m[1], "file");
     const name = attr(m[1], "name");
-    if (!file || !name || file.endsWith(".json") || /\sjs(\s|$)/.test(m[1])) continue;
+    if (!file || !name || file.endsWith(".json") || /(?:^|\s)js(?:doc)?(?:\s|$)/.test(m[1])) continue;
     const also = (attr(m[1], "also") ?? "").split(",").filter(Boolean).map((r) => region(file, r.trim(), TS_SOURCE));
     out.push({ label: `${page}: ${file} ${name}`, code: [...also, region(file, name, TS_SOURCE)].join("\n\n") });
   }
@@ -54,9 +54,28 @@ function programsOf(mdx: string, page: string): Program[] {
     }
   }
 
+  // A cheat sheet row is a Compare with a title, so it is held to the same rules.
+  for (const m of mdx.matchAll(/<CheatRow\b((?:"[^"]*"|[^>"])*)>/g)) {
+    const file = attr(m[1], "file");
+    const name = attr(m[1], "name");
+    const fail = attr(m[1], "fail");
+    if (!file || !name) continue;
+    if (fail) {
+      const snippet = errorSnippet(fail);
+      out.push({
+        label: `${page}: row ${fail}`,
+        code: snippet.code,
+        expect: { code: snippet.errorCode, line: [...snippet.errorLines][0] + 1 },
+      });
+    } else {
+      out.push({ label: `${page}: row ${file} ${name}`, code: region(file, name, TS_SOURCE) });
+    }
+  }
+
   for (const m of mdx.matchAll(/<Fails\s+([\s\S]*?)\/>/g)) {
     const file = attr(m[1], "file");
-    if (!file) continue;
+    // JSDoc snippets are JavaScript. They are checked as JavaScript by scripts/check-ts-snippets.mjs.
+    if (!file || /(?:^|\s)jsdoc(?:\s|$)/.test(m[1])) continue;
     const snippet = errorSnippet(file, attr(m[1], "name") ?? "code");
     out.push({
       label: `${page}: fails ${file}`,
@@ -73,14 +92,21 @@ function programsOf(mdx: string, page: string): Program[] {
   return out;
 }
 
+// The default libraries are large, and parsing them for every program is what makes this
+// suite slow, so each library file is parsed once and reused.
+const libCache = new Map<string, ts.SourceFile | undefined>();
+
 /** Compile one loose file the way the Playground does: strict, default libraries, no module. */
 function compile(code: string): readonly ts.Diagnostic[] {
   const name = "/playground.ts";
-  const options: ts.CompilerOptions = { strict: true, target: ts.ScriptTarget.ES2022, noEmit: true, types: [] };
+  const options: ts.CompilerOptions = { strict: true, target: ts.ScriptTarget.ES2022, noEmit: true, types: [], skipLibCheck: true };
   const host = ts.createCompilerHost(options);
   const original = host.getSourceFile.bind(host);
-  host.getSourceFile = (file, languageVersion, ...rest) =>
-    file === name ? ts.createSourceFile(file, code, languageVersion) : original(file, languageVersion, ...rest);
+  host.getSourceFile = (file, languageVersion, ...rest) => {
+    if (file === name) return ts.createSourceFile(file, code, languageVersion);
+    if (!libCache.has(file)) libCache.set(file, original(file, languageVersion, ...rest));
+    return libCache.get(file);
+  };
   const fileExists = host.fileExists.bind(host);
   host.fileExists = (file) => file === name || fileExists(file);
   const program = ts.createProgram([name], options, host);

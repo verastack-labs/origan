@@ -1,0 +1,218 @@
+---
+title: Generics, just enough
+sub: A courier who delivers any parcel without opening it.
+description: Write one function that works for many types and still keeps them straight. Learn type parameters like T, constraints with extends, keyof, generic types such as Box of T, and when not to use generics.
+order: 7
+part: 1
+updated: 2026-10-17
+slug: generics
+---
+
+<Part id="hook" heading="The courier who never [peeks]" sub="One function, any parcel, nothing lost on the way." />
+
+Think of a courier. You hand over a parcel, and they deliver it. They don't open it. They don't care whether it is sweets or a phone. The courier works for every parcel.
+
+But here is the clever part. When the parcel arrives, the receiver knows what is in it. If you sent laddoos, laddoos arrive. The courier never turned them into something else.
+
+Now think about how you would write that as a function. It takes a thing and gives the same thing back. In JavaScript that is easy, because JavaScript doesn't track what is inside. In TypeScript there is a problem. If you label the function "takes a number", it can't carry sweets. If you label it "takes anything", the receiver no longer knows what arrived.
+
+**Generics** solve this. A generic function has a **type parameter**: a stand-in name for "whatever kind you give me". By convention it is called `T`, short for "type". The function says "I take a `T` and give back that same `T`". Then each call fills in the blank.
+
+You have already met generics. `string[]` is "a list of `string`", and `Array<string>` is the same thing written the long way. This lesson shows how to write your own, and stops there. Generics can get deep, and you need only a little of them.
+
+**Remember:** a generic is a function or type with a blank for the kind. The blank, called a type parameter, is filled in from what you pass.
+
+<Part id="js" heading="Anything in, who knows [what] out" sub="JavaScript carries the parcel, and forgets the label." />
+
+A JavaScript courier is one line.
+
+<Snippet file="lesson7-generics" name="courier" js />
+
+```text
+LADDOO
+43
+```
+
+It works for text and for numbers. Nothing stops it, and nothing tells the receiver what came out. That matters with a function like `first`, which hands back the first item of a list.
+
+<Snippet file="lesson7-generics" name="first" js />
+
+```text
+90
+TypeError: firstScore.toUpperCase is not a function
+```
+
+The first score is a number, and we asked it to shout. JavaScript didn't know the list held numbers, so it didn't warn us. It found out when the line ran.
+
+**Remember:** a plain JavaScript function works for every kind of input, but its output is a mystery until the code runs.
+
+<Part id="ts" heading="One function, [every] kind" sub="Write the blank once. Each call fills it in." />
+
+First, the cheap way out. You could label the courier `any`, which switches the checker off for that value.
+
+<Snippet file="lesson7-generics" name="any-version" />
+
+It compiles, and it also compiles when you call `count.toUpperCase()` on a number. The parcel goes in with a label and comes out with none. That is the problem generics solve.
+
+Here is the courier with a type parameter. The `<T>` after the name declares the blank. Then `parcel: T` says the input is a `T`, and `: T` after the brackets says the output is the same `T`.
+
+<Compare file="lesson7-generics" name="courier" />
+
+TypeScript fills in `T` for you from what you pass. `deliver("laddoo")` gives back text, so `sweets.toUpperCase()` is allowed. `deliver(42)` gives back a number, so `count + 1` is fine. You never wrote `<string>` or `<number>`. The checker worked it out, which is called **inference** (guessing the type from the code), the same idea as lesson 2.
+
+Now `first`. The input is a list of `T`, written `T[]`, and the output is a `T` or `undefined`, because an empty list has no first item.
+
+<Compare file="lesson7-generics" name="first" fail="lesson7-wrong-method" />
+
+Because `first` is generic, the number list gives back `number | undefined`. The checker knows what came out. The wrong call is refused where you typed it, which is what JavaScript couldn't do.
+
+**Remember:** `<T>` declares a blank, and `T` in the parameters and the result links them: whatever goes in is what comes out.
+
+<Part id="how" heading="Four things you [need]" sub="Several blanks, constraints, keyof, and generic types." />
+
+**1. More than one blank.** Use as many type parameters as you need, with different names. Each one is filled in separately.
+
+<Snippet file="lesson7-generics" name="pair" />
+
+```text
+[ 'Asha', 21 ]
+```
+
+`entry` has the type `[string, number]`. The first slot is text, the second a number, and they never get mixed up.
+
+You can also give the blank yourself, in angle brackets, if inference can't see enough. An empty list has nothing to learn from, so `first<string>([])` says "this is a list of text".
+
+<Snippet file="lesson7-generics" name="explicit" />
+
+```text
+undefined
+```
+
+**2. Constraints with `extends`.** Sometimes "any type" is too loose. A function that compares lengths needs a type that *has* a length. A **constraint** limits the blank: `T extends { length: number }` means "any `T`, as long as it has a numeric `length`". Text has one. So do lists.
+
+<Compare file="lesson7-generics" name="constraint" fail="lesson7-constraint" />
+
+In JavaScript, `longest(10, 20)` quietly gives `20`, because numbers have no length and both sides compare as `undefined`. TypeScript refuses the call, and says why. A string and a list both pass, because both have a `length`.
+
+<Snippet file="lesson7-generics" name="constraint" />
+
+```text
+coffee
+[ 1, 2, 3 ]
+```
+
+Notice that `longest` gives back the same type it was given. Pass two lists, get a list. Pass two texts, get text.
+
+**3. Keys of an object.** A common trick reads a property by name. `keyof T` means "the names of the properties of `T`, as a union of exact words". So `K extends keyof T` says "the key must be one that this object really has", and `T[K]` is the type of that property.
+
+<Snippet file="lesson7-generics" name="get-field" />
+
+```text
+Asha
+21
+```
+
+`getField(user, "name")` is a `string` and `getField(user, "age")` is a `number`. A misspelled key is caught.
+
+<Fails file="lesson7-bad-key" />
+
+**4. Generic types.** Types can have blanks too. A `Box<T>` is a box that holds a `T`. It is the parcel from our picture.
+
+<Snippet file="lesson7-generics" name="box" />
+
+```text
+8
+CALL AMMA
+```
+
+You fill in the blank when you use the type, in angle brackets: `Box<number>`, `Box<string>`. Put the wrong thing inside and the checker says so.
+
+<Fails file="lesson7-box-mismatch" />
+
+You have been using these already. `Array<number>`, `Map<string, number>` and `Promise<string>` are all generic types from the language itself.
+
+<Snippet file="lesson7-generics" name="built-in" />
+
+A type parameter can also have a **default**, which is used when you leave the blank empty. `Result<T = string>` means a plain `Result` is a `Result<string>`.
+
+<Snippet file="lesson7-generics" name="default-type" />
+
+**Remember:** several blanks are fine, `extends` limits a blank, `keyof` names an object's properties, and `Box<T>` is a type with a blank.
+
+<Part id="watch" heading="Don't over-[generic]" sub="Four ways generics go wrong." />
+
+**A blank used once is not doing anything.** If `T` appears only once in a function's signature, it links nothing. `function log<T>(value: T): void` can be written `function log(value: unknown): void`. A blank earns its place by connecting two things: input to output, or one parameter to another.
+
+**Generics are not a way to avoid `any`, or a way to hide it.** Writing `<T>` and then casting `value as T` inside the function is the same as `any` with extra steps. The checker trusted you.
+
+**Names are only names.** `T` is a habit. Longer names like `Item` or `Key` are fine, and clearer once you have several blanks.
+
+**Start without generics.** If you only ever call the function with one type, write it for that type. Add a blank when you find yourself copying a function for a second type. Most day-to-day TypeScript uses generics that other people wrote, such as `Array`, `Map` and `Promise`, and writes few of its own.
+
+**Remember:** a blank should link two things. If it links nothing, take it out.
+
+<Part id="practise" heading="Three couriers, [typed]" sub="Last item, swapped pair, and a box that maps." />
+
+Each problem starts with a JavaScript function that works for anything. Make it generic, so the types follow the values.
+
+<Practice
+  number={1}
+  title="The last item"
+  file="lesson7-generics"
+  start="last-start"
+  solution="last"
+  hints={[
+    "The function takes a list of anything. Write the blank as `<T>` and the list as `T[]`.",
+    "The result is one `T`, but an empty list has no last item. Make the result `T | undefined`.",
+    "`function last<T>(items: T[]): T | undefined`. Hover over the results to see what each call gives.",
+  ]}
+  explain="`T[]` links the list to its items, so the result is the same kind of thing the list holds. `T | undefined` is honest about the empty list, which JavaScript answered with undefined and no warning. A list of numbers gives number or undefined, and a list of text gives string or undefined."
+>
+Make `last` generic, so a list of numbers gives back a number (or `undefined`), and a list of text gives back text (or `undefined`).
+</Practice>
+
+<Practice
+  number={2}
+  title="Swap a pair"
+  file="lesson7-generics"
+  start="swap-start"
+  solution="swap"
+  hints={[
+    "The pair has two slots that may be different kinds, so you need two blanks: `<A, B>`.",
+    "The input is the tuple `[A, B]`. The output is the tuple with the slots swapped.",
+    "`function swap<A, B>(entry: [A, B]): [B, A]`. Swapping `[\"Asha\", 21]` gives a number first, then text.",
+  ]}
+  explain="Two blanks, A and B, keep the two slots apart. The input is [A, B] and the output is [B, A], so the types swap along with the values. With a single T, both slots would have to be the same kind."
+>
+Make `swap` generic with two blanks, so swapping `["Asha", 21]` gives the types `[number, string]`.
+</Practice>
+
+<Practice
+  number={3}
+  title="Map over a box"
+  file="lesson7-generics"
+  start="map-box-start"
+  solution="map-box"
+  hints={[
+    "First name the box: `type Box<T> = { value: T }`.",
+    "The change function turns a `T` into something else. Call that other kind `U`: `change: (value: T) => U`.",
+    "The result is a box of the new kind: `Box<U>`. So `mapBox({ value: \"chai\" }, (s) => s.length)` is a `Box<number>`.",
+  ]}
+  explain="Box<T> is the parcel. The change function takes the old kind T and gives a new kind U, and the result is a Box<U>. So a box of text mapped with length becomes a box of numbers, and the checker tracks it. Two blanks are needed because the input and output kinds can differ."
+>
+Write the `Box<T>` type and make `mapBox` generic, so a box of text mapped with `length` becomes a box of numbers.
+</Practice>
+
+<Part id="interview" heading="Generics in the [interview]" sub="Type parameters, constraints, and when to use them." />
+
+Generics questions are often the hardest in the round. These short answers cover most of them.
+
+- **"What is a generic?"** A function, type or class with a type parameter, a blank that is filled in when you use it. It lets one definition work for many types and still keep them straight.
+- **"Why not just use `any`?"** `any` turns the checker off, and the output type is lost. A generic keeps the link between input and output.
+- **"What does `T extends X` mean?"** A constraint. `T` can be any type, as long as it fits `X`. It lets you use `X`'s properties inside the function.
+- **"What is `keyof`?"** An operator that gives the names of a type's properties as a union of exact words. `K extends keyof T` limits a key to real ones.
+- **"Does TypeScript need `<T>` at the call?"** Usually not. It infers `T` from the arguments. You write it yourself when nothing gives it enough to go on, like an empty list.
+- **"What are examples of built-in generics?"** `Array<T>`, `Map<K, V>`, `Set<T>` and `Promise<T>`.
+- **"What is a default type parameter?"** A fallback used when the blank is left empty, as in `type Result<T = string>`.
+- **"When should you not use a generic?"** When the blank links nothing, or when you only ever use one type.
+- **Say it simply.** "A generic is a function or type with a blank, so what goes in decides what comes out" is a good answer.
