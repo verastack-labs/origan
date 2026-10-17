@@ -26,3 +26,4 @@ pub mod lesson9_ordered;
 pub mod lesson10_graph;
 pub mod lesson11_trie;
 pub mod lesson12_union_find;
+pub mod lesson13_sorting;

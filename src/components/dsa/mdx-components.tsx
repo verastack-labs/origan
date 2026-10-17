@@ -18,6 +18,7 @@ import {
   TrieDiagram,
   UnionFindDiagram,
 } from "./diagrams";
+import * as algoDiagrams from "./algo-diagrams";
 import * as javaDiagrams from "./java-diagrams";
 import { Part } from "./part";
 import { Practice } from "./practice";
@@ -109,6 +110,7 @@ const shared: MDXComponents = {
   TrieDiagram,
   UnionFindDiagram,
   ...javaDiagrams,
+  ...algoDiagrams,
 };
 
 /**
