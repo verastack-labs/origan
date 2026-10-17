@@ -13,7 +13,7 @@ import {
   type TouchEvent,
 } from "react";
 import { List, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
-import { lessonParts, lessonPath, rustDsa } from "@/data/rust-dsa";
+import { coursePath, type CourseNav } from "@/data/courses";
 import { CHAPTERS_KEY } from "@/lib/chapters";
 import { ReadCheck } from "./read-tick";
 
@@ -69,18 +69,18 @@ const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)"
  * Measured on scroll in an animation frame, the way the site's section index
  * does it, so a long page costs one read per frame.
  */
-function useActivePart(): number {
+function useActivePart(parts: CourseNav["parts"]): number {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
-    const parts = lessonParts.map((part) => document.getElementById(part.id));
+    const elements = parts.map((part) => document.getElementById(part.id));
     let frame = 0;
 
     const measure = () => {
       frame = 0;
       const line = window.innerHeight * 0.34;
       let current = 0;
-      parts.forEach((part, i) => {
+      elements.forEach((part, i) => {
         if (part && part.getBoundingClientRect().top <= line) current = i;
       });
       setActive(current);
@@ -97,7 +97,7 @@ function useActivePart(): number {
       window.removeEventListener("resize", onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [parts]);
 
   return active;
 }
@@ -114,11 +114,13 @@ function revealCurrent(box: HTMLElement | null) {
 
 /** The nav itself: thirteen lessons, with the seven parts under the one you are on. */
 function ChapterList({
+  course,
   chapters,
   current,
   active,
   onNavigate,
 }: {
+  course: CourseNav;
   chapters: readonly Chapter[];
   current: string;
   active: number;
@@ -143,7 +145,7 @@ function ChapterList({
             <li key={chapter.slug}>
               {chapter.available ? (
                 <Link
-                  href={lessonPath(chapter.slug)}
+                  href={coursePath(course, chapter.slug)}
                   aria-current={here ? "page" : undefined}
                   onClick={onNavigate}
                   className={`${row} transition-colors ${
@@ -154,7 +156,7 @@ function ChapterList({
                 >
                   {number}
                   <span className="min-w-0 flex-1">{chapter.title}</span>
-                  <ReadCheck slug={chapter.slug} />
+                  <ReadCheck course={course.id} slug={chapter.slug} />
                 </Link>
               ) : (
                 <div className={`${row} text-fg-3`}>
@@ -170,7 +172,7 @@ function ChapterList({
 
               {here && (
                 <ol className="mb-2 ml-[21px] mt-1 border-l border-line-2">
-                  {lessonParts.map((part, i) => {
+                  {course.parts.map((part, i) => {
                     const seen = active === i;
                     return (
                       <li key={part.id}>
@@ -205,16 +207,16 @@ function ChapterList({
 }
 
 /** The course title, linking to the index. */
-function CourseTitle({ onNavigate }: { onNavigate?: () => void }) {
+function CourseTitle({ course, onNavigate }: { course: CourseNav; onNavigate?: () => void }) {
   return (
     <>
       <p className="notation whitespace-nowrap">Part 1</p>
       <Link
-        href={rustDsa.path}
+        href={course.path}
         onClick={onNavigate}
         className="mt-1.5 block whitespace-nowrap text-[19px] font-bold tracking-[-0.02em] text-fg transition-colors hover:text-survey"
       >
-        {rustDsa.name}
+        {course.name}
       </Link>
     </>
   );
@@ -255,12 +257,14 @@ function CollapseButton({
 }
 
 export function ChaptersLayout({
+  course,
   chapters,
   current,
   head,
   contentClass,
   children,
 }: {
+  course: CourseNav;
   chapters: readonly Chapter[];
   current: string;
   /** The page heading. It sits under the chapters bar, so the bar is the first thing below the site header. */
@@ -268,7 +272,7 @@ export function ChaptersLayout({
   contentClass: string;
   children: ReactNode;
 }) {
-  const active = useActivePart();
+  const active = useActivePart(course.parts);
   const collapsed = useSyncExternalStore(subscribe, readCollapsed, () => false);
   const bodyId = useId();
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -398,7 +402,7 @@ export function ChaptersLayout({
             <div className="sticky top-[63px] flex h-[calc(100dvh-63px)] flex-col border-r border-line-2">
               <div className="flex items-start justify-between gap-2 px-[11px] pb-4 pt-5">
                 <div className="chapters-fade min-w-0 flex-1 overflow-hidden pl-1">
-                  <CourseTitle />
+                  <CourseTitle course={course} />
                 </div>
                 <CollapseButton
                   collapsed={collapsed}
@@ -413,7 +417,7 @@ export function ChaptersLayout({
                 className="chapters-fade chapters-body min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-10"
               >
                 <div className="w-[var(--rail-open)] pr-3">
-                  <ChapterList chapters={chapters} current={current} active={active} />
+                  <ChapterList course={course} chapters={chapters} current={current} active={active} />
                 </div>
               </div>
 
@@ -459,7 +463,7 @@ export function ChaptersLayout({
         >
           <div className="flex items-start justify-between gap-3 border-b border-line-2 px-4 pb-4 pt-5">
             <div className="min-w-0">
-              <CourseTitle onNavigate={closeDrawer} />
+              <CourseTitle course={course} onNavigate={closeDrawer} />
             </div>
             <button
               type="button"
@@ -471,7 +475,7 @@ export function ChaptersLayout({
             </button>
           </div>
           <div ref={drawerListRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-24 pt-2">
-            <ChapterList chapters={chapters} current={current} active={active} onNavigate={closeDrawer} />
+            <ChapterList course={course} chapters={chapters} current={current} active={active} onNavigate={closeDrawer} />
           </div>
         </div>
       </dialog>

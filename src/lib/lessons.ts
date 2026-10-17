@@ -1,14 +1,16 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import matter from "gray-matter";
+import { rustCourse, type Course } from "@/data/courses";
 
 /**
- * The lesson files, read at build time.
+ * The lesson files of a course, read at build time. With no course given, it
+ * is DSA in Rust, which is how the section worked before there was a second.
  *
  * Node-only. Every route that uses this is prerendered, so the files are read
  * once during `next build` and nothing is fetched in the browser.
  */
-const DIR = join(process.cwd(), "src", "content", "learn", "rust-dsa");
+const dirOf = (course: Pick<Course, "contentDir">) => join(process.cwd(), ...course.contentDir);
 
 export type Lesson = {
   slug: string;
@@ -58,19 +60,25 @@ export function parseLesson(raw: string, file: string): Lesson {
   };
 }
 
-let cached: Lesson[] | null = null;
+const cached = new Map<string, Lesson[]>();
 
-/** Every published lesson, in teaching order. */
-export function getLessons(): Lesson[] {
-  if (!cached) {
-    cached = readdirSync(DIR)
+/** Every published lesson of a course, in teaching order. */
+export function getLessons(course: Pick<Course, "id" | "contentDir"> = rustCourse): Lesson[] {
+  let lessons = cached.get(course.id);
+  if (!lessons) {
+    const dir = dirOf(course);
+    lessons = readdirSync(dir)
       .filter((f) => f.endsWith(".mdx"))
-      .map((f) => parseLesson(readFileSync(join(DIR, f), "utf8"), f))
+      .map((f) => parseLesson(readFileSync(join(dir, f), "utf8"), f))
       .sort((a, b) => a.order - b.order);
+    cached.set(course.id, lessons);
   }
-  return cached;
+  return lessons;
 }
 
-export function getLesson(slug: string): Lesson | undefined {
-  return getLessons().find((l) => l.slug === slug);
+export function getLesson(
+  slug: string,
+  course: Pick<Course, "id" | "contentDir"> = rustCourse,
+): Lesson | undefined {
+  return getLessons(course).find((l) => l.slug === slug);
 }

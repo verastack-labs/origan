@@ -4,6 +4,7 @@ import { PageHead, section, shell } from "@/components/page-head";
 import { Reveal } from "@/components/reveal";
 import { StudioCredit } from "@/components/dsa/lesson-chrome";
 import { resources, resourcesPage } from "@/data/resources";
+import { javaCourse, rustCourse } from "@/data/courses";
 import { getLessons } from "@/lib/lessons";
 
 export const metadata: Metadata = {
@@ -14,7 +15,8 @@ export const metadata: Metadata = {
 
 /** How many pieces each resource has so far. A new resource adds its own line here. */
 const counts: Record<string, number> = {
-  "dsa-in-rust": getLessons().length,
+  "dsa-in-rust": getLessons(rustCourse).length,
+  "java-collections": getLessons(javaCourse).length,
 };
 
 export default function Resources() {

@@ -1,4 +1,4 @@
-import { curriculum, lessonUrl, rustDsa } from "@/data/rust-dsa";
+import { courses, courseUrl, type Course } from "@/data/courses";
 import { site } from "@/data/site";
 import { getLessons } from "@/lib/lessons";
 
@@ -12,14 +12,28 @@ import { getLessons } from "@/lib/lessons";
  */
 export const dynamic = "force-static";
 
-const lessons = getLessons();
-const lessonLines = lessons
-  .map((lesson) => `- ${lessonUrl(lesson.slug)}: ${lesson.title}. ${lesson.sub}`)
-  .join("\n");
-const comingNext = curriculum
-  .filter((entry) => !lessons.some((lesson) => lesson.slug === entry.slug))
-  .map((entry) => entry.title)
-  .join("; ");
+/** One course's section: what it is, every published lesson, and what is still to come. */
+function courseSection(course: Course): string {
+  const lessons = getLessons(course);
+  const lessonLines = lessons
+    .map((lesson) => `- ${courseUrl(course, lesson.slug)}: ${lesson.title}. ${lesson.sub}`)
+    .join("\n");
+  const comingNext = course.curriculum
+    .filter((entry) => !lessons.some((lesson) => lesson.slug === entry.slug))
+    .map((entry) => entry.title)
+    .join("; ");
+
+  return `## ${course.name}
+
+${course.description} It is free, open to anyone, and made by ${site.studio}
+(${site.labsUrl}).
+
+- ${site.url}${course.path}: the course index, listing all ${course.curriculum.length} lessons planned for Part 1.
+${lessonLines}
+
+Coming next, not yet published: ${comingNext}.
+`;
+}
 
 const body = `# ${site.name}
 
@@ -41,16 +55,7 @@ ${site.name} is built by ${site.studio} in ${site.location}.
 - ${site.url}/resources/: free study material for students, made by
   ${site.studio}. It is separate from the partnership and needs no sign-up.
 
-## ${rustDsa.name}
-
-${rustDsa.description} It is free, open to anyone, and made by ${site.studio}
-(${site.labsUrl}).
-
-- ${site.url}${rustDsa.path}: the course index, listing all ${curriculum.length} lessons planned for Part 1.
-${lessonLines}
-
-Coming next, not yet published: ${comingNext}.
-
+${courses.map(courseSection).join("\n")}
 ## What it is
 
 ${site.name} is a software placement preparation partnership sold to engineering

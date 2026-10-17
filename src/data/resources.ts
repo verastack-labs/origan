@@ -1,8 +1,9 @@
+import { javaCollections } from "./java-collections";
 import { rustDsa } from "./rust-dsa";
 
 /**
  * What the Resources page lists. Add an entry here and it appears on the page,
- * as a card with its name, a line and a count. The first resource is DSA in Rust.
+ * as a card with its name, a line and a count. DSA in Rust is first, then Java Collections.
  */
 export type Resource = {
   id: string;
@@ -22,6 +23,13 @@ export const resources: readonly Resource[] = [
     href: rustDsa.path,
     unit: ["lesson", "lessons"],
   },
+  {
+    id: "java-collections",
+    name: javaCollections.name,
+    summary: "The Java Collections Framework, taught to beginners, with code that is compiled and tested.",
+    href: javaCollections.path,
+    unit: ["lesson", "lessons"],
+  },
 ];
 
 export const resourcesPage = {
@@ -29,5 +37,5 @@ export const resourcesPage = {
   heading: "Free [study] material",
   sub: "Made by VeraStack Labs. Open to anyone, no sign-up.",
   description:
-    "Free study material for engineering students, made by VeraStack Labs. Starting with DSA in Rust: data structures taught in Rust, with code that is compiled and tested.",
+    "Free study material for engineering students, made by VeraStack Labs. DSA in Rust teaches data structures in Rust, and Java Collections teaches the Java Collections Framework. Every code sample is compiled and tested.",
 };

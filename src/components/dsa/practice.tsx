@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { rustCourse, type Course } from "@/data/courses";
 import { Hints } from "./hints";
 import { inlineCode } from "./inline-code";
 import { Snippet } from "./snippet";
@@ -20,6 +21,7 @@ export function Practice({
   solution,
   hints,
   explain,
+  course = rustCourse,
   children,
 }: {
   number: number;
@@ -31,6 +33,7 @@ export function Practice({
   solution: string;
   hints: readonly string[];
   explain: string;
+  course?: Course;
   children: ReactNode;
 }) {
   return (
@@ -44,7 +47,7 @@ export function Practice({
         <div>{children}</div>
 
         <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.13em] text-fg-3">Start here</p>
-        <Snippet file={file} name={start} also={also} />
+        <Snippet file={file} name={start} also={also} course={course} />
 
         <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.13em] text-fg-3">Stuck?</p>
         <Hints hints={hints} />
@@ -57,7 +60,7 @@ export function Practice({
             </span>
           </summary>
           <div className="border-t border-line-2 px-3.5 pb-1 pt-2">
-            <Snippet file={file} name={solution} also={also} />
+            <Snippet file={file} name={solution} also={also} course={course} />
             <p className="mb-4 text-[15.5px] text-fg-2">{inlineCode(explain)}</p>
           </div>
         </details>

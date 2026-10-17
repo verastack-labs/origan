@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { rustDsa } from "@/data/rust-dsa";
+import { rustCourse } from "@/data/courses";
 import { getLesson, getLessons } from "@/lib/lessons";
 import { lessonCard } from "@/lib/og-card";
 
@@ -8,16 +8,16 @@ export const dynamic = "force-static";
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return getLessons().map((lesson) => ({ slug: lesson.slug }));
+  return getLessons(rustCourse).map((lesson) => ({ slug: lesson.slug }));
 }
 
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const lesson = getLesson(slug);
+  const lesson = getLesson(slug, rustCourse);
   if (!lesson) notFound();
 
   return lessonCard({
-    kicker: `${rustDsa.name} · Lesson ${lesson.order}`,
+    kicker: `${rustCourse.name} · Lesson ${lesson.order}`,
     title: lesson.title,
     sub: lesson.sub,
   });

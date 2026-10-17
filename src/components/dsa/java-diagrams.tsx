@@ -1,0 +1,346 @@
+import { Dimension, faint, Figure, Head, label } from "./diagrams";
+
+/**
+ * The Java Collections diagrams, in the same survey style as the DSA in Rust
+ * ones: hairlines, plotted points, dimension lines, one accent. They share the
+ * frame and helpers from `diagrams.tsx`.
+ */
+
+/** Lesson 0: from a .java file to output, with jshell as the shortcut. */
+export function JavaSetupDiagram() {
+  const stations = [
+    { x: 100, top: "Hello.java", bottom: "the code you write" },
+    { x: 360, top: "Hello.class", bottom: "javac compiles it" },
+    { x: 620, top: "Hello, Java!", bottom: "java runs it" },
+  ];
+
+  return (
+    <Figure
+      id="java-setup"
+      title="Write a .java file, compile it with javac, run it with java"
+      caption="The two-step road: javac turns your file into a .class file, and java runs that file. jshell skips both steps for small experiments."
+      viewBox="0 0 720 230"
+    >
+      <line x1={100} x2={620} y1={80} y2={80} className="stroke-survey-2" strokeWidth={1.5} />
+      {stations.map((s, i) => (
+        <g key={s.x}>
+          <circle cx={s.x} cy={80} r={7} className="fill-panel stroke-survey" strokeWidth={1.5} />
+          <text x={s.x} y={50} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+            {s.top}
+          </text>
+          <text x={s.x} y={112} textAnchor="middle" fontSize={12} className={label}>
+            {s.bottom}
+          </text>
+          <text x={s.x} y={132} textAnchor="middle" fontSize={10} className={faint}>
+            {`STATION ${i + 1}`}
+          </text>
+        </g>
+      ))}
+      {/* jshell: a shortcut that goes straight from an idea to an answer. */}
+      <path
+        d="M100 92 C 100 196, 620 196, 620 92"
+        fill="none"
+        strokeDasharray="4 4"
+        className="stroke-fg-3"
+        strokeWidth={1}
+      />
+      <text x={360} y={188} textAnchor="middle" fontSize={12} className="font-mono fill-survey">
+        jshell: type a line, see the answer
+      </text>
+    </Figure>
+  );
+}
+
+/** Lesson 1: interfaces as job descriptions, with the classes that fill them. */
+export function InterfacesDiagram() {
+  const box = (x: number, y: number, w: number, text: string, kind: "iface" | "class") => (
+    <g key={`${text}-${x}`}>
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={34}
+        className={kind === "iface" ? "fill-panel-2 stroke-survey" : "fill-ground stroke-line"}
+        strokeWidth={kind === "iface" ? 1.5 : 1}
+        strokeDasharray={kind === "iface" ? undefined : "4 3"}
+      />
+      <text
+        x={x + w / 2}
+        y={y + 22}
+        textAnchor="middle"
+        fontSize={13}
+        className={kind === "iface" ? "font-mono fill-fg" : "font-mono fill-fg-2"}
+      >
+        {text}
+      </text>
+    </g>
+  );
+  const line = (x1: number, y1: number, x2: number, y2: number, key: string) => (
+    <line key={key} x1={x1} y1={y1} x2={x2} y2={y2} className="stroke-line" strokeWidth={1} />
+  );
+
+  // The Collection family on the left, Map on its own on the right.
+  const list = { x: 20, w: 90 };
+  const set = { x: 130, w: 80 };
+  const queue = { x: 230, w: 100 };
+  const map = { x: 500, w: 90 };
+
+  return (
+    <Figure
+      id="interfaces"
+      title="The collection interfaces and the classes that fill them"
+      caption="Interfaces are the job descriptions (solid boxes). Classes are the people who fill them (dashed outline). Map is a separate family, because it holds pairs."
+      viewBox="0 0 720 340"
+    >
+      {box(130, 20, 130, "Collection", "iface")}
+      {line(195, 54, list.x + list.w / 2, 100, "c-l")}
+      {line(195, 54, set.x + set.w / 2, 100, "c-s")}
+      {line(195, 54, queue.x + queue.w / 2, 100, "c-q")}
+      {box(list.x, 100, list.w, "List", "iface")}
+      {box(set.x, 100, set.w, "Set", "iface")}
+      {box(queue.x, 100, queue.w, "Queue", "iface")}
+
+      {line(list.x + list.w / 2, 134, list.x + list.w / 2, 190, "l-1")}
+      {box(list.x - 10, 190, 110, "ArrayList", "class")}
+      {box(list.x - 10, 238, 110, "LinkedList", "class")}
+      {line(set.x + set.w / 2, 134, set.x + set.w / 2, 190, "s-1")}
+      {box(set.x + 5, 190, 100, "HashSet", "class")}
+      {box(set.x + 5, 238, 100, "TreeSet", "class")}
+      {line(queue.x + queue.w / 2, 134, queue.x + queue.w / 2, 190, "q-1")}
+      {box(queue.x + 20, 190, 110, "ArrayDeque", "class")}
+      {box(queue.x + 20, 238, 130, "PriorityQueue", "class")}
+
+      {box(map.x, 20, map.w, "Map", "iface")}
+      {line(map.x + map.w / 2, 54, map.x + map.w / 2, 190, "m-1")}
+      {box(map.x - 10, 190, 110, "HashMap", "class")}
+      {box(map.x - 10, 238, 110, "TreeMap", "class")}
+
+      <text x={20} y={304} fontSize={11} className={faint}>
+        INTERFACE = WHAT THE JOB IS
+      </text>
+      <text x={20} y={324} fontSize={11} className={faint}>
+        CLASS = WHO DOES IT, AND HOW
+      </text>
+      <Dimension x1={500} x2={600} y={304} text="pairs, not items" />
+    </Figure>
+  );
+}
+
+/** Lesson 2: a list that only accepts one kind of thing, and boxing. */
+export function GenericsDiagram() {
+  const names = ["Asha", "Ravi", "Meera"];
+
+  return (
+    <Figure
+      id="generics"
+      title="A List of String accepts words and refuses a number"
+      caption="List<String> is a box labelled for words. Add a word and it goes in. Add a number and the compiler stops you before the program runs."
+      viewBox="0 0 720 230"
+    >
+      <rect x={200} y={50} width={320} height={80} className="fill-panel-2 stroke-survey" strokeWidth={1.5} />
+      <text x={200} y={40} fontSize={12} className="font-mono fill-survey">
+        List&lt;String&gt;
+      </text>
+      {names.map((n, i) => (
+        <g key={n}>
+          <rect x={216 + i * 100} y={72} width={88} height={36} className="fill-ground stroke-line" strokeWidth={1} />
+          <text x={260 + i * 100} y={95} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+            {n}
+          </text>
+        </g>
+      ))}
+
+      {/* A word goes in. */}
+      <text x={60} y={95} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+        &quot;Kiran&quot;
+      </text>
+      <line x1={104} x2={194} y1={90} y2={90} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={196} y={90} />
+
+      {/* A number is turned away at the door. */}
+      <text x={60} y={176} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+        42
+      </text>
+      <line x1={86} x2={170} y1={172} y2={172} strokeDasharray="4 3" className="stroke-warn" strokeWidth={1.4} />
+      <line x1={178} x2={178} y1={160} y2={184} className="stroke-warn" strokeWidth={2} />
+      <text x={200} y={177} fontSize={12} className="font-mono fill-warn">
+        compile error: int cannot be converted to String
+      </text>
+    </Figure>
+  );
+}
+
+/** Lesson 3: slots in a row. Size counts the used ones, capacity all of them. */
+export function ArrayListDiagram() {
+  const left = 56;
+  const w = 56;
+  const used = ["Asha", "Ravi", "Meera", "Kiran"];
+
+  return (
+    <Figure
+      id="arraylist"
+      title="An ArrayList with four items in a backing array of ten slots"
+      caption="Inside an ArrayList is a plain array. size() counts the slots in use. The spare slots are room to grow into, like empty coaches already hooked to the train."
+      viewBox="0 0 720 210"
+    >
+      <Dimension x1={left} x2={left + used.length * w} y={44} text="size = 4" />
+      {Array.from({ length: 10 }, (_, i) => {
+        const x = left + i * w;
+        const filled = i < used.length;
+        return (
+          <g key={i}>
+            <rect
+              x={x}
+              y={62}
+              width={w}
+              height={52}
+              className={filled ? "fill-panel-2 stroke-survey" : "fill-ground stroke-line"}
+              strokeWidth={filled ? 1.5 : 1}
+              strokeDasharray={filled ? undefined : "4 3"}
+            />
+            {filled && (
+              <text x={x + w / 2} y={93} textAnchor="middle" fontSize={11} className="font-mono fill-fg">
+                {used[i]}
+              </text>
+            )}
+            <text x={x + w / 2} y={137} textAnchor="middle" fontSize={12} className={faint}>
+              {i}
+            </text>
+          </g>
+        );
+      })}
+      <text x={left} y={160} fontSize={10} className={faint}>
+        INDEX
+      </text>
+      <Dimension x1={left} x2={left + 10 * w} y={190} text="capacity = 10" />
+    </Figure>
+  );
+}
+
+/** Lesson 3: inserting in the middle moves everything after it. */
+export function ArrayListShiftDiagram() {
+  const left = 90;
+  const w = 76;
+  const before = ["A", "B", "C", "D"];
+  const after = ["A", "NEW", "B", "C", "D"];
+
+  const row = (items: string[], y: number, highlight: number) =>
+    items.map((v, i) => (
+      <g key={`${y}-${i}`}>
+        <rect
+          x={left + i * w}
+          y={y}
+          width={w}
+          height={40}
+          className={i === highlight ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+          strokeWidth={i === highlight ? 1.8 : 1}
+        />
+        <text x={left + i * w + w / 2} y={y + 25} textAnchor="middle" fontSize={14} className="font-mono fill-fg">
+          {v}
+        </text>
+      </g>
+    ));
+
+  return (
+    <Figure
+      id="arraylist-shift"
+      title="Adding at index 1 shifts B, C and D one slot to the right"
+      caption="list.add(1, &quot;NEW&quot;) cannot just squeeze in. Every item from index 1 onwards moves one place right first, and that is why inserting near the front is slow."
+      viewBox="0 0 720 230"
+    >
+      <text x={20} y={48} fontSize={10} className={faint}>
+        BEFORE
+      </text>
+      {row(before, 28, -1)}
+      <text x={20} y={178} fontSize={10} className={faint}>
+        AFTER
+      </text>
+      {row(after, 158, 1)}
+      {[1, 2, 3].map((i) => (
+        <g key={i}>
+          <line
+            x1={left + i * w + w / 2}
+            x2={left + (i + 1) * w + w / 2}
+            y1={74}
+            y2={150}
+            className="stroke-warn"
+            strokeWidth={1.2}
+            strokeDasharray="4 3"
+          />
+        </g>
+      ))}
+      <text x={left + 5 * w} y={112} fontSize={12} className="font-mono fill-warn">
+        3 items move
+      </text>
+    </Figure>
+  );
+}
+
+/** Lesson 4: a chain of nodes, linked both ways. */
+export function JavaLinkedListDiagram() {
+  const xs = [150, 330, 510];
+  const values = ["Asha", "Ravi", "Meera"];
+  const top = 80;
+  const mid = top + 28;
+
+  return (
+    <Figure
+      id="javalist"
+      title="Three nodes in a chain, each linked to the one before and the one after"
+      caption="A LinkedList keeps a first and a last. Each node holds an item and two links, one to the node before and one to the node after, so it can walk either way."
+      viewBox="0 0 720 230"
+    >
+      <text x={xs[0]} y={44} fontSize={13} className="font-mono fill-fg">
+        first
+      </text>
+      <line x1={xs[0] + 40} x2={xs[0] + 40} y1={50} y2={top - 2} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={xs[0] + 40} y={top - 2} dir="down" />
+      <text x={xs[2] + 85} y={44} fontSize={13} className="font-mono fill-fg">
+        last
+      </text>
+      <line x1={xs[2] + 60} x2={xs[2] + 60} y1={50} y2={top - 2} className="stroke-survey-2" strokeWidth={1.5} />
+      <Head x={xs[2] + 60} y={top - 2} dir="down" />
+
+      {xs.map((x, i) => (
+        <g key={x}>
+          <rect x={x} y={top} width={120} height={56} className="fill-panel-2 stroke-survey" strokeWidth={1.5} />
+          <line x1={x + 22} x2={x + 22} y1={top} y2={top + 56} className="stroke-line" strokeWidth={1} />
+          <line x1={x + 98} x2={x + 98} y1={top} y2={top + 56} className="stroke-line" strokeWidth={1} />
+          <text x={x + 60} y={mid + 5} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+            {values[i]}
+          </text>
+          <circle cx={x + 11} cy={mid} r={3.5} className="fill-survey" />
+          <circle cx={x + 109} cy={mid} r={3.5} className="fill-survey" />
+          {i < xs.length - 1 && (
+            <>
+              <line x1={x + 109} x2={xs[i + 1] - 2} y1={mid - 8} y2={mid - 8} className="stroke-survey-2" strokeWidth={1.4} />
+              <Head x={xs[i + 1] - 2} y={mid - 8} />
+              <line x1={xs[i + 1] + 11} x2={x + 122} y1={mid + 10} y2={mid + 10} className="stroke-fg-3" strokeWidth={1.2} />
+              <path
+                d={`M${x + 122} ${mid + 10} l8 -4 l0 8 z`}
+                className="fill-fg-3"
+              />
+            </>
+          )}
+        </g>
+      ))}
+
+      <text x={xs[0] + 11} y={top + 76} textAnchor="middle" fontSize={11} className={faint}>
+        prev
+      </text>
+      <text x={xs[0] + 60} y={top + 76} textAnchor="middle" fontSize={11} className={faint}>
+        item
+      </text>
+      <text x={xs[0] + 109} y={top + 76} textAnchor="middle" fontSize={11} className={faint}>
+        next
+      </text>
+      <text x={xs[0] + 11} y={top + 94} textAnchor="middle" fontSize={11} className="font-mono fill-warn">
+        null
+      </text>
+      <text x={xs[2] + 109} y={top + 94} textAnchor="middle" fontSize={11} className="font-mono fill-warn">
+        null
+      </text>
+      <Dimension x1={xs[0]} x2={xs[2] + 120} y={206} text="two links per node, so two ways to walk" />
+    </Figure>
+  );
+}

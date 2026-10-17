@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { lessonParts, lessonPath, curriculum } from "@/data/rust-dsa";
+import { coursePath, type Course } from "@/data/courses";
 import { site } from "@/data/site";
 import type { Lesson } from "@/lib/lessons";
 
@@ -19,9 +19,9 @@ export function StudioCredit({ className = "" }: { className?: string }) {
   );
 }
 
-const partLinks = (
+const partLinks = (parts: Course["parts"]) => (
   <ol className="grid gap-1">
-    {lessonParts.map((part, i) => (
+    {parts.map((part, i) => (
       <li key={part.id}>
         <a
           href={`#${part.id}`}
@@ -40,7 +40,7 @@ const partLinks = (
  * on a phone. On a desktop the chapters sidebar lists them beside the text, so
  * this stays out of the way there. Plain links, so it needs no script.
  */
-export function ContentsBlock() {
+export function ContentsBlock({ parts }: { parts: Course["parts"] }) {
   return (
     <details className="group mb-8 rounded-panel border border-line bg-panel lg:hidden">
       <summary className="flex list-none items-center justify-between gap-3 px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.09em] text-fg [&::-webkit-details-marker]:hidden">
@@ -55,17 +55,25 @@ export function ContentsBlock() {
           <path d="M1 2.5l3.5 3.5L8 2.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
         </svg>
       </summary>
-      <div className="border-t border-line-2 p-2">{partLinks}</div>
+      <div className="border-t border-line-2 p-2">{partLinks(parts)}</div>
     </details>
   );
 }
 
 /** Previous and next, at the foot. The next lesson may not be written yet. */
-export function LessonNav({ lesson, lessons }: { lesson: Lesson; lessons: Lesson[] }) {
+export function LessonNav({
+  course,
+  lesson,
+  lessons,
+}: {
+  course: Course;
+  lesson: Lesson;
+  lessons: Lesson[];
+}) {
   const at = lessons.findIndex((l) => l.slug === lesson.slug);
   const prev = lessons[at - 1];
   const next = lessons[at + 1];
-  const upcoming = curriculum.find((entry) => entry.order === lesson.order + 1);
+  const upcoming = course.curriculum.find((entry) => entry.order === lesson.order + 1);
 
   const cell =
     "block h-full bg-panel p-[clamp(16px,2.2vw,24px)] transition-colors";
@@ -73,18 +81,18 @@ export function LessonNav({ lesson, lessons }: { lesson: Lesson; lessons: Lesson
   return (
     <nav aria-label="Previous and next lesson" className="grid gap-px overflow-hidden rounded-panel border border-line bg-line sm:grid-cols-2">
       {prev ? (
-        <Link href={lessonPath(prev.slug)} rel="prev" className={`${cell} hover:bg-panel-2`}>
+        <Link href={coursePath(course, prev.slug)} rel="prev" className={`${cell} hover:bg-panel-2`}>
           <span className="notation">Previous</span>
           <span className="mt-2 block text-[17px] font-semibold tracking-[-0.01em] text-fg">{prev.title}</span>
         </Link>
       ) : (
-        <Link href="/learn/rust-dsa/" className={`${cell} hover:bg-panel-2`}>
+        <Link href={course.path} className={`${cell} hover:bg-panel-2`}>
           <span className="notation">Start</span>
           <span className="mt-2 block text-[17px] font-semibold tracking-[-0.01em] text-fg">All lessons</span>
         </Link>
       )}
       {next ? (
-        <Link href={lessonPath(next.slug)} rel="next" className={`${cell} hover:bg-panel-2 sm:text-right`}>
+        <Link href={coursePath(course, next.slug)} rel="next" className={`${cell} hover:bg-panel-2 sm:text-right`}>
           <span className="notation">Next</span>
           <span className="mt-2 block text-[17px] font-semibold tracking-[-0.01em] text-fg">{next.title}</span>
         </Link>

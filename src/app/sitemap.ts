@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { lessonUrl, rustDsa } from "@/data/rust-dsa";
+import { courses, courseUrl } from "@/data/courses";
 import { pages, site } from "@/data/site";
 import { getLessons } from "@/lib/lessons";
 
@@ -26,17 +26,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // The learning section. Generated from the lesson files themselves, so a
     // lesson that is published is a lesson that is listed, and a draft that has
     // no file is not.
-    {
-      url: `${site.url}${rustDsa.path}`,
-      lastModified,
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    },
-    ...getLessons().map((lesson) => ({
-      url: lessonUrl(lesson.slug),
-      lastModified: new Date(lesson.updated),
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    })),
+    ...courses.flatMap((course) => [
+      {
+        url: `${site.url}${course.path}`,
+        lastModified,
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+      },
+      ...getLessons(course).map((lesson) => ({
+        url: courseUrl(course, lesson.slug),
+        lastModified: new Date(lesson.updated),
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+      })),
+    ]),
   ];
 }

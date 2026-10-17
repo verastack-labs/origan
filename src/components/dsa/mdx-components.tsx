@@ -1,5 +1,6 @@
 import { Children, type ComponentProps, type ReactElement, type ReactNode } from "react";
 import type { MDXComponents } from "mdx/types";
+import { rustCourse, type Course } from "@/data/courses";
 import { playgroundCode } from "@/lib/snippets";
 import { CodeBlock } from "./code-block";
 import {
@@ -12,6 +13,7 @@ import {
   StackDiagram,
   TreeDiagram,
 } from "./diagrams";
+import * as javaDiagrams from "./java-diagrams";
 import { Part } from "./part";
 import { Practice } from "./practice";
 import { Snippet } from "./snippet";
@@ -54,7 +56,7 @@ const link =
  * lesson components (`Part`, `Snippet`, `Practice`, the diagrams) are named so
  * a lesson needs no imports.
  */
-export const components: MDXComponents = {
+const shared: MDXComponents = {
   p: (props: ComponentProps<"p">) => <p className="my-4 text-[17px] leading-[1.7] text-fg" {...props} />,
   h3: (props: ComponentProps<"h3">) => (
     <h3 className="mb-2 mt-9 text-[clamp(18px,2vw,21px)] font-semibold tracking-[-0.02em] text-fg" {...props} />
@@ -87,9 +89,6 @@ export const components: MDXComponents = {
     <td className="border-b border-line-2 bg-panel px-4 py-2.5 align-top text-fg-2 [tr:last-child_&]:border-b-0" {...props} />
   ),
   hr: () => <hr className="my-10 border-line" />,
-  Part,
-  Snippet,
-  Practice,
   Note,
   SetupDiagram,
   ArrayDiagram,
@@ -99,4 +98,21 @@ export const components: MDXComponents = {
   QueueDiagram,
   HashDiagram,
   TreeDiagram,
+  ...javaDiagrams,
 };
+
+/**
+ * The components for one course. Part, Snippet and Practice are bound to it
+ * here, so a lesson writes <Snippet file="..." name="..." /> and gets the
+ * right project's code, and never has to say which course it is in.
+ */
+export function componentsFor(course: Course): MDXComponents {
+  return {
+    ...shared,
+    Part: (props: ComponentProps<typeof Part>) => <Part parts={course.parts} {...props} />,
+    Snippet: (props: ComponentProps<typeof Snippet>) => <Snippet course={course} {...props} />,
+    Practice: (props: ComponentProps<typeof Practice>) => <Practice course={course} {...props} />,
+  };
+}
+
+export const components = componentsFor(rustCourse);
