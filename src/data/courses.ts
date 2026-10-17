@@ -37,8 +37,10 @@ export type Course = {
   /** The line on the course card and the social card. */
   summary: string;
   hero: { heading: string; sub: string };
-  /** The heading above the lesson list; the sub is built from the counts. */
+  /** The heading above Part 1's lesson list; the sub is built from the counts. */
   listingHeading: string;
+  /** The heading above each later part's list, keyed by part number. */
+  partHeadings?: Record<number, string>;
   /** The closing paragraph on the index. */
   verifiedNote: string;
 };
@@ -56,10 +58,11 @@ export const rustCourse: Course = {
   parts: rustParts,
   contentDir: ["src", "content", "learn", "rust-dsa"],
   snippets: { dir: ["rust", "rust-dsa", "src"], ext: ".rs" },
-  about: "Data structures in the Rust programming language",
-  summary: "Data structures, taught in Rust, with code that is compiled and tested.",
-  hero: { heading: "DSA in [Rust]", sub: "Data structures, one working build at a time." },
+  about: "Data structures and algorithms in the Rust programming language",
+  summary: "Data structures and algorithms, taught in Rust, with code that is compiled and tested.",
+  hero: { heading: "DSA in [Rust]", sub: "Data structures, then algorithms, one working build at a time." },
   listingHeading: "Part 1: data [structures]",
+  partHeadings: { 2: "Part 2: [algorithms]" },
   verifiedNote:
     "Every piece of Rust on these pages is a real file that is compiled and tested before the page is built, so the code you read is the code that ran. Your progress is kept in this browser only. Nothing is sent anywhere.",
 };
@@ -93,10 +96,11 @@ export const courseUrl = (course: Pick<Course, "path">, slug: string) =>
   `${site.url}${coursePath(course, slug)}`;
 
 /** The slice of a course a client component needs: small, and plain data. */
-export type CourseNav = Pick<Course, "id" | "name" | "path" | "parts">;
+export type CourseNav = Pick<Course, "id" | "name" | "path" | "parts" | "partNames">;
 export const navOf = (course: Course): CourseNav => ({
   id: course.id,
   name: course.name,
   path: course.path,
   parts: course.parts,
+  partNames: course.partNames,
 });
