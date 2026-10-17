@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Reveal } from "./reveal";
 import { InterestButton } from "./interest";
 import { HeadingPair, type Pair } from "./heading-pair";
@@ -16,19 +17,32 @@ export const section = "py-[clamp(60px,8.5vw,120px)]";
  * repeating them on every route would spend the one image the site has.
  * A subpage opens with a ruled statement instead.
  */
+/** A step up the site, for pages that sit inside another (a lesson inside a course). */
+export type Crumb = { label: string; href: string };
+
 export function PageHead({
   notation,
   pair,
   cta = true,
+  crumbs,
+  current,
 }: {
   notation: string;
   pair: Pair;
+  /**
+   * The pages above this one, outermost first. The last is the parent: the
+   * back link goes there, one step at a time, rather than to the top.
+   */
+  crumbs?: readonly Crumb[];
+  /** This page's name at the end of the trail. */
+  current?: string;
   /** The "Register your interest" button. The learning pages leave it off: their reader is a student. */
   cta?: boolean;
 }) {
   return (
     <header className="border-b border-line bg-ground-2 pb-[clamp(50px,7vw,90px)] pt-[clamp(54px,8vw,110px)]">
       <div className={shell}>
+        {crumbs && crumbs.length > 0 && <Trail crumbs={crumbs} current={current ?? notation} />}
         <Reveal variant="label" className="notation">
           {notation}
         </Reveal>
@@ -40,5 +54,36 @@ export function PageHead({
         )}
       </div>
     </header>
+  );
+}
+
+function Trail({ crumbs, current }: { crumbs: readonly Crumb[]; current: string }) {
+  const parent = crumbs[crumbs.length - 1];
+  return (
+    <nav aria-label="Breadcrumb" className="mb-[clamp(22px,3vw,34px)] flex flex-wrap items-center gap-x-4 gap-y-2.5">
+      <Link
+        href={parent.href}
+        className="inline-flex items-center gap-2 rounded-control border border-line px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.1em] text-fg-2 transition-colors hover:border-survey-2 hover:text-fg"
+      >
+        <span aria-hidden="true">←</span>
+        <span>
+          <span className="sr-only">Back to </span>
+          {parent.label}
+        </span>
+      </Link>
+      <ol className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px] tracking-[0.04em] text-fg-3">
+        {crumbs.map((crumb) => (
+          <li key={crumb.href} className="flex items-center gap-2">
+            <Link href={crumb.href} className="transition-colors hover:text-fg">
+              {crumb.label}
+            </Link>
+            <span aria-hidden="true">/</span>
+          </li>
+        ))}
+        <li aria-current="page" className="text-fg-2">
+          {current}
+        </li>
+      </ol>
+    </nav>
   );
 }
