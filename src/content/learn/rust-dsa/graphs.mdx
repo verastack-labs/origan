@@ -1,0 +1,159 @@
+---
+title: Graphs in Rust
+sub: Adjacency lists, Vec of Vec, and indices instead of references.
+description: Learn how to store graphs in Rust. Build an adjacency list on Vec<Vec<usize>>, compare it with a matrix, and walk it, with a cost table and three practice problems.
+order: 10
+part: 1
+updated: 2026-10-17
+slug: graphs
+---
+
+<Part id="what" heading="A [metro] map in code" sub="Places, and who connects to whom." />
+
+Look at a metro map. It is a handful of dots joined by lines. It tells you nothing about which station is "first" or "on top". It only tells you who connects to whom.
+
+That is a **graph**. The dots are called **vertices** (one is a vertex), and the lines are called **edges**. Two vertices joined by an edge are **neighbours**. How many neighbours a vertex has is its **degree**.
+
+Some edges work both ways, like a metro track. Those graphs are **undirected**. Others are one-way streets, like "follows" on a social app: you can follow someone who does not follow you back. Those graphs are **directed**.
+
+Linked lists and trees are graphs in disguise, with strict rules about their shape. A general graph has no rules. Any vertex may link to any other, and the links can form loops.
+
+Reach for a graph whenever the relationships between things matter more than their order: roads between towns, friends in a network, links between web pages, or which course you must take before another. This lesson is about one question: how do you store a graph in memory? The lessons that follow will walk through them.
+
+<Part id="idea" heading="Number the [places]" sub="A list of neighbours for each vertex." />
+
+<GraphDiagram />
+
+The trick is to give every vertex a number: 0, 1, 2, and so on. Then keep, for each vertex, a list of the numbers it is joined to. This is called an **adjacency list**. ("Adjacent" just means "next to".) In Rust it is a `Vec` of `Vec`s: the outer one has a slot per vertex, and each inner one is that vertex's list of neighbours.
+
+Look at vertex 2 in the picture. Its row says `[0, 1, 3]`, so one lookup tells you everything it touches.
+
+There is another way to store the same map. An **adjacency matrix** is a square grid with one row and one column per vertex. The cell in row `a`, column `b` says `true` if `a` and `b` are joined.
+
+<Snippet file="lesson10_graph" name="adjacency-matrix" />
+
+Asking "are 2 and 3 joined?" is one cell, so it is instant. But listing the neighbours of 2 means scanning a whole row. And the grid takes n × n cells, even if most of them say `false`. A graph with few edges compared with the number it could have is called **sparse**, and most real graphs are: nobody is friends with everyone. For those, the adjacency list is much smaller, and it is the one most people use.
+
+There is a reason for numbers, too, and it is a very Rust reason. In lesson 7, a tree node owned its children. A graph vertex cannot work that way. Vertex 2 is a neighbour of 0, 1 and 3, and they are all neighbours of each other, so who would be the owner? Rust says every value has exactly one owner. Giving each vertex a plain number sidesteps the whole problem. A number is just a position in a `Vec`, and copying it costs nothing.
+
+**Remember:** in Rust, a graph stores vertex numbers, not references. The numbers are indices into a `Vec`.
+
+<Part id="build" heading="Build a [graph]" sub="Edges in, neighbours out." />
+
+<Snippet file="lesson10_graph" name="graph-build" />
+
+Go through it in order.
+
+- `adj` is the adjacency list. `vec![Vec::new(); n]` makes `n` empty lists, one per vertex.
+- `add_edge` adds a two-way road, so each end lists the other. `add_directed_edge` adds a one-way street, so only one end lists the other.
+- `neighbors` hands back a borrowed slice of a vertex's list. The caller can read it but not change it.
+- `has_edge` scans the list with `contains`. That takes as long as the list is, which is the price of this representation.
+- If you pass a vertex number that is out of range, indexing panics, the same as with any `Vec`.
+
+<Snippet file="lesson10_graph" name="graph-build-demo" play={false} />
+
+The metro from the picture is built here. Vertex 2 has the neighbours `[0, 1, 3]`. The one-way graph shows the difference: 0 leads to 1, but 1 does not lead back.
+
+A graph is only useful if you can travel across it. Here is the most common first question: how many stops away is each station? The answer comes from **breadth-first search**, or BFS. It visits the nearest vertices first, then the ones one step further, then one more, like ripples spreading from a stone dropped in a pond. It needs a queue, and you met one in lesson 5.
+
+<Snippet file="lesson10_graph" name="graph-bfs" also="graph-build" />
+
+`dist` has one slot per vertex. `None` means "not reached yet", and `Some(d)` means "d stops from the start". Because of that, `dist` doubles as the record of where you have already been. A vertex is only queued the first time it is reached, so a loop in the graph cannot trap you.
+
+The demo in the Playground builds a metro with six stations. Station 4 is three stops from station 0, and station 5, which has no links at all, is `None`.
+
+<Part id="std" heading="The parts are in [std]" sub="There is no Graph type, so use these." />
+
+The standard library has no `Graph` type, because there are too many kinds to pick one. What it does have are the parts you need:
+
+- `Vec<Vec<usize>>` for the adjacency list
+- `VecDeque` for the BFS queue
+- a plain `Vec` as a stack, and `Vec<bool>` or a `HashSet` for "have I been here?"
+- `HashMap` for turning names into numbers
+
+That last one matters, because real data has names. The stations are "Central" and "Park", not 0 and 1. The usual answer is a side table that turns each name into a number once, up front.
+
+<Snippet file="lesson10_graph" name="graph-names" />
+
+The graph itself still holds only numbers. Names come back only at the very end, when `stations[v]` turns a number into text for printing. In a real project you might reach for a crate such as `petgraph`, which provides graph types ready made. Now you know what is inside them.
+
+**Remember:** keep names in a side table, and keep the graph itself as plain numbers.
+
+<Part id="cost" heading="What each move [costs]" sub="V is the vertices, E the edges." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Add an edge (list) | O(1) | Push onto a list |
+| Are a and b joined? (list) | O(degree of a) | Scan a's list |
+| Are a and b joined? (matrix) | O(1) | Read one cell |
+| List a's neighbours (list) | O(degree of a) | Read a's list |
+| List a's neighbours (matrix) | O(V) | Scan a whole row |
+| Space used (list) | O(V + E) | A slot per vertex, an entry per edge |
+| Space used (matrix) | O(V × V) | A cell for every possible pair |
+| Visit everything with BFS (list) | O(V + E) | Each vertex queued once, each edge looked at once |
+
+The matrix wins at "are these two joined?" and loses at nearly everything else, unless the graph is dense. The list is the sensible default.
+
+<Part id="practise" heading="Three problems, [one] graph" sub="Convert it, cross it, count it." />
+
+These all take the graph as `&[Vec<usize>]`, a borrowed adjacency list. Each starter has a signature and a `todo!()`, which is a placeholder that panics if it runs. Replace it with your code.
+
+<Practice
+  number={1}
+  title="List to grid"
+  file="lesson10_graph"
+  start="to-matrix-start"
+  solution="to-matrix"
+  hints={[
+    "Start from a grid of `false` with n rows and n columns, where n is the number of vertices.",
+    "`vec![vec![false; n]; n]` makes the grid. Each entry `adj[from]` lists the vertices that `from` is joined to.",
+    "Loop over `adj.iter().enumerate()` to get each `from` together with its list. For every `to` in that list, set `matrix[from][to] = true`.",
+  ]}
+  explain="The grid starts all false, and one pass over the lists switches on exactly the edges that exist. Direction is kept: a one-way edge from 0 to 1 sets only `matrix[0][1]`. The work is O(V + E) to visit the lists, plus O(V × V) to build the grid, so the grid is what costs. This is also a reminder of why lists are the usual choice for graphs with few edges."
+>
+Write `to_matrix`, which turns an adjacency list into an adjacency matrix. The result has one row and one column per vertex, and `matrix[a][b]` is `true` when `b` is in `a`'s list. `[[1], [0, 2], [1]]` gives a 3 by 3 grid with `true` at (0,1), (1,0), (1,2) and (2,1).
+</Practice>
+
+<Practice
+  number={2}
+  title="Can I get there?"
+  file="lesson10_graph"
+  start="has-path-start"
+  solution="has-path"
+  hints={[
+    "Start at `from` and keep visiting neighbours. If you ever stand on `to`, the answer is yes. If you run out of places to visit, the answer is no.",
+    "Keep a `Vec` as a to-do stack of vertices to visit, and a `Vec<bool>` called `seen`. Without `seen`, a loop in the graph would send you round forever.",
+    "Pop a vertex. If it is `to`, return `true`. Otherwise push each neighbour that is not `seen` yet, and mark it as seen when you push it, not when you pop it. When the stack is empty, return `false`.",
+  ]}
+  explain="This is a depth-first search, or DFS: it follows one trail as far as it goes before backing up, because the stack hands back the newest vertex first. (BFS uses a queue and spreads out evenly instead.) Marking a vertex as seen when it is pushed means it is pushed at most once. Each vertex is handled once and each edge looked at once, so it is O(V + E) time and O(V) space. Because the lists are directed, the answer respects the direction of every edge."
+>
+Write `has_path`, which says whether you can travel from vertex `from` to vertex `to` by following edges. A vertex can always reach itself. Remember that the graph may have loops.
+</Practice>
+
+<Practice
+  number={3}
+  title="How many pieces?"
+  file="lesson10_graph"
+  start="count-components-start"
+  solution="count-components"
+  hints={[
+    "A **component** is one connected piece of the graph, where every vertex can reach every other. You need to count the pieces.",
+    "Go through the vertices in order. When you meet one you have not seen, you have found a new piece, so add one to the count.",
+    "Then mark every vertex reachable from it as seen, using the same stack and `seen` idea as problem 2. The next unseen vertex must belong to a different piece.",
+  ]}
+  explain="Each time the outer loop meets an unseen vertex, that vertex is in a piece nobody has explored yet, so the count goes up by one. The inner search then marks the whole piece, so none of its other vertices can start a second count. Every vertex and edge is handled a constant number of times, so it is O(V + E) time. This assumes an undirected graph, where every edge appears in both lists. The same counting idea comes back in lesson 12, where union-find does it faster when edges arrive one at a time."
+>
+Write `count_components`, which counts the separate pieces of an undirected graph, where every edge appears in both vertices' lists. A vertex with no edges is a piece of its own. An empty graph has 0 pieces. `[[1], [0], [3], [2], []]` has 3.
+</Practice>
+
+<Part id="interview" heading="Graphs in the [interview]" sub="What to ask, and what to say." />
+
+Graph questions can look scary, because they hide in stories about islands, courses, and flights. A few habits help.
+
+- **Ask four questions first.** Is it directed or undirected? Can edges have weights, such as distances? Can there be loops or repeated edges? Is it sparse or dense? The answers decide the whole approach.
+- **Default to an adjacency list.** Mention the matrix only if the graph is dense or you need to test a single edge in O(1). Saying why shows judgement.
+- **Build it first.** Many problems hand you a list of pairs, like `[(0, 1), (1, 2)]`. Turn it into an adjacency list in O(V + E) before doing anything else.
+- **Never forget `seen`.** A graph can have loops, so a search without a record of visited vertices can run forever. It is the most common bug.
+- **Match the search to the question.** Use BFS for the fewest steps, because it reaches near vertices first. Use DFS to ask "can I reach it?" or to explore everything, because the stack is quick to write.
+- **Say the cost in V and E.** "O(V + E), since each vertex and edge is handled once" is a complete answer.
+- **In Rust, explain the numbers.** A graph has no single owner for each vertex, so storing indices into a `Vec` avoids fighting the borrow checker. Mentioning the heavier alternative, `Rc<RefCell<Node>>`, and why you avoided it, is a strong answer.

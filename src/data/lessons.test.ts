@@ -44,8 +44,8 @@ describe("the curriculum", () => {
 });
 
 describe("the published lessons", () => {
-  it("are lessons 0 to 7, in teaching order", () => {
-    expect(lessons.map((l) => l.order)).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+  it("are lessons 0 to 12, in teaching order", () => {
+    expect(lessons.map((l) => l.order)).toEqual(Array.from({ length: 13 }, (_, i) => i));
   });
 
   it.each(lessons.map((l) => [l.slug, l]))("%s matches its curriculum entry", (_, lesson) => {
