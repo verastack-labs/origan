@@ -92,7 +92,13 @@ export function CourseIndex({ course }: { course: Course }) {
         dangerouslySetInnerHTML={{ __html: jsonLdScript(courseJsonLd(course, lessons)) }}
       />
 
-      <PageHead notation="Free lessons · Made by VeraStack Labs" pair={course.hero} cta={false} />
+      <PageHead
+        notation="Free lessons · Made by VeraStack Labs"
+        pair={course.hero}
+        cta={false}
+        crumbs={[{ label: "Resources", href: "/resources/" }]}
+        current={course.name}
+      />
 
       <section id="lessons" className={section}>
         <div className={shell}>
@@ -233,17 +239,16 @@ export async function LessonView({ course, slug }: { course: Course; slug: strin
             notation={`${course.name} · Lesson ${lesson.order}`}
             pair={{ heading: lesson.title, sub: lesson.sub }}
             cta={false}
+            crumbs={[
+              { label: "Resources", href: "/resources/" },
+              { label: course.name, href: course.path },
+            ]}
+            current={`Lesson ${lesson.order}`}
           />
         }
       >
         <article className="lesson-article min-w-0">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-            <Link
-              href={course.path}
-              className="font-mono text-[10.5px] uppercase tracking-[0.11em] text-fg-2 transition-colors hover:text-survey"
-            >
-              <span aria-hidden="true">← </span>All lessons
-            </Link>
+          <div className="mb-6 flex flex-wrap items-center justify-end gap-x-6 gap-y-2">
             <StudioCredit />
           </div>
 
