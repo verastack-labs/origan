@@ -125,6 +125,9 @@ describe("Switch snippets", () => {
     for (const m of lesson.body.matchAll(/<Snippet\b[^>]*\/>/g)) {
       const js = /\sjs(\s|\/|=\{true\})/.test(m[0]);
       named.push([attr(m[0], "file")!, attr(m[0], "name")!, js ? "js" : "ts"]);
+      for (const extra of (attr(m[0], "also") ?? "").split(",").filter(Boolean)) {
+        named.push([attr(m[0], "file")!, extra.trim(), "ts"]);
+      }
     }
     for (const m of lesson.body.matchAll(/<Compare\b[^>]*\/>/g)) {
       const file = attr(m[0], "file")!;

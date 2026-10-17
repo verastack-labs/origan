@@ -33,7 +33,8 @@ function programsOf(mdx: string, page: string): Program[] {
     const file = attr(m[1], "file");
     const name = attr(m[1], "name");
     if (!file || !name || file.endsWith(".json") || /\sjs(\s|$)/.test(m[1])) continue;
-    out.push({ label: `${page}: ${file} ${name}`, code: region(file, name, TS_SOURCE) });
+    const also = (attr(m[1], "also") ?? "").split(",").filter(Boolean).map((r) => region(file, r.trim(), TS_SOURCE));
+    out.push({ label: `${page}: ${file} ${name}`, code: [...also, region(file, name, TS_SOURCE)].join("\n\n") });
   }
 
   for (const m of mdx.matchAll(/<Compare\s+([\s\S]*?)\/>/g)) {
@@ -90,7 +91,7 @@ const all = pages.flatMap((page) =>
   programsOf(readFileSync(join(dir, page), "utf8"), page.replace(/\.mdx$/, "")),
 );
 
-describe("the programs on The Switch's pages", () => {
+describe("the programs on The Switch's pages", { timeout: 60_000 }, () => {
   it("finds a good number of them", () => {
     expect(all.length).toBeGreaterThan(5);
   });

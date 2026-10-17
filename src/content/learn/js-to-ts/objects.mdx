@@ -1,0 +1,190 @@
+---
+title: Objects
+sub: A form with boxes, some optional, some in ink.
+description: Describe the shape of a JavaScript object with type or interface. Learn optional and readonly properties, why extra and missing fields are errors, and how TypeScript compares shapes, not names.
+order: 3
+part: 1
+updated: 2026-10-17
+slug: objects
+---
+
+<Part id="hook" heading="A form with [boxes]" sub="An object has a shape. A type writes it down." />
+
+Picture a form at a clinic desk. It has boxes: Name, Age, Phone. The desk clerk doesn't accept a form with the Age box empty. Some boxes are marked "optional", like Email. And a few are printed in ink, not pencil: your patient number can't be changed once it is written.
+
+A JavaScript **object** is that form, filled in: `{ name: "Asha", age: 21 }`. The trouble is that JavaScript has no printed form. Nothing says which boxes must be filled, which are optional, or which are in ink. Any code can add a box, forget a box, or rub one out.
+
+TypeScript lets you print the form. You write the **shape** of the object once: which properties it has, and what kind of value each one holds. Then every object that claims to be one of these is checked against it.
+
+This lesson is the one you will use the most. Almost every real program is a pile of objects.
+
+**Remember:** a type for an object is a printed form: the boxes, their kinds, which are optional, and which are in ink.
+
+<Part id="js" heading="A form with no [form]" sub="Missing, misspelled and surprise fields all pass." />
+
+This function wants a user with a name and an age.
+
+<Snippet file="lesson3-objects" name="describe-user" js />
+
+```text
+Asha is 21
+Ravi is undefined
+```
+
+The second call forgot the age. JavaScript shrugged, and the sentence says "Ravi is undefined". Nothing warned us.
+
+Typos in property names are quieter still.
+
+<Snippet file="lesson3-objects" name="excess" js />
+
+```text
+undefined
+```
+
+We wrote `agee` by mistake. JavaScript added a new property called `agee`, and when we asked for `age` we got `undefined`. And an in-ink field, like a configuration value that must never change, can be changed by anyone.
+
+<Snippet file="lesson3-objects" name="readonly" js />
+
+```text
+9090
+```
+
+**Remember:** JavaScript objects have no required fields, no spell-check for property names, and nothing is protected.
+
+<Part id="ts" heading="Print the [form]" sub="Write the shape once. Get errors at every misuse." />
+
+Here is the same function with its form printed. On the TypeScript side, the shape is called `User`.
+
+<Compare file="lesson3-objects" name="describe-user" fail="lesson3-missing-property" />
+
+The `type User = { ... }` part is a **type alias**: a name for a type, so you can use it again. It says a `User` has a `name` that is text and an `age` that is a number. The function now says `user: User`, and the second call is refused, because `{ name: "Ravi" }` is missing a box. The error even names the missing property.
+
+Extra fields get caught as well. This is the typo from before.
+
+<Fails file="lesson3-excess-property" />
+
+When you write an object straight into a place that expects a `User`, TypeScript checks that it has the right properties and no unknown ones. It even suggests what you meant.
+
+Now the optional box. A question mark after the name means "this property may be missing".
+
+<Snippet file="lesson3-objects" name="optional" />
+
+`email?: string` means the email is either text or not there at all. Watch what happens if you use it without checking first. In JavaScript, it crashes.
+
+<Compare file="lesson3-objects" name="optional" fail="lesson3-optional" />
+
+The checker sees that `user.email` might be `undefined`, and refuses to let you call a method on it. The cure is a check, as in `emailOf` above: look first, then use. Lesson 6 covers this properly, along with the `?.` and `??` shortcuts.
+
+Finally, the ink. The word `readonly` in front of a property means "set it when you create the object, and never again".
+
+<Compare file="lesson3-objects" name="readonly" fail="lesson3-readonly" />
+
+The assignment is refused. To get a changed copy, you build a new object rather than editing the old one, which the third practice problem asks you to do.
+
+**Remember:** `?` means "may be missing", `readonly` means "can't be changed", and everything else is required.
+
+<Part id="how" heading="Shapes, not [names]" sub="TypeScript compares what an object has." />
+
+Two things make objects in TypeScript click.
+
+**First: `type` or `interface`?** There are two ways to name an object shape. They look alike, and for most code they do the same job.
+
+<Snippet file="lesson3-objects" name="type-vs-interface" />
+
+The two have the same shape, so one goes wherever the other is wanted. The differences are small. An `interface` can be extended with `extends`, and a `type` can be combined with `&`, which means "both of these".
+
+<Snippet file="lesson3-objects" name="extends" />
+
+An `interface` can also be written twice with the same name, and TypeScript merges the two into one. A `type` can't. This is called **declaration merging**, and you rarely need it in everyday code.
+
+<Snippet file="lesson3-objects" name="merging" />
+
+A good rule: pick one and stay with it. This guide uses `type`, because it can also name things that aren't objects, which later lessons need. Many teams choose `interface` for objects. Either is a fine answer.
+
+**Second: TypeScript is structural.** It decides whether an object fits a type by looking at what the object *has*, not at what it was called or where it came from. There is no need to say "this object implements that type". If it has the right properties, it fits.
+
+<Snippet file="lesson3-objects" name="shape" also="describe-user" />
+
+```text
+Momo is 3
+```
+
+`pet` has a `name`, an `age` and a `tail`. A `User` only needs a name and an age, so `pet` fits, and the extra `tail` is fine. Why was `agee` an error, then? The difference is a **fresh object literal**: an object written directly where a type is expected. Fresh literals get the strict extra-property check, because a stray property there is almost always a typo. A variable that already exists doesn't.
+
+**Remember:** TypeScript asks "does it have what's needed?", not "what is it called?". Fresh object literals also get an extra check for unknown properties.
+
+<Part id="watch" heading="Where objects [bite]" sub="Three places the form can fool you." />
+
+**Optional doesn't mean empty.** In `displayName`, a nickname of `""` (an empty string) is still a nickname. If you test it with a plain `if (person.nickname)`, an empty one counts as missing. Compare against `undefined` when "not given" is what you mean.
+
+**`readonly` is shallow, and only for the checker.** It stops *assignments* the checker sees. It doesn't freeze the object at runtime, and it doesn't reach inside a property that is itself an object. It is a promise to your teammates and your tools, not a lock.
+
+**A type doesn't check data that arrives while the program runs.** If an object comes from a server, `User` is a hope, not a promise the data keeps. Lesson 0 showed this, and lesson 9 fixes it.
+
+Also, don't reach for `any` or for a cast (writing `as User` to overrule the checker) when a shape fights you. Fix the shape, or fix the data. Lesson 11 says when a cast is fair.
+
+**Remember:** `readonly` and `?` are promises that the checker holds you to. They are gone when the program runs.
+
+<Part id="practise" heading="Three shapes, [three] jobs" sub="Name the shape, make a box optional, protect the ink." />
+
+Each problem starts with a JavaScript object function. Open it in the Playground, and describe the shape.
+
+<Practice
+  number={1}
+  title="Name the shape"
+  file="lesson3-objects"
+  start="full-name-start"
+  solution="full-name"
+  hints={[
+    "Write a `type Person = { ... }` with the two properties the function reads.",
+    "`first` and `last` are both text, so both are `string`.",
+    "Use `person: Person` in the function. The call that gives only `first` should now be underlined. Remove it.",
+  ]}
+  explain="The type lists exactly what the function reads: `first` and `last`, both strings. The function then asks for a `Person`. The call that forgot `last` is refused with 'Property last is missing', where JavaScript produced the text 'Ravi undefined'."
+>
+Describe the object `fullName` expects, and use that type for its parameter. The call missing `last` should be refused. Remove it.
+</Practice>
+
+<Practice
+  number={2}
+  title="An optional nickname"
+  file="lesson3-objects"
+  start="display-name-start"
+  solution="display-name"
+  hints={[
+    "`first` is always there. `nickname` may be missing, so mark it with a question mark.",
+    "`nickname?: string`.",
+    "Test for `undefined` directly, instead of testing whether the nickname is truthy. Then an empty nickname is still a nickname.",
+  ]}
+  explain="`nickname?: string` makes the property optional, so both calls are fine. Comparing with `undefined` says exactly what we mean, which is 'was one given'. The earlier truthy check treated an empty nickname as missing, which is a quiet bug in the JavaScript."
+>
+Describe the person, with an optional `nickname`. `displayName` gives the nickname if there is one, and the first name if there isn't.
+</Practice>
+
+<Practice
+  number={3}
+  title="Protect the defaults"
+  file="lesson3-objects"
+  start="with-port-start"
+  solution="with-port"
+  hints={[
+    "Write a `Config` type with `host` and `port`. Mark both `readonly`.",
+    "The old `withPort` changed its input. With `readonly` that line becomes an error. Build a new object instead.",
+    "Spread the old one and override the port: `{ ...config, port }`. Return that.",
+  ]}
+  explain="`readonly` makes the assignment `config.port = port` an error, which is what pushes you to build a new object. The spread `{ ...config, port }` copies every property and then replaces `port`. The defaults object stays untouched, which the JavaScript version did not manage."
+>
+`withPort` changes the config you give it, which also changes the shared defaults. Make the properties `readonly`, and return a new object instead.
+</Practice>
+
+<Part id="interview" heading="Objects in the [interview]" sub="Shapes, optional fields, and the type or interface question." />
+
+Expect the "type or interface" question in almost every TypeScript interview. The honest answer is short.
+
+- **"What is the difference between `type` and `interface`?"** For object shapes they are nearly the same. An `interface` can be extended with `extends` and merged by declaring it twice. A `type` can also name unions, tuples and other non-object types, and combines with `&`. Pick one and be consistent.
+- **"What does `?` after a property name mean?"** The property is optional: it may be missing, so its type includes `undefined`.
+- **"What does `readonly` do?"** The checker refuses assignments to that property. It doesn't freeze the object at runtime.
+- **"What is structural typing?"** Types are compared by their shape, by what properties they have. Two types with the same shape are interchangeable, whatever they are called.
+- **"Why is an extra property an error here but not there?"** Object literals written directly where a type is expected get an excess-property check. An existing variable with extra properties is fine.
+- **"Do types check data from an API?"** No. Types are erased at runtime. Data from outside needs a runtime check.
+- **Say it simply.** "A type is the shape of an object. TypeScript checks shapes, not names" is a good answer.

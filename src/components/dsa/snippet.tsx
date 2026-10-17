@@ -43,7 +43,9 @@ export async function Snippet({
     const text = region(file, name, js ? JS_SOURCE : source);
     // A tsconfig.json is shown as JSON, with no Playground link.
     if (file.endsWith(".json")) return <TsBlock code={text} lang="json" play={false} />;
-    return <TsBlock code={text} lang={js ? "javascript" : "typescript"} play={play} />;
+    // `also` regions go to the Playground ahead of the snippet, so it runs on its own.
+    const program = also ? [...also.split(",").map((r) => region(file, r.trim(), source)), text].join("\n\n") : undefined;
+    return <TsBlock code={text} program={program} lang={js ? "javascript" : "typescript"} play={play} />;
   }
   const code = region(file, name, source);
 

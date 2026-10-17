@@ -675,3 +675,56 @@ body > div:has(> div > iframe[src*="hcaptcha.com"][src*="frame=challenge"]) {
   border: 1.5px solid var(--color-survey-2);
   border-radius: 2px;
 }
+
+/*
+ * The pros and costs table of lesson 0. Two columns of full sentences do not
+ * fit a phone, and a table that scrolls sideways hides the costs, which is the
+ * half of it the lesson most wants read. So below 640px each row becomes a pair
+ * of stacked cells, each carrying its column's name.
+ */
+@media (max-width: 639px) {
+  .ledger table {
+    display: block;
+    min-width: 0;
+  }
+
+  .ledger thead {
+    display: none;
+  }
+
+  .ledger tbody,
+  .ledger tr,
+  .ledger td {
+    display: block;
+  }
+
+  .ledger td {
+    border-bottom: 0;
+  }
+
+  .ledger tr {
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .ledger tr:last-child {
+    border-bottom: 0;
+  }
+
+  .ledger td::before {
+    display: block;
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--color-fg-3);
+  }
+
+  .ledger td:nth-child(1)::before {
+    content: "What you gain";
+  }
+
+  .ledger td:nth-child(2)::before {
+    content: "What it costs";
+  }
+}
