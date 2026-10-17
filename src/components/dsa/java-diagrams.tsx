@@ -740,3 +740,85 @@ export function BinarySearchDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 11: the decision guide as a flow. Three questions lead to one class. */
+export function ChoosingDiagram() {
+  const question = (cx: number, cy: number, w: number, text: string, key: string) => (
+    <g key={key}>
+      <rect x={cx - w / 2} y={cy - 18} width={w} height={36} className="fill-panel-2 stroke-survey" strokeWidth={1.5} />
+      <text x={cx} y={cy + 5} textAnchor="middle" fontSize={12} className="font-mono fill-fg">
+        {text}
+      </text>
+    </g>
+  );
+  const leaf = (x: number, y: number, name: string, hint: string) => (
+    <g key={name}>
+      <rect x={x} y={y} width={200} height={40} className="fill-ground stroke-line" strokeWidth={1} />
+      <text x={x + 10} y={y + 17} fontSize={13} className="font-mono fill-fg">
+        {name}
+      </text>
+      <text x={x + 10} y={y + 32} fontSize={10} className={label}>
+        {hint}
+      </text>
+    </g>
+  );
+  const line = (x1: number, y1: number, x2: number, y2: number, key: string) => (
+    <line key={key} x1={x1} y1={y1} x2={x2} y2={y2} className="stroke-fg-3" strokeWidth={1.2} />
+  );
+
+  const top = 246;
+  const col = { map: 20, set: 250, list: 480 };
+
+  return (
+    <Figure
+      id="choosing"
+      title="Which collection? Answer up to three questions"
+      caption="Start at the top. Do you look things up by a key? If not, must each item appear once? If not, how will the items be used? The class at the end of the path is your first choice."
+      viewBox="0 0 720 400"
+    >
+      {question(360, 34, 290, "Do you look things up by a key?", "q1")}
+      {line(300, 52, 120, top - 22, "q1-yes")}
+      <text x={190} y={120} fontSize={11} className="font-mono fill-survey">
+        yes
+      </text>
+      {line(420, 52, 470, 88, "q1-no")}
+      <text x={456} y={74} fontSize={11} className="font-mono fill-survey">
+        no
+      </text>
+
+      {question(470, 106, 240, "Each item only once?", "q2")}
+      {line(420, 124, 350, top - 22, "q2-yes")}
+      <text x={366} y={170} fontSize={11} className="font-mono fill-survey">
+        yes
+      </text>
+      {line(540, 124, 600, 162, "q2-no")}
+      <text x={582} y={150} fontSize={11} className="font-mono fill-survey">
+        no
+      </text>
+
+      {question(600, 180, 230, "How is it used?", "q3")}
+      {line(600, 198, 580, top - 22, "q3-go")}
+
+      <text x={col.map} y={top - 8} fontSize={10} className={faint}>
+        A MAP, WHEN ORDER IS...
+      </text>
+      {leaf(col.map, top, "HashMap", "any order, fastest lookup")}
+      {leaf(col.map, top + 50, "LinkedHashMap", "the order you added")}
+      {leaf(col.map, top + 100, "TreeMap", "keys sorted")}
+
+      <text x={col.set} y={top - 8} fontSize={10} className={faint}>
+        A SET, WHEN ORDER IS...
+      </text>
+      {leaf(col.set, top, "HashSet", "any order, fastest check")}
+      {leaf(col.set, top + 50, "LinkedHashSet", "the order you added")}
+      {leaf(col.set, top + 100, "TreeSet", "items sorted")}
+
+      <text x={col.list} y={top - 8} fontSize={10} className={faint}>
+        A LIST OR QUEUE, WHEN YOU...
+      </text>
+      {leaf(col.list, top, "ArrayList", "read by position")}
+      {leaf(col.list, top + 50, "ArrayDeque", "work at the ends: stack, queue")}
+      {leaf(col.list, top + 100, "PriorityQueue", "need the most urgent first")}
+    </Figure>
+  );
+}
