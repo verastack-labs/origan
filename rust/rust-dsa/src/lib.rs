@@ -16,3 +16,8 @@
 pub mod lesson0_setup;
 pub mod lesson1_vec;
 pub mod lesson2_strings;
+pub mod lesson3_linked_list;
+pub mod lesson4_stack;
+pub mod lesson5_queue;
+pub mod lesson6_hash;
+pub mod lesson7_tree;

@@ -57,6 +57,24 @@ describe("playgroundCode", () => {
     expect(out).toBe('pub fn two() -> i32 {\n    2\n}\n\nfn main() {\n    println!("{}", two());\n}\n');
   });
 
+  it("wraps a use line and statements together in main", () => {
+    expect(playgroundCode("use std::collections::HashMap;\n\nlet mut m = HashMap::new();\nm.insert(1, 2);")).toBe(
+      "fn main() {\n    use std::collections::HashMap;\n\n    let mut m = HashMap::new();\n    m.insert(1, 2);\n}\n",
+    );
+  });
+
+  it("wraps a local type and the statements that use it in main", () => {
+    const code = '#[derive(Debug)]\nstruct P {\n    x: i32,\n}\n\nlet p = P { x: 1 };\nprintln!("{:?}", p);';
+    const out = playgroundCode(code);
+    expect(out.startsWith("fn main() {\n    #[derive(Debug)]")).toBe(true);
+    expect(out).toContain("    let p = P { x: 1 };");
+  });
+
+  it("treats items, comments and closing brackets as items only", () => {
+    const code = "use std::fmt;\n\n// a note\npub struct A;\n\nimpl A {\n    pub fn f(&self) {}\n}";
+    expect(playgroundCode(code)).toBe(`${code}\n\nfn main() {}\n`);
+  });
+
   it("gives items with no demo an empty main so they still compile", () => {
     expect(playgroundCode("pub fn two() -> i32 {\n    2\n}")).toContain("fn main() {}");
   });

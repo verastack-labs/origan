@@ -1,0 +1,145 @@
+---
+title: Stacks in Rust
+sub: Last in, first out, and a Vec that plays the part.
+description: Learn stacks in Rust. Wrap a Vec as a stack, see why Vec already is one, and solve bracket matching and expression problems, with a cost table and three practice problems.
+order: 4
+part: 1
+updated: 2026-10-17
+slug: stacks
+---
+
+<Part id="what" heading="Last in, [first] out" sub="Like a pile of plates." />
+
+Think of a pile of plates in the canteen. You put a clean plate on top, and when someone needs one, they take the top plate. Nobody pulls from the middle, because the whole pile would wobble.
+
+That is a **stack**. It is a collection where you can only add to the top and only take from the top. The item you added most recently is the first one you get back. This rule is called **LIFO**, short for "last in, first out".
+
+Reach for a stack whenever the most recent thing is the one you need next, or whenever you need to remember what to come back to. Everyday examples are the undo button in an editor, the back button in a browser, and checking that brackets in code are closed in the right order. Your own program uses one too: the **call stack**, which remembers where each running function should return to.
+
+<Part id="idea" heading="Only the [top] moves" sub="Push on, pop off, peek at." />
+
+<StackDiagram />
+
+A stack has three moves, and all of them work on the top.
+
+- **Push** puts a new value on top.
+- **Pop** takes the top value off and gives it to you.
+- **Peek** shows you the top value without taking it.
+
+If a stack is empty, there is nothing to pop or peek at. In Rust the honest way to say that is to return `None` instead of crashing, so `pop` and `peek` give back an `Option`.
+
+Because every move happens at one end, each is one step, however many items are in the stack. That is what makes a stack so cheap to use.
+
+**Remember:** a stack only lets you touch the top. That limit is what keeps it simple and quick.
+
+<Part id="build" heading="Wrap a [Vec]" sub="A stack is a Vec with fewer doors." />
+
+A `Vec` already stores items in a row and grows at the end. A stack only needs that end, so the simplest stack is a `Vec` wrapped in a new type that exposes only the stack moves.
+
+<Snippet file="lesson4_stack" name="stack-build" />
+
+Go through it in order.
+
+- `Stack<T>` is **generic**. The `T` is a placeholder for any type, so one definition gives you a stack of numbers, of strings, or of anything else. The type is filled in when you use it, as in `Stack<i32>`.
+- The field `items` is private, because there is no `pub` on it. Code outside can't reach in and change the middle, so the stack rule can't be broken from the outside.
+- `push` adds to the end of the `Vec`. The end of the `Vec` is the top of the stack.
+- `pop` returns `Option<T>`, which is `Some(value)` or `None` when empty. It hands the value over, so the caller now owns it.
+- `peek` returns `Option<&T>`, a borrowed look at the top. The stack keeps ownership, and the caller can read the value without taking it.
+
+Try it in the Playground. The block above has a `main` ready.
+
+<Part id="std" heading="Vec is already a [stack]" sub="No wrapper needed in everyday code." />
+
+Rust has no separate stack type, because `Vec` does the job. Its end is the top.
+
+<Snippet file="lesson4_stack" name="vec-as-stack" />
+
+`push` and `pop` are the same names. `last()` is peek: it returns an `Option<&T>`. Wrapping the `Vec`, as we did above, is worth doing when you want the type itself to enforce the rule, so nobody can insert in the middle. For a quick tool inside one function, a plain `Vec` is the usual choice.
+
+Because a stack gives back the newest item first, it reverses things:
+
+<Snippet file="lesson4_stack" name="stack-reverse" />
+
+`while let Some(c) = stack.pop()` is the standard way to empty a stack. It runs for as long as `pop` returns `Some`, and stops when the stack is empty.
+
+Sometimes you want to change the top item without removing it. `last_mut()` gives a mutable borrow of it:
+
+<Snippet file="lesson4_stack" name="stack-last-mut" />
+
+The `*top += 1` writes through the reference to change the value in place.
+
+<Part id="cost" heading="What each move [costs]" sub="n is the number of items on the stack." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `push` | O(1) amortised | One write at the end; now and then the `Vec` resizes |
+| `pop` | O(1) | Takes the last slot |
+| `peek` (`last`) | O(1) | Looks at the last slot |
+| `len`, `is_empty` | O(1) | The count is stored |
+| Search for a value | O(n) | You can only look from the top downwards |
+| Space used | O(n) | One slot per item, plus any spare capacity |
+
+Every move that a stack allows is cheap. The price of that is what you give up: a stack has no quick way to find something in the middle.
+
+<Part id="practise" heading="Three problems, [one] pile" sub="Match brackets, evaluate, wait for warmth." />
+
+In all three, the stack holds *things that are still waiting*: an opener waiting for its closer, a number waiting for its operator, a day waiting for a warmer day. When something arrives that settles the newest waiting item, you pop it.
+
+<Practice
+  number={1}
+  title="Balanced brackets"
+  file="lesson4_stack"
+  start="is-balanced-start"
+  solution="is-balanced"
+  hints={[
+    "Each opening bracket makes a promise: a matching closer must come later, and the most recent promise has to be kept first. Which structure gives you the most recent item first?",
+    "Push onto a stack when you see an opener. When you see a closer, pop and check that it matches.",
+    "A neat trick is to push the closer you *expect*, so `(` pushes `)`. Then a closer is correct only if `expected.pop() == Some(c)`. When the text ends, the stack must be empty, or some opener was never closed.",
+  ]}
+  explain="The stack holds the closers still owed, with the most recent on top. A closer that is not the top one means the brackets cross or were never opened, so the answer is false at once. Anything left at the end means an opener was never closed. Comparing `expected.pop()` with `Some(c)` also covers popping an empty stack, because that gives `None`, which never matches. It is one pass, so O(n) time, and the stack can grow to O(n) space."
+>
+Write `is_balanced`, which returns `true` if every bracket in the text is closed by the right kind, in the right order. The brackets are `()`, `[]` and `{}`. `{[()]}` is balanced. `(]` and `([)]` are not. Ignore every other character. Empty text is balanced.
+</Practice>
+
+<Practice
+  number={2}
+  title="Evaluate reverse Polish notation"
+  file="lesson4_stack"
+  start="eval-rpn-start"
+  solution="eval-rpn"
+  hints={[
+    "Read left to right. A number can't be used yet, so it has to wait somewhere. An operator uses the two most recent numbers.",
+    "Push every number onto a stack. At an operator, pop two. The one popped first is the *right* operand, which matters for `-` and `/`.",
+    "Push the result back. `checked_add`, `checked_sub`, `checked_mul` and `checked_div` give `None` instead of overflowing or dividing by zero, and the `?` operator passes a `None` straight out of the function. At the end, exactly one value should be left.",
+  ]}
+  explain="The two pops come out in reverse, so the first pop is the right operand and the second is the left, which is the right way round for `10 2 -`. The `checked_` methods return `None` for an overflow or for dividing by zero, and `?` returns that `None` from the whole function, so bad input never panics. `number.parse().ok()?` does the same for text that is not a number. At the end the match on `stack.as_slice()` accepts only a stack with exactly one value, which rejects both an empty result and leftover numbers. It is O(n) time and O(n) space."
+>
+Write `eval_rpn`, which evaluates an expression in **reverse Polish notation**, where each operator comes *after* its two numbers. `2 3 +` means 2 + 3, and `2 3 + 4 *` means (2 + 3) * 4. The tokens are `&str` values: whole numbers, or one of `+`, `-`, `*`, `/`. Division rounds towards zero. Return `None` for an invalid expression: an operator with too few numbers, a token that is not a number, numbers left over, division by zero, or a result too big for an `i64`.
+</Practice>
+
+<Practice
+  number={3}
+  title="Days until a warmer day"
+  file="lesson4_stack"
+  start="days-until-warmer-start"
+  solution="days-until-warmer"
+  hints={[
+    "The slow way checks every later day for each day, which is O(n squared). A stack lets you do it in one pass.",
+    "Keep a stack of the *indexes* of days that are still waiting for a warmer day. Their temperatures never rise as you go from the bottom of the stack to the top.",
+    "For each new day, while the day on top of the stack is colder than today, pop it: its answer is `today - earlier`. Then push today. Days that are never popped keep their 0.",
+  ]}
+  explain="A new, warmer day settles every colder day waiting on the stack, starting with the newest. Each day is pushed once and popped at most once, so although there is a loop inside a loop, the total work is O(n), not O(n squared). A stack whose values only ever move in one direction like this is called a monotonic stack. It stores indexes rather than temperatures because the answer is the distance between two days. The result starts as all zeros, so days that never see a warmer one are already correct."
+>
+Write `days_until_warmer`, which takes each day's temperature and returns, for every day, how many days you must wait for a warmer one. If there is none, that day's answer is 0. `[70, 71, 69, 72]` gives `[1, 2, 1, 0]`: the day at 71 waits 2 days to reach 72.
+</Practice>
+
+<Part id="interview" heading="Stacks in the [interview]" sub="What to ask, and what to say." />
+
+A stack is often the answer when a problem has things that nest or things that wait. A few habits help.
+
+- **Spot the signals.** Matching pairs (brackets, tags), undoing the latest step, evaluating expressions, and "the next larger element to the right" all point to a stack.
+- **Know the monotonic stack.** Problem 3 is the pattern behind a whole family of questions about the next bigger or smaller value. The surprise is that it is O(n): each item goes in once and comes out once.
+- **Decide what an empty pop means.** Is it an error, or just "no answer"? Asking shows care, and in Rust it decides whether you return `Option`, `Result`, or panic.
+- **Think about recursion too.** A recursive function uses the call stack. Many recursive solutions can be rewritten with your own stack, which avoids very deep calls. You will use this idea again for tree and graph traversal.
+- **Say the cost.** "One pass, each item pushed and popped once, so O(n) time, and O(n) space for the stack in the worst case" is a complete answer.
+- **In Rust, say why `Vec`.** Explaining that a `Vec` already gives O(1) push and pop at the end, so a separate stack type isn't needed, is the kind of answer that shows you know the standard library.

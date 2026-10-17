@@ -44,8 +44,8 @@ describe("the curriculum", () => {
 });
 
 describe("the published lessons", () => {
-  it("are phase 1: lessons 0, 1 and 2", () => {
-    expect(lessons.map((l) => l.order)).toEqual([0, 1, 2]);
+  it("are lessons 0 to 7, in teaching order", () => {
+    expect(lessons.map((l) => l.order)).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
   });
 
   it.each(lessons.map((l) => [l.slug, l]))("%s matches its curriculum entry", (_, lesson) => {
@@ -107,6 +107,9 @@ describe("snippets", () => {
     for (const m of lesson.body.matchAll(/<Practice\b[\s\S]*?\n>/g)) {
       const file = attr(m[0], "file")!;
       named.push([file, attr(m[0], "start")!], [file, attr(m[0], "solution")!]);
+      for (const extra of (attr(m[0], "also") ?? "").split(",").filter(Boolean)) {
+        named.push([file, extra.trim()]);
+      }
     }
 
     expect(named.length).toBeGreaterThan(8);

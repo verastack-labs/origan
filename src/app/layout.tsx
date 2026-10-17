@@ -9,6 +9,7 @@ import { PageTransition } from "@/components/page-transition";
 import { InterestProvider } from "@/components/interest";
 import { SiteFooter } from "@/components/site-footer";
 import { WebAnalytics } from "@/components/web-analytics";
+import { chaptersScript } from "@/lib/chapters";
 import { themeScript } from "@/lib/theme";
 import "./globals.css";
 
@@ -98,7 +99,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `document.documentElement.classList.add('js');${themeScript}`,
+            __html: `document.documentElement.classList.add('js');${themeScript}${chaptersScript}`,
           }}
         />
       </head>
