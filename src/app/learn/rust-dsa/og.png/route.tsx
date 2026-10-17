@@ -6,7 +6,7 @@ export const dynamic = "force-static";
 
 export function GET() {
   return lessonCard({
-    kicker: "Free lessons",
+    kicker: `${rustCourse.descriptor} · Free lessons`,
     title: rustCourse.name,
     sub: rustCourse.summary,
   });

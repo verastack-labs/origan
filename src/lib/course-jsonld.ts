@@ -54,7 +54,7 @@ export function courseJsonLd(course: Course, lessons: Lesson[]) {
 
 /**
  * The trail a reader sees at the top of the page, as structured data, so a
- * search result can show "Origan > Resources > DSA in Rust" instead of a bare URL.
+ * search result can show "Origan > Resources > Oxidise" instead of a bare URL.
  * Pass a lesson for a lesson page; leave it out for the course index.
  */
 export function breadcrumbJsonLd(course: Course, lesson?: Lesson) {

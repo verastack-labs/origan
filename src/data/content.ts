@@ -199,8 +199,8 @@ export const faq = {
       a: "We talk about price in conversation, not on the website. Write to Rigan or register your interest, and he will set up a time.",
     },
     {
-      q: "Is DSA in Rust really free?",
-      a: "Yes, it's free to read, with no sign-up. It's made by VeraStack Labs and sits apart from the partnership.",
+      q: "Are Oxidise (DSA in Rust) and Filter Coffee (Java Collections) free?",
+      a: "Yes, both are free to read, with no sign-up. They sit on The Open Shelf, our free study material, made by VeraStack Labs and apart from the partnership.",
     },
   ],
 } as const;
