@@ -34,13 +34,13 @@ export default function Resources() {
             Study material
           </Reveal>
 
-          <ul className="mt-6 overflow-hidden rounded-panel border border-line">
+          <ul className="mt-6 flex flex-col gap-[clamp(16px,2vw,24px)]">
             {resources.map((resource) => {
               const count = counts[resource.id] ?? 0;
               const [one, many] = resource.unit;
 
               return (
-                <Reveal as="li" key={resource.id} className="border-b border-line-2 bg-panel last:border-b-0">
+                <Reveal as="li" key={resource.id} className="overflow-hidden rounded-panel border border-line bg-panel">
                   <Link
                     href={resource.href}
                     className="group flex h-full flex-col p-[clamp(20px,2.6vw,32px)] transition-colors hover:bg-panel-2"
@@ -52,6 +52,17 @@ export default function Resources() {
                       {resource.name}
                     </span>
                     <span className="mt-2.5 max-w-[44ch] text-[15.5px] text-fg-2">{resource.summary}</span>
+                    <span className="sr-only">Topics: {resource.topics.join(", ")}.</span>
+                    <span aria-hidden="true" className="mt-5 flex max-w-[72ch] flex-wrap gap-1.5">
+                      {resource.topics.map((topic) => (
+                        <span
+                          key={topic}
+                          className="rounded-full border border-line px-2.5 py-[3px] font-mono text-[11px] tracking-[0.02em] text-fg-2"
+                        >
+                          {topic}
+                        </span>
+                      ))}
+                    </span>
                     <span className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-survey">
                       Open the lessons{" "}
                       <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-0.5">
