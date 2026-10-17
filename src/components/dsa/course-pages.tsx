@@ -8,7 +8,7 @@ import { ChaptersLayout, type Chapter } from "@/components/dsa/chapters";
 import { ContentsBlock, LessonNav, StudioCredit } from "@/components/dsa/lesson-chrome";
 import { componentsFor } from "@/components/dsa/mdx-components";
 import { ReadMark, ReadTick } from "@/components/dsa/read-tick";
-import { coursePath, courseUrl, navOf, type Course } from "@/data/courses";
+import { coursePath, courseUrl, fullName, navOf, type Course } from "@/data/courses";
 import { partOf } from "@/data/rust-dsa";
 import { site } from "@/data/site";
 import { courseJsonLd, jsonLdScript, lessonJsonLd } from "@/lib/course-jsonld";
@@ -23,22 +23,23 @@ import { compileLesson } from "@/lib/mdx";
 
 export function indexMetadata(course: Course): Metadata {
   const ogImage = `${course.path}og.png`;
+  const name = fullName(course);
   return {
-    title: course.name,
+    title: name,
     description: course.description,
     alternates: { canonical: course.path },
     openGraph: {
       type: "website",
       siteName: site.name,
-      title: `${course.name} · ${site.name}`,
+      title: `${name} · ${site.name}`,
       description: course.description,
       url: `${site.url}${course.path}`,
       locale: "en_IN",
-      images: [{ url: ogImage, width: 1200, height: 630, alt: `${course.name}, free lessons` }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `${name}, free lessons` }],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${course.name} · ${site.name}`,
+      title: `${name} · ${site.name}`,
       description: course.description,
       images: [ogImage],
     },
@@ -93,7 +94,7 @@ export function CourseIndex({ course }: { course: Course }) {
       />
 
       <PageHead
-        notation="Free lessons · Made by VeraStack Labs"
+        notation={`Free lessons · ${course.descriptor ? `${course.descriptor} · ` : ""}Made by VeraStack Labs`}
         pair={course.hero}
         cta={false}
         crumbs={[{ label: "Resources", href: "/resources/" }]}
@@ -181,7 +182,7 @@ export function CourseIndex({ course }: { course: Course }) {
             How a lesson is built
           </Reveal>
           <HeadingPair
-            pair={{ heading: "Seven parts, every [time]", sub: "So you always know where the cost table is." }}
+            pair={course.shape ?? { heading: "Seven parts, every [time]", sub: "So you always know where the cost table is." }}
             className="mt-3.5"
           />
 

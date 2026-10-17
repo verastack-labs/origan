@@ -1,4 +1,4 @@
-import { courses, courseUrl, type Course } from "@/data/courses";
+import { courses, courseUrl, fullName, type Course } from "@/data/courses";
 import { sheets, site } from "@/data/site";
 import { getLessons } from "@/lib/lessons";
 
@@ -28,7 +28,7 @@ function coursePages(course: Course): string {
     .join("\n");
   const parts = Object.keys(course.partNames).length;
   const planned = parts > 1 ? `across ${parts} parts` : "for Part 1";
-  return `- [${course.name}](${site.url}${course.path}): the course index, listing all ${course.curriculum.length} lessons planned ${planned}.
+  return `- [${fullName(course)}](${site.url}${course.path}): the course index, listing all ${course.curriculum.length} lessons planned ${planned}.
 ${lessonLines}`;
 }
 
@@ -39,7 +39,7 @@ function courseSection(course: Course): string {
     .filter((entry) => !lessons.some((lesson) => lesson.slug === entry.slug))
     .map((entry) => entry.title)
     .join("; ");
-  return `## ${course.name}
+  return `## ${fullName(course)}
 
 ${course.description} It is free, open to anyone, and made by ${site.studio}
 (${site.labsUrl}).

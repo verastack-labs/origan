@@ -63,8 +63,11 @@ function dedent(lines: string[]): string {
 
 const cache = new Map<string, Map<string, string>>();
 
+/** A file name that already carries an extension (a tsconfig.json, say) is used as it is. */
+const fileNameOf = (file: string, source: SnippetSource) => (/\.[a-z]+$/.test(file) ? file : `${file}${source.ext}`);
+
 export function regionsOf(file: string, source: SnippetSource = RUST): Map<string, string> {
-  const path = join(process.cwd(), ...source.dir, `${file}${source.ext}`);
+  const path = join(process.cwd(), ...source.dir, fileNameOf(file, source));
   let regions = cache.get(path);
   if (!regions) {
     regions = parseRegions(readFileSync(path, "utf8"));

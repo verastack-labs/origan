@@ -597,3 +597,67 @@ body > div:has(> div > iframe[src*="hcaptcha.com"][src*="frame=challenge"]) {
 .code-block code {
   font-family: inherit;
 }
+
+/*
+ * The Switch: JavaScript beside TypeScript. A Compare block marks the lines
+ * that differ between the two versions, and a snippet that is meant to fail
+ * marks the line that fails. Both are tints of tokens, so they follow the dark
+ * and light palettes, and neither relies on colour alone: the legend under the
+ * block says what a tinted line is, and the error line also carries a bar.
+ *
+ * Lines are blocks here (the highlighter's newlines are removed), and the code
+ * is as wide as its longest line, so a tint reaches the edge of a long line
+ * that scrolls instead of stopping at the visible edge.
+ */
+.cmp-code pre {
+  padding-inline: 0;
+}
+
+.cmp-code pre code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+
+.cmp-code .line {
+  display: block;
+  min-height: 1lh;
+  padding-inline: 18px;
+}
+
+.cmp-code .line.mark-diff {
+  background: color-mix(in srgb, var(--color-survey) 13%, transparent);
+  box-shadow: inset 2px 0 0 var(--color-survey-2);
+}
+
+.cmp-js .line.mark-diff {
+  background: color-mix(in srgb, var(--color-fg-3) 18%, transparent);
+  box-shadow: inset 2px 0 0 var(--color-fg-3);
+}
+
+.cmp-code .line.mark-error {
+  background: color-mix(in srgb, var(--color-warn) 17%, transparent);
+  box-shadow: inset 3px 0 0 var(--color-warn);
+}
+
+/* "Is it worth it for you?" lists: a small empty box in front of each item. */
+.checklist ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.checklist li {
+  position: relative;
+  padding-left: 30px;
+}
+
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.42em;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--color-survey-2);
+  border-radius: 2px;
+}

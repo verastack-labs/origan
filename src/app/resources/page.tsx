@@ -4,7 +4,7 @@ import { PageHead, section, shell } from "@/components/page-head";
 import { Reveal } from "@/components/reveal";
 import { StudioCredit } from "@/components/dsa/lesson-chrome";
 import { resources, resourcesPage } from "@/data/resources";
-import { javaCourse, rustCourse } from "@/data/courses";
+import { javaCourse, rustCourse, switchCourse } from "@/data/courses";
 import { getLessons } from "@/lib/lessons";
 
 export const metadata: Metadata = {
@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 const counts: Record<string, number> = {
   "dsa-in-rust": getLessons(rustCourse).length,
   "java-collections": getLessons(javaCourse).length,
+  "the-switch": getLessons(switchCourse).length,
 };
 
 export default function Resources() {
@@ -50,6 +51,11 @@ export default function Resources() {
                     </span>
                     <span className="mt-3 text-[clamp(22px,2.6vw,30px)] font-bold tracking-[-0.03em] text-fg">
                       {resource.name}
+                      {resource.descriptor && (
+                        <span className="mt-1 block font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-fg-3">
+                          {resource.descriptor}
+                        </span>
+                      )}
                     </span>
                     <span className="mt-2.5 max-w-[44ch] text-[15.5px] text-fg-2">{resource.summary}</span>
                     <span className="sr-only">Topics: {resource.topics.join(", ")}.</span>

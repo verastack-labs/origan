@@ -47,7 +47,8 @@ export function Practice({
         <div>{children}</div>
 
         <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.13em] text-fg-3">Start here</p>
-        <Snippet file={file} name={start} also={also} course={course} />
+        {/* The Switch starts from JavaScript you convert, so the starting point is the .js version. */}
+        <Snippet file={file} name={start} also={also} course={course} js={course.language === "typescript"} />
 
         <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.13em] text-fg-3">Stuck?</p>
         <Hints hints={hints} />
