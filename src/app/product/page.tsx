@@ -6,6 +6,7 @@ import { HeadingPair } from "@/components/heading-pair";
 import { Glyph, type GlyphName } from "@/components/survey-glyphs";
 import { SurfaceStudy } from "@/components/surface-study";
 import { TalkSection } from "@/components/talk-section";
+import { StudentBand } from "@/components/student-band";
 import { product } from "@/data/content";
 
 export const metadata: Metadata = {
@@ -107,6 +108,7 @@ export default function Product() {
       </section>
 
       <TalkSection />
+      <StudentBand />
     </>
   );
 }

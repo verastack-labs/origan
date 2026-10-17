@@ -6,6 +6,7 @@ import { Reveal } from "@/components/reveal";
 import { Action } from "@/components/action";
 import { InterestButton } from "@/components/interest";
 import { TalkSection } from "@/components/talk-section";
+import { StudentBand } from "@/components/student-band";
 import { section, shell } from "@/components/page-head";
 import { close, consultant, datum, profile, strandsHead } from "@/data/content";
 import { HeadingPair } from "@/components/heading-pair";
@@ -69,6 +70,7 @@ export default function Home() {
       </section>
 
       <TalkSection />
+      <StudentBand />
     </>
   );
 }
