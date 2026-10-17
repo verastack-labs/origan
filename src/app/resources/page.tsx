@@ -37,7 +37,7 @@ export default function Resources() {
       <section id="study" className={sectionCompact}>
         <div className={shell}>
           <Reveal variant="label" className="notation">
-            The Open Shelf
+            Courses
           </Reveal>
 
           <ResourceSearch index={index}>
@@ -52,15 +52,11 @@ export default function Resources() {
                       href={resource.href}
                       className="group flex h-full flex-col p-[clamp(20px,2.6vw,32px)] transition-colors hover:bg-panel-2"
                     >
-                      <span className="font-mono text-[10px] uppercase tracking-[0.13em] text-fg-3">
+                      <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-3">
+                        {resource.descriptor && <span className="text-fg-2">{resource.descriptor} · </span>}
                         Free · {count} {count === 1 ? one : many}
                       </span>
-                      {resource.descriptor && (
-                        <span className="mt-3 font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-fg-3">
-                          {resource.descriptor}
-                        </span>
-                      )}
-                      <span className={`${resource.descriptor ? "mt-1" : "mt-3"} text-[clamp(22px,2.6vw,30px)] font-bold tracking-[-0.03em] text-fg`}>
+                      <span className="mt-2.5 text-[clamp(22px,2.6vw,30px)] font-bold tracking-[-0.03em] text-fg">
                         {resource.name}
                       </span>
                       <span className="mt-2.5 max-w-[44ch] text-[15.5px] text-fg-2">{resource.summary}</span>

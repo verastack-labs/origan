@@ -115,7 +115,7 @@ export const coachSections = [
   { href: "#continuity", label: "Continuity" },
 ] as const;
 
-export const resourcesSections = [{ href: "#study", label: "The Open Shelf" }] as const;
+export const resourcesSections = [{ href: "#study", label: "Courses" }] as const;
 
 /**
  * The sheet a path belongs to. The learning pages live under `/learn/` and
