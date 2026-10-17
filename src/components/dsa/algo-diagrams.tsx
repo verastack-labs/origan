@@ -469,3 +469,75 @@ export function RoadMapDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 19: the coin-change table for coins 1, 3 and 4, and how the last cell is worked out. */
+export function TableDiagram() {
+  const best = [0, 1, 2, 1, 1, 2, 2];
+  const left = 50;
+  const w = 82;
+  const top = 58;
+  const h = 44;
+  const centre = (i: number) => left + i * w + w / 2;
+  const last = best.length - 1;
+  const arcs = [
+    { from: 5, depth: 34, on: false },
+    { from: 3, depth: 62, on: true },
+    { from: 2, depth: 90, on: false },
+  ];
+  const notes = [
+    { text: "coin 1, from amount 5: 2 + 1 = 3 coins", on: false },
+    { text: "coin 3, from amount 3: 1 + 1 = 2 coins   (best)", on: true },
+    { text: "coin 4, from amount 2: 2 + 1 = 3 coins", on: false },
+  ];
+
+  return (
+    <Figure
+      id="dp-table"
+      title="A table of the fewest coins for each amount, with coins of 1, 3 and 4"
+      caption="Each box holds the fewest coins for that amount, filled from left to right. To fill the box for 6, try each coin: step back by the coin's value, and add one coin to the answer already written there. The best of the three tries is 2 coins (3 + 3), where a greedy cashier would use 3."
+      viewBox="0 0 720 290"
+    >
+      <text x={left} y={24} fontSize={10} className={faint}>
+        FEWEST COINS FOR EACH AMOUNT, COINS 1, 3 AND 4
+      </text>
+      <Cells
+        x={left}
+        y={top}
+        w={w}
+        h={h}
+        values={best}
+        kind={(i) => (i === last ? "found" : "hand")}
+      />
+      {best.map((_, i) => (
+        <text key={i} x={centre(i)} y={top - 7} textAnchor="middle" fontSize={11} className={faint}>
+          {`AMOUNT ${i}`}
+        </text>
+      ))}
+      {arcs.map((arc) => {
+        const x1 = centre(arc.from);
+        const x2 = centre(last);
+        const y = top + h;
+        return (
+          <path
+            key={arc.from}
+            d={`M${x1} ${y} C ${x1} ${y + arc.depth}, ${x2} ${y + arc.depth}, ${x2} ${y + 4}`}
+            fill="none"
+            className={arc.on ? "stroke-survey" : "stroke-fg-3"}
+            strokeWidth={arc.on ? 2 : 1}
+          />
+        );
+      })}
+      {notes.map((note, i) => (
+        <text
+          key={i}
+          x={left}
+          y={206 + i * 24}
+          fontSize={12}
+          className={note.on ? "font-mono fill-survey" : label}
+        >
+          {note.text}
+        </text>
+      ))}
+    </Figure>
+  );
+}

@@ -32,3 +32,4 @@ pub mod lesson15_two_pointers;
 pub mod lesson16_backtracking;
 pub mod lesson17_bfs_dfs;
 pub mod lesson18_shortest_paths;
+pub mod lesson19_dynamic_programming;
