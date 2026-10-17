@@ -1,0 +1,206 @@
+---
+title: Setting up Java
+sub: And how to read these pages.
+description: Install JDK 21, write and run your first Java program with javac and java, try ideas instantly in jshell, and learn how the lessons in Java Collections are laid out.
+order: 0
+part: 1
+updated: 2026-10-17
+slug: setup
+---
+
+<Part id="what" heading="What you need [first]" sub="A JDK, a folder, and a tiny program." />
+
+Think of a recipe and a kitchen. A recipe on paper is not a meal. You need a kitchen, and a cook who reads the recipe and checks it makes sense, and then someone to serve the dish.
+
+Java works the same way. The code you write is the **recipe**. It lives in a plain text file that ends in `.java`. A tool called **`javac`** is the cook who checks the recipe and prepares it. A second tool called **`java`** serves the dish, which means it runs your program. The kitchen that holds both tools is the **JDK**, short for *Java Development Kit*.
+
+This course teaches the **Java Collections Framework**. A **collection** is an object that holds a group of other objects, such as a list of names or a table of marks. The framework is the set of ready-made collections that Java ships with: `ArrayList`, `HashMap` and their relatives. Coding tests and interviews in Java often ask which one fits a job, so knowing them well is worth the time.
+
+You don't need to know Java well yet. You do need the basics from any first Java class: variables, `if`, loops, methods, and what a class is. Each lesson explains the new words when they first appear.
+
+Here is what you need before lesson 1:
+
+- **JDK 21.** This course uses version 21, which is a **long-term support** (LTS) release, meaning its maker keeps fixing it for years. It is a good one to learn on.
+- **A folder** for your practice files.
+- **A text editor.** Any editor works. IntelliJ IDEA and Visual Studio Code are common choices, but you don't need either.
+
+<Part id="idea" heading="Write, compile, [run]" sub="Two tools, one road, and a shortcut." />
+
+There is one road from a file to an answer, and you will walk it in every lesson.
+
+<JavaSetupDiagram />
+
+You write `Hello.java`. You run `javac Hello.java`, and it checks your code and makes a new file, `Hello.class`. Then you run `java Hello`, and Java runs that file and prints the result.
+
+The dashed line is the shortcut. **`jshell`** is a console that comes with the JDK. You type a line of Java, press Enter, and it answers straight away. There is no file and no compile step. That makes it perfect for questions like "what does this method return?". We use it all through this course, so you will meet it properly in a few minutes.
+
+**Remember:** `javac` checks and prepares your code. `java` runs it. `jshell` does both, one line at a time.
+
+<Part id="use" heading="Your first [program]" sub="Install, save, compile, run." />
+
+**1. Install JDK 21.** Search for "Temurin 21" or "JDK 21" and download the installer for your system. Temurin, from the Eclipse Adoptium project, is one free build of the JDK. Others work just as well. Run the installer, then open a **new** terminal (an old one won't know about the install) and check:
+
+```bash
+java -version
+javac -version
+```
+
+The first command should print a line with `21` in it, such as `openjdk version "21.0.12"`. The second should print `javac 21.0.12` or similar. If you see "command not found", close the terminal and open a fresh one. If it still fails, the installer did not add Java to your **PATH**, which is the list of folders your terminal searches for programs. Most installers have a tick box for it.
+
+**2. Save a program.** In your practice folder, make a file called `Hello.java` with this inside.
+
+<Snippet file="Hello" name="hello" tip={false} />
+
+Two rules matter here. The file name must match the class name exactly, capital letters included, so `class Hello` lives in `Hello.java`. And Java starts running at a method called `main`, which always has this exact shape. You don't need to understand every word of it yet. `public static void main(String[] args)` is simply the doorway that Java looks for.
+
+**3. Compile and run.**
+
+```bash
+javac Hello.java
+java Hello
+```
+
+```text
+Hello, Java Collections!
+```
+
+After the first command a new file, `Hello.class`, appears in the folder. Run `java Hello` with no `.class` on the end. If you see the greeting, you are set up.
+
+**4. A program that checks itself.** Every Java snippet on these pages was run before the page was built. To do that without extra tools, the course uses `assert`, a Java keyword that stops the program if a claim is false. Save this as `FirstCheck.java`.
+
+<Snippet file="FirstCheck" name="first-check" tip={false} />
+
+`add` takes two whole numbers and gives back their sum. `sum` loops over an array, which is a fixed row of values, and adds them up with `+=`. In `main`, each `assert` states something that must be true. The text after the colon is the message to show if it is not.
+
+Run it with one new flag:
+
+```bash
+javac FirstCheck.java
+java -ea FirstCheck
+```
+
+```text
+All checks ran
+```
+
+The `-ea` flag means "enable assertions". Without it Java ignores every `assert` line, so a wrong answer would pass without a word. To see a failure, change `add(2, 3) == 5` to `add(2, 3) == 6` and run it again. You get `Exception in thread "main" java.lang.AssertionError: add(2, 3) should be 5`, followed by lines that say where. Change it back afterwards.
+
+**5. Meet jshell.** Type `jshell` in your terminal and try these. After each line, press Enter.
+
+```text
+$ jshell
+|  Welcome to JShell -- Version 21.0.12
+|  For an introduction type: /help intro
+
+jshell> 2 + 3
+$1 ==> 5
+
+jshell> "tea".toUpperCase()
+$2 ==> "TEA"
+
+jshell> /exit
+|  Goodbye
+```
+
+jshell is a **REPL**, which stands for *read, evaluate, print, loop*. It reads what you type, works it out, prints the answer, and waits for more. When a line produces a value that you didn't name, jshell names it for you, like `$1`, so you can use it later. Commands that start with a slash, like `/exit`, talk to jshell itself instead of running Java.
+
+<Part id="inside" heading="What [javac] makes" sub="A .class file full of bytecode." />
+
+When `javac` finishes, the `.class` file does not hold machine instructions for your particular computer. It holds **bytecode**, a compact set of instructions for an imaginary computer called the **JVM**, the *Java Virtual Machine*. The `java` command starts a JVM and hands it your bytecode.
+
+That detour is the reason the same `.class` file runs on Windows, Linux and macOS. Each system has its own JVM, and every JVM understands the same bytecode.
+
+Since Java 11 there is one more shortcut. `java Hello.java` compiles the file in memory and runs it in a single step. It is handy for a quick test. We still show `javac` and `java` as two steps, because seeing both helps you understand which of them is complaining when something goes wrong. Errors found by `javac` are **compile-time** errors, and they stop you before anything runs. Errors that appear while the program is running are **run-time** errors.
+
+Now the rule for reading code blocks on these pages. Every Java block has a **Copy** button. Blocks that are pieces of code, rather than whole programs, also carry a small note: *Paste into jshell to try it*. That is a promise that jshell understands the piece as it is, with no class wrapped around it. Here is a method and a few lines that use it. Paste the first block, then the second.
+
+<Snippet file="Lesson0Setup" name="sum" />
+
+<Snippet file="Lesson0Setup" name="sum-demo" />
+
+jshell prints `total = 108`. Loops work too, and so do arrays:
+
+<Snippet file="Lesson0Setup" name="array-loop" />
+
+Blocks marked with a file name, like `Hello`, are whole programs. Save those as files and compile them.
+
+There is no "Run" button on these pages. Java has no official online runner, and we would rather not send you to someone else's website. Your own JDK is better anyway: it is the same tool you will use in a test or at work.
+
+<Part id="cost" heading="What each [command] does" sub="Time costs start in lesson 1." />
+
+There's no collection to measure yet, so here are the commands you'll use.
+
+| Command | What it does | When to use it |
+| --- | --- | --- |
+| `java -version` | Prints the Java version | To check the install |
+| `javac Name.java` | Checks the code and makes `Name.class` | After each change |
+| `java Name` | Runs the compiled class | After compiling |
+| `java -ea Name` | Runs it with `assert` lines switched on | When the program checks itself |
+| `jshell` | Opens the interactive console | To try an idea in seconds |
+| `/exit` | Leaves jshell | When you are done |
+
+From lesson 1, each lesson has a cost table like this one, but for the operations on a collection. It uses **Big O notation**, which is a way of saying how the work grows as the input gets bigger. *n* is the number of items. **O(1)** means the work is the same however large *n* is. **O(n)** means it grows in step with *n*: twice as many items, about twice the work. **O(n²)** means it grows with the square: twice as many items, about four times the work. You don't need the maths. You need to be able to say which one an operation is.
+
+<Part id="practise" heading="Three small [problems]" sub="Each one has hints and a solution." />
+
+Each lesson ends with problems. For every one: read it, try it in jshell or in a file of your own, and open the hints one at a time only when you are stuck. The solution is there to compare against, not to copy. A solution you peeked at too early teaches much less than one you fought for.
+
+The starting code is a method that only throws an error saying "not done yet". Paste it into jshell, replace the body, and call it with a few inputs of your own.
+
+<Practice
+  number={1}
+  title="Count the even numbers"
+  file="Lesson0Setup"
+  start="count-evens-start"
+  solution="count-evens"
+  hints={[
+    "An even number leaves no remainder when you divide it by 2. The remainder operator is `%`.",
+    "Loop over the array and keep a counter. Add one each time `n % 2 == 0`.",
+    "The for-each loop `for (int n : nums)` gives you each number in turn without an index to manage.",
+  ]}
+  explain="The loop looks at each number once, so the work is O(n). `n % 2 == 0` is true for zero and for negative even numbers too, because the remainder of -4 divided by 2 is 0. The counter starts at 0, so an empty array correctly gives 0."
+>
+Write `countEvens`, which returns how many numbers in the array are even. For `{1, 2, 3, 4, 6}` the answer is `3`. Zero is even.
+</Practice>
+
+<Practice
+  number={2}
+  title="Find the largest number"
+  file="Lesson0Setup"
+  start="largest-start"
+  solution="largest"
+  hints={[
+    "What should the answer be for an empty array? There is no largest number, so something has to give. Throwing an exception is an honest way to say so.",
+    "Start with the first item as your best so far. Then walk the array and replace it whenever you see something bigger.",
+    "Don't start from 0. If every number is negative, 0 would wrongly win. Starting from `nums[0]` avoids that.",
+  ]}
+  explain="Starting from a real item means negative numbers work. The check for an empty array comes first, because `nums[0]` on an empty array would crash with a confusing error. Throwing `IllegalArgumentException` with a clear message is kinder to whoever calls the method. One pass makes it O(n) time and O(1) extra space."
+>
+Write `largest`, which returns the biggest number in the array. For `{3, 9, 2}` the answer is `9`. Negative numbers must work too. For an empty array, throw an `IllegalArgumentException`.
+</Practice>
+
+<Practice
+  number={3}
+  title="Keep a running total"
+  file="Lesson0Setup"
+  start="running-total-start"
+  solution="running-total"
+  hints={[
+    "For `{1, 2, 3, 4}` the answer is `{1, 3, 6, 10}`. Each slot is the one before it plus the next number.",
+    "Make a new array the same length as the input: `new int[nums.length]`.",
+    "Keep a variable called `total`. For each position, add that number to `total`, then store `total` in the new array.",
+  ]}
+  explain="This is the first method here that builds and returns a new array. The input is never changed, which is a good habit: a method that only reads its input can't surprise its caller. The new array is the same length as the input, so an empty array gives an empty array. The work is O(n) time and O(n) space for the answer."
+>
+Write `runningTotal`, which returns a new array where each position holds the sum of everything up to and including that position. An empty array gives an empty array.
+</Practice>
+
+<Part id="interview" heading="Before the [test] starts" sub="What to check about the language." />
+
+This section is in every lesson. It says, in plain words, how the topic turns up in coding tests and interviews. For this first lesson it is about the setting, not the topic.
+
+- **Check the Java version first.** Online tests often use an older Java than 21. `var` needs Java 10 and `List.of` needs Java 9, so on an older version they won't compile. Look for a version note on the test page, and write the older style if you can't tell.
+- **Know the class rules.** The file name matches the public class name, and the entry point is `public static void main(String[] args)`. Some platforms hide this and give you a method to fill in. Others make you write it.
+- **Practise in the language you will use.** The first time you use something should not be in a timed test. The practice problems here are a good place to meet the rough edges.
+- **Learn to explain, not only to write.** Interviewers often ask you to say what your code does and what it costs. Getting used to saying "this loops once, so it is O(n)" out loud is part of the practice.
+- **Know what `javac` and `java` each do.** "Compile, then run on the JVM" is a short answer that shows you know what happens between the file and the output.

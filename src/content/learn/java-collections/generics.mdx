@@ -1,0 +1,214 @@
+---
+title: Generics, just enough
+sub: Why the angle brackets exist, and what happens to your int.
+description: Learn generics for Java collections. See why List<String> beats a plain List, what the diamond means, how int becomes Integer, and the two traps beginners hit, with three practice problems.
+order: 2
+part: 1
+updated: 2026-10-17
+slug: generics
+---
+
+<Part id="what" heading="Labels on the [lunchbox]" sub="Generics make a list say what it holds." />
+
+Imagine a rack of lunchboxes in a school. One box has no label. You open it and find rice. The next one holds a pencil case, because someone mixed them up. You only find out when you are hungry, and it is too late.
+
+Now imagine every box has a label: *"food only"*. Anyone who tries to put a pencil case in is stopped at the door. You never open a box and get a surprise.
+
+That label is what **generics** give a collection. Before Java 5, a `List` could hold anything at all, and you only found out what you had when the program ran and broke. Now a list carries a label in angle brackets: `List<String>` means "a list of strings, and nothing else". The part inside the brackets is called a **type parameter**. A **type** is the kind of thing a value is, such as `String` for text or `Integer` for a whole number.
+
+Here is what the unlabelled version looks like, and why nobody writes it any more.
+
+<Snippet file="Lesson2Generics" name="raw-list" />
+
+This compiles. A list with no label is called a **raw type**. It happily accepts the word and the number. The trouble comes on the last line, when we pretend the number is a word. Java stops the program with a `ClassCastException` while it is running. The mistake was on line three, but the crash is on line four, and in a bigger program it could be in a different file.
+
+Now the labelled version.
+
+<Snippet file="Lesson2Generics" name="typed-list" />
+
+```text
+TEA
+```
+
+The commented-out line shows the point. With the label, `drinks.add(42)` is rejected by `javac` before the program ever runs. And reading is easier too, because `get` already knows it returns a `String`, so there is no cast.
+
+**Remember:** `<String>` is a label that the compiler checks for you. Mistakes are caught when you compile, not when your program is running in front of someone.
+
+<Part id="idea" heading="Catch it before it [runs]" sub="The compiler reads the label for you." />
+
+<GenericsDiagram />
+
+The picture shows a `List<String>`. The word `"Kiran"` fits and goes in. The number `42` is turned away at the door, and the message comes from the compiler, not from a crashed program.
+
+Two ideas hide in that picture.
+
+**Compile time and run time are different moments.** Compile time is when you run `javac`. Run time is when the program is going. A mistake caught at compile time costs you a few seconds. A mistake found at run time can cost you a failed test or a broken app. Generics move a whole group of mistakes from the second kind to the first kind.
+
+**The label is part of the type.** `List<String>` and `List<Integer>` are different types, even though both are lists. You can write a method that takes one and refuses the other.
+
+<Part id="use" heading="Using [generics] daily" sub="The diamond, the wrappers, and two traps." />
+
+**The diamond.** When you build a collection, you write the label on the left and leave the right side empty:
+
+<Snippet file="Lesson2Generics" name="diamond" />
+
+```text
+{Asha=[82]}
+```
+
+The empty `<>` is called the **diamond**. It tells Java: "work out the label from the left side". Without it you would write `HashMap<String, List<Integer>>` twice. The map above holds a list for each student. A type parameter can itself be a generic type, and nothing stops you from nesting them, as here.
+
+**Only objects fit inside the brackets.** You cannot write `List<int>`. The brackets accept classes, and `int` is a **primitive**, a plain value that is not an object. Each primitive has an object twin, called its **wrapper class**:
+
+| Primitive | Wrapper |
+| --- | --- |
+| `int` | `Integer` |
+| `long` | `Long` |
+| `double` | `Double` |
+| `boolean` | `Boolean` |
+| `char` | `Character` |
+
+So a list of whole numbers is a `List<Integer>`. The good news is that Java converts for you. Putting an `int` in is called **boxing**, and taking it out again is called **unboxing**.
+
+<Snippet file="Lesson2Generics" name="boxing" />
+
+```text
+8
+```
+
+We added the plain `7`, and got back a plain `int` we could do sums with. The wrapping and unwrapping happened out of sight. Out of sight is nice, but it hides two traps.
+
+**Trap 1: `==` on wrapper objects.** Two `Integer`s can hold the same number and still be different objects.
+
+<Snippet file="Lesson2Generics" name="integer-equals" />
+
+```text
+true
+false
+```
+
+`equals` asks "do these hold the same number?". `==` asks "are these the very same object?". Small values from -128 to 127 happen to be shared, so `==` appears to work for them, which is how the bug sneaks into code that passes a quick test. For anything that is an object, use `equals`.
+
+**Trap 2: unboxing `null`.** A map answers `null` for a missing key. A plain `int` cannot hold `null`, so unboxing it fails.
+
+<Snippet file="Lesson2Generics" name="null-unboxing" />
+
+That line throws a `NullPointerException`, because `marks.get("Kiran")` is `null` and Java tries to turn it into an `int`. If the key might be missing, keep the answer as an `Integer`, check it, or use `getOrDefault`.
+
+**Writing your own.** You can use generics in your own code with a placeholder letter, by convention `T` for "type". Here is a method that works for lists of anything:
+
+<Snippet file="Lesson2Generics" name="first-or" />
+
+<Snippet file="Lesson2Generics" name="first-or-demo" />
+
+```text
+tea
+-1
+```
+
+The `<T>` before the return type announces "`T` is a placeholder in this method". The same method handled a list of strings and a list of integers, and the compiler checked each call. And here is a tiny class with the same idea.
+
+<Snippet file="Lesson2Generics" name="crate" />
+
+<Snippet file="Lesson2Generics" name="crate-demo" />
+
+```text
+mango
+```
+
+`Crate<String>` is a crate that holds strings. `Crate<Integer>` would hold integers. The code of `Crate` is written once.
+
+**Remember:** `==` compares objects, `equals` compares what is inside. For anything inside a collection, reach for `equals`.
+
+<Part id="inside" heading="What [boxing] really does" sub="And why the labels vanish." />
+
+**Boxing is a method call.** When you write `nums.add(7)`, `javac` quietly rewrites it to `nums.add(Integer.valueOf(7))`. Unboxing becomes a call to `intValue()`. This is why unboxing `null` throws a `NullPointerException`: the program is calling a method on nothing.
+
+`Integer.valueOf` keeps ready-made objects for the numbers from -128 to 127 and hands out the same one each time. Outside that range it usually makes a new object. That is exactly why `==` looked fine for small numbers and failed for 1000.
+
+**The labels disappear before the program runs.** After `javac` has checked your labels, it removes them from the bytecode. This is called **type erasure**. At run time a `List<String>` and a `List<Integer>` are the same class, plain `List`. Java did it this way so that code written before generics kept working.
+
+That choice explains two rules you may bump into:
+
+- You can't write `new T()` inside a generic class, because at run time there is no `T` to build.
+- You can't use a primitive as a type parameter, because after erasure everything is stored as an object reference.
+
+You don't need more than that for the rest of this course. Generics have deeper corners, such as wildcards, which are written `?`. They matter when you write libraries, not when you use them.
+
+<Part id="cost" heading="What boxing [costs]" sub="Small, but a list of Integer is not an int array." />
+
+Generics themselves cost nothing at run time, because the labels are erased. Boxing is where the price shows up.
+
+| Operation | What happens | Cost |
+| --- | --- | --- |
+| Compile-time label check | `javac` reads the labels | None at run time |
+| Boxing (`nums.add(7)`) | Calls `Integer.valueOf`; may make an object | O(1) |
+| Unboxing (`int x = nums.get(0)`) | Calls `intValue()` | O(1) |
+| `a.equals(b)` on wrappers | Compares the numbers | O(1) |
+| `a == b` on wrappers | Compares the objects | O(1), but usually the wrong question |
+
+The real cost is memory and speed in big programs. A `List<Integer>` holds a *reference* to a separate `Integer` object for each number, and an `int[]` holds the numbers themselves, side by side. For a few thousand items nobody notices. For tens of millions, the plain array is far lighter. Collections give you convenience, and boxing is the fee.
+
+<Part id="practise" heading="Three problems, [one] label" sub="Add, look at the end, and compare properly." />
+
+In all three, the method signature uses the labels you just learned. Read the types first. They tell you most of what the method does.
+
+<Practice
+  number={1}
+  title="Add up a list of Integers"
+  file="Lesson2Generics"
+  start="sum-all-start"
+  solution="sum-all"
+  hints={[
+    "A `List<Integer>` holds `Integer` objects, but your total is a plain `int`. Java converts between them for you.",
+    "A for-each loop can name the loop variable `int`. `for (int n : nums)` unboxes each `Integer` as it goes.",
+    "Start `total` at 0 and add each `n` to it. The sum of an empty list is 0.",
+  ]}
+  explain="The loop variable is declared `int`, so each `Integer` is unboxed once as it is read. Starting `total` at 0 makes the empty list correct without a special case. One pass gives O(n) time and O(1) extra space. If any item in the list were `null`, the unboxing would throw a `NullPointerException`, which is the trap from earlier."
+>
+Write `sumAll`, which returns the sum of all the numbers in the list. For `[1, 2, 3, 4]` the answer is `10`. An empty list gives `0`.
+</Practice>
+
+<Practice
+  number={2}
+  title="The last item, or a fallback"
+  file="Lesson2Generics"
+  start="last-or-start"
+  solution="last-or"
+  hints={[
+    "The signature has `<T>` in front of the return type, so this method works for a list of anything. Treat `T` like any other type name.",
+    "Check `items.isEmpty()` first. If it is empty, return the fallback.",
+    "The last position is `items.size() - 1`, because positions start at 0.",
+  ]}
+  explain="Because `T` is a placeholder, one method serves lists of strings, numbers or anything else, and `javac` still checks that the fallback matches the list. The empty check comes first so that `items.size() - 1` is never -1. `get` on a list is O(1) for an `ArrayList`, so the whole method is O(1) there."
+>
+Write `lastOr`, which returns the last item in the list, or the `fallback` if the list is empty. `lastOr(List.of("a", "b", "c"), "none")` gives `"c"`. `lastOr(emptyListOfStrings, "none")` gives `"none"`.
+</Practice>
+
+<Practice
+  number={3}
+  title="Count one item"
+  file="Lesson2Generics"
+  start="count-occurrences-start"
+  solution="count-occurrences"
+  hints={[
+    "Loop over the list and count each item that matches the target.",
+    "To compare, `==` is tempting and wrong here. Two equal `Integer`s above 127 are different objects.",
+    "Use `item.equals(target)`. It asks whether the two hold the same value, whatever the type.",
+  ]}
+  explain="`equals` compares what is inside the objects, so it works for strings, wrapper numbers and any class that defines `equals` properly (lesson 7 explains how). Using `==` would pass small tests and fail on large numbers or on strings built at run time, which is a classic way to lose marks. The loop visits each item once, so it is O(n) time and O(1) space."
+>
+Write `countOccurrences`, which returns how many items in the list are equal to `target`. For `["a", "b", "a"]` and the target `"a"` the answer is `2`. It must work for a list of any type, including a list holding several `Integer` 1000s.
+</Practice>
+
+<Part id="interview" heading="Generics in the [interview]" sub="Short answers to the usual questions." />
+
+Generics are a favourite of interviewers because the answers are short and the traps are real.
+
+- **"Why can't you write `List<int>`?"** Type parameters must be objects, and `int` is a primitive. Use `List<Integer>`, and Java boxes and unboxes for you.
+- **"What is boxing?"** Turning a primitive into its wrapper object, such as `int` to `Integer`, which the compiler does by calling `Integer.valueOf`.
+- **"What goes wrong with `Integer a = 1000, b = 1000; a == b`?"** It compares objects and is usually `false`. Values from -128 to 127 are cached, so small numbers hide the bug. Use `equals`.
+- **"What is type erasure?"** The compiler checks the labels, then removes them. At run time a `List<String>` is just a `List`.
+- **"Why avoid raw types?"** They turn off the label check, so mistakes surface at run time as a `ClassCastException`, far from where they were made.
+- **"What does the diamond `<>` do?"** It lets the compiler fill in the type parameters from the left-hand side, so you don't repeat them.
+- **"What can go wrong when you unbox?"** A `null` wrapper throws a `NullPointerException`. Map lookups for missing keys are the usual source.

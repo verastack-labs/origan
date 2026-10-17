@@ -47,3 +47,19 @@ jobs:
       - name: cargo test
         working-directory: rust/rust-dsa
         run: cargo test
+
+  # Every Java snippet on the Java Collections pages is a real file in this
+  # project, and the pages are built from it. There is no Gradle or Maven: the
+  # script compiles with javac and runs the tests with java -ea, so a snippet
+  # that stops compiling or a failing test fails the pull request.
+  java:
+    name: Java snippets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: javac and java -ea
+        run: java/java-collections/run-tests.sh

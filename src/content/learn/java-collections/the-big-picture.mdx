@@ -1,0 +1,216 @@
+---
+title: The big picture
+sub: Four jobs, many people, and one habit to keep.
+description: Learn how the Java Collections Framework is organised. See List, Set, Queue and Map as four jobs, meet the classes that do them, and learn why code is written against the interface.
+order: 1
+part: 1
+updated: 2026-10-17
+slug: the-big-picture
+---
+
+<Part id="what" heading="Job [descriptions], not people" sub="Interfaces say what. Classes say how." />
+
+Picture a notice on a shop door. *Wanted: someone to keep the list of visitors. Must be able to add a name, check if a name is there, and say how many are on the list.* The notice says what the job is. It says nothing about who does it. A student, a retired teacher or a very organised parrot could all fill it, as long as they can do those three things.
+
+Java's collections are built the same way. A **job description** is called an **interface**. It is a list of methods, with names but no working-out inside. The **people** who fill the job are **classes**. A class that does the job is said to **implement** the interface. `List` is an interface. `ArrayList` is one class that implements it. `LinkedList` is another. Both can do everything the `List` notice asks for, in their own way.
+
+Most of the framework comes down to four jobs.
+
+- **`List`**: items in order, repeats allowed, found by position. Think of a queue of names in a register.
+- **`Set`**: items with no repeats. Think of a guest list where nobody is invited twice.
+- **`Queue`**: items waiting their turn. The first to join is the first to be served.
+- **`Map`**: pairs of a **key** and a **value**, where you look up the value by its key. Think of a phone book: name in, number out.
+
+`List`, `Set` and `Queue` share a parent job called **`Collection`**: a group of items you can add to, remove from, count and loop over. `Map` does not share it, because it holds pairs rather than single items.
+
+The habit this lesson wants you to keep is simple. **Write your code against the interface, and choose the class in one place.** You will see why in a few minutes.
+
+**Remember:** an interface is the job description, a class is the person. Ask for the job, not the person.
+
+<Part id="idea" heading="A small family [tree]" sub="Collection on top, Map off to one side." />
+
+<InterfacesDiagram />
+
+The solid boxes are the interfaces. `Collection` sits on top, with `List`, `Set` and `Queue` underneath. Under each one are two of the classes you will learn in this course. `Map` stands apart with its own classes.
+
+Above `Collection` there is one more interface, `Iterable`, which is the promise that lets you use a for-each loop on something. You will meet it properly in lesson 5, so we leave it out of the picture for now.
+
+A few things to notice.
+
+- `ArrayList` and `LinkedList` do the same job, `List`, in different ways. Choosing between them is lesson 3 and 4.
+- `HashSet` and `TreeSet` both refuse repeats, but only one of them keeps its items sorted.
+- `ArrayDeque` and `PriorityQueue` are both queues, but the second one serves the *smallest* item first, not the oldest.
+- `LinkedList` also appears under `Queue`, but we have drawn it only once. It does several jobs.
+
+You don't have to memorise the tree. You have to know that each box is a job, and that the dashed boxes are the people who can do it.
+
+<Part id="use" heading="Try each [one]" sub="A list, a set, a queue and a map." />
+
+Here is each job in action. Every block below can be pasted into jshell. The `<String>` part just means "a list of strings". Lesson 2 explains it fully.
+
+**A list** keeps order and allows repeats.
+
+<Snippet file="Lesson1BigPicture" name="list-demo" />
+
+```text
+[Asha, Ravi, Asha]
+Ravi
+3
+```
+
+Positions start at **0**, so `get(1)` is the second item. That is why it printed `Ravi`.
+
+**A set** refuses repeats.
+
+<Snippet file="Lesson1BigPicture" name="set-demo" />
+
+```text
+false
+2
+true
+```
+
+The second `add("Asha")` did nothing, and told us so by returning `false`. A `HashSet` also makes no promise about the order of its items, which is why we only ask it for its size and whether it contains something.
+
+**A queue** serves the longest-waiting item first.
+
+<Snippet file="Lesson1BigPicture" name="queue-demo" />
+
+```text
+Asha
+Ravi
+2
+```
+
+`offer` joins the back of the line. `poll` takes the person at the front and hands them to you. `peek` only looks.
+
+**A map** answers "what goes with this key?"
+
+<Snippet file="Lesson1BigPicture" name="map-demo" />
+
+```text
+90
+null
+0
+2
+```
+
+Putting "Asha" a second time replaced her mark, so the map still has two entries. Asking for a key that isn't there gives `null`, which means "nothing here". `getOrDefault` lets you pick the answer to use instead.
+
+Now the habit. Look at this method.
+
+<Snippet file="Lesson1BigPicture" name="count-long" />
+
+It says `Collection<String>` and not `ArrayList<String>`. It only needs to loop, and every collection can be looped over, so it asks for the widest job and works with everything that fills it.
+
+<Snippet file="Lesson1BigPicture" name="count-long-demo" />
+
+```text
+2
+1
+```
+
+We passed it a list, then a set. (`List.of` and `Set.of` build small, fixed collections. Lesson 10 looks at them.) The method did not care which. If it had demanded an `ArrayList`, the set could not have gone in.
+
+The same idea applies to variables. Write the job on the left and the person on the right:
+
+<Snippet file="Lesson1BigPicture" name="either-list" />
+
+```text
+2 tea
+2 tea
+```
+
+The loop treats `a` and `b` as plain `List`s, so it works for both. If you later find that a `LinkedList` suits your program better, you change the word `ArrayList` in one place and nothing else.
+
+**Remember:** `List<String> names = new ArrayList<>();` says "I need a list" on the left, and "here is who will be the list" on the right. Keep the left side as wide as you can.
+
+<Part id="inside" heading="Why the [interface] on the left" sub="Swap the class later, change one line." />
+
+When you call `names.add("Asha")`, Java looks at the real object behind `names` and runs *its* version of `add`. If the object is an `ArrayList`, you get the `ArrayList` way. If it is a `LinkedList`, you get that way. This is called **polymorphism**, a long word for "the same call, different behaviour depending on the object". It is what makes the habit work.
+
+Two honest cautions follow.
+
+**The interface does not promise speed.** `List.get(5)` is instant on an `ArrayList` and slow on a `LinkedList`. Both are correct `List`s. The interface only promises the *behaviour*. The cost belongs to the class, and the class pages in this course give you the cost tables.
+
+**Some jobs are filled only in part.** A list made with `List.of(...)` is a real `List`, but it cannot change, so `add` on it throws an `UnsupportedOperationException`. The interface lists `add`, but says it is *optional* for a class to support it. That is a quirk to be aware of. We come back to it in lesson 10.
+
+Finally, why is `Map` not a `Collection`? A `Collection` is a group of single items. A `Map` is a group of pairs, so methods like `add(item)` have no sensible meaning for it. It is still part of the framework. You can ask a map for its keys, its values, or its entries, and each of those is a `Collection` or a `Set`.
+
+<Part id="cost" heading="Which job, which [cost]" sub="n is the number of items." />
+
+The four jobs answer four different questions. A typical class for each one is shown with what it is quick at.
+
+| Job | Question it answers | Typical class | Quick at |
+| --- | --- | --- | --- |
+| `List` | What is at position 5? | `ArrayList` | Get by position: O(1) |
+| `Set` | Have I seen this before? | `HashSet` | Contains: O(1) on average |
+| `Queue` | Who is next? | `ArrayDeque` | Add at back, take from front: O(1) |
+| `Map` | What goes with this key? | `HashMap` | Get by key: O(1) on average |
+
+"On average" matters for hashing. A `HashSet` or `HashMap` is quick in the usual case, and lesson 6 explains the rare case where it is not.
+
+Notice what each class is *not* quick at. Asking an `ArrayList` "do you contain Ravi?" means looking at items one by one, which is O(n). Lesson 11 turns this table into a full guide for choosing.
+
+<Part id="practise" heading="Three problems, [three] jobs" sub="A set, a map, and a set again." />
+
+Each problem is solved best by picking the right job first. Ask yourself what question the problem is really asking, then pick the interface that answers it.
+
+<Practice
+  number={1}
+  title="Count the different words"
+  file="Lesson1BigPicture"
+  start="count-distinct-start"
+  solution="count-distinct"
+  hints={[
+    "The question is \"how many different ones?\". Which of the four jobs refuses repeats?",
+    "A `HashSet` can be built straight from a list: `new HashSet<>(words)`. The repeats disappear as it is filled.",
+    "A set knows its own size. Ask it with `.size()`.",
+  ]}
+  explain="Building the set drops the repeats, and its size is the count of different words. Each word is added once, so the work is O(n) on average. The set holds at most n words, so the space is O(n). You could also loop and keep your own count, but the set does the remembering for you."
+>
+Write `countDistinct`, which returns how many different words are in the list. For `["a", "b", "a", "c", "b"]` the answer is `3`. An empty list gives `0`.
+</Practice>
+
+<Practice
+  number={2}
+  title="Count each word"
+  file="Lesson1BigPicture"
+  start="word-counts-start"
+  solution="word-counts"
+  hints={[
+    "You need to go from a word to a number, a key to a value. That is a `Map<String, Integer>`.",
+    "Loop over the words. For each one, you want to say \"its new count is its old count plus one\".",
+    "The first time you see a word it has no count yet. `counts.getOrDefault(word, 0)` returns 0 in that case, so one line covers both.",
+  ]}
+  explain="`getOrDefault(word, 0) + 1` reads the old count (or 0 if the word is new) and adds one. `put` stores the result, replacing the old value. Each word is handled once, so the work is O(n) on average. The map holds one entry per different word, so the space is O(k), where k is the number of different words."
+>
+Write `wordCounts`, which returns a map from each word to how many times it appears. For `["tea", "coffee", "tea"]` the map holds `tea` to `2` and `coffee` to `1`.
+</Practice>
+
+<Practice
+  number={3}
+  title="Find the first repeat"
+  file="Lesson1BigPicture"
+  start="first-repeat-start"
+  solution="first-repeat"
+  hints={[
+    "As you go along, you need to remember which words you have already met. A `Set` is made for that question.",
+    "Remember what `add` returns on a set: `true` if the word was new, `false` if it was already there.",
+    "If `add` returns `false`, you have just found a word for the second time. Return it straight away. If the loop ends, return `null`.",
+  ]}
+  explain="`seen.add(word)` does two jobs at once: it records the word, and it reports whether the word was already there. The first time that report is `false`, we have met a word for the second time, and since we are scanning in order it is the first repeat. One pass with O(1) average steps makes it O(n) time on average and O(n) space. Returning `null` to mean no repeat is simple but easy to forget to check. Later lessons show tidier ways."
+>
+Write `firstRepeat`, which returns the first word that appears a second time, reading from left to right. For `["a", "b", "c", "b", "a"]` the answer is `"b"`, because `b` repeats before `a` does. If no word repeats, return `null`.
+</Practice>
+
+<Part id="interview" heading="The first [question]" sub="What the interviewer is really asking." />
+
+Questions about the framework's shape come early in a Java interview. They are easy to answer if you keep the job-and-person picture in your head.
+
+- **"Why `List<String> x = new ArrayList<>()` and not `ArrayList<String> x = ...`?"** Because the variable should state what job you need, and the right side states who does it. Then you can change the class in one place, and methods that take a `List` accept any kind.
+- **"Is `Map` a `Collection`?"** No. `Collection` is for single items, and `Map` holds key and value pairs. They are separate branches of the framework.
+- **"What is the difference between `Collection` and `Collections`?"** `Collection` is the interface at the top of the tree. `Collections`, with an s, is a class full of helper methods such as sorting and reversing. Lesson 10 covers it.
+- **"List or Set?"** Do you need repeats and positions, or do you need each item at most once? Say what you need before you say a class name.
+- **"What does a queue's `poll` do when the queue is empty?"** It returns `null`. The method `remove` on a queue throws a `NoSuchElementException` instead. Knowing that both exist, and which one is the gentle one, shows you've used them.
+- **Say the cost with the class.** "A `List` gives me get-by-position, but whether that is O(1) depends on whether it is an `ArrayList` or a `LinkedList`." That sentence shows you know an interface makes no promise about speed.

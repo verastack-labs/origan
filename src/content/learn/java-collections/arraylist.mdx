@@ -1,0 +1,201 @@
+---
+title: ArrayList
+sub: A row of slots that grows when it needs to.
+description: Learn ArrayList in Java. Use add, get, set and remove, see how it grows inside, learn the remove trap and why inserting in the middle is slow, with a cost table and three practice problems.
+order: 3
+part: 1
+updated: 2026-10-17
+slug: arraylist
+---
+
+<Part id="what" heading="A train you can [lengthen]" sub="Coaches in a row, numbered from zero." />
+
+Think of a train. The coaches are hooked together in a row, and each has a number painted on it: coach 0 right behind the engine, then 1, 2, 3. If you want coach 7, you don't walk through coaches 0 to 6 first. You know where seven is, so you go straight there. When the railway needs a longer train, it hooks on more coaches at the back.
+
+That is an **`ArrayList`**. It is a `List` that keeps its items side by side in a row, each with a number called its **index**. Index 0 is the first item. You can jump to any index at once, and you can keep adding items at the end without ever saying how many you expect.
+
+An `ArrayList` is the collection you will use most often in Java. If a problem says "a list of things" and nothing else, this is the one to reach for.
+
+**Remember:** `ArrayList` is a row with numbered slots. Jumping to a number is instant. Squeezing something into the middle is the part that costs.
+
+<Part id="idea" heading="Slots, and [room] to grow" sub="Size counts items. Capacity counts slots." />
+
+<ArrayListDiagram />
+
+Inside every `ArrayList` is a plain Java **array**, a fixed row of slots. The picture shows four coaches on a ten-slot array. Two numbers describe it.
+
+- **`size`** is how many items are really in the list. Here it is 4.
+- **`capacity`** is how many slots the array has. Here it is 10.
+
+The six empty slots are room to grow into. Adding to the end writes into the next empty slot, which is quick. An array can't stretch, so when all the slots are full and you add one more, the list must do something clever. It makes a bigger array, copies every item across, and carries on with the new one. You never see this happen. You only see `size()` go up.
+
+Why not make the array one slot bigger each time? Because then every `add` would copy everything, and a list of a million items would copy a million items a million times. By making the array noticeably bigger each time it fills, the copying becomes rare, and adding stays cheap on average.
+
+<Part id="use" heading="Everyday [ArrayList]" sub="Add, get, set, remove, and one trap." />
+
+The basics first. Every block below can be pasted into jshell.
+
+<Snippet file="Lesson3ArrayList" name="basics" />
+
+```text
+[Engine, Sleeper, Pantry]
+Pantry
+2
+false
+```
+
+`add` puts a new item at the end. `set(1, "Sleeper")` *replaces* what was in slot 1, so the list stays the same length. `get(2)` reads slot 2. `indexOf` tells you the position of an item, or -1 if it isn't there. `contains` just answers yes or no.
+
+Putting an item into the middle uses `add` with an index, and taking one out uses `remove`.
+
+<Snippet file="Lesson3ArrayList" name="insert-remove" />
+
+```text
+[A, NEW, B, C, D]
+[NEW, B, D]
+```
+
+`add(1, "NEW")` pushed B, C and D one place along to make room. `remove(0)` took out the first item by its **index**, and `remove("C")` took out an item by its **value**. Note the `new ArrayList<>(List.of(...))` on the first line. `List.of` builds a list that can't be changed, so we copy it into a real `ArrayList` first.
+
+Now the trap. What does `remove` do when your list holds `Integer`s?
+
+<Snippet file="Lesson3ArrayList" name="remove-trap" />
+
+```text
+[10, 30]
+```
+
+There are two methods called `remove`. `remove(int index)` removes by position. `remove(Object value)` removes by value. When you pass a plain `int`, Java picks the first one: `nums.remove(1)` removed the *item at index 1*, which was 20, not the value 1. To remove the value, you have to hand over an `Integer` object, as in `Integer.valueOf(1)`. In a list of strings you would never notice, which is why this one catches people out in tests.
+
+**What if the index is too big?**
+
+<Snippet file="Lesson3ArrayList" name="bounds" />
+
+```text
+Index 5 out of bounds for length 3
+```
+
+Asking for a slot that doesn't exist throws an `IndexOutOfBoundsException`. The message says which index you asked for and how long the list was, which is usually enough to find the bug. The valid indexes are 0 up to `size() - 1`.
+
+**A hint about size.** If you know roughly how many items you will add, say so when you create the list:
+
+<Snippet file="Lesson3ArrayList" name="capacity-hint" />
+
+```text
+0
+```
+
+The hint makes the array big enough once, so it never needs to grow while filling. The list is still empty, as `size()` shows. The hint is room, not items.
+
+<Part id="inside" heading="An array that [grows]" sub="Build a tiny one to see how." />
+
+The best way to understand `ArrayList` is to build a small one. This `TinyList` has the three moves that matter: add at the end, insert in the middle, and remove.
+
+<Snippet file="Lesson3ArrayList" name="tiny-list" />
+
+Go through it in order.
+
+- `items` is the array, and `size` counts how many slots are really used. The array starts with 4 slots.
+- `growIfFull` is the clever part. When `size` has caught up with the array's length, it asks `Arrays.copyOf` for a bigger copy: the old length plus half of it, plus one.
+- `add(value)` grows if it must, writes the item at slot `size`, and counts it.
+- `add(index, value)` first opens a gap. `System.arraycopy` slides everything from `index` onwards one place to the right, in one fast copy. Then it writes into the gap.
+- `remove(index)` does the reverse. It slides everything after the removed slot one place to the left, then clears the old last slot so the garbage collector (Java's automatic tidier-up of unused objects) can reclaim it.
+- `get` checks the index first, then reads the slot. The cast `(T)` is safe because only `add` puts things in, and it only takes a `T`. That is the one place Java asks us to promise something the compiler can't check, which is why the annotation is there.
+
+<Snippet file="Lesson3ArrayList" name="tiny-list-demo" />
+
+```text
+5 items, room for 7
+Dining car then Chair car
+Engine
+```
+
+Five items didn't fit in four slots, so the array grew from 4 to 7. Then we inserted at index 1 and removed index 0, and the items shifted accordingly.
+
+<ArrayListShiftDiagram />
+
+This picture is the cost of inserting near the front. Everything after the new item has to move one place, and the longer the list, the more there is to move. Reading a slot never moves anything, which is why `get` is quick.
+
+The real `ArrayList` works the same way, with a few differences. In OpenJDK, the most widely used Java, an empty `ArrayList` makes its array only when you add the first item, with room for 10, and each time it fills the array grows by about half again. Those numbers are an implementation detail rather than a promise, so don't write code that depends on them. The promise is only that adding to the end is cheap on average.
+
+<Part id="cost" heading="What each move [costs]" sub="n is the number of items in the list." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `get(i)`, `set(i, x)` | O(1) | Jumps straight to the slot |
+| `add(x)` at the end | O(1) amortised | One write; now and then the array is copied |
+| `add(i, x)` in the middle | O(n) | Items after `i` all shift right |
+| `remove(i)` | O(n) | Items after `i` all shift left |
+| `remove(x)` by value | O(n) | Must find `x` first, then shift |
+| `contains(x)`, `indexOf(x)` | O(n) | Looks at items one by one |
+| `size()`, `isEmpty()` | O(1) | The count is stored |
+| Space used | O(n) | One slot per item, plus spare capacity |
+
+**Amortised** means "averaged over many calls". One `add` in a long run may copy the whole array, but that is rare enough that the average cost per `add` stays constant.
+
+Removing from the end is the cheap case (`remove(size() - 1)` shifts nothing), and removing from the front is the expensive one. If you find yourself removing from the front a lot, you want a different collection. Lesson 9 covers it.
+
+<Part id="practise" heading="Three problems, [one] list" sub="Reverse, merge, and insert in order." />
+
+All three use only `get`, `add` and `size`. Notice how each one touches the list, and what that costs.
+
+<Practice
+  number={1}
+  title="Reverse a copy"
+  file="Lesson3ArrayList"
+  start="reverse-copy-start"
+  solution="reverse-copy"
+  hints={[
+    "You must not change the list you are given. Build a new list for the answer.",
+    "Walk the original from the last index down to the first: `for (int i = items.size() - 1; i >= 0; i--)`.",
+    "At each step `add` the item at `i` to the new list. Creating the new list with `new ArrayList<>(items.size())` gives it the right room from the start.",
+  ]}
+  explain="Walking backwards and adding to the end builds the reversed list in order, without ever inserting in the middle. Each `get` and each `add` at the end is O(1), so the whole method is O(n). Sizing the new list up front means it never has to grow while we fill it. The original is only read, never changed."
+>
+Write `reverseCopy`, which returns a new list with the same items in the opposite order. The list you were given must stay as it was. For `[a, b, c]` the answer is `[c, b, a]`.
+</Practice>
+
+<Practice
+  number={2}
+  title="Merge two sorted lists"
+  file="Lesson3ArrayList"
+  start="merge-sorted-start"
+  solution="merge-sorted"
+  hints={[
+    "Both lists are already sorted, so the smallest item overall is one of the two front items. Compare just those.",
+    "Use two index variables, `i` and `j`, one for each list. Take the smaller front item, add it to the answer, and move that list's index forward.",
+    "When one list runs out, the other still has items. Add all of them. A second and a third loop do it, and at most one of them runs.",
+  ]}
+  explain="At each step, only the two front items can be the next smallest, so we compare them and take one. Two index variables remember where we are in each list. The two final loops copy whatever is left of the list that didn't run out. Every item is added once, so the work is O(n + m) for lists of length n and m, and the answer needs the same space. Using `<=` takes from the first list when the fronts are equal, so equal items keep their original order."
+>
+Write `mergeSorted`, which takes two lists of numbers that are each sorted from smallest to largest and returns one new sorted list holding all of the items. For `[1, 3, 5]` and `[2, 4, 6]` the answer is `[1, 2, 3, 4, 5, 6]`. Either list may be empty.
+</Practice>
+
+<Practice
+  number={3}
+  title="Insert in order"
+  file="Lesson3ArrayList"
+  start="insert-sorted-start"
+  solution="insert-sorted"
+  hints={[
+    "The list is sorted. The new value belongs just before the first item that is not smaller than it.",
+    "Keep a position `at`, starting at 0. While `at` is inside the list and the item there is smaller than `value`, move `at` forward.",
+    "Then use the two-argument `add(at, value)`. It also works when `at` equals the size, which adds at the end.",
+  ]}
+  explain="The loop finds where the value belongs by walking past everything smaller. `add(at, value)` then shifts the later items right and writes the value into the gap. Finding the spot is O(n), and so is the shifting, so the method is O(n). The list changes in place, which is why this method returns nothing. Because the list is sorted you could find the spot with binary search in O(log n), but the shifting would still cost O(n)."
+>
+Write `insertSorted`, which adds `value` to a list that is sorted from smallest to largest, so that it is still sorted afterwards. The list changes in place. Inserting 4 into `[1, 3, 5]` gives `[1, 3, 4, 5]`. It must work at both ends and on an empty list.
+</Practice>
+
+<Part id="interview" heading="ArrayList in the [interview]" sub="What to ask, and what to say." />
+
+`ArrayList` questions are about cost and about the traps in its methods.
+
+- **"ArrayList or LinkedList?"** For almost every job, `ArrayList`. Jumping to an index is O(1), the items sit side by side in memory, and adding at the end is cheap on average. Lesson 4 explains the rare exceptions.
+- **"How does an ArrayList grow?"** It holds an array. When the array is full, it makes a bigger one and copies the items over. In OpenJDK the new array is about half again as big, which makes adding cheap on average, O(1) amortised.
+- **"What is the difference between size and capacity?"** Size is how many items the list holds. Capacity is how many slots the array has. Capacity is always at least size.
+- **"What does `list.remove(1)` do on a `List<Integer>`?"** It removes the item at index 1, not the value 1. To remove the value you pass an `Integer` object, as in `Integer.valueOf(1)`.
+- **"Why is inserting in the middle slow?"** Everything after the spot has to shift one place to make a gap. That is O(n).
+- **"Is `ArrayList` thread-safe?"** No. If several threads change one list at the same time, it can break. Lesson 12 mentions the concurrent alternatives.
+- **"What does `get(10)` do on a list of three?"** It throws an `IndexOutOfBoundsException`.
+- **Say the cost.** "Get is O(1), add at the end is O(1) amortised, and insert or remove in the middle is O(n)" is a complete answer.
