@@ -8,11 +8,27 @@ import { javaCourse, rustCourse, switchCourse } from "@/data/courses";
 import { getLessons } from "@/lib/lessons";
 import { buildSearchIndex } from "@/lib/search-index";
 import { ResourceSearch } from "@/components/resource-search";
+import { site } from "@/data/site";
 
 export const metadata: Metadata = {
   title: "The Open Shelf",
   description: resourcesPage.description,
   alternates: { canonical: "/resources/" },
+  openGraph: {
+    type: "website",
+    siteName: site.name,
+    title: `The Open Shelf · Free courses · ${site.name}`,
+    description: resourcesPage.description,
+    url: `${site.url}/resources/`,
+    locale: "en_IN",
+    images: [{ url: "/resources/og.png", width: 1200, height: 630, alt: "The Open Shelf: free courses by VeraStack Labs" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `The Open Shelf · Free courses · ${site.name}`,
+    description: resourcesPage.description,
+    images: ["/resources/og.png"],
+  },
 };
 
 /** How many pieces each resource has so far. A new resource adds its own line here. */

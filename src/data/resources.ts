@@ -68,5 +68,7 @@ export const resourcesPage = {
   heading: "Free [study] material",
   sub: "Made by VeraStack Labs. Open to anyone, no sign-up.",
   description:
-    "The Open Shelf is free study material for engineering students, made by VeraStack Labs. Oxidise is DSA in Rust: data structures and algorithms in Rust. Filter Coffee is Java Collections: the Java Collections Framework. Every code sample is compiled and tested.",
+    "Free courses for engineering students by VeraStack Labs: Oxidise (DSA in Rust), Filter Coffee (Java Collections) and The Switch (JavaScript to TypeScript). Every code sample is tested.",
+  /** The share card's one line under the title. */
+  card: "Oxidise · Filter Coffee · The Switch. Free, no sign-up.",
 };

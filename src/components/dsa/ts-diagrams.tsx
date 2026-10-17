@@ -1167,7 +1167,7 @@ export function UtilityDiagram() {
   };
 
   const narrow: Drawing = {
-    viewBox: "0 0 340 396",
+    viewBox: "0 0 364 396",
     draw: () => (
       <>
         {variants.map((v, r) => {
@@ -1176,7 +1176,7 @@ export function UtilityDiagram() {
             <g key={v.head}>
               <Txt x={12} y={y + 14} size={12.5} tone={r === 0 ? "fg" : "survey"}>{v.head}</Txt>
               {v.cells.map((s, c) => (
-                <FieldCell key={fields[c]} x={12 + c * 80} y={y + 24} w={76} h={32} field={fields[c]} state={s} />
+                <FieldCell key={fields[c]} x={12 + c * 86} y={y + 24} w={82} h={32} field={fields[c]} state={s} />
               ))}
             </g>
           );
