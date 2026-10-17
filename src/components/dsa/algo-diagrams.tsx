@@ -8,7 +8,7 @@ import { faint, Figure, label } from "./diagrams";
  * a row at a time, so a reader can follow it with a finger.
  */
 
-type CellKind = "plain" | "hand" | "fresh" | "empty" | "found";
+type CellKind = "plain" | "hand" | "fresh" | "empty" | "found" | "out";
 
 const cellClass: Record<CellKind, string> = {
   plain: "fill-ground stroke-line",
@@ -16,6 +16,7 @@ const cellClass: Record<CellKind, string> = {
   fresh: "fill-panel-2 stroke-survey",
   empty: "fill-ground stroke-line",
   found: "fill-panel-2 stroke-survey",
+  out: "fill-ground stroke-line",
 };
 
 /** One row of boxes with a value in each. */
@@ -24,6 +25,7 @@ function Cells({
   y,
   w = 56,
   h = 38,
+  size = 16,
   values,
   kind,
 }: {
@@ -31,6 +33,7 @@ function Cells({
   y: number;
   w?: number;
   h?: number;
+  size?: number;
   values: readonly (string | number)[];
   kind: (index: number) => CellKind;
 }): ReactNode {
@@ -54,8 +57,8 @@ function Cells({
                 x={x + i * w + w / 2}
                 y={y + h / 2 + 5}
                 textAnchor="middle"
-                fontSize={16}
-                className="font-mono fill-fg"
+                fontSize={size}
+                className={k === "out" ? "font-mono fill-fg-3" : "font-mono fill-fg"}
               >
                 {value}
               </text>
@@ -127,6 +130,63 @@ export function SortingDiagram() {
           </text>
         </g>
       ))}
+    </Figure>
+  );
+}
+
+/** Lesson 14: binary search narrowing eleven numbers down to the one wanted. */
+export function BinarySearchDiagram() {
+  const values = [2, 5, 8, 12, 16, 23, 38, 45, 56, 72, 91];
+  const steps: { lo: number; hi: number; mid: number; note: string }[] = [
+    { lo: 0, hi: 11, mid: 5, note: "look at 23: too small" },
+    { lo: 6, hi: 11, mid: 8, note: "look at 56: too big" },
+    { lo: 6, hi: 8, mid: 7, note: "look at 45: found it" },
+  ];
+  const left = 20;
+  const w = 44;
+  const top = 58;
+  const gap = 62;
+
+  return (
+    <Figure
+      id="binary-search"
+      title="Binary search for 45 among eleven sorted numbers, in three looks"
+      caption="Each look at the middle number rules out half of what is left. Faded boxes are ruled out. Eleven numbers took three looks, and a thousand would take about ten."
+      viewBox="0 0 720 270"
+    >
+      <text x={left} y={28} fontSize={10} className={faint}>
+        LOOKING FOR 45
+      </text>
+      {steps.map((step, r) => {
+        const y = top + r * gap;
+        return (
+          <g key={r}>
+            <Cells
+              x={left}
+              y={y}
+              w={w}
+              h={36}
+              size={14}
+              values={values}
+              kind={(i) =>
+                i < step.lo || i >= step.hi
+                  ? "out"
+                  : i === step.mid
+                    ? r === steps.length - 1
+                      ? "found"
+                      : "fresh"
+                    : "plain"
+              }
+            />
+            <text x={left + 11 * w + 18} y={y + 22} fontSize={12} className={label}>
+              {step.note}
+            </text>
+            <text x={left + step.mid * w + w / 2} y={y + 54} textAnchor="middle" fontSize={11} className="font-mono fill-survey">
+              mid
+            </text>
+          </g>
+        );
+      })}
     </Figure>
   );
 }
