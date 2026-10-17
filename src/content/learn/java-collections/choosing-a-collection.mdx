@@ -1,0 +1,261 @@
+---
+title: Choosing a collection
+sub: A guide to bookmark, for the day you are stuck.
+description: Pick the right Java collection for the job. Follow a short decision guide, see each choice in a small example, compare keeps and costs in one table, and practise three real choices. Bookmark this lesson.
+order: 11
+part: 1
+updated: 2026-10-17
+slug: choosing-a-collection
+---
+
+<Part id="what" heading="Pack the right [bag]" sub="Every trip needs a different bag." />
+
+You are going on a trip. For a weekend away you take a rucksack. For a month abroad you take a suitcase. For the train to college you take a small bag for your laptop and lunch. Nobody wonders which one is "the best bag". The question is always "the best bag *for this trip*".
+
+Collections work the same way. After ten lessons you have met a whole set of them, and none is the best. `ArrayList` is perfect for a shopping list and wrong for a phone book. `HashMap` is perfect for a phone book and wrong for an undo button. Choosing well is mostly a matter of asking what the trip is.
+
+Good news: you only need three questions. This lesson turns them into a guide you can keep open next to your editor. It is the lesson most students come back to.
+
+**Remember:** don't ask "which collection is best?" Ask "what do I need to do with these items?"
+
+<Part id="idea" heading="Three questions, [one] answer" sub="Follow the arrows from the top." />
+
+<ChoosingDiagram />
+
+Read the picture from the top.
+
+1. **Do you look things up by a key?** A key is a name or ID that points to a value, like a name in a phone book. If yes, you need a **Map**. Then ask about order: no order needed means `HashMap`, the order you added means `LinkedHashMap`, and sorted keys means `TreeMap`.
+2. **If not: should each item appear only once?** If yes, you need a **Set**, and the same order question picks `HashSet`, `LinkedHashSet` or `TreeSet`.
+3. **If not: how is the list used?** To read by position, such as "the third item", use `ArrayList`. To work at the ends, as a stack (newest first) or a queue (oldest first), use `ArrayDeque`. To always take the most urgent item next, use `PriorityQueue`.
+
+And one more rule that holds throughout: declare the variable as the **interface** (`List`, `Set`, `Map`, `Deque`, `Queue`) and only write the class name after `new`. Then changing your mind later means changing one word.
+
+<Part id="use" heading="Seven trips, seven [bags]" sub="Each pick, in a small example." />
+
+Every block below can be pasted into jshell. Each one names the need first and then the pick.
+
+**Trip 1: a shopping list.** Order matters, repeats are fine, and you read by position.
+
+<Snippet file="Lesson11Choosing" name="shopping-list" />
+
+```text
+[milk, eggs, milk]
+eggs
+```
+
+**Trip 2: who has visited?** You only want to know "have I seen this one?", and each person counts once.
+
+<Snippet file="Lesson11Choosing" name="visitors" />
+
+```text
+3
+true
+```
+
+Six arrivals, three different people. A set absorbs the repeats on its own.
+
+**Trip 3: no repeats, but keep the order they first came in.**
+
+<Snippet file="Lesson11Choosing" name="dedupe-keep-order" />
+
+```text
+[b, a, c]
+```
+
+A `LinkedHashSet` is a `HashSet` that remembers insertion order. Copying a list into one is a neat way to remove repeats without scrambling the list.
+
+**Trip 4: a phone book.** You look up by name, and now and then list everyone A to Z.
+
+<Snippet file="Lesson11Choosing" name="phone-book" />
+
+```text
+98450 33333
+{Asha=98450 11111, Meera=98450 33333, Ravi=98450 22222}
+```
+
+A `HashMap` for the quick lookups. When you need the sorted list, copy it into a `TreeMap` just for that moment.
+
+**Trip 5: undo.** The newest change is the first to be undone.
+
+<Snippet file="Lesson11Choosing" name="undo" />
+
+```text
+deleted 'o'
+typed 'lo'
+```
+
+**Trip 6: a print line.** The oldest job goes first.
+
+<Snippet file="Lesson11Choosing" name="print-queue" />
+
+```text
+report.pdf
+1
+```
+
+Both of those are `ArrayDeque`: one used as a stack, one as a queue.
+
+**Trip 7: the next train.** Whatever order the times are added in, you always want the earliest.
+
+<Snippet file="Lesson11Choosing" name="next-train" />
+
+```text
+915
+1210
+```
+
+### Changing your mind later
+
+Because the variable is declared as `Map`, the code that uses it does not care which map it got.
+
+<Snippet file="Lesson11Choosing" name="swap-class" />
+
+<Snippet file="Lesson11Choosing" name="swap-class-demo" />
+
+```text
+228
+```
+
+Change `HashMap` to `TreeMap` on the first line and the total is the same. This is the habit from lesson 1 paying off. Pick the class you need today, and keep the door open.
+
+### The guide as code
+
+If it helps to see the guide as a program, here it is. Each branch is one arrow in the picture.
+
+<Snippet file="Lesson11Choosing" name="suggest" />
+
+<Snippet file="Lesson11Choosing" name="suggest-demo" />
+
+```text
+HashMap
+TreeMap
+LinkedHashSet
+ArrayDeque
+PriorityQueue
+```
+
+The table below says the same thing in words. This is the one to screenshot.
+
+| If you need to... | Use | Because |
+| --- | --- | --- |
+| Keep items in a row, read by position, repeats allowed | `ArrayList` | Jump to any index at once |
+| Look up a value by a key | `HashMap` | Fastest lookup on average |
+| Look up by key, and walk in the order added | `LinkedHashMap` | A hash map that remembers order |
+| Look up by key, with sorted keys or nearest-key queries | `TreeMap` | A sorted tree |
+| Hold each item once, and ask "is it in?" | `HashSet` | Fastest membership check on average |
+| Hold each item once, in the order added | `LinkedHashSet` | A hash set that remembers order |
+| Hold each item once, sorted | `TreeSet` | A sorted tree |
+| Use newest-first (undo, brackets, depth-first search) | `ArrayDeque` as a stack | Both ends are quick |
+| Use oldest-first (a waiting line, breadth-first search) | `ArrayDeque` as a queue | Both ends are quick |
+| Always take the most urgent item next | `PriorityQueue` | A heap keeps the best on top |
+| Share a list that others must not change | `List.of` or `List.copyOf` | Cannot be changed |
+
+Notice who is missing: `LinkedList`. It is not in the table because there is almost always a better row. Lesson 4 explains why.
+
+**Remember:** three questions. A key to look things up by? Each item only once? Otherwise, how is the list used?
+
+<Part id="inside" heading="What each one is [built] on" sub="The structure explains the cost." />
+
+You do not need to memorise costs. If you remember what each class is built from, the costs follow.
+
+| Class | Built on | So it is good at | And poor at |
+| --- | --- | --- | --- |
+| `ArrayList` | A growing array | Reading by index | Inserting or removing in the middle |
+| `LinkedList` | Nodes with links | Changing the two ends | Reading by index |
+| `ArrayDeque` | A ring of slots | Working at both ends | Reading by index, searching |
+| `HashMap`, `HashSet` | Buckets and `hashCode` | Lookup and "is it in?" | Order, which it ignores |
+| `LinkedHashMap`, `LinkedHashSet` | Buckets plus a chain of links | Lookup, in a fixed order | A little extra memory |
+| `TreeMap`, `TreeSet` | A balanced sorted tree | Sorted order and nearest-key searches | Being as quick as a hash map |
+| `PriorityQueue` | A heap in an array | The best item, now | Searching, and printing in order |
+
+Three questions in the guide match three structures: **an array** when position matters, **buckets** when a key matters, and **a tree or heap** when order or urgency matters. Almost every collection in Java is one of those with a different coat on.
+
+<Part id="cost" heading="The whole [comparison]" sub="What each one keeps, and what each costs." />
+
+First, what each one keeps. The word **null** here means "no object", and some collections refuse it.
+
+| Collection | Order kept | Repeats | `null` allowed |
+| --- | --- | --- | --- |
+| `ArrayList` | Insertion order | Yes | Yes |
+| `HashSet`, `HashMap` | None promised | No (keys) | One `null` key |
+| `LinkedHashSet`, `LinkedHashMap` | Insertion order | No (keys) | One `null` key |
+| `TreeSet`, `TreeMap` | Sorted | No (keys) | No `null` key |
+| `ArrayDeque` | Insertion order | Yes | No |
+| `PriorityQueue` | Only the top is ordered | Yes | No |
+
+Now what the main operations cost, for n items.
+
+| Collection | Read by index or key | Add | Check `contains` | Remove |
+| --- | --- | --- | --- | --- |
+| `ArrayList` | O(1) | O(1) at the end, O(n) in the middle | O(n) | O(n) |
+| `ArrayDeque` | Ends only, O(1) | O(1) at either end | O(n) | O(1) at the ends |
+| `HashMap`, `HashSet` | O(1) on average | O(1) on average | O(1) on average | O(1) on average |
+| `LinkedHashMap`, `LinkedHashSet` | O(1) on average | O(1) on average | O(1) on average | O(1) on average |
+| `TreeMap`, `TreeSet` | O(log n) | O(log n) | O(log n) | O(log n) |
+| `PriorityQueue` | Top only, O(1) | O(log n) | O(n) | O(log n) for the top, O(n) otherwise |
+
+Two habits fall out of the table. If you call `contains` in a loop on a list, you have n times n work, and a `HashSet` fixes it. If you keep sorting a list again and again, a `TreeSet` or a `PriorityQueue` may be the tool you wanted.
+
+<Part id="practise" heading="Three problems, [choose] first" sub="Decide the collection, then write the code." />
+
+<Practice
+  number={1}
+  title="First letter that stands alone"
+  file="Lesson11Choosing"
+  start="first-unique-start"
+  solution="first-unique"
+  hints={[
+    "You need to know how many times each letter appears. Counting by a key is a job for a map: which kind?",
+    "A `HashMap<Character, Integer>` with `merge(letter, 1, Integer::sum)` counts every letter in one pass.",
+    "Then walk the text again, in its own order, and return the index of the first letter whose count is 1. Return -1 if there is none.",
+  ]}
+  explain="Two passes, and two different tools. The `HashMap` is the right bag for counting, since each lookup and update is O(1) on average. But a hash map has no order, so the second pass walks the original text, which does. Together that is O(n) time and O(1) extra space for a fixed alphabet. A `LinkedHashMap` would keep the order too, but scanning the string is simpler."
+>
+Write `firstUnique`, which returns the index of the first character in the text that appears exactly once, or -1 if every character repeats. For `"aabcb"` it is 3, because `c` stands alone. For `"aabb"` it is -1.
+</Practice>
+
+<Practice
+  number={2}
+  title="An editor with undo"
+  file="Lesson11Choosing"
+  start="editor-start"
+  solution="editor"
+  hints={[
+    "Before writing code, ask which change should be undone first. The newest one. Which structure gives back the newest item?",
+    "Use an `ArrayDeque<String>` as a stack. Each time the text changes, `push` the text as it was *before* the change.",
+    "`undo` pops the stack back into the text and returns true. If the stack is empty, return false and leave the text alone.",
+  ]}
+  explain="Undo is last in, first out, so a stack is the natural fit, and `ArrayDeque` is the recommended stack. Storing the whole previous text is the simplest design. It uses O(total length of all versions) memory, which is fine here. Real editors store only what changed. Every method is O(1) apart from building the new text."
+>
+Complete the `Editor` class. `type(more)` adds text to the end. `undo()` takes back the most recent `type` and returns `true`, or returns `false` when there is nothing left to undo. `text()` returns the text so far. After typing "Hel", "lo" and " world", three undos get back to the empty text.
+</Practice>
+
+<Practice
+  number={3}
+  title="The most common words"
+  file="Lesson11Choosing"
+  start="top-words-start"
+  solution="top-words"
+  hints={[
+    "There are two jobs: count the words, then rank them. You will need more than one collection.",
+    "Count with a `HashMap<String, Integer>` and `merge`. Then copy the entries into a list with `new ArrayList<>(counts.entrySet())`, since a map cannot be sorted.",
+    "Sort the list with a comparator: the bigger count first, and for equal counts the word A to Z. Then take the first `k` keys, or fewer if there are fewer words.",
+  ]}
+  explain="Each tool does the job it is built for. The `HashMap` counts in O(n). The list holds the entries so they can be sorted in O(m log m), where m is the number of different words. The comparator compares the counts the other way round, so bigger comes first, and falls back to comparing the words when the counts tie, which makes the answer the same every time. Without the tie-breaker the order of equal counts would depend on the map's unspecified order. A `PriorityQueue` of size k would be a good alternative for a very long word list."
+>
+Write `topWords`, which returns the `k` most common words, most common first. Words with the same count are ordered A to Z. If there are fewer than `k` different words, return them all. For `tea, chai, tea, coffee, chai, tea, milk` and `k = 2`, the answer is `[tea, chai]`.
+</Practice>
+
+<Part id="interview" heading="Choosing in the [interview]" sub="The question behind many questions." />
+
+"Which collection would you use?" is asked in nearly every Java interview, sometimes in disguise. The answer is never just a name. It is a name plus a reason.
+
+- **Say the need first.** "I need to look up by ID, and order doesn't matter, so a `HashMap`." One sentence with the need and the pick beats a list of facts.
+- **"ArrayList or LinkedList?"** `ArrayList`, nearly always. Say why: reading by index is O(1), the items sit together in memory, and `LinkedList` needs a node per item.
+- **"How do you remove duplicates from a list?"** Copy it into a `HashSet`, or a `LinkedHashSet` if the order must stay. Say the cost: O(n).
+- **"Stack or queue in Java?"** `ArrayDeque` for both, not `Stack` and not `LinkedList`.
+- **"HashMap, LinkedHashMap or TreeMap?"** Unordered and fastest, insertion order, sorted. One sentence for each.
+- **"How would you keep the 10 largest of a million numbers?"** A `PriorityQueue` of size 10, as in lesson 9.
+- **"Why `List<String> x = new ArrayList<>()`?"** Programming to the interface. The rest of the code depends only on `List`, so you can change the class in one place.
+- **"What if the choice is wrong?"** It rarely matters until the data is large. If a profile shows a hot `contains` on a list, switch to a set. Start simple, and measure before you tune.
+- **Say the cost.** "Index or key lookup: O(1) for arrays and hashes, O(log n) for trees. The word that matters is what I need to do most."

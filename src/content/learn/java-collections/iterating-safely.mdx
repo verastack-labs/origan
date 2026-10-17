@@ -1,0 +1,186 @@
+---
+title: Iterating safely
+sub: How to walk a collection without it blowing up on you.
+description: Learn to loop over Java collections safely. Use for-each and Iterator, see why ConcurrentModificationException happens, fix it with Iterator.remove and removeIf, with a cost table and three practice problems.
+order: 5
+part: 1
+updated: 2026-10-17
+slug: iterating-safely
+---
+
+<Part id="what" heading="Crossing names off a [register]" sub="Do not change the list while you read it." />
+
+A teacher reads the class register aloud: "Asha, Ravi, Meera, Kiran." You are crossing out the names of students who have left. Suppose that halfway through, you rub out Ravi's name without telling the teacher. The teacher is now pointing at a row that no longer holds what they expect. They stop and say, "Hold on, the register changed."
+
+Java behaves the same way. Walking through a collection from the first item to the last is called **iterating**, and the loop that does it is reading the collection as it goes. If you add or remove items from inside that loop, the collection and the loop disagree about where they are. Java would rather stop loudly than carry on with wrong answers, so it throws a **`ConcurrentModificationException`**. That is a long name for "the collection changed while you were reading it."
+
+This lesson shows the three safe ways to walk a collection, and the one safe way to remove things while you do.
+
+**Remember:** read freely, but change the list only through the tool that is doing the reading, or after the loop is over.
+
+<Part id="idea" heading="An iterator keeps [score]" sub="It writes down a version and checks it each step." />
+
+<IteratingDiagram />
+
+Every `for (x : list)` loop in Java uses a helper behind the scenes called an **iterator**. An iterator is a small object with a bookmark. It knows which item comes next, and it has two jobs: `hasNext()` answers "is there another item?", and `next()` hands over that item and moves the bookmark along.
+
+Most collections also keep a **version number** that goes up every time you add or remove an item. When an iterator is created, it writes down the version it started with. On each step it compares: is the list still on the version I remember? If a removal happened behind its back, the numbers differ, and the iterator throws.
+
+This design is called **fail-fast**, meaning it fails the moment it notices something is wrong rather than wandering on with bad data. Java describes it as a best effort, not a promise, so never write code that *relies* on the exception turning up. Treat it as a bug alarm.
+
+<Part id="use" heading="Three ways to [loop]" sub="for-each, Iterator, and removeIf." />
+
+Every block below can be pasted into jshell. Start with the loop you already know.
+
+<Snippet file="Lesson5Iterating" name="for-each" />
+
+```text
+Asha
+Ravi
+Meera
+```
+
+The for-each loop is the neatest way to read every item. It works on any collection. Use it whenever you only need to look.
+
+Now the same walk written out by hand, which is what the compiler turns for-each into:
+
+<Snippet file="Lesson5Iterating" name="iterator-by-hand" />
+
+```text
+Asha
+Ravi
+Meera
+```
+
+Now the trap. Here we cross out every name that ends in "a" while looping over the list:
+
+<Snippet file="Lesson5Iterating" name="crash" />
+
+```text
+Stopped by ConcurrentModificationException
+```
+
+`register.remove(name)` changed the list, but the loop's iterator did not know. On the next step it saw a different version and stopped. We caught the exception here only so you can see it. In real code, a crash like this is a bug to fix, not to catch.
+
+The fix is to let the iterator do the removing. It has a `remove()` method that deletes the item `next()` just returned, and it updates its own copy of the version, so it never gets confused.
+
+<Snippet file="Lesson5Iterating" name="iterator-remove" />
+
+```text
+[Ravi, Kiran]
+```
+
+Call `remove()` once after each `next()`, never twice in a row. Calling it before the first `next()`, or twice without a `next()` in between, throws an `IllegalStateException`.
+
+The shortest fix is a method that does the whole loop for you. `removeIf` takes a rule and removes every item that matches it.
+
+<Snippet file="Lesson5Iterating" name="remove-if" />
+
+```text
+[Ravi, Kiran]
+```
+
+The rule `name -> name.endsWith("a")` is a **lambda**, which is a tiny function written inline: "given a `name`, answer true if it ends in a." You will write more of these in later lessons. Prefer `removeIf` when the job is simply "remove everything that matches".
+
+One more tool exists for lists: a **`ListIterator`**. It can also `set` (replace) the item it just returned and `add` a new one beside it, again without upsetting anything. Problem 3 uses it.
+
+**Remember:** to remove while looping, use `Iterator.remove()`. To remove everything that matches a rule, use `removeIf`.
+
+<Part id="inside" heading="Build the [alarm] yourself" sub="A tiny list with a version number." />
+
+To see why the exception happens, here is a small list that has the version number and the check. It is a cut-down `ArrayList`: an array, a size, and a `version` that goes up on every change.
+
+<Snippet file="Lesson5Iterating" name="tiny-failfast" />
+
+Go through it in order.
+
+- `version` starts at 0 and goes up by one in `add` and in `removeAt`. That is how the list notices it has changed.
+- `iterator()` returns an **anonymous class**, meaning an object made on the spot without giving its class a name. It holds `position`, the bookmark, and `expectedVersion`, the version it wrote down at birth.
+- `next()` checks first. If `version` has moved on, it throws `ConcurrentModificationException`. Only then does it hand back the item.
+- The `@SuppressWarnings("unchecked")` is there because the array holds plain `Object`s, and we know they are really `T`s.
+
+Now remove from the list inside a for-each loop over it:
+
+<Snippet file="Lesson5Iterating" name="tiny-failfast-demo" />
+
+```text
+saw Asha
+Stopped by ConcurrentModificationException
+```
+
+The first step worked and printed "Asha". We then removed an item, so `version` moved on. The second `next()` compared the numbers and threw. That is the whole mechanism. The real `ArrayList` keeps the same kind of counter, and calls it `modCount`.
+
+<Part id="cost" heading="What each walk [costs]" sub="n is the number of items in the list." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Walk the whole list (for-each, `Iterator`) | O(n) | Each item is visited once |
+| `iterator.remove()` on an `ArrayList` | O(n) | Items after the gap shift left |
+| `iterator.remove()` on a `LinkedList` | O(1) | Only a few links change |
+| Remove many items one by one with `iterator.remove()` on an `ArrayList` | O(n) per item | Each removal shifts the tail again |
+| `removeIf` on an `ArrayList` | O(n) | The usual implementation closes the gaps in a single pass |
+| `list.remove(x)` inside a loop | O(n) per call, and unsafe | It searches, shifts, and breaks the iterator |
+
+Two things to take from the table. First, a loop is always O(n), and what you do inside it decides whether the total grows much faster. Second, if you have a lot to remove from an `ArrayList`, `removeIf` is the kind choice, because one pass beats many shifts.
+
+<Part id="practise" heading="Three problems, [safe] loops" sub="Remove, deduplicate, and replace in place." />
+
+<Practice
+  number={1}
+  title="Remove the short names"
+  file="Lesson5Iterating"
+  start="remove-short-start"
+  solution="remove-short"
+  hints={[
+    "You must change the list while walking it, so a plain for-each loop with `names.remove(...)` will throw.",
+    "Get an iterator with `names.iterator()` and loop with `while (it.hasNext())`.",
+    "Inside the loop, call `it.next()` once and look at its length. If it is shorter than `minLength`, call `it.remove()`.",
+  ]}
+  explain="The iterator is the only thing allowed to remove during the walk, because it updates its own version number. The `next()` call is made once per step, and `remove()` follows it directly. `names.removeIf(name -> name.length() < minLength)` does the same job in one line, and is the better choice in everyday code. The iterator version is what an interview wants to see. Both take O(n) steps, plus the shifting cost of an `ArrayList`."
+>
+Write `removeShort`, which removes every name shorter than `minLength` from the list, in place. For `["Al", "Asha", "Bo", "Meera"]` and `minLength = 3`, the list becomes `["Asha", "Meera"]`. The order of the rest stays the same.
+</Practice>
+
+<Practice
+  number={2}
+  title="Drop the repeats"
+  file="Lesson5Iterating"
+  start="drop-repeats-start"
+  solution="drop-repeats"
+  hints={[
+    "The list is sorted, so equal numbers sit side by side. You only ever need to compare a number with the one just before it.",
+    "Keep a variable `previous`, starting as `null`. Walk with an iterator and set `previous` as you go.",
+    "If the current number equals `previous`, call `it.remove()`. Otherwise it becomes the new `previous`. Compare with `equals`, not `==`, because these are `Integer` objects.",
+  ]}
+  explain="Because the list is sorted, any repeats are neighbours, so one `previous` variable is enough and no extra collection is needed. When a number is removed, `previous` stays the same, so a run like 3, 3, 3 loses its second and third. `equals` matters: `==` on two `Integer` objects compares whether they are the same object, which can be false for equal numbers above 127. One pass gives O(n) time on a `LinkedList`, and O(n) per removal on an `ArrayList`."
+>
+Write `dropRepeats`, which takes a **sorted** list of numbers and removes every number that equals the one before it, in place. For `[1, 1, 2, 3, 3, 3, 4]` the list becomes `[1, 2, 3, 4]`. An empty list stays empty.
+</Practice>
+
+<Practice
+  number={3}
+  title="Double everything"
+  file="Lesson5Iterating"
+  start="double-all-start"
+  solution="double-all"
+  hints={[
+    "You are not adding or removing items, only replacing them. A normal `Iterator` cannot replace, but a `ListIterator` can.",
+    "Get one with `numbers.listIterator()`. It has `hasNext()` and `next()` like an ordinary iterator, plus `set(value)`.",
+    "`set` replaces the item that `next()` returned most recently. So call `next()`, multiply, then `set` the answer.",
+  ]}
+  explain="`set` is allowed because it does not change the list's size, only what is in a slot, and the `ListIterator` keeps its bookmark in order. Writing `numbers.set(i, ...)` inside an index loop also works for an `ArrayList`, but is O(n) per call on a `LinkedList`, so the iterator is the safe habit. The method takes O(n) time and no extra space."
+>
+Write `doubleAll`, which replaces every number in the list with twice its value, in place. For `[1, 2, 3]` the list becomes `[2, 4, 6]`. Do not build a second list.
+</Practice>
+
+<Part id="interview" heading="Iteration in the [interview]" sub="The questions that come up, and the answers." />
+
+Iteration is a favourite because one short bug shows whether you understand how collections work.
+
+- **"Why does this loop throw `ConcurrentModificationException`?"** Because the list was changed outside the iterator while the loop was running. The iterator's remembered version no longer matches the list's.
+- **"How do you remove while iterating?"** Use `Iterator.remove()`, or `removeIf` for a rule. Name both, and say which you would pick.
+- **"What does fail-fast mean?"** The iterator checks for changes on each step and throws immediately instead of returning wrong data. Add that it is best-effort: it is a bug alarm, not something to catch and rely on.
+- **"Is it only a threading problem?"** No. The classic case is one thread, one loop, and a `remove` in the wrong place. The name says "concurrent", but the commonest cause is plain single-threaded code. Lesson 12 comes back to the multi-threaded kind.
+- **"Why does `it.remove()` need a `next()` first?"** It removes the item `next()` just returned. With no item returned, there is nothing to remove, so it throws `IllegalStateException`.
+- **"Iterator or ListIterator?"** `ListIterator` works on lists only, walks both ways, and can `set` and `add`. Use a plain `Iterator` for everything else.
+- **Say the cost.** "A walk is O(n). Removing during the walk is O(1) on a `LinkedList` and O(n) per item on an `ArrayList`, so `removeIf` is better for many removals."

@@ -1,0 +1,223 @@
+---
+title: Queues and deques
+sub: Lines, piles, and the emergency room.
+description: Learn ArrayDeque as a stack and a queue, and PriorityQueue for most-urgent-first. See how a ring buffer and a heap work, with a cost table and three practice problems on brackets, a parcel game and top K.
+order: 9
+part: 1
+updated: 2026-10-17
+slug: queues-and-deques
+---
+
+<Part id="what" heading="Lines, piles and the [ER]" sub="Who goes next depends on the rule." />
+
+Think of three places where people or things wait.
+
+- A **queue** at a ticket counter. The person who arrived first is served first. Newcomers join the back. This is called **first in, first out**, or FIFO.
+- A **pile of plates** in a canteen. You put a clean plate on top and you take one from the top. The plate you added last is the one you use first. This is **last in, first out**, or LIFO, and the pile is called a **stack**.
+- The **emergency room** of a hospital. It isn't first come, first served. A patient who walked in an hour ago with a sprained ankle waits while someone who just arrived with chest pain is seen at once. The most urgent goes next.
+
+Java has a collection for each. **`ArrayDeque`** (said "array deck", short for *double-ended queue*) does the first two, because you can add and remove at both of its ends. **`PriorityQueue`** is the emergency room.
+
+You will use `ArrayDeque` more often than you expect. It is Java's recommended stack and its recommended queue, and it is what you reach for in half of all interview problems about brackets, undo, and walking through a maze or a tree.
+
+**Remember:** a stack gives back the newest thing. A queue gives back the oldest. A priority queue gives back the most urgent.
+
+<Part id="idea" heading="Two ends, and a [heap]" sub="A deque works at both ends. A heap keeps the best on top." />
+
+<HeapQueueDiagram />
+
+An `ArrayDeque` keeps its items in a row, like an `ArrayList`, and remembers where the front is. Adding or removing at either end is quick, because it only moves that marker, with no need to shift anything. The "How it works" part shows a neat trick it uses, which is to treat the row as a circle.
+
+A `PriorityQueue` is built on a **heap**. Picture the tree in the diagram. Every box is smaller than the boxes below it, so the smallest item is always at the top, and `poll()` takes it from there. After a removal, the tree quietly shuffles a few boxes to put the next smallest on top.
+
+The tree has no wires. It is stored in a plain array, using a neat rule: the children of slot `i` live in slots `2i + 1` and `2i + 2`. That is the row at the bottom of the picture.
+
+One warning. A heap only promises that the **top** is the best. The rest is in a loose order, not sorted. So if you print a `PriorityQueue` or loop over it, the items will not come out in order. To get them in order, `poll` them one at a time.
+
+<Part id="use" heading="Stack, queue, [priority]" sub="push, pop, offer, poll, and PriorityQueue." />
+
+Every block below can be pasted into jshell. First, the pile of plates, with an `ArrayDeque` used as a stack.
+
+<Snippet file="Lesson9Queues" name="stack" />
+
+```text
+plate 3
+plate 3
+plate 2
+1
+```
+
+`push` puts an item on top. `peek` looks at the top without taking it. `pop` takes it off. The last plate pushed was the first one popped. Declare the variable as a `Deque`, the interface from lesson 1, so the code says what it needs and not which class provides it.
+
+Java also has an old class called `Stack`. Don't use it. It is slower and has an awkward design, and the Java documentation itself points you to `ArrayDeque`.
+
+Now the ticket counter, using it as a queue.
+
+<Snippet file="Lesson9Queues" name="queue" />
+
+```text
+Asha
+Asha
+Ravi
+1
+```
+
+`offer` joins the back of the line. `poll` takes the person at the front. `peek` shows who is at the front without removing them. Asha came first, so Asha is served first.
+
+Because it works at both ends, a deque can do either job and more:
+
+<Snippet file="Lesson9Queues" name="both-ends" />
+
+```text
+[A, B, C, D]
+A
+D
+[B, C]
+```
+
+`addFirst` and `addLast` add at the two ends. `pollFirst` and `pollLast` take from them.
+
+Two details to know. When the deque is empty, `poll` and `peek` give you `null`, but `pop` throws a `NoSuchElementException`. And `ArrayDeque` refuses `null` items, so a `null` answer can only ever mean "nothing there".
+
+<Snippet file="Lesson9Queues" name="empty" />
+
+```text
+null
+pop on empty: NoSuchElementException
+null refused
+```
+
+The emergency room is next. `PriorityQueue` hands over the *smallest* item first, by the natural order from lesson 8. To change what "first" means, pass a `Comparator`.
+
+<Snippet file="Lesson9Queues" name="patient" />
+
+<Snippet file="Lesson9Queues" name="priority-queue" />
+
+```text
+1
+3
+5
+Ravi
+Meera
+Asha
+```
+
+The numbers came out smallest first, whatever order they went in. For the patients, the comparator says "sort by severity, highest first", so Ravi (9) is seen before Meera (5) and Asha (2). Two patients with the same severity would be seen in no promised order, so give your comparator a tie-breaker if that matters.
+
+**Remember:** `push` and `pop` for a stack, `offer` and `poll` for a queue, and `poll` a `PriorityQueue` to get items in order. Never loop over one and expect sorted output.
+
+<Part id="inside" heading="A circle, and a [tree]" sub="A ring buffer for the deque, a heap for the priority queue." />
+
+An `ArrayDeque` has a trick. If the front of a queue moved along an ordinary array, the empty slots at the start would be wasted. So it treats the array as a **ring**: after the last slot, it wraps round to slot 0. Here is a queue built that way.
+
+<Snippet file="Lesson9Queues" name="tiny-ring-queue" />
+
+Go through it in order.
+
+- `head` is the slot holding the front item, and `size` counts the items.
+- The back of the queue is at slot `(head + size) % items.length`. The `%` (remainder) is what wraps the position back to 0 after the last slot.
+- `poll` reads the front, clears the slot, and moves `head` along by one, wrapping round too.
+- When the ring is full, `grow` makes an array twice as big and copies the items across *in queue order*, starting at slot 0, which straightens the ring out again.
+
+<Snippet file="Lesson9Queues" name="tiny-ring-queue-demo" />
+
+```text
+1
+2
+3 4 5 6 7
+```
+
+After two polls the first two slots were free, so 5 and 6 wrapped round into them. Number 7 found the ring full and made it grow. Nothing was ever shifted, which is why both ends are quick.
+
+Now the heap behind `PriorityQueue`, using the array rule from the picture. This one holds plain numbers to keep it short.
+
+<Snippet file="Lesson9Queues" name="tiny-min-heap" />
+
+- `add` puts the new value in the first free slot at the bottom, then lets it **swim up**: while it is smaller than its parent (at slot `(i - 1) / 2`), swap them.
+- `poll` takes the top. The last item then jumps into the empty top seat and **sinks down**: it swaps with its smaller child until both children are bigger.
+- Each swim or sink goes down or up one level of the tree at a time, so the work is about the height of the tree, which is small.
+
+<Snippet file="Lesson9Queues" name="tiny-min-heap-demo" />
+
+```text
+[1, 2, 3, 5, 8, 9]
+```
+
+Numbers went in jumbled and came out smallest first. That is called **heap sort** when you do it on purpose.
+
+<Part id="cost" heading="What each line [costs]" sub="n is the number of items waiting." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `ArrayDeque` `push`, `pop`, `offer`, `poll`, `peek` | O(1) on average | Only the front or back marker moves |
+| `ArrayDeque` growing | O(n), but rare | The ring is copied into a bigger one |
+| `ArrayDeque` `contains(x)` | O(n) | Looks at items one by one |
+| `PriorityQueue` `offer`, `poll` | O(log n) | An item swims or sinks one level at a time |
+| `PriorityQueue` `peek` | O(1) | The best item is always on top |
+| `PriorityQueue` `contains(x)`, `remove(x)` | O(n) | The heap has no way to search for a value |
+| Building by adding n items | O(n log n) | n additions at O(log n) each |
+| Space used | O(n) | One slot per item |
+
+The ring buffer is why `ArrayDeque` tends to beat `LinkedList` as a queue: no node objects, and the items sit together in memory. The Java documentation says as much.
+
+<Part id="practise" heading="Three problems, [one] line" sub="Brackets, a parcel game, and top K." />
+
+<Practice
+  number={1}
+  title="Do the brackets match?"
+  file="Lesson9Queues"
+  start="balanced-start"
+  solution="balanced"
+  hints={[
+    "Every closing bracket must close the **most recent** opening bracket that is still open. 'Most recent' is the clue to which collection to use.",
+    "Use an `ArrayDeque<Character>` as a stack. `push` each opening bracket you meet.",
+    "On a closing bracket, `pop` the top and check that it is the matching kind. If the stack is empty, or the kinds differ, return false. At the very end, the stack must be empty.",
+  ]}
+  explain="A stack gives back the newest thing, which is exactly 'the most recent opener'. Three failures are covered: a closer with nothing open (the empty check), a closer of the wrong kind (the match check), and an opener never closed (the final `isEmpty`). Characters other than brackets are ignored. The walk is O(n) time, and the stack grows to at most O(n) space."
+>
+Write `isBalanced`, which returns `true` if every `(`, `[` and `{` in the text is closed by the matching bracket in the right order. `"([]{})"` is balanced. `"(]"` and `"(("` are not. Text with no brackets is balanced.
+</Practice>
+
+<Practice
+  number={2}
+  title="Pass the parcel"
+  file="Lesson9Queues"
+  start="last-standing-start"
+  solution="last-standing"
+  hints={[
+    "Players sit in a circle, and the parcel moves one player at a time. A queue is a good model: the front is the player holding the parcel.",
+    "Passing the parcel to the next player means moving the front to the back: `circle.offer(circle.poll())`.",
+    "Pass it `k - 1` times, then the player at the front is the k-th, so `poll` them out for good. Repeat until one player is left, then return that player.",
+  ]}
+  explain="Each lap round the queue moves players from the front to the back without losing anyone, which is passing the parcel. After `k - 1` passes, the front player is the k-th one, and removing them with a plain `poll` shrinks the circle. Every elimination costs O(k) moves, each O(1), so the total is O(n times k). This is the classic Josephus problem."
+>
+Write `lastStanding`, which takes a list of players in a circle and a number `k`. Starting from the first player, count `k` players, send the k-th one out, carry on counting from the next, and repeat. Return the name of the last player left. For A, B, C, D, E and `k = 2`, the answer is C.
+</Practice>
+
+<Practice
+  number={3}
+  title="The k biggest"
+  file="Lesson9Queues"
+  start="top-k-start"
+  solution="top-k"
+  hints={[
+    "Sorting everything works, but costs O(n log n). Try to keep only the best `k` seen so far.",
+    "A `PriorityQueue` gives back its smallest item. If you keep at most `k` numbers in it, the smallest of the best `k` is the one to throw out when something better comes.",
+    "Offer each number. If the size goes above `k`, `poll` once, which drops the smallest. At the end, poll them all out and reverse the list, because they come out smallest first.",
+  ]}
+  explain="The heap never grows above `k + 1` items, so each `offer` and `poll` costs O(log k) and the whole job is O(n log k) time with O(k) space. That beats sorting when k is much smaller than n. The surprising part is that you use a *min*-heap to find the *biggest* numbers: the top is the weakest of your current best, so it is the one to evict. If `k` is bigger than the data, everything is kept."
+>
+Write `topK`, which returns the `k` biggest numbers from an array, biggest first. For `{5, 1, 9, 3, 7}` and `k = 3` it returns `[9, 7, 5]`. If there are fewer than `k` numbers, return them all. Repeated numbers count each time.
+</Practice>
+
+<Part id="interview" heading="Queues in the [interview]" sub="What to ask, and what to say." />
+
+- **"How would you implement a stack in Java?"** `ArrayDeque` with `push`, `pop` and `peek`, declared as a `Deque`. Add that you avoid `Stack` because it is an old class and `ArrayDeque` is faster.
+- **"Stack versus queue?"** A stack is last in, first out. A queue is first in, first out. Give an example of each: undo history or matching brackets for a stack, a print line or a breadth-first walk for a queue.
+- **"`ArrayDeque` or `LinkedList` as a queue?"** `ArrayDeque`, almost always. No node objects, items close together in memory, and the docs say it is faster. The one exception is that `LinkedList` allows `null`.
+- **"`poll` versus `remove`, `peek` versus `element`?"** The first of each pair returns `null` on an empty queue. The second throws an exception. Pick based on whether empty is normal or a bug.
+- **"What is a `PriorityQueue`, and how does it work?"** A heap, stored in an array. The smallest item is on top, and `offer` and `poll` are O(log n).
+- **"Is a `PriorityQueue` sorted?"** No. Only the top is promised. Iterating it shows an unspecified order. Poll to get sorted output.
+- **"How do you get a max-heap?"** Pass a reversed comparator, for example `new PriorityQueue<>(Comparator.reverseOrder())`.
+- **"Find the k largest."** Problem 3: a min-heap of size k, O(n log k).
+- **Say the cost.** "Both ends of an `ArrayDeque` are O(1). A `PriorityQueue` is O(log n) to add and remove, and O(1) to peek."
