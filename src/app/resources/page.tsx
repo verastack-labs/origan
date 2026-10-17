@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHead, section, shell } from "@/components/page-head";
+import { PageHead, sectionCompact, shell } from "@/components/page-head";
 import { Reveal } from "@/components/reveal";
 import { StudioCredit } from "@/components/dsa/lesson-chrome";
 import { resources, resourcesPage } from "@/data/resources";
@@ -30,9 +30,10 @@ export default function Resources() {
         notation={resourcesPage.notation}
         pair={{ heading: resourcesPage.heading, sub: resourcesPage.sub }}
         cta={false}
+        compact
       />
 
-      <section id="study" className={section}>
+      <section id="study" className={sectionCompact}>
         <div className={shell}>
           <Reveal variant="label" className="notation">
             Study material

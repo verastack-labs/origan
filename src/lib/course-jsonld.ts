@@ -51,7 +51,31 @@ export function courseJsonLd(course: Course, lessons: Lesson[]) {
   };
 }
 
+/**
+ * The trail a reader sees at the top of the page, as structured data, so a
+ * search result can show "Origan > Resources > DSA in Rust" instead of a bare URL.
+ * Pass a lesson for a lesson page; leave it out for the course index.
+ */
+export function breadcrumbJsonLd(course: Course, lesson?: Lesson) {
+  const trail = [
+    { name: site.name, url: `${site.url}/` },
+    { name: "Resources", url: `${site.url}/resources/` },
+    { name: course.name, url: indexUrl(course) },
+    ...(lesson ? [{ name: lesson.title, url: courseUrl(course, lesson.slug) }] : []),
+  ];
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: trail.map((step, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: step.name,
+      item: step.url,
+    })),
+  };
+}
+
 /** Serialised for a script tag: `<` is escaped so content can never close it. */
 export function jsonLdScript(value: unknown): string {
-  return JSON.stringify(value).replace(/</g, "<");
+  return JSON.stringify(value).replace(/</g, "\\u003c");
 }
