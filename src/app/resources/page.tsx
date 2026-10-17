@@ -53,11 +53,20 @@ export default function Resources() {
                       className="group flex h-full flex-col p-[clamp(20px,2.6vw,32px)] transition-colors hover:bg-panel-2"
                     >
                       <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-3">
-                        {resource.descriptor && <span className="text-fg-2">{resource.descriptor} · </span>}
                         Free · {count} {count === 1 ? one : many}
                       </span>
                       <span className="mt-2.5 text-[clamp(22px,2.6vw,30px)] font-bold tracking-[-0.03em] text-fg">
                         {resource.name}
+                        {resource.descriptor && (
+                          <span className="font-semibold text-fg-2">
+                            <span aria-hidden="true" className="text-fg-3">
+                              {" "}
+                              ·{" "}
+                            </span>
+                            <span className="sr-only">, </span>
+                            {resource.descriptor}
+                          </span>
+                        )}
                       </span>
                       <span className="mt-2.5 max-w-[44ch] text-[15.5px] text-fg-2">{resource.summary}</span>
                       <span className="sr-only">Topics: {resource.topics.join(", ")}.</span>
