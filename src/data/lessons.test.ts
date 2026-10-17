@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { curriculum, lessonParts } from "./rust-dsa";
+import { curriculum, lessonParts, partOf } from "./rust-dsa";
 import { resources, resourcesPage } from "./resources";
 import { getLessons } from "@/lib/lessons";
 import { hasRegion } from "@/lib/snippets";
@@ -34,8 +34,12 @@ function checkHeading(heading: string) {
 }
 
 describe("the curriculum", () => {
-  it("numbers Part 1 from 0 to 12 with no gaps", () => {
-    expect(curriculum.map((c) => c.order)).toEqual(Array.from({ length: 13 }, (_, i) => i));
+  it("numbers both parts from 0 to 19 with no gaps", () => {
+    expect(curriculum.map((c) => c.order)).toEqual(Array.from({ length: 20 }, (_, i) => i));
+  });
+
+  it("puts lessons 0 to 12 in Part 1 and 13 to 19 in Part 2", () => {
+    expect(curriculum.map(partOf)).toEqual([...Array(13).fill(1), ...Array(7).fill(2)]);
   });
 
   it("has unique slugs", () => {
@@ -44,15 +48,16 @@ describe("the curriculum", () => {
 });
 
 describe("the published lessons", () => {
-  it("are lessons 0 to 12, in teaching order", () => {
-    expect(lessons.map((l) => l.order)).toEqual(Array.from({ length: 13 }, (_, i) => i));
+  it("are the first lessons of the curriculum, in teaching order", () => {
+    expect(lessons.map((l) => l.order)).toEqual(Array.from({ length: lessons.length }, (_, i) => i));
+    expect(lessons.length).toBeGreaterThanOrEqual(13);
   });
 
   it.each(lessons.map((l) => [l.slug, l]))("%s matches its curriculum entry", (_, lesson) => {
     const entry = curriculum.find((c) => c.slug === lesson.slug);
     expect(entry, `${lesson.slug} is not in the curriculum`).toBeDefined();
     expect(entry?.order).toBe(lesson.order);
-    expect(lesson.part).toBe(1);
+    expect(lesson.part).toBe(partOf(entry!));
     expect(lesson.updated).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(lesson.description.length).toBeGreaterThan(60);
     expect(lesson.description.length).toBeLessThanOrEqual(220);

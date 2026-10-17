@@ -19,7 +19,7 @@ export const resources: readonly Resource[] = [
   {
     id: "dsa-in-rust",
     name: rustDsa.name,
-    summary: "Data structures, taught in Rust, with code that is compiled and tested.",
+    summary: "Data structures and algorithms, taught in Rust, with code that is compiled and tested.",
     href: rustDsa.path,
     unit: ["lesson", "lessons"],
   },
@@ -37,5 +37,5 @@ export const resourcesPage = {
   heading: "Free [study] material",
   sub: "Made by VeraStack Labs. Open to anyone, no sign-up.",
   description:
-    "Free study material for engineering students, made by VeraStack Labs. DSA in Rust teaches data structures in Rust, and Java Collections teaches the Java Collections Framework. Every code sample is compiled and tested.",
+    "Free study material for engineering students, made by VeraStack Labs. DSA in Rust teaches data structures and algorithms in Rust, and Java Collections teaches the Java Collections Framework. Every code sample is compiled and tested.",
 };

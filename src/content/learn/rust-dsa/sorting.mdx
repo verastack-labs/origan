@@ -1,0 +1,168 @@
+---
+title: Sorting in Rust
+sub: Insertion sort, merge sort, quicksort, and what Rust gives you.
+description: Learn sorting in Rust. Build insertion sort, merge sort and quicksort, then use sort, sort_unstable and sort_by_key, with a cost table and three practice problems.
+order: 13
+part: 2
+updated: 2026-10-17
+slug: sorting
+---
+
+<Part id="what" heading="Cards in your [hand]" sub="Put things in order, and keep them there." />
+
+You are dealt a hand of cards, and you want them in order. You pick up one card at a time and slide it into the right gap among the cards you already hold. Nobody taught you that. You just do it.
+
+That is sorting. **Sorting** means rearranging items so they sit in order, smallest to largest, or A to Z, or newest first. It is the most common job in a program. Leaderboards, search results, and your phone's contact list all depend on it.
+
+Sorting also unlocks other tricks. Once a list is sorted, you can find things in it very quickly (lesson 14), and duplicates end up side by side. Many problems that look hard become easy after one sort.
+
+Reach for the standard library's `sort` almost every time. You still learn how sorting works, because it teaches you how to think about cost, and because interviewers love to ask.
+
+<Part id="idea" heading="Three ways to [sort]" sub="Slide it in, split and zip, or pick a pivot." />
+
+<SortingDiagram />
+
+Here are three classic ideas. Each one is a different answer to "how do I put a pile in order?".
+
+**Insertion sort** is your hand of cards. Keep the left part sorted. Take the next item and slide it left until it sits in order. In the picture, the 1 slides all the way to the front, and the 3 slots in the middle. It is simple and quick on a list that is nearly sorted already. But a card might need to slide a long way, so on a reversed list of n items it does about n × n steps.
+
+**Merge sort** works by splitting. Cut the pile in half, sort each half, then **merge** the two sorted halves. Merging is easy, because you only ever look at the front card of each pile and take the smaller. Try it on 1, 4, 6 and 2, 3, 7. Front cards 1 and 2: take 1. Front cards 4 and 2: take 2. Then 3, then 4, then 6, then 7. You get 1, 2, 3, 4, 6, 7 after a single walk through both piles.
+
+But how do the halves get sorted? The same way: split again, until each pile has one card. A pile of one card is already sorted. Doing a thing by asking a smaller copy of itself is called **recursion**, and lesson 16 is all about it.
+
+How many times can you cut n cards in half? About log n times (so 1,000 cards halve about 10 times). Each level of cutting costs one walk of n steps to merge. That gives n × log n in total, written O(n log n).
+
+**Quicksort** picks one item, the **pivot**, and sorts around it. Everything smaller goes to its left, everything bigger goes to its right. Now the pivot is exactly where it belongs, forever. Then do the same to the left pile and the right pile. If the pivot lands near the middle each time, you get the same O(n log n) as merge sort. If you are unlucky, and keep picking the smallest item, it slows to O(n²). Real libraries pick pivots carefully to avoid that.
+
+**Remember:** insertion sort slides, merge sort splits and zips, quicksort picks a pivot. The fast two both work by splitting the pile.
+
+<Part id="build" heading="Build [three] sorts" sub="Each one in a few lines of Rust." />
+
+Start with insertion sort. It sorts in place, which means it rearranges the slice you give it and makes no copy.
+
+<Snippet file="lesson13_sorting" name="insertion-sort" />
+
+`cards[..i]` is always the sorted hand. For each new card at `i`, the loop swaps it with its left neighbour while that neighbour is bigger. When the neighbour is no bigger, or the card reaches the front, it stops. `for i in 1..cards.len()` starts at 1 because a hand of one card is already sorted. The Playground link runs the demo that follows.
+
+Now merge sort. It builds a new `Vec` and leaves the input alone.
+
+<Snippet file="lesson13_sorting" name="merge-sort" />
+
+`merge_sort` is the splitting. `split_at` cuts the slice into a left and right half without copying anything. The line `if items.len() <= 1` is the **base case**, the case simple enough to answer straight away. Without it the function would split forever. `merge` is the zipping. It keeps two positions, `i` and `j`, one for each pile, and takes the smaller front item each time. Once one pile runs out, the other is already in order, so `extend_from_slice` copies the rest in one go.
+
+The `<=` in `merge` matters. When two items are equal, it takes the one from the left pile first. That keeps equal items in their original order, and the next section shows why that is a feature.
+
+**Remember:** every recursive function needs a base case, a simple answer that stops it.
+
+Finally, quicksort. Like insertion sort, it sorts in place.
+
+<Snippet file="lesson13_sorting" name="quicksort" />
+
+`partition` is the heart of it. It takes the last item as the pivot. It walks the slice, and every item smaller than the pivot is swapped into the next free slot at the front, tracked by `home`. At the end, the pivot swaps into `home`. Everything left of `home` is smaller, and `home` is the pivot's final place.
+
+<Note title="Why split_at_mut?">
+Quicksort needs to sort the left part and the right part, and each call wants `&mut`, a borrow it can change. Rust allows only one mutable borrow of the same data at a time, so you cannot just write two slices of `items` and change both. `split_at_mut` hands back two slices that provably do not overlap, which is the one thing Rust needs to be sure of. The pivot sits at index 0 of the right half, so the second call starts from `[1..]`.
+</Note>
+
+<Part id="std" heading="Let Rust do the [sorting]" sub="sort, sort_unstable and sort_by_key." />
+
+In real code you do not write your own sort. A slice already has them. The Playground link on this one runs it.
+
+<Snippet file="lesson13_sorting" name="std-sort" />
+
+Here is what each one is for.
+
+- `sort()` puts items in their natural order. It works for anything that has one, like numbers and strings.
+- `sort_by(|a, b| ...)` lets you say how two items compare. Your closure returns an `Ordering`: less, equal or greater. `b.cmp(a)` flips the order.
+- `sort_by_key(|item| ...)` sorts by a value you pull out of each item. It is the one you will use most. Sorting words by their length is one line.
+- `sort_unstable()` is the same idea, but a little faster and it needs no extra memory.
+
+Why does `f64` need `partial_cmp`? Decimals have a value called NaN (short for "not a number"), and NaN is not smaller, bigger or equal to anything. So decimals have no full order, and Rust makes you handle that yourself rather than guess.
+
+**Stable or unstable?** A sort is **stable** when items that compare equal keep the order they had before. `sort`, `sort_by` and `sort_by_key` are stable. `sort_unstable` makes no such promise. Here is when it shows up.
+
+<Snippet file="lesson13_sorting" name="stable-sort" />
+
+Ben and Dia both got 75, and Ben was first in the list. A stable sort keeps Ben before Dia. Imagine a sports table sorted by points: if you sort by name first and then by points, a stable sort leaves teams on equal points in alphabetical order. An unstable sort would scramble them. If you do not care about the order of ties, `sort_unstable` is a fine choice.
+
+To sort the biggest first, wrap the key in `Reverse`, the same type from lesson 8.
+
+<Snippet file="lesson13_sorting" name="sort-reverse" />
+
+**Remember:** use `sort_by_key` for most jobs, `Reverse` to flip it, and `sort` when ties must keep their order.
+
+<Part id="cost" heading="What each sort [costs]" sub="n is how many items there are." />
+
+| Sort | Best | Typical | Worst | Extra space |
+| --- | --- | --- | --- | --- |
+| Insertion sort | O(n) | O(n²) | O(n²) | O(1) |
+| Merge sort | O(n log n) | O(n log n) | O(n log n) | O(n) |
+| Quicksort | O(n log n) | O(n log n) | O(n²) | O(log n) for the recursion |
+| `sort` in Rust | O(n) if sorted | O(n log n) | O(n log n) | Up to O(n) |
+| `sort_unstable` in Rust | O(n) if sorted | O(n log n) | O(n log n) | Almost none |
+
+Insertion sort's best case is a list that is already sorted: each card needs no sliding, so it takes one pass. The standard library sorts are clever enough to spot runs that are already in order too. No comparison sort can beat O(n log n) in the worst case, which is why the fast ones all land there.
+
+<Part id="practise" heading="Three problems, [one] idea" sub="Partition, compare, and fold." />
+
+Each starter has a `todo!()`, a placeholder that panics if it runs. Replace it with your code.
+
+<Practice
+  number={1}
+  title="Sort the flag"
+  file="lesson13_sorting"
+  start="sort-colors-start"
+  solution="sort-colors"
+  hints={[
+    "You only have three values, 0, 1 and 2. You do not need a general sort. Counting would work, but try to do it in a single pass without counting.",
+    "Keep three zones in the slice: 0s at the front, 2s at the back, and 1s in between. Track the edge of each zone with an index.",
+    "Walk with `i`. A 0 swaps to the front zone. A 1 stays. A 2 swaps with the last unchecked slot, and then you look at `i` again, because the item that came in is new.",
+  ]}
+  explain="This is quicksort's `partition` idea taken to three groups, and it is known as the Dutch national flag problem. Every item is looked at about once, so it takes O(n) time and O(1) extra space. The one subtle line is the 2 case: after swapping with the back, `i` does not move, because the value that arrived has not been checked yet. After a 0 swap, `i` can move on, because the value that came from the middle zone is always a 1."
+>
+Write `sort_colors`, which takes a slice of `u8` holding only 0, 1 and 2 and sorts it in place, in a single pass. `[2, 0, 2, 1, 1, 0]` becomes `[0, 0, 1, 1, 2, 2]`.
+</Practice>
+
+<Practice
+  number={2}
+  title="Shortest word first"
+  file="lesson13_sorting"
+  start="sort-words-start"
+  solution="sort-words"
+  hints={[
+    "You want to sort by two things: length first, and the word itself when lengths tie.",
+    "Tuples compare their first part, and move to the second part only on a tie. So `(len, word)` is a ready-made key.",
+    "With `sort_by`, compare `(a.len(), a)` against `(b.len(), b)` using `cmp`. Strings already compare alphabetically.",
+  ]}
+  explain="A tuple of keys is the standard way to sort by more than one thing. Rust compares the tuples part by part, so length decides first and the word only matters when two lengths match. We compare references to the words, so no word is copied. A shorter version would be `words.sort_by_key(|w| (w.len(), w.clone()))`, but that copies every word, and the `sort_by` form avoids it. The whole sort is O(n log n) comparisons."
+>
+Write `sort_words`, which takes a `&mut Vec<String>` and sorts it with the shortest words first. Words with the same length go in alphabetical order. `["pear", "fig", "apple", "date"]` becomes `["fig", "date", "pear", "apple"]`.
+</Practice>
+
+<Practice
+  number={3}
+  title="Merge the meetings"
+  file="lesson13_sorting"
+  start="merge-intervals-start"
+  solution="merge-intervals"
+  hints={[
+    "If the meetings are in a random order, overlaps are hard to spot. What one step makes them easy to find?",
+    "Sort by start time. Then any meeting that overlaps the previous one must start before the previous one ends.",
+    "Keep a result list. For each interval, look at the last one in the list: if the new start is no later than its end, stretch that last end with `max`. Otherwise push the new interval.",
+  ]}
+  explain="Sorting turns a two-dimensional puzzle into a single pass. Once the intervals are in order of start, the only one that can overlap the next is the last one you kept. The `max` matters: a long meeting can swallow a short one completely, like (1, 10) and (2, 3), and the end must not shrink. Sorting costs O(n log n), and the merging pass costs O(n), so the total is O(n log n). `last_mut()` gives a mutable borrow of the final item, so you can stretch it in place."
+>
+Write `merge_intervals`, which takes a slice of `(start, end)` pairs and returns them with all overlapping pairs merged into one, in order. Intervals that touch count as overlapping. `[(1, 3), (8, 10), (2, 6)]` gives `[(1, 6), (8, 10)]`.
+</Practice>
+
+<Part id="interview" heading="Sorting in the [interview]" sub="What to ask, and what to say." />
+
+Sorting questions come in two kinds: "implement a sort" and "sort first, then solve". The second is far more common.
+
+- **Spot the signals.** "Closest", "overlapping", "top k", "group together", and "in order" often mean sort first. If you catch yourself comparing every pair, ask whether a sort would put the answers side by side.
+- **Know the three costs by heart.** Insertion is O(n²) and good on nearly sorted data. Merge is O(n log n) always, and needs extra space. Quicksort is O(n log n) usually, with an O(n²) worst case.
+- **Say "stable" when it matters.** If a problem sorts by one field and cares about the order of ties, say that you need a stable sort, and name `sort_by_key` as one.
+- **Mention the lower bound.** A sort that works by comparing items cannot beat O(n log n) in the worst case. Saying so shows you know where the limit comes from.
+- **Do not hand-write what the library does.** In a real project, `sort_by_key` is the answer. In an interview, ask whether you may use it. If you are asked to write one, merge sort is the safest to get right.
+- **Count the cost of sorting first.** If you sort and then do an O(n) pass, the answer is O(n log n), because the sort dominates. Say that out loud.
+- **Special values can skip the sort.** A slice with only three possible values, like in problem 1, can be done in O(n). Look for small ranges before reaching for a general sort.

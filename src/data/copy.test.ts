@@ -37,6 +37,9 @@ collect(resourcesPage, "resourcesPage", found);
 for (const course of [rustCourse, javaCourse]) {
   collect({ heading: course.hero.heading, sub: course.hero.sub }, `${course.id}.hero`, found);
   collect({ heading: course.listingHeading, sub: "listing" }, `${course.id}.listing`, found);
+  for (const [part, heading] of Object.entries(course.partHeadings ?? {})) {
+    collect({ heading, sub: "listing" }, `${course.id}.part${part}`, found);
+  }
 }
 
 const plain = (s: string) => s.replace(/\[([^\]]+)\]/g, "$1");

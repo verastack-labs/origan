@@ -26,7 +26,9 @@ function coursePages(course: Course): string {
   const lessonLines = getLessons(course)
     .map((lesson) => `- [${lesson.title}](${courseUrl(course, lesson.slug)}): ${lesson.sub}`)
     .join("\n");
-  return `- [${course.name}](${site.url}${course.path}): the course index, listing all ${course.curriculum.length} lessons planned for Part 1.
+  const parts = Object.keys(course.partNames).length;
+  const planned = parts > 1 ? `across ${parts} parts` : "for Part 1";
+  return `- [${course.name}](${site.url}${course.path}): the course index, listing all ${course.curriculum.length} lessons planned ${planned}.
 ${lessonLines}`;
 }
 

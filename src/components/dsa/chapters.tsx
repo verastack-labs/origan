@@ -34,6 +34,8 @@ export type Chapter = {
   order: number;
   slug: string;
   title: string;
+  /** Which part of the course it is in. */
+  part: number;
   /** Published lessons are links. The rest are listed, dimmed, and say so. */
   available: boolean;
 };
@@ -112,7 +114,7 @@ function revealCurrent(box: HTMLElement | null) {
   }
 }
 
-/** The nav itself: thirteen lessons, with the seven parts under the one you are on. */
+/** The nav itself: every lesson, grouped by part, with the seven parts under the one you are on. */
 function ChapterList({
   course,
   chapters,
@@ -127,11 +129,20 @@ function ChapterList({
   onNavigate?: () => void;
 }) {
   const row = "relative flex items-baseline gap-3 rounded-control py-2 pl-3 pr-2 text-[14.5px] leading-snug";
+  const partNumbers = [...new Set(chapters.map((c) => c.part))];
+  const grouped = partNumbers.length > 1;
 
   return (
     <nav aria-label="Chapters">
+      {partNumbers.map((part) => (
+      <div key={part} className={grouped && part !== partNumbers[0] ? "mt-5" : ""}>
+      {grouped && (
+        <p className="notation mb-1.5 whitespace-nowrap pl-3">
+          Part {part} · {course.partNames[part]}
+        </p>
+      )}
       <ol className="grid gap-px">
-        {chapters.map((chapter) => {
+        {chapters.filter((c) => c.part === part).map((chapter) => {
           const here = chapter.slug === current;
           const number = (
             <span
@@ -202,6 +213,8 @@ function ChapterList({
           );
         })}
       </ol>
+      </div>
+      ))}
     </nav>
   );
 }
@@ -210,7 +223,7 @@ function ChapterList({
 function CourseTitle({ course, onNavigate }: { course: CourseNav; onNavigate?: () => void }) {
   return (
     <>
-      <p className="notation whitespace-nowrap">Part 1</p>
+      <p className="notation whitespace-nowrap">{Object.keys(course.partNames).length > 1 ? "Free lessons" : "Part 1"}</p>
       <Link
         href={course.path}
         onClick={onNavigate}

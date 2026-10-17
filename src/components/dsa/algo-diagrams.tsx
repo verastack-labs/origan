@@ -1,0 +1,543 @@
+import type { ReactNode } from "react";
+import { faint, Figure, label } from "./diagrams";
+
+/**
+ * The Part 2 (algorithms) diagrams, in the same survey style as the data
+ * structure ones: hairlines, plotted points, dimension lines, one accent. They
+ * share the frame from `diagrams.tsx`. Each one shows the algorithm stepping,
+ * a row at a time, so a reader can follow it with a finger.
+ */
+
+type CellKind = "plain" | "hand" | "fresh" | "empty" | "found" | "out";
+
+const cellClass: Record<CellKind, string> = {
+  plain: "fill-ground stroke-line",
+  hand: "fill-panel stroke-fg-3",
+  fresh: "fill-panel-2 stroke-survey",
+  empty: "fill-ground stroke-line",
+  found: "fill-panel-2 stroke-survey",
+  out: "fill-ground stroke-line",
+};
+
+/** One row of boxes with a value in each. */
+function Cells({
+  x,
+  y,
+  w = 56,
+  h = 38,
+  size = 16,
+  values,
+  kind,
+}: {
+  x: number;
+  y: number;
+  w?: number;
+  h?: number;
+  size?: number;
+  values: readonly (string | number)[];
+  kind: (index: number) => CellKind;
+}): ReactNode {
+  return (
+    <g>
+      {values.map((value, i) => {
+        const k = kind(i);
+        return (
+          <g key={i}>
+            <rect
+              x={x + i * w}
+              y={y}
+              width={w}
+              height={h}
+              className={cellClass[k]}
+              strokeWidth={k === "fresh" || k === "found" ? 1.5 : 1}
+              strokeDasharray={k === "empty" ? "4 3" : undefined}
+            />
+            {k !== "empty" && (
+              <text
+                x={x + i * w + w / 2}
+                y={y + h / 2 + 5}
+                textAnchor="middle"
+                fontSize={size}
+                className={k === "out" ? "font-mono fill-fg-3" : "font-mono fill-fg"}
+              >
+                {value}
+              </text>
+            )}
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+/** Lesson 13: insertion sort, one card at a time, like sorting a hand. */
+export function SortingDiagram() {
+  const rows: { values: number[]; hand: number; fresh: number; note: string }[] = [
+    { values: [4, 2, 5, 1, 3], hand: 1, fresh: -1, note: "start: the hand holds just the 4" },
+    { values: [2, 4, 5, 1, 3], hand: 2, fresh: 0, note: "take 2, slide it before the 4" },
+    { values: [2, 4, 5, 1, 3], hand: 3, fresh: 2, note: "take 5, it is already in place" },
+    { values: [1, 2, 4, 5, 3], hand: 4, fresh: 0, note: "take 1, slide it to the front" },
+    { values: [1, 2, 3, 4, 5], hand: 5, fresh: 2, note: "take 3, slot it in the middle" },
+  ];
+  const left = 40;
+  const top = 44;
+  const gap = 46;
+
+  return (
+    <Figure
+      id="sorting"
+      title="Insertion sort on 4, 2, 5, 1, 3, one card at a time"
+      caption="The sorted hand grows from the left. Each new card (outlined in blue) is slid left until it sits in order. After the last card, the whole row is sorted."
+      viewBox="0 0 720 300"
+    >
+      <text x={left} y={26} fontSize={10} className={faint}>
+        THE HAND IS THE LEFT PART
+      </text>
+      {rows.map((row, r) => (
+        <g key={r}>
+          <Cells
+            x={left}
+            y={top + r * gap}
+            values={row.values}
+            kind={(i) => (i === row.fresh ? "fresh" : i < row.hand ? "hand" : "plain")}
+          />
+          <text x={left + 5 * 56 + 24} y={top + r * gap + 24} fontSize={12} className={label}>
+            {row.note}
+          </text>
+        </g>
+      ))}
+    </Figure>
+  );
+}
+
+/** Lesson 14: binary search narrowing eleven numbers down to the one wanted. */
+export function BinarySearchDiagram() {
+  const values = [2, 5, 8, 12, 16, 23, 38, 45, 56, 72, 91];
+  const steps: { lo: number; hi: number; mid: number; note: string }[] = [
+    { lo: 0, hi: 11, mid: 5, note: "look at 23: too small" },
+    { lo: 6, hi: 11, mid: 8, note: "look at 56: too big" },
+    { lo: 6, hi: 8, mid: 7, note: "look at 45: found it" },
+  ];
+  const left = 20;
+  const w = 44;
+  const top = 58;
+  const gap = 62;
+
+  return (
+    <Figure
+      id="binary-search"
+      title="Binary search for 45 among eleven sorted numbers, in three looks"
+      caption="Each look at the middle number rules out half of what is left. Faded boxes are ruled out. Eleven numbers took three looks, and a thousand would take about ten."
+      viewBox="0 0 720 270"
+    >
+      <text x={left} y={28} fontSize={10} className={faint}>
+        LOOKING FOR 45
+      </text>
+      {steps.map((step, r) => {
+        const y = top + r * gap;
+        return (
+          <g key={r}>
+            <Cells
+              x={left}
+              y={y}
+              w={w}
+              h={36}
+              size={14}
+              values={values}
+              kind={(i) =>
+                i < step.lo || i >= step.hi
+                  ? "out"
+                  : i === step.mid
+                    ? r === steps.length - 1
+                      ? "found"
+                      : "fresh"
+                    : "plain"
+              }
+            />
+            <text x={left + 11 * w + 18} y={y + 22} fontSize={12} className={label}>
+              {step.note}
+            </text>
+            <text x={left + step.mid * w + w / 2} y={y + 54} textAnchor="middle" fontSize={11} className="font-mono fill-survey">
+              mid
+            </text>
+          </g>
+        );
+      })}
+    </Figure>
+  );
+}
+
+/** Lesson 15: a window of three sliding along six numbers, one step at a time. */
+export function WindowDiagram() {
+  const values = [2, 1, 5, 1, 3, 2];
+  const k = 3;
+  const rows: { at: number; note: string }[] = [
+    { at: 0, note: "add them all: 2 + 1 + 5 = 8" },
+    { at: 1, note: "8 - 2 + 1 = 7" },
+    { at: 2, note: "7 - 1 + 3 = 9, the best so far" },
+    { at: 3, note: "9 - 5 + 2 = 6" },
+  ];
+  const left = 40;
+  const w = 56;
+  const top = 50;
+  const gap = 54;
+
+  return (
+    <Figure
+      id="window"
+      title="A window of three sliding along 2, 1, 5, 1, 3, 2"
+      caption="Like a train window, the box shows three numbers at a time. To move one step, the number on the right comes in and the number on the left leaves. That is two small changes to the total, instead of adding up three numbers again."
+      viewBox="0 0 720 280"
+    >
+      <text x={left} y={26} fontSize={10} className={faint}>
+        THE WINDOW IS THE OUTLINED BOX
+      </text>
+      {rows.map((row, r) => {
+        const y = top + r * gap;
+        return (
+          <g key={r}>
+            <Cells
+              x={left}
+              y={y}
+              values={values}
+              kind={(i) => (i >= row.at && i < row.at + k ? "hand" : "out")}
+            />
+            <rect
+              x={left + row.at * w - 4}
+              y={y - 5}
+              width={k * w + 8}
+              height={48}
+              fill="none"
+              className="stroke-survey"
+              strokeWidth={2}
+              rx={3}
+            />
+            <text x={left + 6 * w + 24} y={y + 24} fontSize={12} className={label}>
+              {row.note}
+            </text>
+          </g>
+        );
+      })}
+    </Figure>
+  );
+}
+
+/** Lesson 16: the take-or-skip tree behind subsets of 1, 2, 3. */
+export function BacktrackingDiagram() {
+  const leafX = (i: number) => 70 + i * 82;
+  const leaves = ["{ }", "{3}", "{2}", "{2,3}", "{1}", "{1,3}", "{1,2}", "{1,2,3}"];
+  const rowY = [44, 104, 164, 224];
+  // The road the caption talks about: take 1, skip 2, take 3.
+  const road = new Set(["1", "10", "101"]);
+
+  // A node at depth d, number i, sits above the middle of the leaves it covers.
+  const nodeX = (d: number, i: number) => {
+    const span = 2 ** (3 - d);
+    return (leafX(i * span) + leafX(i * span + span - 1)) / 2;
+  };
+
+  const edges: ReactNode[] = [];
+  const nodes: ReactNode[] = [];
+  for (let d = 0; d <= 3; d++) {
+    for (let i = 0; i < 2 ** d; i++) {
+      const x = nodeX(d, i);
+      const y = rowY[d];
+      const path = d === 0 ? "" : i.toString(2).padStart(d, "0");
+      const onRoad = d === 0 || road.has(path);
+      if (d > 0) {
+        const px = nodeX(d - 1, i >> 1);
+        edges.push(
+          <line
+            key={`e${d}-${i}`}
+            x1={px}
+            y1={rowY[d - 1]}
+            x2={x}
+            y2={y}
+            className={onRoad ? "stroke-survey" : "stroke-line"}
+            strokeWidth={onRoad ? 2 : 1}
+          />,
+        );
+      }
+      nodes.push(
+        <circle
+          key={`n${d}-${i}`}
+          cx={x}
+          cy={y}
+          r={d === 3 ? 6 : 5}
+          className={onRoad ? "fill-panel-2 stroke-survey" : "fill-ground stroke-fg-3"}
+          strokeWidth={1.5}
+        />,
+      );
+    }
+  }
+
+  return (
+    <Figure
+      id="backtracking"
+      title="The take-or-skip tree for the items 1, 2 and 3"
+      caption="Every fork is a choice: skip the item (left) or take it (right). Each of the eight leaves is one finished subset. The outlined road takes 1, skips 2 and takes 3. After each leaf, the search steps back up to the nearest fork that still has a road untried, which is backtracking."
+      viewBox="0 0 720 290"
+    >
+      {edges}
+      {nodes}
+      {[1, 2, 3].map((item, d) => (
+        <text key={item} x={14} y={rowY[d] + 24} fontSize={10} className={faint}>
+          {`ITEM ${item}`}
+        </text>
+      ))}
+      <text x={(nodeX(0, 0) + nodeX(1, 0)) / 2 - 10} y={72} textAnchor="end" fontSize={11} className="font-mono fill-fg-2">
+        skip
+      </text>
+      <text x={(nodeX(0, 0) + nodeX(1, 1)) / 2 + 10} y={72} fontSize={11} className="font-mono fill-fg-2">
+        take
+      </text>
+      {leaves.map((text, i) => (
+        <text
+          key={i}
+          x={leafX(i)}
+          y={252}
+          textAnchor="middle"
+          fontSize={12}
+          className={i === 5 ? "font-mono fill-survey" : "font-mono fill-fg"}
+        >
+          {text}
+        </text>
+      ))}
+    </Figure>
+  );
+}
+
+/** Lesson 17: a search spreading from a start vertex in rings, like ripples. */
+export function RipplesDiagram() {
+  const cx = 230;
+  const cy = 150;
+  const r1 = 70;
+  const r2 = 120;
+  const polar = (r: number, degrees: number): [number, number] => [
+    cx + r * Math.cos((degrees * Math.PI) / 180),
+    cy + r * Math.sin((degrees * Math.PI) / 180),
+  ];
+
+  // Vertex numbers are the order a breadth-first search visits them.
+  const at: [number, number][] = [
+    [cx, cy],
+    polar(r1, 210),
+    polar(r1, 330),
+    polar(r1, 90),
+    polar(r2, 190),
+    polar(r2, 305),
+    polar(r2, 350),
+    polar(r2, 90),
+  ];
+  const edges: [number, number][] = [
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [1, 4],
+    [2, 5],
+    [2, 6],
+    [3, 7],
+  ];
+
+  return (
+    <Figure
+      id="ripples"
+      title="A breadth-first search spreading from vertex 0 in rings"
+      caption="Throw a stone in at vertex 0. The first ripple reaches everything one step away (1, 2, 3), and the next reaches everything two steps away (4, 5, 6, 7). The numbers show the order of visiting. A depth-first search would instead run down one road to its end, in the order 0, 1, 4, 2, 5, 6, 3, 7."
+      viewBox="0 0 720 300"
+    >
+      <circle cx={cx} cy={cy} r={r1} fill="none" className="stroke-fg-3" strokeWidth={1} strokeDasharray="4 4" />
+      <circle cx={cx} cy={cy} r={r2} fill="none" className="stroke-fg-3" strokeWidth={1} strokeDasharray="4 4" />
+      <text x={cx + 6} y={cy - r1 - 5} fontSize={10} className={faint}>
+        1 STEP
+      </text>
+      <text x={cx + 6} y={cy - r2 - 5} fontSize={10} className={faint}>
+        2 STEPS
+      </text>
+
+      {edges.map(([a, b]) => (
+        <line
+          key={`${a}-${b}`}
+          x1={at[a][0]}
+          y1={at[a][1]}
+          x2={at[b][0]}
+          y2={at[b][1]}
+          className="stroke-survey-2"
+          strokeWidth={1.5}
+        />
+      ))}
+      {at.map(([x, y], v) => (
+        <g key={v}>
+          <circle
+            cx={x}
+            cy={y}
+            r={17}
+            className={v === 0 ? "fill-panel-2 stroke-survey" : "fill-ground stroke-fg-3"}
+            strokeWidth={v === 0 ? 2 : 1}
+          />
+          <text x={x} y={y + 5} textAnchor="middle" fontSize={15} className="font-mono fill-fg">
+            {v}
+          </text>
+        </g>
+      ))}
+
+      <text x={470} y={96} fontSize={12} className="font-mono fill-survey">
+        Ring 0: the stone
+      </text>
+      <text x={470} y={136} fontSize={12} className={label}>
+        Ring 1: found first
+      </text>
+      <text x={470} y={176} fontSize={12} className={label}>
+        Ring 2: found next
+      </text>
+      <text x={470} y={226} fontSize={12} className={faint}>
+        Queue: first in, first out
+      </text>
+    </Figure>
+  );
+}
+
+/** Lesson 18: a small road map, the direct road that is not the shortest, and the route found. */
+export function RoadMapDiagram() {
+  const places: Record<string, { x: number; y: number; dist: number; note?: string; above?: boolean }> = {
+    A: { x: 70, y: 150, dist: 0, note: "HOME" },
+    B: { x: 270, y: 70, dist: 3, above: true },
+    C: { x: 250, y: 232, dist: 2 },
+    D: { x: 450, y: 150, dist: 8 },
+    E: { x: 640, y: 150, dist: 11, note: "SCHOOL" },
+  };
+  const roads: { from: string; to: string; cost: number; on: boolean }[] = [
+    { from: "A", to: "B", cost: 4, on: false },
+    { from: "A", to: "C", cost: 2, on: true },
+    { from: "C", to: "B", cost: 1, on: true },
+    { from: "B", to: "D", cost: 5, on: true },
+    { from: "C", to: "D", cost: 8, on: false },
+    { from: "D", to: "E", cost: 3, on: true },
+  ];
+
+  return (
+    <Figure
+      id="road-map"
+      title="A road map where the direct road from A to B is not the shortest way"
+      caption="The number on each road is its length. A to B directly is 4, but A to C to B is only 2 + 1 = 3. Dijkstra's search always settles the closest unsettled place next, so it finds the highlighted route to the school, 11 in all. The small numbers show each place's shortest distance from home."
+      viewBox="0 0 720 290"
+    >
+      {roads.map((road) => {
+        const a = places[road.from];
+        const b = places[road.to];
+        return (
+          <g key={`${road.from}${road.to}`}>
+            <line
+              x1={a.x}
+              y1={a.y}
+              x2={b.x}
+              y2={b.y}
+              className={road.on ? "stroke-survey" : "stroke-fg-3"}
+              strokeWidth={road.on ? 2.5 : 1}
+            />
+            <text
+              x={(a.x + b.x) / 2}
+              y={(a.y + b.y) / 2 + 4}
+              textAnchor="middle"
+              fontSize={13}
+              strokeWidth={5}
+              strokeLinejoin="round"
+              paintOrder="stroke"
+              className={road.on ? "font-mono fill-survey stroke-panel" : "font-mono fill-fg-2 stroke-panel"}
+            >
+              {road.cost}
+            </text>
+          </g>
+        );
+      })}
+      {Object.entries(places).map(([name, p]) => (
+        <g key={name}>
+          <circle cx={p.x} cy={p.y} r={19} className="fill-panel-2 stroke-survey" strokeWidth={1.5} />
+          <text x={p.x} y={p.y + 5} textAnchor="middle" fontSize={15} className="font-mono fill-fg">
+            {name}
+          </text>
+          <text x={p.x} y={p.above ? p.y - 28 : p.y + 38} textAnchor="middle" fontSize={11} className="font-mono fill-survey">
+            {`dist ${p.dist}`}
+          </text>
+          {p.note && (
+            <text x={p.x} y={p.y - 30} textAnchor="middle" fontSize={10} className={faint}>
+              {p.note}
+            </text>
+          )}
+        </g>
+      ))}
+    </Figure>
+  );
+}
+
+/** Lesson 19: the coin-change table for coins 1, 3 and 4, and how the last cell is worked out. */
+export function TableDiagram() {
+  const best = [0, 1, 2, 1, 1, 2, 2];
+  const left = 50;
+  const w = 82;
+  const top = 58;
+  const h = 44;
+  const centre = (i: number) => left + i * w + w / 2;
+  const last = best.length - 1;
+  const arcs = [
+    { from: 5, depth: 34, on: false },
+    { from: 3, depth: 62, on: true },
+    { from: 2, depth: 90, on: false },
+  ];
+  const notes = [
+    { text: "coin 1, from amount 5: 2 + 1 = 3 coins", on: false },
+    { text: "coin 3, from amount 3: 1 + 1 = 2 coins   (best)", on: true },
+    { text: "coin 4, from amount 2: 2 + 1 = 3 coins", on: false },
+  ];
+
+  return (
+    <Figure
+      id="dp-table"
+      title="A table of the fewest coins for each amount, with coins of 1, 3 and 4"
+      caption="Each box holds the fewest coins for that amount, filled from left to right. To fill the box for 6, try each coin: step back by the coin's value, and add one coin to the answer already written there. The best of the three tries is 2 coins (3 + 3), where a greedy cashier would use 3."
+      viewBox="0 0 720 290"
+    >
+      <text x={left} y={24} fontSize={10} className={faint}>
+        FEWEST COINS FOR EACH AMOUNT, COINS 1, 3 AND 4
+      </text>
+      <Cells
+        x={left}
+        y={top}
+        w={w}
+        h={h}
+        values={best}
+        kind={(i) => (i === last ? "found" : "hand")}
+      />
+      {best.map((_, i) => (
+        <text key={i} x={centre(i)} y={top - 7} textAnchor="middle" fontSize={11} className={faint}>
+          {`AMOUNT ${i}`}
+        </text>
+      ))}
+      {arcs.map((arc) => {
+        const x1 = centre(arc.from);
+        const x2 = centre(last);
+        const y = top + h;
+        return (
+          <path
+            key={arc.from}
+            d={`M${x1} ${y} C ${x1} ${y + arc.depth}, ${x2} ${y + arc.depth}, ${x2} ${y + 4}`}
+            fill="none"
+            className={arc.on ? "stroke-survey" : "stroke-fg-3"}
+            strokeWidth={arc.on ? 2 : 1}
+          />
+        );
+      })}
+      {notes.map((note, i) => (
+        <text
+          key={i}
+          x={left}
+          y={206 + i * 24}
+          fontSize={12}
+          className={note.on ? "font-mono fill-survey" : label}
+        >
+          {note.text}
+        </text>
+      ))}
+    </Figure>
+  );
+}

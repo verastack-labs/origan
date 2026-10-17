@@ -1,0 +1,191 @@
+---
+title: Dynamic programming in Rust
+sub: Write each answer down once, so you never solve it twice.
+description: Learn dynamic programming in Rust. Fix repeated work with memos and tables on climbing stairs, coin change and longest common subsequence, with a cost table and three practice problems.
+order: 19
+part: 2
+updated: 2026-10-17
+slug: dynamic-programming
+---
+
+<Part id="what" heading="Never solve it [twice]" sub="Write the answer down and look it up." />
+
+Your teacher sets a long sum: 23 × 47. Halfway through, you need 23 × 40, and you work it out. A few lines later, the same 23 × 40 turns up again. Do you work it out again? Of course not. You wrote the answer in the margin, so you just look at it.
+
+That is the whole idea of **dynamic programming**, often shortened to **DP**. The name sounds grander than it is. It means: when a problem breaks into smaller problems, and the same small problems keep coming up, solve each small problem **once**, write the answer down, and look it up next time.
+
+The trouble it fixes is real. Plain recursion (lesson 16) can solve the same small problem thousands of times. The first example below does 21,891 calls to count the ways to climb just 20 stairs. With a margin to write in, it does about 20.
+
+Reach for DP when a question asks for the **best**, the **fewest**, the **most**, or **how many ways**, and the choices at each step feed into the next. Interviewers love it, because the idea is simple and the first attempt is easy to get wrong.
+
+<Part id="idea" heading="Overlapping [subproblems]" sub="Find the small pieces, then fill a table." />
+
+<TableDiagram />
+
+Start with an example before the rule. You are climbing a staircase of 5 stairs, and each time you may step up 1 stair or 2. How many different ways are there to reach the top?
+
+Think about the very last step. You arrived either from stair 4 (with a 1-step) or from stair 3 (with a 2-step). So the ways to reach stair 5 are the ways to reach stair 4, plus the ways to reach stair 3. In general, `ways(n) = ways(n - 1) + ways(n - 2)`.
+
+That one sentence is the **recurrence**: the answer to a big problem, written in terms of smaller ones. Add the **base cases**, the tiny problems you answer directly: one way to stand at the bottom, one way to reach stair 1.
+
+Now the trouble. To work out `ways(5)`, a plain recursion asks for `ways(4)` and `ways(3)`. And `ways(4)` asks for `ways(3)` *again*, and `ways(2)`. The same questions keep appearing. This is called **overlapping subproblems**, and it is the sign that DP will help. With 20 stairs, `ways(2)` alone is asked thousands of times.
+
+There are two ways to stop the waste, and they give the same answers.
+
+**Top-down, with a memo.** Keep the recursion exactly as it is. But before doing any work, look in a notebook, called a **memo**. If the answer is there, return it. If not, work it out, and write it in the notebook before returning. Each question is now answered once.
+
+**Bottom-up, with a table.** Skip the recursion. Make a table with one slot for each small problem, and fill it from the smallest upward. Slot 0 and slot 1 hold the base cases. Slot 2 is slot 1 plus slot 0. Slot 3 is slot 2 plus slot 1. By the time you reach the slot you want, everything it needs is already filled in.
+
+The picture shows a table for a different problem, coin change. With coins worth 1, 3 and 4, what is the fewest coins that make 6? Each slot holds the answer for that amount. To fill slot 6, try every coin: step back by the coin's value, and add one coin to the answer already in that slot. Coin 3 steps back to slot 3, which holds 1, so that is 2 coins. That is the best, and it beats the cashier who greedily grabs the biggest coin first.
+
+How do you find a DP solution? Ask four questions.
+
+1. **What is a small problem?** For stairs, "ways to reach stair i". The answer to this is the **state**.
+2. **How does a small problem follow from smaller ones?** That is the recurrence.
+3. **What are the base cases?** The smallest problems you can answer on sight.
+4. **What order fills the table?** Smallest first, so everything needed is ready.
+
+**Remember:** if the same small question keeps coming back, write its answer down the first time.
+
+<Part id="build" heading="Slow, then [fast]" sub="Stairs three ways, then coins, then text." />
+
+First, the slow version, with a counter to show the waste.
+
+<Snippet file="lesson19_dynamic_programming" name="climb-slow" />
+
+The recurrence is the last line. `calls` is only here to count, so you can see the cost.
+
+<Snippet file="lesson19_dynamic_programming" name="climb-slow-demo" play={false} />
+
+Twenty stairs: 10,946 ways, but the function ran 21,891 times. Add a few more stairs and it takes forever. Now the memo.
+
+<Snippet file="lesson19_dynamic_programming" name="climb-memo" />
+
+`memo` is a `Vec` with one slot per stair, holding an `Option<u64>`. `None` means "not worked out yet". The function checks the slot first: `if let Some(known) = memo[n]` returns the saved answer straight away. Otherwise it recurses, saves the result with `memo[n] = Some(answer)`, and returns it. The recursion is unchanged. It only has a notebook now.
+
+And the table, bottom-up.
+
+<Snippet file="lesson19_dynamic_programming" name="climb-table" />
+
+No recursion at all. The table starts as all 1s, which covers the two base cases. Then a loop fills slot 2, slot 3, and on up to `n`. This one is shorter and cannot overflow the call stack. Fifty stairs take fifty small steps.
+
+<Snippet file="lesson19_dynamic_programming" name="climb-table-demo" play={false} />
+
+Which should you use? Both cost the same. The memo is closest to the thinking, and only computes what is needed. The table is usually a little faster, and avoids deep recursion. Many people write the memo first to get the idea right, and then convert to a table.
+
+**Remember:** a memo is a recursion with a notebook. A table is the same notebook, filled in order.
+
+Now coin change, the problem from the picture.
+
+<Snippet file="lesson19_dynamic_programming" name="coin-change" />
+
+Go through it in order.
+
+- `best[a]` is the fewest coins for amount `a`. `None` means that amount cannot be made, and it stays `None` if no coin works.
+- `best[0] = Some(0)`: zero rupees needs zero coins. That is the base case everything builds on.
+- For each amount, try every coin. A coin bigger than the amount is skipped. Otherwise, look up the answer for what is left, `best[a - coin]`. If that was possible, using this coin costs one more.
+- Keep the smallest candidate. The answer is the last slot.
+
+Last, a classic on text. A **subsequence** is some letters of a text, in the same order, but not necessarily side by side: "ace" is a subsequence of "abcde". The **longest common subsequence** (LCS) of two texts is the longest one they share. Tools that show the difference between two files lean on this idea.
+
+<Snippet file="lesson19_dynamic_programming" name="lcs" />
+
+The table has a row for each prefix of the first text, and a column for each prefix of the second. `table[i][j]` is the answer for the first `i` letters of one and the first `j` of the other. Row 0 and column 0 are the empty texts, so they are all zero. Then each slot has two cases. If the last letters match, they both belong in the common subsequence, so the answer is the diagonal slot plus 1. If they do not match, one of them is left out, so take the better of the slot above and the slot to the left.
+
+**Remember:** a table slot is the answer to a smaller question, and each slot is built from slots that are already filled.
+
+<Part id="std" heading="Tools you [already] have" sub="Vec, HashMap and Option do the job." />
+
+Rust has no "DP" feature, and it does not need one. The tools are the ones from earlier lessons.
+
+- A `Vec` is the table when the small problems are numbered 0, 1, 2, and so on. A `Vec<Vec<_>>` is a table with rows and columns, as in the LCS.
+- A `HashMap` is the memo when the small problems are not neat numbers. The key could be a pair of numbers, a word, or anything you can hash.
+- `Option` marks "not worked out yet", or "cannot be done", far more safely than a made-up number such as -1 or a huge value.
+- `max` and `min` on numbers, and `iter().max()` on a list, pick the best candidate.
+
+Here is the same memo idea with a `HashMap`, for the Fibonacci numbers (0, 1, 1, 2, 3, 5, 8, and so on, each the sum of the two before it). The Playground link runs it.
+
+<Snippet file="lesson19_dynamic_programming" name="memo-hashmap" />
+
+`memo.get(&n)` looks up the notebook, and `memo.insert` writes in it. The helper `fib` is nested inside the function that uses it, which is a tidy way to keep it close. The memo is passed in as `&mut`, so every call shares the same notebook.
+
+One honest warning. DP answers can grow fast, and a `u64` runs out of room. Fibonacci number 93 is the last that fits. For bigger results, a method like `checked_add` gives back `None` instead of overflowing, so you find out rather than get a wrong number.
+
+<Part id="cost" heading="What the tables [cost]" sub="n and m are the input sizes." />
+
+| Problem | Time | Space | Why |
+| --- | --- | --- | --- |
+| Climbing stairs, plain recursion | O(2ⁿ) | O(n) | The same questions are asked again and again |
+| Climbing stairs, memo or table | O(n) | O(n) | One slot per stair, each filled once |
+| Climbing stairs, two variables | O(n) | O(1) | Only the last two answers are needed |
+| Coin change | O(amount × coins) | O(amount) | A slot per amount, one try per coin |
+| Longest common subsequence | O(n × m) | O(n × m) | A slot for each pair of prefixes |
+| Longest increasing subsequence, simple | O(n²) | O(n) | Each item looks back at all earlier ones |
+| Memo in a `HashMap` | Same work | Same, plus hashing | Useful when states are not neat numbers |
+
+The general rule: the time is about the number of table slots times the work per slot. Often you can keep fewer rows than the whole table if each row only needs the one before it, which saves space.
+
+<Part id="practise" heading="Three problems, [one] habit" sub="Rob, walk and climb with a table." />
+
+For each one, ask the four questions from the lesson: the state, the recurrence, the base case and the order. Each starter has a `todo!()`, a placeholder that panics if it runs. Replace it with your code.
+
+<Practice
+  number={1}
+  title="The careful thief"
+  file="lesson19_dynamic_programming"
+  start="max-loot-start"
+  solution="max-loot"
+  hints={[
+    "Houses in a row each hold some money, and you may not rob two houses side by side. Look at one house at a time, and ask: rob it, or skip it?",
+    "If you rob house i, you add its money to the best you could do up to house i - 2. If you skip it, the best is whatever you had up to house i - 1. Take the bigger.",
+    "Each step only needs the last two answers, so you can use two variables instead of a whole table. Update them in the right order inside the loop.",
+  ]}
+  explain="The state is 'the most money from the first i houses'. The recurrence is `best(i) = max(best(i - 1), best(i - 2) + money(i))`, rob it or skip it, which is the same shape as the stairs. The base cases are an empty street (0) and a street of one house (its money). Because each step reads only the previous two answers, two variables are enough: O(n) time and O(1) space. A common slip is to update the variables in the wrong order. Compute `robbed` from the old `two_back` before it is overwritten."
+>
+Write `max_loot`, which takes the money in each house along a street and returns the most you can take without robbing two neighbouring houses. `[2, 7, 9, 3, 1]` gives 12 (the houses with 2, 9 and 1).
+</Practice>
+
+<Practice
+  number={2}
+  title="The cheapest walk"
+  file="lesson19_dynamic_programming"
+  start="min-path-sum-start"
+  solution="min-path-sum"
+  hints={[
+    "A grid of costs. You start in the top-left, you finish in the bottom-right, and you may only move right or down. You want the smallest total cost.",
+    "To reach a cell, you must have come from the cell above or the cell to the left. So the cheapest way to a cell is the cheaper of those two, plus the cell's own cost.",
+    "Fill a grid of the same size, row by row. Handle the edges: the top row can only be reached from the left, and the left column only from above. The answer is the bottom-right slot.",
+  ]}
+  explain="The state is 'the cheapest cost to arrive at cell (r, c)'. The recurrence takes the smaller of the two cells you could have come from. The base case is the starting cell, which costs only itself. Filling row by row, left to right, means the cell above and the cell to its left are always ready. It takes O(rows × columns) time and the same space. You could keep only one row at a time to save space. The `match` on `(r, c)` lists the three kinds of cell: the start, the top row and left column, and everything else."
+>
+Write `min_path_sum`, which takes a grid of non-negative costs and returns the smallest total of the cells on a path from the top-left to the bottom-right, moving only right or down. The cost of the first and last cells counts. The grid `[1,3,1]`, `[1,5,1]`, `[4,2,1]` gives 7.
+</Practice>
+
+<Practice
+  number={3}
+  title="Climbing numbers"
+  file="lesson19_dynamic_programming"
+  start="longest-increasing-start"
+  solution="longest-increasing"
+  hints={[
+    "Pick items from a list, left to right, so that each picked item is bigger than the one before. You want the longest such pick. The picked items need not be side by side.",
+    "Define the small problem this way: the longest increasing chain that ends exactly at item i. Every chain has to end somewhere.",
+    "For item i, look at every earlier item j. If `nums[j] < nums[i]`, the chain ending at j can be extended by item i. Take the best of those, plus one. Each chain is at least 1, since an item is a chain by itself. The answer is the biggest value in the table.",
+  ]}
+  explain="The trick is the choice of state: 'ends exactly at i'. With that, the recurrence is easy: `chain[i] = 1 + max chain[j]` over earlier `j` with a smaller value. The final answer is not the last slot but the largest slot, because the best chain can end anywhere. The two loops give O(n²) time and O(n) space. There is a faster O(n log n) method that uses binary search from lesson 14, but this is the version to write first. Equal values do not count as growing, because the test is a strict `<`."
+>
+Write `longest_increasing`, which takes a slice of numbers and returns the length of its longest strictly increasing subsequence. `[10, 9, 2, 5, 3, 7, 101, 18]` gives 4 (for 2, 3, 7, 18).
+</Practice>
+
+<Part id="interview" heading="DP in the [interview]" sub="What to ask, and what to say." />
+
+Dynamic programming is the topic people fear most, and it is mostly a habit of mind. Learn the steps, and it turns into routine.
+
+- **Spot the signals.** "Fewest", "most", "longest", "number of ways", "can it be made", and a choice at every step all point to DP. A recursion that repeats its own calls is a strong hint.
+- **Say the four things.** Out loud: the state, the recurrence, the base cases, and the order. An interviewer who hears those four has heard a complete solution.
+- **Start with the brute force.** Write or describe the plain recursion first. Then point at the repeated calls, say "overlapping subproblems", and add the memo. That path is far easier than jumping to a table.
+- **Choose the state carefully.** Most of the work is deciding what the table's index means, like "ends exactly at i". A good state makes the recurrence obvious.
+- **Know memo against table.** Memo: easy to write from the recursion, computes only what is needed, but uses the call stack. Table: no recursion, usually faster, needs the right fill order.
+- **Trim the space.** If each row only needs the previous row, or each slot only the last two, say you can keep just those. It shows you understand what the table is for.
+- **Greedy is not DP.** A greedy choice, like always taking the biggest coin, can fail, as it did for coins 1, 3, 4 and amount 6. Show the small counter-example, and explain why the table does not have that problem.
+- **State the cost.** It is the number of slots times the work per slot. Say it plainly: "n × m slots, constant work each".

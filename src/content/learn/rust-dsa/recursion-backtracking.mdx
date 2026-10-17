@@ -1,0 +1,168 @@
+---
+title: Recursion and backtracking in Rust
+sub: Functions that call themselves, and a search that retraces its steps.
+description: Learn recursion and backtracking in Rust. Understand the call stack and base cases, then generate subsets and permutations, with a cost table and three practice problems.
+order: 16
+part: 2
+updated: 2026-10-17
+slug: recursion-backtracking
+---
+
+<Part id="what" heading="Lost in a [maze]" sub="Try a path, hit a wall, step back." />
+
+You are in a maze. At the first fork, you take the left path. It leads to a dead end. You do not give up and you do not start over. You walk back to the fork, and take the right path instead. At the next fork, you do the same thing: pick a road, and if it fails, return and pick another.
+
+That habit is **backtracking**: try a choice, see where it leads, and if it goes wrong, undo it and try the next choice. It is how you solve a puzzle that has too many possibilities to see at once, such as every way to seat guests, or every set of items that fit in a bag.
+
+Backtracking is built on **recursion**, which is a function that solves a big problem by calling itself on a smaller one. Think of a set of nesting dolls. To find the smallest doll, open the doll, and ask the same question of the doll inside.
+
+Reach for recursion when a problem is made of smaller copies of itself: a folder with folders inside, a tree (lesson 7), or "choose, then solve the rest". Reach for backtracking when you must list or count all the ways to do something.
+
+<Part id="idea" heading="Every call gets its own [page]" sub="A stack of unfinished jobs." />
+
+<BacktrackingDiagram />
+
+Start with plain recursion, and a small example. The factorial of 4, written 4!, is 4 × 3 × 2 × 1. Notice that 4! is just 4 × 3!, and 3! is 3 × 2!. Each answer asks for a smaller copy of the same question.
+
+Here is what the computer does. It calls `factorial(4)`, which needs `factorial(3)` before it can finish. So it pauses the first job and starts the second. That one needs `factorial(2)`, so it pauses and starts a third. Then `factorial(1)`, which is simple: the answer is 1, with no more asking. Now the pile unwinds. `factorial(2)` gets 1 and finishes with 2. `factorial(3)` finishes with 6. `factorial(4)` finishes with 24.
+
+The pile of paused jobs is the **call stack**. It is a stack in exactly the sense of lesson 4: the newest job is on top, and only the top job runs. Each paused job keeps its own copy of its variables, like its own page of rough work.
+
+Every recursive function needs two things.
+
+- A **base case**: a question so simple that it is answered directly, with no more calls. `factorial(1)` was one. Without it, the calls never stop.
+- A **smaller step**: each call must move closer to the base case. Here the number drops by one each time.
+
+**Remember:** a recursive function needs a base case that stops, and a step that gets closer to it.
+
+Now backtracking. Take the items 1, 2 and 3, and list every way to choose some of them. The picture is the answer. At each item, there is a fork with two roads: skip it, or take it. Three items means three forks, so 2 × 2 × 2 = 8 finished choices. These are the **subsets**: nothing, just 1, just 2, and so on up to all three.
+
+The search walks the tree from the top. It goes left everywhere first and reaches the empty subset. Then it steps back up one fork, takes the other road, and reaches `{3}`. The key is the step *back*. When you take an item, you add it to the list you are building. Before you try the next road, you must **undo** that, or the leftover item would sneak into later answers.
+
+The pattern has three beats, and you will see it in every backtracking problem: **choose, explore, un-choose**.
+
+<Part id="build" heading="Choose, explore, [undo]" sub="The same shape, every time." />
+
+Start with plain recursion. These two are the smallest examples.
+
+<Snippet file="lesson16_backtracking" name="factorial" />
+
+The line `if n <= 1` is the base case. After it, `n * factorial(n - 1)` is the smaller step. The answer to `factorial(20)` is the biggest that fits in a `u64`, so the demo stays small.
+
+<Snippet file="lesson16_backtracking" name="sum-list" />
+
+This one adds a slice. `split_first` takes the first item off and hands back the rest, or `None` for an empty slice. The base case is the empty list, which sums to 0. Otherwise, the answer is the first item plus the sum of the rest.
+
+<Note title="Can recursion run out of room?">
+Yes. Every paused call takes space on the call stack, and the stack has a fixed size. Recursion that goes tens of thousands of calls deep can overflow it, and the program crashes. For the small problems in this lesson, that never happens, because the depth is the number of items. If a problem needs a very deep recursion, rewrite it with a loop and your own `Vec` as the stack, the way lesson 4 did.
+</Note>
+
+Now the subsets, using the choose, explore, un-choose shape.
+
+<Snippet file="lesson16_backtracking" name="subsets" />
+
+Go through it in order.
+
+- `subsets` sets up three things: the `all` list of answers, the `current` subset being built, and a call to `explore`.
+- `explore` is the recursion. `index` says which item is being decided. When `index` reaches the end, every item has been decided, so that is a finished subset. It pushes a **copy** with `clone()`, because `current` will keep changing as the search goes on.
+- Otherwise it takes the first road, skipping the item, and recurses.
+- Then the second road. It pushes the item (choose), recurses (explore), and `pop`s it off again (un-choose). That `pop` is the step back from the picture.
+
+Both `current` and `all` are passed as `&mut`, a borrow the function may change. That way every call shares the same two lists, instead of copying them at each step.
+
+**Remember:** whatever you add before the recursive call, you remove after it.
+
+Now permutations, the ways to put items in a row. Three items give 3 × 2 × 1 = 6 orders. The shape is the same, with a loop for the roads.
+
+<Snippet file="lesson16_backtracking" name="permutations" />
+
+At each place in the row, the loop tries every item that has not been used yet. `used[i]` remembers which are already placed. After trying an item, both changes are undone together: `pop` takes it off the row, and `used[i] = false` makes it available again.
+
+<Part id="std" heading="Not much in the [library]" sub="Rust has no backtracking helper." />
+
+The standard library has no function for subsets or permutations. (The `itertools` crate does, if you ever want one in a project.) What it gives you are the small pieces used above.
+
+- `split_first` and `split_at` cut a slice without copying it, which is what makes the recursion on a slice cheap.
+- `clone()` copies the list being built, so a saved answer does not change later.
+- `Vec::push` and `Vec::pop` are the choose and un-choose, and they are both O(1).
+- Closures and nested `fn` items keep a helper close to the function that uses it. The solutions to the practice problems tuck their helper inside.
+
+If a recursion is slow because it solves the same smaller problem again and again, that is the sign for lesson 19, where you remember the answers instead.
+
+<Part id="cost" heading="What the search [costs]" sub="n is how many items there are." />
+
+| Problem | Time | Space | Why |
+| --- | --- | --- | --- |
+| Factorial | O(n) | O(n) | n calls, each waiting on the stack |
+| Sum of a list | O(n) | O(n) | One call per item |
+| All subsets | O(2ⁿ × n) | O(n) deep, plus the answers | Two roads at each of n forks, and copying each result |
+| All permutations | O(n! × n) | O(n) deep, plus the answers | n choices, then n − 1, and so on |
+| Counting subsets that hit a sum | O(2ⁿ) | O(n) | The same tree, with nothing saved |
+| Fast power | O(log n) | O(log n) | The exponent halves each call |
+
+The honest news: the number of answers explodes. Twenty items have more than a million subsets. Backtracking is fine for small inputs, and very slow for large ones. **Pruning** helps, which means giving up on a road early when you can already tell it cannot work. You will do that in the practice problems.
+
+<Part id="practise" heading="Three problems, [one] shape" sub="Halve it, count it, place it." />
+
+Each starter has a `todo!()`, a placeholder that panics if it runs. Replace it with your code.
+
+<Practice
+  number={1}
+  title="Power in a few calls"
+  file="lesson16_backtracking"
+  start="fast-pow-start"
+  solution="fast-pow"
+  hints={[
+    "The slow way multiplies `base` by itself `exp` times. Look for a shortcut: 3 to the power 8 is (3 to the power 4) squared.",
+    "If `exp` is even, the answer is half-power times half-power. Half of `exp` is `exp / 2`. Ask the same question about the smaller exponent.",
+    "If `exp` is odd, there is one `base` left over, so multiply it in once more. The base case is `exp == 0`, where the answer is 1.",
+  ]}
+  explain="Halving the exponent turns n calls into about log n calls. The important detail is that `fast_pow(base, exp / 2)` is called once and its answer stored in `half`, then used twice. If you wrote the call twice, you would solve the same sub-problem two times, and all the savings would be lost. For `exp = 13`, the exponents go 13, 6, 3, 1, 0, only five calls. It takes O(log exp) time and O(log exp) stack space."
+>
+Write `fast_pow`, which takes a `base` and an exponent `exp` and returns `base` raised to the power `exp`, using recursion that halves the exponent. `fast_pow(3, 13)` gives 1594323. Assume the answer fits in a `u64`.
+</Practice>
+
+<Practice
+  number={2}
+  title="Count the subsets that add up"
+  file="lesson16_backtracking"
+  start="count-subset-sums-start"
+  solution="count-subset-sums"
+  hints={[
+    "This is the take-or-skip tree again. But instead of saving each subset, you only need to count the ones that add up to the target.",
+    "Pass down how much is still needed. Taking an item lowers it. When you run out of items, you have a hit if exactly 0 is left.",
+    "Add a prune: if an item is bigger than what is still needed, taking it is hopeless (the numbers are not negative), so only skip it. Return skip count plus take count.",
+  ]}
+  explain="Notice that no list is built at all. A count is enough, so each call returns a number and the two roads are added together. That removes the choose and un-choose steps, because there is no shared list to repair. The prune `nums[index] <= left` is safe because the numbers are not negative, so a too-big item can never be made right later. It saves work but not the worst case, which is still O(2ⁿ) time. The recursion is n levels deep, so the space is O(n). Equal numbers count as different items, which is why `[4, 4, 4]` with target 8 gives 3."
+>
+Write `count_subset_sums`, which takes a slice of non-negative whole numbers and a target, and returns how many subsets add up to exactly the target. The empty subset counts as adding up to 0. `[2, 3, 5, 6, 8]` with target 11 gives 3.
+</Practice>
+
+<Practice
+  number={3}
+  title="Queens that do not clash"
+  file="lesson16_backtracking"
+  start="n-queens-start"
+  solution="n-queens"
+  hints={[
+    "A queen attacks along its row, its column and both diagonals. You must place n queens on an n by n board with no two attacking.",
+    "Place one queen per row, going down. That removes the row clash for free. For each row, try every column, and recurse to the next row.",
+    "Track which columns and which two kinds of diagonal are taken, with three `Vec<bool>`. Squares on one diagonal share `row + col`. Squares on the other share `row - col`, which you can shift to `row + n - 1 - col` so it is never negative. Un-choose after the recursive call.",
+  ]}
+  explain="This is backtracking with strong pruning. A square that is already attacked is skipped at once, so whole branches of the tree are never visited. Placing one queen per row means there are at most n choices per level and n levels, but pruning cuts that down enormously. The three boolean lists answer 'is this square attacked?' in O(1). Setting them back to false after the recursive call is the un-choose step: forget it and later branches see queens that are no longer there. Even so, the work grows quickly with n, so it is meant for small boards. A board of 8 has 92 solutions."
+>
+Write `n_queens`, which takes `n` and returns how many ways there are to place `n` queens on an `n` by `n` board so that no two attack each other. `n_queens(6)` gives 4, and `n_queens(8)` gives 92.
+</Practice>
+
+<Part id="interview" heading="Backtracking in the [interview]" sub="What to ask, and what to say." />
+
+Recursion questions test whether you can trust a function to solve a smaller copy of itself. Backtracking questions add the habit of undoing.
+
+- **Spot the signals.** "All ways", "every combination", "all arrangements", "generate", "place without conflict", and "does any path exist" point to backtracking. A tree or a nested structure points to plain recursion.
+- **Name the base case first.** Say what the simplest input is and what its answer is. Then say how each call gets closer to it.
+- **Draw the tree.** Sketch two levels of choices for a tiny input, like the picture in this lesson. It shows the interviewer your plan, and it exposes the cost.
+- **Use the three beats.** Say "choose, explore, un-choose" out loud, and make sure every choice has a matching undo.
+- **Say what you copy.** A saved answer must be a copy, as in `current.clone()`. Pushing the list you are still changing is the classic bug.
+- **Prune early.** Name any condition that lets you give up on a road: a sum gone over, a square attacked, a letter already used. Pruning turns a hopeless search into a workable one.
+- **State the cost honestly.** Subsets are O(2ⁿ) and permutations are O(n!). Say that this is fine for small n, and that a repeating sub-problem is the cue to remember answers, as in dynamic programming.
+- **Mention stack depth.** Recursion depth equals stack space. If the depth could be huge, offer an explicit stack with a `Vec` instead.

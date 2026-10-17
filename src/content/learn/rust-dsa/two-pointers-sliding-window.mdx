@@ -1,0 +1,153 @@
+---
+title: Two pointers and windows
+sub: Walk two markers through a slice instead of checking every pair.
+description: Learn two pointers and the sliding window in Rust. Find pairs in a sorted slice and the longest window with a property, with a cost table and three practice problems.
+order: 15
+part: 2
+updated: 2026-10-17
+slug: two-pointers-sliding-window
+---
+
+<Part id="what" heading="A train [window]" sub="Only see a little, as it slides past." />
+
+Sit by the window of a moving train. You never see the whole countryside at once. You see one frame of it, and as the train moves, a new field enters on the right while an old one slips off on the left.
+
+That is the **sliding window**. It is a stretch of neighbouring items in a list, and it moves along one step at a time. Its sibling is **two pointers**: two markers that walk through the same list, usually from opposite ends or one behind the other. A **pointer** here is only a number saying "I am at this position", the kind of index you met in lesson 1.
+
+Both tricks replace a slow habit. The slow habit is to check every pair, or every stretch, with a loop inside a loop. That costs O(n²). These two keep a little state as they walk, and each marker only ever moves forward. So the whole job costs O(n), one trip through the data.
+
+Reach for them when a problem talks about a **pair** that adds up to something, a **stretch** of neighbours ("subarray" or "substring"), or the **longest** or **biggest** such stretch.
+
+<Part id="idea" heading="Move the [right] marker" sub="Each step makes a clear choice." />
+
+<WindowDiagram />
+
+**The window.** Take six daily sales, 2, 1, 5, 1, 3 and 2, and ask: what is the best total over any three days in a row? The slow way adds up three numbers for every starting day. The window way adds up the first three once: 2 + 1 + 5 = 8. To slide one day, the 1 on the right comes in and the 2 on the left leaves, so the new total is 8 − 2 + 1 = 7. Two small changes, not three additions. Keep going, and the best total is 9, for 5 + 1 + 3.
+
+That is a **fixed window**, because its size stays at three. A **growing and shrinking window** is trickier, and more powerful. The rule is: grow on the right, and when the window breaks a rule, shrink from the left until it is fine again. Say you have a budget, and you want the most days in a row that cost no more than 6 in total. Extend the right edge, add the day's cost, and if you went over the budget, drop days from the left until you are back under. Each day enters once and leaves at most once, so it is still one trip.
+
+**Two pointers from both ends.** Say you have sorted prices and want two that add up to 18. Put one marker at the cheapest price, and one at the dearest. Add them. If the total is too small, the left price is hopeless: even with the biggest partner, it is too small. So move the left marker right. If the total is too big, the right price is hopeless even with the smallest partner, so move the right marker left. Each step throws away one price for good. The markers meet in the middle, and you have checked the whole list in one pass.
+
+This works because the list is sorted. Without that, "too small" would not tell you which way to go.
+
+**Remember:** a sliding window updates its total with what comes in and what leaves. Two pointers need a reason to move, and the reason is always "this one cannot be part of an answer".
+
+<Part id="build" heading="Three [small] loops" sub="Pairs, a fixed window, a stretchy window." />
+
+First, a pair that adds up to a target, in a sorted slice.
+
+<Snippet file="lesson15_two_pointers" name="pair-with-sum" />
+
+`left` and `right` start at the two ends. The `match` compares the sum with the target using `cmp`, which gives back an `Ordering`: less, equal or greater. Equal means done. Less moves `left` up. Greater moves `right` down. The loop condition `left < right` makes sure the two markers never point at the same item, so an item cannot pair with itself. It returns the positions, not the values.
+
+Now the fixed window.
+
+<Snippet file="lesson15_two_pointers" name="best-window-sum" />
+
+The first `k` numbers are added once, with `nums[..k].iter().sum()`. Then each step adds the number entering at `end` and takes away the one leaving, which sits `k` places behind. A guard at the top handles a window of 0 or one that is longer than the list.
+
+**Remember:** to slide a fixed window, add the new one and subtract the old one.
+
+Last, the stretchy window.
+
+<Snippet file="lesson15_two_pointers" name="longest-within-budget" />
+
+`start` and `end` are the two edges. Each trip around the loop pushes `end` one step right and adds that day's cost. The inner `while` then shrinks the window from the left until the total fits. A `while`, not an `if`, because one expensive day may need several cheap days to leave. Afterwards, the window is `start..=end`, which has `end + 1 - start` days, and `best` remembers the biggest.
+
+If a single day costs more than the whole budget, the window shrinks all the way to empty. That is fine, and the length is 0 for that step.
+
+<Note title="Why this is still one pass">
+The `while` inside the `for` looks like a loop in a loop, which usually means O(n²). Count the work instead. `end` moves right n times in total. `start` also only moves right, and it can never pass `end`. So the two markers together take at most 2n steps. Whenever you can argue that nobody moves backwards, a nested loop is still linear.
+</Note>
+
+<Part id="std" heading="Windows in the [library]" sub="windows, chunks and iterators." />
+
+Slices have helpers for this. The Playground link on this one runs it.
+
+<Snippet file="lesson15_two_pointers" name="std-windows" />
+
+- `windows(k)` hands out every run of `k` neighbours, one step apart, and the runs overlap. It is the sliding window as an iterator. It is neat, but it adds up all `k` numbers every time, so the cost is O(n × k), not O(n). For a small `k` that is fine. For a huge window, use the add-and-subtract loop above.
+- `windows(2)` pairs each item with the next. With `all`, it checks whether a slice is sorted, in one line.
+- `chunks(k)` cuts the slice into separate pieces of `k`, with no overlap. The last piece may be shorter.
+
+For two pointers, there is nothing special in the library. Two `usize` variables are all you need. If you want to walk from both ends over a slice of items, `iter()` has a `rev()` that reads backwards, and you can combine the two with `zip`.
+
+**Remember:** `windows` for a quick answer on a short window, a hand-rolled loop for the fast one.
+
+<Part id="cost" heading="What each trick [costs]" sub="n is the length, k is the window size." />
+
+| Approach | Time | Space | Why |
+| --- | --- | --- | --- |
+| Check every pair | O(n²) | O(1) | A loop inside a loop |
+| Two pointers on a sorted slice | O(n) | O(1) | Each marker moves one way |
+| Fixed window by adding up each time | O(n × k) | O(1) | Re-adds k numbers per step |
+| Fixed window, add and subtract | O(n) | O(1) | Two changes per step |
+| Stretchy window | O(n) | O(1) | Each edge only moves forward |
+| Stretchy window with a map of letters | O(n) | O(d) | d is the number of different letters |
+| Sort first, then two pointers | O(n log n) | O(1) | The sort dominates |
+
+If the slice is not sorted, sorting first costs O(n log n). That is still far better than O(n²).
+
+<Part id="practise" heading="Three problems, [two] markers" sub="Mirror, water, and a window of letters." />
+
+Each starter has a `todo!()`, a placeholder that panics if it runs. Replace it with your code.
+
+<Practice
+  number={1}
+  title="Is it a palindrome?"
+  file="lesson15_two_pointers"
+  start="is-palindrome-start"
+  solution="is-palindrome"
+  hints={[
+    "A palindrome reads the same forwards and backwards, like \"Madam\". Compare the first letter with the last, the second with the second last, and so on.",
+    "Put one marker at the start and one at the end, using `text.as_bytes()` to index. Walk them towards each other and stop when they meet.",
+    "Ignore anything that is not a letter or digit: if a marker is on a comma or space, move just that marker. `is_ascii_alphanumeric` checks a byte, and `eq_ignore_ascii_case` compares without caring about capitals.",
+  ]}
+  explain="This is two pointers from both ends. Each step either skips a symbol on one side or compares a matching pair and moves both inwards. The markers meet in the middle, so each byte is visited once, and it takes O(n) time and O(1) space, since nothing is copied. The `bytes.is_empty()` check matters because `bytes.len() - 1` would underflow on an empty string. The solution works for plain English text. For other scripts, you would walk `chars()` instead, as in lesson 2."
+>
+Write `is_palindrome`, which takes a `&str` and says whether it reads the same both ways, ignoring spaces, punctuation and capitals. `"A man, a plan, a canal: Panama"` is a palindrome, and `"race a car"` is not.
+</Practice>
+
+<Practice
+  number={2}
+  title="The tank between two walls"
+  file="lesson15_two_pointers"
+  start="most-water-start"
+  solution="most-water"
+  hints={[
+    "Each position is a wall with a height. Two walls hold water as wide as the gap between them, and as high as the shorter wall. You want the most any pair can hold.",
+    "Start with the widest pair, one wall at each end. Then you only need to decide which wall to give up.",
+    "Move the shorter wall inwards. The shorter wall is the limit, so moving the taller one can only shrink the width without ever raising the limit. Remember to track the best area at every step.",
+  ]}
+  explain="This is the same idea as the pair-sum search: start wide, and throw away the side that cannot help. The area of the current pair is `width * min(left height, right height)`. If you moved the taller wall in, the width would drop and the height could not go above the shorter wall, so the area could only get worse. Moving the shorter wall might find a taller one. Each step drops one position for good, so it takes O(n) time and O(1) space, compared with O(n²) for checking every pair."
+>
+Write `most_water`, which takes a slice of wall heights and returns the biggest amount of water any two walls can hold. The width is the distance between the two positions. `[1, 8, 6, 2, 5, 4, 8, 3, 7]` gives 49, using the walls of height 8 and 7.
+</Practice>
+
+<Practice
+  number={3}
+  title="The longest run with no repeats"
+  file="lesson15_two_pointers"
+  start="longest-unique-start"
+  solution="longest-unique"
+  hints={[
+    "You want the longest stretch of a string where no letter appears twice. Try 'abcabcbb' by hand: 'abc' works, and adding the next 'a' breaks it.",
+    "Use a window with a `start` edge and an `end` edge. For each letter you reach, ask whether it already sits inside the window.",
+    "Keep a `HashMap` from each letter to the last place you saw it. If that place is at or after `start`, move `start` to just past it. Update the map, and track the biggest window.",
+  ]}
+  explain="This is a stretchy window that never needs to shrink step by step. When a repeat shows up, `start` jumps straight to just past the old copy, because every window that included both copies is broken. The check `old >= start` matters: a letter seen long ago, before the window began, is not a problem and must not pull `start` backwards. In 'abba', the final 'a' was last seen at 0, which is before the window start of 2. Each letter is visited once with an O(1) map lookup, so it takes O(n) time. The map holds at most one entry per different letter. Using `chars()` counts letters, not bytes, so it is right for any text."
+>
+Write `longest_unique`, which takes a `&str` and returns the length of its longest run of letters in which no letter repeats. `"abcabcbb"` gives 3 (for "abc"), and `"pwwkew"` gives 3 (for "wke").
+</Practice>
+
+<Part id="interview" heading="These tricks in the [interview]" sub="What to ask, and what to say." />
+
+Two pointers and the sliding window are favourites because the brute force is easy and the clean answer takes one good idea.
+
+- **Spot the signals.** "Subarray", "substring", "contiguous", "longest", "shortest", "at most k", and "a pair that sums to" are the usual words. A sorted input with a pair question is almost always two pointers.
+- **Start with the slow answer.** Say "the brute force checks every pair in O(n²)". Then explain the observation that lets one marker move without looking back. That story is the answer.
+- **Name the rule for moving.** For two pointers, say why you move each side ("too small, so this left value cannot work"). For a window, say what rule it must satisfy, and what you do when it breaks.
+- **Decide the window type.** A fixed size means add and subtract. A "longest" or "shortest" with a rule means grow right and shrink left.
+- **Explain the nested loop.** If you write a `while` inside a `for`, say why it is still O(n): each marker only moves forward.
+- **Say what you track.** A running total, a map of letter counts, or the last place each letter was seen. Name the state, and the space cost.
+- **Watch the edges.** An empty slice, a window larger than the list, one item, and a single item that already breaks the rule. In Rust, take care with `len() - 1` on an empty slice, which underflows and panics.

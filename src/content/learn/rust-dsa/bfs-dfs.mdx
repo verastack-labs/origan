@@ -1,0 +1,164 @@
+---
+title: BFS and DFS in Rust
+sub: Two ways to explore a graph, one queue apart.
+description: Learn BFS and DFS in Rust. Explore the graph from lesson 10 with a VecDeque and a visited set, and count its pieces, with a cost table and three practice problems.
+order: 17
+part: 2
+updated: 2026-10-17
+slug: bfs-dfs
+---
+
+<Part id="what" heading="Ripples in a [pond]" sub="Explore everything, nearest first." />
+
+Drop a pebble into a still pond. A ring spreads out from the spot, then a wider ring, then a wider one. The water nearest the pebble moves first, and the far bank moves last.
+
+That is **breadth-first search**, or **BFS**. You start at one place in a graph (lesson 10) and visit everything one step away. Then everything two steps away. Then three. Breadth means you spread wide before you go deep.
+
+There is a second way to explore, and it is how most people walk a maze. You pick one corridor and follow it as far as it goes. At the dead end, you back up to the last fork and try the next corridor. That is **depth-first search**, or **DFS**. Depth means you go deep before you go wide.
+
+Both visit every vertex you can reach from the start, and both cost the same. They differ in the *order*, and the order is what makes each one useful. Reach for BFS when "fewest steps" matters. Reach for DFS when you need to explore everything in a piece, or try every path, as in lesson 16.
+
+<Part id="idea" heading="One list, two [rules]" sub="A queue for BFS, a stack for DFS." />
+
+<RipplesDiagram />
+
+Both searches share one skeleton. You keep a to-do list of vertices to visit. Take one off the list, visit it, and add its unvisited neighbours to the list. Repeat until the list is empty. The only difference is *which end* of the list you take from.
+
+- Take from the **front**, adding to the back: that is a **queue** (lesson 5), first in, first out. The oldest entry goes first, so the nearest vertices are finished before the farther ones. That is BFS, and it makes the rings.
+- Take from the **back**, adding to the back: that is a **stack** (lesson 4), last in, first out. The newest entry goes first, so you keep following the road you just found. That is DFS.
+
+Walk through the picture with BFS. Start with vertex 0. Visit it, and add its neighbours 1, 2 and 3 to the queue. Take 1 from the front, visit it, and add its new neighbour 4. Take 2, and add 5 and 6. Take 3, and add 7. The queue now holds 4, 5, 6, 7, and those are the second ring, in the order they are taken. DFS on the same graph goes 0, 1, 4, and then has to back up to reach 2.
+
+**The visited set.** There is one rule you must never skip. Keep a record of vertices you have seen, and never add one twice. Real graphs have loops: a road from A to B, and B back to A. Without a record, the search would go round and round forever. A `Vec<bool>` indexed by vertex works, because vertices are numbers. A `HashSet` works when they are names.
+
+**A graph in pieces.** A search from one vertex only reaches the vertices connected to it, its own **component**. If the graph has several pieces, you start a fresh search at every vertex you have not seen yet. The number of fresh starts is the number of pieces.
+
+**Remember:** BFS uses a queue and finds the nearest first. DFS uses a stack and goes deep first. Both need a visited record.
+
+<Part id="build" heading="Explore the [graph]" sub="BFS, DFS, and counting the pieces." />
+
+These functions take the bare list from lesson 10. There, a `Graph` kept it in a field called `adj`, where `adj[v]` lists the neighbours of vertex `v`. Here, the functions take that list directly, so each snippet runs on its own. A small helper builds one.
+
+<Snippet file="lesson17_bfs_dfs" name="adjacency" />
+
+Each road `(a, b)` is added in both directions, because roads go two ways. Now BFS.
+
+<Snippet file="lesson17_bfs_dfs" name="bfs" also="adjacency" />
+
+Go through it in order.
+
+- `visited` has one flag per vertex, and `queue` is a `VecDeque`, the queue from lesson 5.
+- The start is marked visited as it joins the queue. Marking *at joining*, not at visiting, is what stops a vertex from joining twice.
+- The loop takes from the front with `pop_front`, records the vertex, and adds every neighbour not yet seen to the back.
+- When the queue is empty, every reachable vertex has been visited, and `order` holds them nearest first.
+
+The demo below it builds the graph in the picture and prints the order.
+
+Now DFS. The recursive version is shorter, because the call stack from lesson 16 is the stack.
+
+<Snippet file="lesson17_bfs_dfs" name="dfs" also="adjacency" />
+
+`visit` marks the vertex, records it, and then calls itself on every neighbour not yet seen. Each call goes as deep as it can before returning. When a call returns, that is the "back up to the last fork" step.
+
+For a very deep graph, recursion can overflow the call stack (see the note in lesson 16). The fix is to use a `Vec` as the stack yourself.
+
+<Snippet file="lesson17_bfs_dfs" name="dfs-stack" also="adjacency" />
+
+Compare it with BFS. It is the same loop, but `pop` takes from the back instead of `pop_front` from the front. That one change turns ripples into corridors. Here a vertex may be pushed twice before it is reached, so a check at the top skips any that were already visited. The neighbours are pushed in reverse so that the first neighbour ends up on top and is explored first, which gives the same order as the recursive version.
+
+**Remember:** swap the queue for a stack, and BFS becomes DFS.
+
+Finally, counting pieces. Start a search at every vertex not yet seen.
+
+<Snippet file="lesson17_bfs_dfs" name="components" also="adjacency" />
+
+Each time the outer loop finds an unseen vertex, that is a new piece. The small search inside marks the whole piece as seen. A vertex with no roads is a piece of its own.
+
+<Part id="std" heading="Names, not [numbers]" sub="VecDeque, Vec and HashSet do the work." />
+
+You have already met every tool. `VecDeque` is the queue, because `push_back` and `pop_front` are both O(1). A plain `Vec` is the stack, with `push` and `pop`. And `HashSet` is the visited record when your vertices are names instead of numbers.
+
+Real data has names. Here is BFS over a friendship map, using a `HashMap` for the neighbours and a `HashSet` for the visited names. The Playground link runs it.
+
+<Snippet file="lesson17_bfs_dfs" name="bfs-names" />
+
+The neat part is `seen.insert(friend)`. A `HashSet`'s `insert` returns `true` if the name was new and `false` if it was already there. So that one call checks and marks together, and the `if` adds the friend to the queue only the first time.
+
+The standard library has no ready-made BFS or DFS. (The `petgraph` crate has both, if you need them in a project.) The pieces are small enough that you will write them yourself, and interviewers expect you to.
+
+<Part id="cost" heading="What each search [costs]" sub="V vertices, E edges." />
+
+| Operation | Time | Space | Why |
+| --- | --- | --- | --- |
+| BFS from one vertex | O(V + E) | O(V) | Each vertex joins the queue once, each edge is looked at once or twice |
+| DFS from one vertex | O(V + E) | O(V) | Same work, but the stack holds the current road |
+| Visited check | O(1) | O(V) | A `Vec<bool>` or a `HashSet` |
+| Count all pieces | O(V + E) | O(V) | Every vertex and edge is seen once overall |
+| Search on a grid of R by C | O(R × C) | O(R × C) | Each cell is a vertex with up to four neighbours |
+| Recursive DFS stack depth | O(V) worst | O(V) | A long thin graph is one very deep road |
+
+The cost says V + E, not V × E, because a vertex's neighbour list is read only once, when the vertex is visited. A queue can hold up to V vertices at once, and a stack as well.
+
+<Part id="practise" heading="Three problems, [one] walk" sub="Count islands, find a path, solve a maze." />
+
+Two of these use a grid. A grid is a graph without being drawn as one: each cell is a vertex, and its neighbours are the cells above, below, left and right. You never build a list of neighbours. You work out the four positions as you go. Each starter has a `todo!()`, a placeholder that panics if it runs. Replace it with your code.
+
+<Practice
+  number={1}
+  title="How many islands?"
+  file="lesson17_bfs_dfs"
+  start="count-islands-start"
+  solution="count-islands"
+  hints={[
+    "A map is a grid of 1s (land) and 0s (water). An island is a group of land cells joined up, down, left or right. This is counting pieces, the same as in the lesson.",
+    "Loop over every cell. When you meet land you have not seen, that is a new island. Add one to the count, and then explore the whole island.",
+    "Exploring means a search from that cell: use a `Vec` of cells as a stack, mark each new land cell as seen when you push it, and push the land neighbours. Do not count diagonals.",
+  ]}
+  explain="Each island is one component of the grid graph. The outer double loop finds a land cell no search has reached, which can only be the first cell of a new island. The inner stack search then marks the whole island seen, so none of its other cells ever starts another count. Every cell is pushed at most once, so it takes O(R × C) time and O(R × C) space for the `seen` grid. `checked_add_signed` handles the edges: it gives `None` if a step would go below zero, and the `nr < rows` test handles the other side."
+>
+Write `count_islands`, which takes a grid of `u8` where 1 is land and 0 is water, and returns how many islands there are. Land touching only at a corner is not joined. A map with rows `[1,1,0,0]`, `[0,1,0,1]`, `[0,0,0,1]` has 2 islands.
+</Practice>
+
+<Practice
+  number={2}
+  title="Is there a way?"
+  file="lesson17_bfs_dfs"
+  start="has-path-start"
+  solution="has-path"
+  hints={[
+    "You are given the adjacency list from this lesson, two vertices, and a question: can you get from one to the other?",
+    "Search from `from`. If the search ever reaches `to`, the answer is yes. If the search finishes without reaching it, the answer is no.",
+    "Use BFS or DFS with a `visited` list. Return `true` the moment you take `to` off the queue or stack. Remember that `from == to` is trivially reachable.",
+  ]}
+  explain="The graph can be directed here, since the list says exactly which roads leave each vertex. The search only follows those, so a one-way road from 0 to 1 does not give a way back. Either search works, because reachability does not care about order. It takes O(V + E) time. If you ask many such questions on a graph that never changes, count the pieces once and compare them, or use union-find from lesson 12. For a directed graph, though, a search per question is the safe way."
+>
+Write `has_path`, which takes an adjacency list and two vertices, and returns whether you can travel from the first to the second following the roads. A vertex can always reach itself.
+</Practice>
+
+<Practice
+  number={3}
+  title="Out of the maze"
+  file="lesson17_bfs_dfs"
+  start="maze-steps-start"
+  solution="maze-steps"
+  hints={[
+    "The maze is a grid. A 0 is open and a 1 is a wall. You start at the top-left and want the fewest steps to the bottom-right, moving up, down, left or right.",
+    "The fewest steps means ripples, so use BFS, not DFS. The first time the ripple reaches a cell is the shortest way to it.",
+    "Keep a grid of `Option<usize>` for the steps taken to reach each cell. A cell that is still `None` has not been reached. When you pop the goal, return its count. If the queue empties first, return `None`.",
+  ]}
+  explain="This is the reason BFS exists. Because the queue handles all the cells at distance 1 before any at distance 2, the first time a cell is reached is always by a shortest route. DFS could find a way out, but not necessarily the shortest. The steps grid does the work of the visited list and the distance record at the same time: a cell with `None` is unvisited. Each cell enters the queue at most once, so it takes O(R × C) time. Lesson 18 takes this idea further, for roads that have different lengths."
+>
+Write `maze_steps`, which takes a grid of `u8` where 0 is open and 1 is a wall, and returns the fewest steps from the top-left cell to the bottom-right cell, or `None` if there is no way through. The rows `[0,0,1]`, `[1,0,1]`, `[1,0,0]` give `Some(4)`.
+</Practice>
+
+<Part id="interview" heading="BFS and DFS in the [interview]" sub="What to ask, and what to say." />
+
+Graph search appears in more interview questions than any other idea in this course. Many of them do not mention a graph at all.
+
+- **Spot the signals.** "Connected", "reachable", "islands", "shortest number of steps", "minimum moves", "every path", and "number of groups" all point here. A grid with moves between cells is a graph. So is a word puzzle where one change turns a word into the next.
+- **Pick the search on purpose.** "Fewest steps" means BFS. "Does any path exist", "count the pieces", and "try every path" mean DFS or BFS, with DFS usually shorter to write.
+- **Say the visited rule.** Name it first: "I mark a vertex when I add it, so nothing is queued twice." A missing visited record is the classic bug, and it makes the program run forever on a loop.
+- **Handle every piece.** If the question could have several separate pieces, say that one search from one start is not enough, and loop over all starts.
+- **Know the cost.** O(V + E) time and O(V) space. On a grid, that is O(rows × columns).
+- **Mention the stack depth.** Recursive DFS on a huge graph can overflow the call stack. Offering the version with your own `Vec` shows you have thought about it.
+- **Say the one-line difference.** "They are the same loop. BFS takes from a queue and DFS takes from a stack." It is short, it is true, and it shows you see the whole picture.
