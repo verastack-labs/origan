@@ -37,6 +37,14 @@ function demoRecord() {
   // endregion
 }
 
+function demoReadonly() {
+  // region: readonly
+  const asha = { id: 1, name: "Asha" };
+  asha.name = "Asha Rao";
+  console.log(asha.name);
+  // endregion
+}
+
 // region: patch-start
 function patch(profile, changes) {
   return { ...profile, ...changes };
@@ -72,3 +80,4 @@ console.log(priceOf("huge")); // undefined
 demoPartial();
 demoOmit();
 demoRecord();
+demoReadonly();
