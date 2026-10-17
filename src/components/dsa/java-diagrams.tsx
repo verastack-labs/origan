@@ -822,3 +822,69 @@ export function ChoosingDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 12: fail-fast stops on a change; fail-safe reads a private snapshot. */
+export function FailFastDiagram() {
+  const cell = (x: number, y: number, text: string, kind: "live" | "snap" | "new", key: string) => (
+    <g key={key}>
+      <rect
+        x={x}
+        y={y}
+        width={64}
+        height={34}
+        className={kind === "new" ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+        strokeWidth={kind === "new" ? 1.8 : 1}
+        strokeDasharray={kind === "snap" ? "4 3" : undefined}
+      />
+      <text x={x + 32} y={y + 22} textAnchor="middle" fontSize={12} className="font-mono fill-fg">
+        {text}
+      </text>
+    </g>
+  );
+
+  return (
+    <Figure
+      id="fail-fast"
+      title="Fail-fast stops when the list changes. Fail-safe reads a private snapshot."
+      caption="Left: an ArrayList iterator reads the live list, so a change makes it stop. Right: a CopyOnWriteArrayList iterator holds the old array, and a change builds a new array beside it, so the loop never notices."
+      viewBox="0 0 720 270"
+    >
+      <text x={20} y={26} fontSize={10} className={faint}>
+        FAIL-FAST: ARRAYLIST
+      </text>
+      {["Asha", "Ravi", "Meera"].map((n, i) => cell(20 + i * 70, 44, n, "live", `l${i}`))}
+      <text x={20} y={108} fontSize={12} className="font-mono fill-survey">
+        loop reads the live list
+      </text>
+      <line x1={20} x2={230} y1={134} y2={134} className="stroke-warn" strokeWidth={1.4} strokeDasharray="4 3" />
+      <text x={20} y={156} fontSize={12} className="font-mono fill-fg">
+        someone removes Ravi
+      </text>
+      <text x={20} y={190} fontSize={12} className="font-mono fill-warn">
+        next step: ConcurrentModificationException
+      </text>
+
+      <line x1={360} x2={360} y1={20} y2={250} className="stroke-line" strokeWidth={1} />
+
+      <text x={390} y={26} fontSize={10} className={faint}>
+        FAIL-SAFE: COPYONWRITEARRAYLIST
+      </text>
+      <text x={390} y={64} fontSize={11} className={label}>
+        loop holds
+      </text>
+      {["Asha", "Ravi", "Meera"].map((n, i) => cell(480 + i * 70, 44, n, "snap", `s${i}`))}
+      <text x={390} y={124} fontSize={11} className={label}>
+        list now
+      </text>
+      {["Asha", "Ravi", "Meera", "Kiran"].map((n, i) =>
+        cell(390 + i * 70, 134, n, i === 3 ? "new" : "live", `n${i}`),
+      )}
+      <text x={390} y={196} fontSize={12} className="font-mono fill-survey">
+        an add copies the array first
+      </text>
+      <text x={390} y={218} fontSize={12} className="font-mono fill-fg-2">
+        the loop finishes on the old one
+      </text>
+    </Figure>
+  );
+}

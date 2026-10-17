@@ -1,0 +1,227 @@
+---
+title: Interview round-up
+sub: Fail-fast, fail-safe, thread-safe, and the traps people fall into.
+description: Round up Java Collections for interviews. Compare fail-fast and fail-safe iterators, meet CopyOnWriteArrayList and ConcurrentHashMap, and avoid common traps with remove, boxed numbers, nulls and comparators.
+order: 12
+part: 1
+updated: 2026-10-17
+slug: interview-round-up
+---
+
+<Part id="what" heading="The [road test] drill" sub="The few things everyone gets asked." />
+
+Before a driving test, a good instructor does not teach you new roads. They drill the same short list again and again: mirrors, signals, the junction everyone gets wrong. The test is mostly those few moments.
+
+Java Collections interviews work the same way. You already know the collections. What is left is a short list of questions that keep coming up, and a handful of traps that catch people who know the material but never saw the trap. This lesson is that list.
+
+There are three parts to it.
+
+- **Fail-fast and fail-safe.** What happens when a collection changes while you are looping over it, and which collections cope.
+- **A look at the concurrent collections.** The ones built for several threads (separate strands of work running at the same time) sharing one collection.
+- **The traps.** Small, specific, and each one has been asked in a real interview.
+
+You will not meet much that is new. The point is to see it all together, and to be able to say it out loud.
+
+**Remember:** an interview answer is usually one idea, one example, and one cost. Practise saying them in that order.
+
+<Part id="idea" heading="Stop, or read a [snapshot]" sub="Two ways to cope with a change mid-loop." />
+
+<FailFastDiagram />
+
+Lesson 5 showed that an `ArrayList` iterator stops with a `ConcurrentModificationException` if the list changes behind its back. Interviewers have a name for that behaviour: **fail-fast**. The iterator fails the moment it notices a problem, instead of carrying on with wrong data.
+
+The opposite is **fail-safe**. A fail-safe iterator never complains, because it does not read the live collection at all. It reads a private snapshot (a frozen copy of how things were), so changes made while looping simply do not affect it. The right-hand side of the picture shows it: `CopyOnWriteArrayList` copies its array on every change, and the loop carries on with the old one.
+
+Neither is better. They are a trade. Fail-fast costs nothing extra and shouts about bugs. Fail-safe never complains, but you pay for the copies, and your loop may be looking at old data.
+
+Two notes to keep you accurate. Fail-fast is a **best effort**: Java does not promise to catch every change, so use it as a bug detector, not a feature. And "fail-safe" is the common interview word, not an official Java term. The Java documents describe these as iterators over a "snapshot".
+
+<Part id="use" heading="Safe loops, shared [maps]" sub="CopyOnWriteArrayList, ConcurrentHashMap, and nulls." />
+
+Every block below can be pasted into jshell. First, a fail-safe loop.
+
+<Snippet file="Lesson12RoundUp" name="fail-safe" />
+
+```text
+saw Asha
+saw Ravi
+saw Meera
+[Asha, Ravi, Meera, Kiran]
+```
+
+Adding "Kiran" inside the loop would crash an `ArrayList`. Here it is fine. The list has the new name, and the loop never saw it, because it was reading the older array. Use this for lists that are **read all the time and changed rarely**, such as a list of listeners that get notified. Writing is slow, because each change copies the whole array.
+
+Now the second concurrent collection. When many threads change one ordinary `HashMap` at once, the result is unpredictable: updates get lost, and in the worst case the map is damaged. A **`ConcurrentHashMap`** is built for it.
+
+<Snippet file="Lesson12RoundUp" name="concurrent-count" />
+
+```text
+4000
+```
+
+Four threads each added 1 to the same key a thousand times, and none was lost. The key is `merge`: it reads, combines and stores as **one step that cannot be cut in half** by another thread. A line like `map.put(key, map.get(key) + 1)` is three steps, and another thread can sneak in between them even on a `ConcurrentHashMap`. When you need an update to be safe, use `merge`, `compute` or `computeIfAbsent`.
+
+You do not need more than this for a first interview. Here is the short map of the rest:
+
+- **`Collections.synchronizedList(list)`** wraps any list so each call takes a lock (a "one at a time" gate). It is simple and slow under heavy use, and looping over it still needs you to hold the lock yourself.
+- **`ConcurrentLinkedQueue`** is a queue for many threads.
+- **`BlockingQueue`** (such as `LinkedBlockingQueue`) makes a thread wait when the queue is empty or full. It is the standard tool for handing work from one thread to another.
+- **`Vector`, `Hashtable` and `Stack`** are old, locked classes from before the collections framework. Don't use them in new code.
+
+### The traps
+
+Now the junctions everyone gets wrong. First, nulls. Collections disagree about whether `null` (the "no object" value) is allowed.
+
+<Snippet file="Lesson12RoundUp" name="nulls" />
+
+```text
+allowed
+TreeMap refuses a null key
+ArrayDeque refuses null
+ConcurrentHashMap refuses null
+```
+
+A `HashMap` takes one `null` key. A `TreeMap` can't compare `null` with anything. `ArrayDeque` reserves `null` to mean "empty". `ConcurrentHashMap` refuses it because `get` returning `null` would not tell you whether the key was missing or held `null`, and with several threads there is no safe way to check. `List.of`, `Set.of` and `Map.of` refuse too, as lesson 10 showed.
+
+Second, the `remove` trap from lesson 3, which interviewers love because the code looks innocent.
+
+<Snippet file="Lesson12RoundUp" name="remove-trap" />
+
+```text
+[10, 30]
+[30]
+```
+
+`remove(1)` removed the item at **index** 1, which was 20. To remove the **value** 10, you must pass an `Integer` object, here made by `Integer.valueOf(10)`. A list of numbers has two `remove` methods, and an `int` argument picks the wrong one.
+
+Third, comparing boxed numbers, from lesson 2.
+
+<Snippet file="Lesson12RoundUp" name="boxed-equals" />
+
+```text
+true
+```
+
+`==` asks "are these the very same object?". For boxed numbers like `Integer`, whether two equal numbers are the same object depends on how Java handles small values, so `==` can give you `true` in one test and `false` in another. Do not rely on it. `equals` asks "do they hold the same number?" and always answers correctly. Use `equals` for every object, including `Integer`, `String` and your own classes.
+
+Fourth, a comparator that goes wrong. It looks natural to write `a - b` in a `compare` method, and it fails on large numbers.
+
+<Snippet file="Lesson12RoundUp" name="compare-overflow" />
+
+```text
+true
+true
+```
+
+The first line says "`Integer.MAX_VALUE` minus -1 is negative", so `a - b` reports that the biggest `int` is *less than* -1. The sum is too big for an `int`, so it wraps round to a large negative number. This is called **overflow**. `Integer.compare(a, b)` never overflows, which the second line shows. Always use it.
+
+Last, a quiet one: `subList`.
+
+<Snippet file="Lesson12RoundUp" name="sublist" />
+
+```text
+[1, 2]
+[0, 3, 4, 5]
+```
+
+`subList(1, 3)` is not a copy. It is a window onto the original list, so clearing the window removed those items from the real list. The same is true of `Arrays.asList`, `keySet()` and `values()` on a map. If you want an independent copy, wrap it: `new ArrayList<>(list.subList(1, 3))`.
+
+**Remember:** `remove(int)` takes an index. `==` is for identity, `equals` is for content. `a - b` can overflow. Windows write through to the original.
+
+<Part id="inside" heading="A snapshot, [built] by hand" sub="Why copy-on-write is safe, and slow to write." />
+
+The idea behind `CopyOnWriteArrayList` is small enough to write in a few lines.
+
+<Snippet file="Lesson12RoundUp" name="tiny-copy-on-write" />
+
+Go through it in order.
+
+- The array in `items` is **never changed once built**. Every change makes a new one.
+- `add` copies the old array into one slot bigger, puts the new item in the extra slot, and then swaps `items` to point at the new array. The old array is left exactly as it was.
+- `iterator` takes `snapshot = items` right away. That one line is the whole trick: the iterator keeps the array that existed when it was created, and nothing can ever change that array afterwards.
+- So the iterator needs no version number and no check. It cannot be surprised.
+
+<Snippet file="Lesson12RoundUp" name="tiny-copy-on-write-demo" />
+
+```text
+4
+```
+
+The loop added a name for each name it read, and it didn't loop forever, because it only walked the two names that were there when it started.
+
+The real `ConcurrentHashMap` takes a different route. It does not copy anything. It splits its buckets into small groups, locks only the group an update touches, and uses special instructions for the simplest changes, so different threads working on different keys rarely wait for one another.
+
+<Part id="cost" heading="What safety [costs]" sub="n is the number of items." />
+
+| Collection | Read | Write | Looping while it changes |
+| --- | --- | --- | --- |
+| `ArrayList` | O(1) by index | O(1) at the end, O(n) in the middle | Fail-fast: may throw |
+| `CopyOnWriteArrayList` | O(1) by index | O(n), every write copies the array | Fail-safe: reads a snapshot |
+| `HashMap` | O(1) on average | O(1) on average | Fail-fast: may throw |
+| `ConcurrentHashMap` | O(1) on average | O(1) on average | Never throws; may or may not show a change made during the loop |
+| `Collections.synchronizedList` | As the list inside, plus a lock | As the list inside, plus a lock | You must hold the lock while looping |
+
+The trade in one sentence: the copy-on-write list makes reading free and writing expensive, so it is for data that is read much more than it is written. A `ConcurrentHashMap` is the general choice when many threads share a map.
+
+<Part id="practise" heading="Three problems, [three] traps" sub="Remove by value, compare safely, count in threads." />
+
+<Practice
+  number={1}
+  title="Remove by value"
+  file="Lesson12RoundUp"
+  start="remove-all-of-start"
+  solution="remove-all-of"
+  hints={[
+    "The obvious `numbers.remove(value)` has a trap. With an `int` argument, which of the two `remove` methods does Java pick?",
+    "It picks the one that takes an **index**. Removing the value 1 from `[10, 20, 30]` would delete 20.",
+    "Use `removeIf` with a rule that compares values: `numbers.removeIf(n -> n == value)`. It also removes every match, not just the first.",
+  ]}
+  explain="`removeIf` takes a rule, so there is no overload to confuse, and it removes every match in one pass: O(n) on an `ArrayList`. Inside the rule, `n == value` compares an `Integer` that Java has unboxed with an `int`, so it compares numbers and not objects. The same goal could be reached with a loop of `remove(Integer.valueOf(value))` until it returns `false`, but that searches again from the start every time, which is O(n squared)."
+>
+Write `removeAllOf`, which removes every item equal to `value` from the list, in place. For `[3, 1, 3, 2, 3]` and `value = 3` the list becomes `[1, 2]`. For `[10, 20, 30]` and `value = 1`, nothing is removed, because no item equals 1.
+</Practice>
+
+<Practice
+  number={2}
+  title="Biggest first, for any numbers"
+  file="Lesson12RoundUp"
+  start="sorted-descending-start"
+  solution="sorted-descending"
+  hints={[
+    "You need a new list, so copy the old one first and sort the copy.",
+    "Biggest first means the comparator must say that `b` comes before `a` when `b` is bigger. A comparator takes two numbers, `a` and `b`.",
+    "The tempting `b - a` overflows for huge numbers such as `Integer.MAX_VALUE` and `Integer.MIN_VALUE`. Use `Integer.compare(b, a)` instead.",
+  ]}
+  explain="Swapping the arguments to `Integer.compare(b, a)` reverses the order, so the biggest sorts first. The subtraction `b - a` looks equivalent and breaks exactly when the two numbers are far apart, for example `MIN_VALUE` and `MAX_VALUE`, so the sort could put them in the wrong order with no warning. Copying first leaves the caller's list as it was. The sort takes O(n log n). `Comparator.reverseOrder()` is also correct here."
+>
+Write `sortedDescending`, which returns a new list with the numbers biggest first and leaves the list you are given alone. It must work for any `int`, including `Integer.MAX_VALUE` and `Integer.MIN_VALUE`.
+</Practice>
+
+<Practice
+  number={3}
+  title="Count in several threads"
+  file="Lesson12RoundUp"
+  start="count-in-threads-start"
+  solution="count-in-threads"
+  hints={[
+    "Several threads will update one shared map at the same moment, so a plain `HashMap` is not safe. Which map from this lesson is?",
+    "Make a `ConcurrentHashMap` and start one `Thread` per batch. Inside each thread, count every word with `counts.merge(word, 1, Integer::sum)`.",
+    "Call `start()` on every thread first, then `join()` on each of them. `join` waits until that thread has finished. Only then return the map.",
+  ]}
+  explain="The map is shared, so it has to be one built for threads, and `merge` makes each update a single step that no other thread can interrupt. Starting all the threads before joining any of them is what lets them run at the same time. Skipping `join` would return a map that is still being filled. The total work is the same as counting in one thread, O(total words), but it can be spread across processor cores. `join` throws a checked `InterruptedException`, so the code restores the interrupted flag and rethrows."
+>
+Write `countInThreads`, which takes several batches of words, counts the words in each batch in its own thread, and returns one map of how many times each word appeared across all batches. It must not return until every thread has finished.
+</Practice>
+
+<Part id="interview" heading="The round-up, in [questions]" sub="Say each answer in a breath, then give the cost." />
+
+- **"Fail-fast versus fail-safe?"** Fail-fast iterators (`ArrayList`, `HashMap`) throw `ConcurrentModificationException` if the collection changes during the loop. Fail-safe ones (`CopyOnWriteArrayList`, `ConcurrentHashMap`) never throw, because they read a snapshot or tolerate change. Add that fail-fast is best effort.
+- **"How does fail-fast work?"** The collection counts its changes, and the iterator remembers the count it started with and compares it on each step. That was lesson 5's tiny list.
+- **"When would you use `CopyOnWriteArrayList`?"** A list read very often and changed rarely, shared between threads. Writes copy the array, so they are O(n).
+- **"`HashMap` versus `ConcurrentHashMap`, and `Hashtable`?"** `HashMap` is not safe for threads. `ConcurrentHashMap` is, and it is fast because it locks only part of the table. `Hashtable` is the old locked version: don't use it.
+- **"Why does `ConcurrentHashMap` refuse `null`?"** A `get` that returns `null` could mean "no such key" or "the value is `null`", and with several threads you cannot check safely afterwards.
+- **"What is wrong with `list.remove(i)` on a `List<Integer>`?"** An `int` picks the index version of `remove`. For the value, pass `Integer.valueOf(x)`, or use `removeIf`.
+- **"`==` or `equals` for `Integer`?"** `equals`. `==` compares identity and gives inconsistent answers for boxed numbers.
+- **"Why not `a - b` in a comparator?"** It can overflow. Use `Integer.compare`.
+- **"Is `subList` a copy?"** No. It is a window onto the original, so changes write through. Copy it if you need independence.
+- **Say the cost.** "Fail-fast costs nothing but throws. Copy-on-write makes reads free and writes O(n). A concurrent hash map keeps lookups O(1) on average and lets many threads work at once."
