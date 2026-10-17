@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHead, section, shell } from "@/components/page-head";
+import { PageHead, sectionCompact, shell } from "@/components/page-head";
 import { HeadingPair } from "@/components/heading-pair";
 import { Reveal } from "@/components/reveal";
 import { ChaptersLayout, type Chapter } from "@/components/dsa/chapters";
@@ -96,11 +96,12 @@ export function CourseIndex({ course }: { course: Course }) {
         notation="Free lessons · Made by VeraStack Labs"
         pair={course.hero}
         cta={false}
+        compact
         crumbs={[{ label: "Resources", href: "/resources/" }]}
         current={course.name}
       />
 
-      <section id="lessons" className={section}>
+      <section id="lessons" className={sectionCompact}>
         <div className={shell}>
           {partNumbers.map((part, index) => {
             const entries = course.curriculum.filter((entry) => partOf(entry) === part);
@@ -175,7 +176,7 @@ export function CourseIndex({ course }: { course: Course }) {
         </div>
       </section>
 
-      <section id="shape" className={`border-t border-line bg-ground-2 ${section}`}>
+      <section id="shape" className={`border-t border-line bg-ground-2 ${sectionCompact}`}>
         <div className={shell}>
           <Reveal variant="label" className="notation">
             How a lesson is built
@@ -239,6 +240,7 @@ export async function LessonView({ course, slug }: { course: Course; slug: strin
             notation={`${course.name} · Lesson ${lesson.order}`}
             pair={{ heading: lesson.title, sub: lesson.sub }}
             cta={false}
+            compact
             crumbs={[
               { label: "Resources", href: "/resources/" },
               { label: course.name, href: course.path },
