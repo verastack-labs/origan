@@ -81,8 +81,11 @@ export async function TsBlock({
   marks,
   play = lang === "typescript",
   footer,
+  program,
 }: {
   code: string;
+  /** What the Playground gets, when the snippet needs other regions to run on its own. */
+  program?: string;
   lang?: Lang;
   marks?: Marks;
   /** The Playground link. On by default for TypeScript, and available for a JavaScript starting point too. */
@@ -97,7 +100,7 @@ export async function TsBlock({
         <span className="notation">{labels[lang]}</span>
         <span className="flex flex-wrap items-center gap-2">
           <CopyButton code={code} />
-          {play && <PlaygroundLink code={code} />}
+          {play && <PlaygroundLink code={program ?? code} />}
         </span>
       </figcaption>
       <div dangerouslySetInnerHTML={{ __html: html }} />

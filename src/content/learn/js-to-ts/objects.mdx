@@ -103,7 +103,7 @@ A good rule: pick one and stay with it. This guide uses `type`, because it can a
 
 **Second: TypeScript is structural.** It decides whether an object fits a type by looking at what the object *has*, not at what it was called or where it came from. There is no need to say "this object implements that type". If it has the right properties, it fits.
 
-<Snippet file="lesson3-objects" name="shape" />
+<Snippet file="lesson3-objects" name="shape" also="describe-user" />
 
 ```text
 Momo is 3
@@ -119,7 +119,7 @@ Momo is 3
 
 **`readonly` is shallow, and only for the checker.** It stops *assignments* the checker sees. It doesn't freeze the object at runtime, and it doesn't reach inside a property that is itself an object. It is a promise to your teammates and your tools, not a lock.
 
-**A type doesn't check data that arrives while the program runs.** If an object comes from a server, `User` is a hope, not a guarantee. Lesson 0 showed this, and lesson 9 fixes it.
+**A type doesn't check data that arrives while the program runs.** If an object comes from a server, `User` is a hope, not a promise the data keeps. Lesson 0 showed this, and lesson 9 fixes it.
 
 Also, don't reach for `any` or for a cast (writing `as User` to overrule the checker) when a shape fights you. Fix the shape, or fix the data. Lesson 11 says when a cast is fair.
 
