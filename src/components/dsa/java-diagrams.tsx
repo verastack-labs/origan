@@ -555,3 +555,50 @@ export function TwinsDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 8: a sorted tree. Smaller to the left, bigger to the right, and reading left to right is sorted. */
+export function SortedIndexDiagram() {
+  const node = (cx: number, cy: number, text: string, key: string, root = false) => (
+    <g key={key}>
+      <rect
+        x={cx - 44}
+        y={cy - 18}
+        width={88}
+        height={36}
+        className={root ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+        strokeWidth={root ? 1.8 : 1}
+      />
+      <text x={cx} y={cy + 5} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+        {text}
+      </text>
+    </g>
+  );
+  const edge = (x1: number, y1: number, x2: number, y2: number, key: string) => (
+    <line key={key} x1={x1} y1={y1} x2={x2} y2={y2} className="stroke-fg-3" strokeWidth={1.2} />
+  );
+
+  return (
+    <Figure
+      id="sorted-index"
+      title="A sorted tree: smaller names go left, bigger names go right"
+      caption="Looking for Meera, you start at Kiran. Meera comes after Kiran, so go right, and the whole left side is ignored. Reading the tree from left to right gives the names in alphabetical order."
+      viewBox="0 0 720 270"
+    >
+      {edge(360, 52, 200, 108, "e1")}
+      {edge(360, 52, 520, 108, "e2")}
+      {edge(520, 126, 430, 182, "e3")}
+      {node(360, 34, "Kiran", "n1", true)}
+      {node(200, 126, "Asha", "n2")}
+      {node(520, 126, "Ravi", "n3")}
+      {node(430, 200, "Meera", "n4")}
+
+      <text x={60} y={126} fontSize={11} className={faint}>
+        BEFORE KIRAN
+      </text>
+      <text x={580} y={130} fontSize={11} className={faint}>
+        AFTER KIRAN
+      </text>
+      <Dimension x1={140} x2={600} y={252} text="read left to right: Asha, Kiran, Meera, Ravi" />
+    </Figure>
+  );
+}
