@@ -17,7 +17,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   if (!lesson) notFound();
 
   return lessonCard({
-    kicker: `${switchCourse.name} · Lesson ${lesson.order}`,
+    kicker: `${switchCourse.name} · ${switchCourse.descriptor} · Lesson ${lesson.order}`,
     title: lesson.title,
     sub: lesson.sub,
   });

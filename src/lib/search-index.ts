@@ -27,6 +27,7 @@ export function buildSearchIndex(
       id: `course:${course.id}`,
       kind: "course",
       title: course.name,
+      descriptor: course.descriptor,
       courseName: course.name,
       language: course.languageName,
       href: course.path,

@@ -2,7 +2,7 @@ import { site } from "./site";
 import type { CurriculumEntry } from "./rust-dsa";
 
 /**
- * The "Java Collections" section: its name, its routes and the whole of the
+ * The "Filter Coffee" section (Java Collections): its name, its routes and the whole of the
  * plan (`origan-internal/docs/java-collections-plan.md`).
  *
  * This is the plan, not the list of what is live. A lesson is live when its
@@ -11,7 +11,10 @@ import type { CurriculumEntry } from "./rust-dsa";
  * show on the index as "Coming next", without links.
  */
 export const javaCollections = {
-  name: "Java Collections",
+  /** The brand. People say this one. */
+  name: "Filter Coffee",
+  /** The plain name, which carries the search terms. */
+  descriptor: "Java Collections",
   path: "/learn/java-collections/",
   // Said plainly, because it is also the search term.
   description:

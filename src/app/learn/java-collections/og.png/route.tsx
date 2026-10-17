@@ -6,7 +6,7 @@ export const dynamic = "force-static";
 
 export function GET() {
   return lessonCard({
-    kicker: "Free lessons",
+    kicker: `${javaCourse.descriptor} · Free lessons`,
     title: javaCourse.name,
     sub: javaCourse.summary,
   });

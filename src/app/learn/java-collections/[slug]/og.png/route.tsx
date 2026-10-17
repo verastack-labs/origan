@@ -17,7 +17,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   if (!lesson) notFound();
 
   return lessonCard({
-    kicker: `${javaCourse.name} · Lesson ${lesson.order}`,
+    kicker: `${javaCourse.name} · ${javaCourse.descriptor} · Lesson ${lesson.order}`,
     title: lesson.title,
     sub: lesson.sub,
   });
