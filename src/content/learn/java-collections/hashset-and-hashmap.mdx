@@ -185,7 +185,7 @@ Write `firstDuplicate`, which returns the first word that has already appeared e
     "At position `i` the partner you need is `target - numbers[i]`. Keep a `HashMap<Integer, Integer>` from each number you passed to its position.",
     "Look up the partner first. If it is in the map, you are done. Only then store the current number, so a number is never paired with itself.",
   ]}
-  explain="At each step you ask the map \"have I already passed the number that completes this one?\" That is an O(1) lookup instead of a walk through the rest of the array, so the whole job is one pass: O(n) time and O(n) space. Storing the current number after the check is what stops `{3}` with target 6 from pairing with itself, while `{3, 3}` still works because the first 3 is stored by the time the second arrives. The map keeps the position as the value, which is the whole reason this needs a map rather than a set."
+  explain="At each step you ask the map 'have I already passed the number that completes this one?' That is an O(1) lookup instead of a walk through the rest of the array, so the whole job is one pass: O(n) time and O(n) space. Storing the current number after the check is what stops `{3}` with target 6 from pairing with itself, while `{3, 3}` still works because the first 3 is stored by the time the second arrives. The map keeps the position as the value, which is the whole reason this needs a map rather than a set."
 >
 Write `twoSum`, which finds two different positions whose numbers add up to `target`, and returns them as `{earlier, later}`. For `{2, 7, 11, 15}` and target 9 it returns `{0, 1}`. If no pair works, return an empty array. You may assume at most one pair works.
 </Practice>

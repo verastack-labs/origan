@@ -195,7 +195,7 @@ Write `revisits`, which takes a path as a list of `{row, col}` steps and returns
     "Now think about `hashCode`. \"Asha\" and \"ASHA\" are equal here, so they must give the same hash code, but their plain `hashCode()` values differ.",
     "Hash a version of the text that is the same for both: `text.toLowerCase(Locale.ROOT).hashCode()`.",
   ]}
-  explain="Because `equals` ignores case, `hashCode` has to ignore it too, otherwise \"Asha\" and \"ASHA\" would be equal and still land on different shelves. Lower-casing first gives both the same number. `Locale.ROOT` stops the result depending on the computer's language settings. This is the general rule: whatever `equals` ignores, `hashCode` must ignore. The idea works for ordinary letters, which is what the exercise uses."
+  explain="Because `equals` ignores case, `hashCode` has to ignore it too, otherwise 'Asha' and 'ASHA' would be equal and still land on different shelves. Lower-casing first gives both the same number. `Locale.ROOT` stops the result depending on the computer's language settings. This is the general rule: whatever `equals` ignores, `hashCode` must ignore. The idea works for ordinary letters, which is what the exercise uses."
 >
 Complete the `Username` class so that `Asha` and `ASHA` count as the same username, and a `HashSet` of usernames holds only one of them. Add both `equals` and `hashCode`.
 </Practice>
