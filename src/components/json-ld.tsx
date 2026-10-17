@@ -18,6 +18,9 @@ export function JsonLd() {
         "@id": `${site.url}/#studio`,
         name: site.studio,
         url: site.studioUrl,
+        // Square, 512 pixels, drawn at build time by app/logo.png.
+        logo: `${site.url}/logo.png`,
+        sameAs: site.sameAs,
         founder: { "@type": "Person", name: site.founder },
         email: site.email,
         telephone: site.phone,
