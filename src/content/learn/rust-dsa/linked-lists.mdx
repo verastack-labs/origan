@@ -10,13 +10,17 @@ slug: linked-lists
 
 <Part id="what" heading="Chains of [nodes]" sub="Each item knows where the next one is." />
 
-A **linked list** is a chain. Each item, called a **node**, holds a value and a link to the next node. The list itself only remembers where the chain starts, which is called the **head**. To reach any other item, you start at the head and follow the links.
+Picture a treasure hunt. The first clue is in your hand. It does not hold the treasure. It tells you where the *next* clue is hidden, and that one points to the next, until the last clue shows you the prize. You can only get to clue number 5 by following clues 1 to 4.
+
+That is a **linked list**. It is a chain. Each item, called a **node**, holds a value and a link to the next node. The list itself only remembers where the chain starts, which is called the **head**. To reach any other item, you start at the head and follow the links.
 
 That is the opposite of an array, where the items sit side by side and you can jump straight to any position. In a linked list the items can be anywhere in memory, because each one says where the next is.
 
 Reach for a linked list when most of your work happens at the front of the list, such as adding and removing there, and you never need to read item number 500 directly.
 
 Here is an honest note before we start. In everyday Rust you will almost always use a `Vec` or a `VecDeque` instead (lesson 5), because they are simpler and usually faster. So why learn this? Because a linked list is the best small example of how Rust's **ownership** rules work. Ownership is the rule that every value has exactly one owner, and the value is cleaned up when its owner goes away. A chain of nodes makes you think about that rule in every line, and linked lists are also a very common interview topic.
+
+**Remember:** in everyday Rust, use a `Vec`. Learn the linked list to understand ownership.
 
 <Part id="idea" heading="One owner for [each] node" sub="The picture is simple. The ownership is not." />
 
@@ -52,6 +56,8 @@ Go through it in order.
 <Snippet file="lesson3_linked_list" name="take-demo" />
 
 Without `take`, the `push_front` method would not compile, and the error message about moving out of borrowed content is one every Rust learner meets.
+
+**Remember:** when you need to move a value out of a field you only borrow, use `take()` and leave `None` behind.
 
 Now adding at the back. The list only knows its head, so it has to walk to the last node.
 

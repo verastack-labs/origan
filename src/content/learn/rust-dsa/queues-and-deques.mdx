@@ -10,7 +10,9 @@ slug: queues-and-deques
 
 <Part id="what" heading="First in, [first] out" sub="Like a line at a counter." />
 
-A **queue** is a collection where new items join at the back and items leave from the front. The item that has waited longest is served first. This rule is called **FIFO**, short for "first in, first out". It is the mirror image of a stack from lesson 4.
+Think of the line at the canteen. The person who joined first is served first, and new people join at the back. Nobody is allowed to jump to the front.
+
+That is a **queue**. It is a collection where new items join at the back and items leave from the front. The item that has waited longest is served first. This rule is called **FIFO**, short for "first in, first out". It is the mirror image of a stack from lesson 4.
 
 A **deque** (say "deck", short for double-ended queue) is a queue that lets you add and remove at *both* ends. It can behave as a queue, as a stack, or as a mix.
 
@@ -25,6 +27,8 @@ A queue needs to work at both ends: add at the back, remove from the front. If y
 The trick is not to move the items at all. Keep a note of where the front is, called `start`, and how many items there are, called `len`. Removing from the front just moves `start` forward by one. The slot it left behind is free to reuse.
 
 When `start` or the back reaches the last slot, it wraps round to slot 0, as if the row of slots were bent into a ring. The picture shows this: the queue holds four values, the first two in slots 6 and 7, and the others have wrapped to slots 0 and 1. A structure built this way is called a **ring buffer** (or circular buffer).
+
+**Remember:** a ring buffer never moves the items. It moves two numbers, `start` and `len`.
 
 The tool that does the wrapping is the **remainder** operator, `%`. Slot number `8` doesn't exist in an array of eight, but `8 % 8` is `0`, which is the first slot. So the next free slot is always `(start + len) % capacity`.
 

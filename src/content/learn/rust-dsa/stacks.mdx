@@ -10,9 +10,9 @@ slug: stacks
 
 <Part id="what" heading="Last in, [first] out" sub="Like a pile of plates." />
 
-A **stack** is a collection where you can only add to the top and only take from the top. The item you added most recently is the first one you get back. This rule is called **LIFO**, short for "last in, first out".
+Think of a pile of plates in the canteen. You put a clean plate on top, and when someone needs one, they take the top plate. Nobody pulls from the middle, because the whole pile would wobble.
 
-Think of a pile of plates. You put a clean plate on top, and when you need one, you take the top plate. Nobody pulls from the middle.
+That is a **stack**. It is a collection where you can only add to the top and only take from the top. The item you added most recently is the first one you get back. This rule is called **LIFO**, short for "last in, first out".
 
 Reach for a stack whenever the most recent thing is the one you need next, or whenever you need to remember what to come back to. Everyday examples are the undo button in an editor, the back button in a browser, and checking that brackets in code are closed in the right order. Your own program uses one too: the **call stack**, which remembers where each running function should return to.
 
@@ -29,6 +29,8 @@ A stack has three moves, and all of them work on the top.
 If a stack is empty, there is nothing to pop or peek at. In Rust the honest way to say that is to return `None` instead of crashing, so `pop` and `peek` give back an `Option`.
 
 Because every move happens at one end, each is one step, however many items are in the stack. That is what makes a stack so cheap to use.
+
+**Remember:** a stack only lets you touch the top. That limit is what keeps it simple and quick.
 
 <Part id="build" heading="Wrap a [Vec]" sub="A stack is a Vec with fewer doors." />
 

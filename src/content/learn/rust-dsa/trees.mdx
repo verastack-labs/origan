@@ -10,7 +10,9 @@ slug: trees
 
 <Part id="what" heading="A list that [branches]" sub="Each node can have two children." />
 
-A **tree** is like a linked list where each node can point to more than one next node. The first node is the **root**. A node below another is its **child**, and the node above is its **parent**. A node with no children is a **leaf**. Any node together with everything below it is a **subtree**, which is a smaller tree in its own right.
+Think of a family tree, or the folders on your laptop. One folder at the top holds other folders, and each of those holds more. Nothing loops back, and every folder (except the top one) sits inside exactly one other.
+
+That is a **tree**. It is like a linked list where each node can point to more than one next node. The first node is the **root**. A node below another is its **child**, and the node above is its **parent**. A node with no children is a **leaf**. Any node together with everything below it is a **subtree**, which is a smaller tree in its own right.
 
 In a **binary tree**, each node has at most two children, called the left and the right. A **binary search tree** (BST) adds one rule: for every node, everything in its left subtree is smaller, and everything in its right subtree is larger.
 
@@ -25,6 +27,8 @@ The picture shows a BST with seven values. To search for 40, start at the root, 
 Every comparison throws away a whole subtree. If the tree is well spread out, which is called **balanced**, each step cuts the remaining nodes roughly in half. Doubling the number of values adds only one more step. That growth is written O(log n), and it is why searching a million values takes about twenty steps.
 
 The catch is the shape. If you insert already-sorted values one after another (1, 2, 3, 4 and so on), every new value goes to the right of the last, and the tree becomes a list with extra steps. Searching then visits every node, which is O(n). So the speed depends on the **height**, the number of levels from the root down to the lowest leaf.
+
+**Remember:** in a search tree, every comparison lets you ignore a whole side. That is where the speed comes from.
 
 Trees are a good place to meet **recursion**: a function that solves a problem by calling itself on a smaller piece. A tree is a natural fit, because a tree is a node plus two smaller trees. A recursive function needs a **base case**, an answer that needs no more calls. For trees it is nearly always "an empty tree".
 

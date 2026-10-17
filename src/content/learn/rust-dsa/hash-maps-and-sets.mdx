@@ -10,7 +10,9 @@ slug: hash-maps-and-sets
 
 <Part id="what" heading="Look it up by [name]" sub="A key goes in and its value comes out." />
 
-A **hash map** stores pairs. Each pair is a **key** and a **value**: a student's roll number and their name, or a word and how many times it appears. You give the map a key, and it gives you the matching value back, without looking through every pair.
+Think of the contact list on your phone. You type a name and the number appears. You never scroll through every contact from the top, because the phone jumps straight to the right one.
+
+That is a **hash map**. It stores pairs. Each pair is a **key** and a **value**: a student's roll number and their name, or a word and how many times it appears. You give the map a key, and it gives you the matching value back, without looking through every pair.
 
 Other languages call this a dictionary, an object or a map. A **hash set** is the same machine with keys only and no values. It answers one question quickly: "is this thing in here?"
 
@@ -27,6 +29,8 @@ To find a key later, the map does the same thing: hash the key, jump straight to
 Two different keys can land in the same bucket. This is called a **collision**, and it is normal. The picture shows it: keys 3 and 11 both end up in bucket 3. The simple answer, used here, is for each bucket to hold a short list of pairs, and to compare keys inside the bucket to find the right one. This is called **chaining**.
 
 As long as the buckets stay short, lookups are quick. A real hash map watches how full it is and, when the buckets get crowded, grows the row of buckets and moves the pairs to spread them out. That is why the cost is O(1) *on average* and not always. A map where every key collides would be one long list.
+
+**Remember:** a hash map finds things by jumping to one bucket, not by searching the whole collection.
 
 Two things follow from this design. A key must be able to be hashed and compared for equality. And the map does not remember the order you added things, so never rely on the order a hash map gives you back.
 
