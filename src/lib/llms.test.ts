@@ -26,6 +26,11 @@ describe("llms.txt", () => {
     }
   });
 
+  it("lists each course as the brand with its descriptor", () => {
+    expect(pages).toContain("[Oxidise (DSA in Rust)]");
+    expect(pages).toContain("[Filter Coffee (Java Collections)]");
+  });
+
   it("writes every page entry as a Markdown link and a description", () => {
     const entries = pages.split("\n").filter((l) => l.startsWith("- "));
     expect(entries.length).toBeGreaterThanOrEqual(sheets.length + courses.length);

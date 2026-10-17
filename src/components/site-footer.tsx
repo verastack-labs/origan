@@ -55,7 +55,7 @@ export function SiteFooter() {
                   href={course.path}
                   className="text-[13.5px] text-fg-2 underline decoration-line decoration-1 underline-offset-4 transition-colors hover:text-survey hover:decoration-survey-2"
                 >
-                  {course.name}
+                  {course.name}: {course.descriptor}
                 </Link>
               ))}
             </div>

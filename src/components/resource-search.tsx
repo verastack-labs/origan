@@ -225,7 +225,7 @@ function Row({ result }: { result: SearchResult }) {
   const { entry } = result;
   const meta = [
     entry.kind === "course" ? "Course" : entry.courseName,
-    entry.language,
+    entry.kind === "course" ? (entry.descriptor ?? entry.language) : entry.language,
     entry.kind === "course"
       ? `${entry.lessonCount ?? 0} ${entry.lessonCount === 1 ? "lesson" : "lessons"}`
       : `Lesson ${entry.lessonNumber ?? 0}`,

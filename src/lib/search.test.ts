@@ -99,7 +99,8 @@ describe("matching", () => {
 
   it("expands light synonyms", () => {
     expect(titles("dp")).toContain("Dynamic programming");
-    expect(titles("dsa")).toContain("DSA in Rust");
+    expect(titles("dsa")).toContain("Oxidise");
+    expect(titles("oxidize")).toContain("Oxidise");
     expect(titles("bfs")).toContain("BFS and DFS");
     expect(titles("dfs")).toContain("BFS and DFS");
   });
@@ -115,6 +116,29 @@ describe("matching", () => {
     expect(search(index, "")).toEqual([]);
     expect(search(index, "   ")).toEqual([]);
     expect(search(index, "?!")).toEqual([]);
+  });
+});
+
+describe("brand and descriptor", () => {
+  const firstCourse = (query: string) => search(index, query).find((r) => r.entry.kind === "course")?.entry.id;
+
+  it.each([
+    ["oxidise", "course:rust-dsa"],
+    ["oxidize", "course:rust-dsa"],
+    ["rust", "course:rust-dsa"],
+    ["dsa", "course:rust-dsa"],
+    ["dsa in rust", "course:rust-dsa"],
+    ["filter coffee", "course:java-collections"],
+    ["coffee", "course:java-collections"],
+    ["java", "course:java-collections"],
+    ["java collections", "course:java-collections"],
+  ])("finds the right course for %s", (query, id) => {
+    expect(firstCourse(query)).toBe(id);
+  });
+
+  it("ranks the brand as an exact title and the descriptor as a title word", () => {
+    expect(search(index, "oxidise")[0].tier).toBe(1);
+    expect(search(index, "rust").find((r) => r.entry.id === "course:rust-dsa")?.tier).toBe(3);
   });
 });
 
@@ -148,7 +172,7 @@ describe("ranking", () => {
     expect(results[0].entry.kind).toBe("course");
     const first = results.findIndex((r) => r.entry.kind === "lesson");
     expect(results.slice(0, first).every((r) => r.entry.kind === "course")).toBe(true);
-    expect(results[0].entry.title).toBe("Java Collections");
+    expect(results[0].entry.title).toBe("Filter Coffee");
   });
 
   it("puts the dynamic programming lesson first for dp", () => {

@@ -1,7 +1,7 @@
 import { site } from "./site";
 
 /**
- * The "DSA in Rust" section: its name, its routes, and both parts: data
+ * The "Oxidise" section (DSA in Rust): its name, its routes, and both parts: data
  * structures, then algorithms.
  *
  * This is the plan, not the list of what is live. A lesson is live when its
@@ -10,7 +10,10 @@ import { site } from "./site";
  * show on the index as "Coming next", without links.
  */
 export const rustDsa = {
-  name: "DSA in Rust",
+  /** The brand. People say this one. */
+  name: "Oxidise",
+  /** The plain name, which carries the search terms. */
+  descriptor: "DSA in Rust",
   path: "/learn/rust-dsa/",
   // Said plainly, because it is also the search term.
   description:

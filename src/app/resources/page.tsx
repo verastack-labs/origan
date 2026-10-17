@@ -52,7 +52,7 @@ export default function Resources() {
                       className="group flex h-full flex-col p-[clamp(20px,2.6vw,32px)] transition-colors hover:bg-panel-2"
                     >
                       <span className="font-mono text-[10px] uppercase tracking-[0.13em] text-fg-3">
-                        Free · {count} {count === 1 ? one : many}
+                        {resource.descriptor} · Free · {count} {count === 1 ? one : many}
                       </span>
                       <span className="mt-3 text-[clamp(22px,2.6vw,30px)] font-bold tracking-[-0.03em] text-fg">
                         {resource.name}

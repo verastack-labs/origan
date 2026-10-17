@@ -12,6 +12,8 @@ export type SearchEntry = {
   kind: "course" | "lesson";
   /** What the row is called, and what the match is highlighted in. */
   title: string;
+  /** Courses only: the plain name ("DSA in Rust"), searched like the title. */
+  descriptor?: string;
   courseName: string;
   /** "Rust", "Java". */
   language: string;
@@ -43,6 +45,7 @@ export type SearchResult = {
  * they match nothing, which is the honest answer.
  */
 export const synonyms: Readonly<Record<string, readonly (readonly string[])[]>> = {
+  oxidize: [["oxidise"]],
   dsa: [["data", "structures"], ["algorithms"]],
   dp: [["dynamic", "programming"]],
   bfs: [["dfs"]],
@@ -142,7 +145,8 @@ export function search(index: readonly SearchEntry[], query: string): SearchResu
   const out: { result: SearchResult; at: number }[] = [];
   index.forEach((entry, at) => {
     const title = wordsOf(entry.title);
-    const near = [...title, ...entry.topics.flatMap(wordsOf), ...wordsOf(entry.language)];
+    const named = [...title, ...wordsOf(entry.descriptor ?? "")];
+    const near = [...named, ...entry.topics.flatMap(wordsOf), ...wordsOf(entry.language)];
     const all = [...near, ...entry.text.flatMap(wordsOf), ...wordsOf(entry.courseName)];
     if (!matchesAll(all, terms)) return;
 
@@ -152,7 +156,7 @@ export function search(index: readonly SearchEntry[], query: string): SearchResu
         ? 1
         : titleJoined.startsWith(joined)
           ? 2
-          : matchesAll(title, terms)
+          : matchesAll(named, terms)
             ? 3
             : matchesAll(near, terms)
               ? 4

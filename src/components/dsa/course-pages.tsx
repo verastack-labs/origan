@@ -17,28 +17,28 @@ import { compileLesson } from "@/lib/mdx";
 
 /**
  * The pages of a course, written once. `src/app/learn/<course>/` holds thin
- * route files that name the course and call these, so DSA in Rust and Java
- * Collections cannot drift apart.
+ * route files that name the course and call these, so Oxidise and Filter
+ * Coffee cannot drift apart.
  */
 
 export function indexMetadata(course: Course): Metadata {
   const ogImage = `${course.path}og.png`;
   return {
-    title: course.name,
+    title: `${course.name} · ${course.descriptor}`,
     description: course.description,
     alternates: { canonical: course.path },
     openGraph: {
       type: "website",
       siteName: site.name,
-      title: `${course.name} · ${site.name}`,
+      title: `${course.name} · ${course.descriptor} · ${site.name}`,
       description: course.description,
       url: `${site.url}${course.path}`,
       locale: "en_IN",
-      images: [{ url: ogImage, width: 1200, height: 630, alt: `${course.name}, free lessons` }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `${course.name}, ${course.descriptor}: free lessons` }],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${course.name} · ${site.name}`,
+      title: `${course.name} · ${course.descriptor} · ${site.name}`,
       description: course.description,
       images: [ogImage],
     },
@@ -50,10 +50,12 @@ export function lessonMetadata(course: Course, slug: string): Metadata {
   if (!lesson) return {};
 
   const ogImage = `${coursePath(course, slug)}og.png`;
-  const title = `${lesson.title} · ${course.name}`;
+  // The page title gets " · Origan" added by the layout, so keep the descriptor only while it fits.
+  const withDescriptor = `${lesson.title} · ${course.name} · ${course.descriptor}`;
+  const title = withDescriptor.length <= 51 ? withDescriptor : `${lesson.title} · ${course.name}`;
 
   return {
-    title: lesson.title,
+    title,
     description: lesson.description,
     alternates: { canonical: coursePath(course, slug) },
     openGraph: {
@@ -64,7 +66,7 @@ export function lessonMetadata(course: Course, slug: string): Metadata {
       url: courseUrl(course, slug),
       locale: "en_IN",
       modifiedTime: lesson.updated,
-      images: [{ url: ogImage, width: 1200, height: 630, alt: `${lesson.title}, ${course.name}` }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `${lesson.title}, ${course.name} (${course.descriptor})` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -93,8 +95,8 @@ export function CourseIndex({ course }: { course: Course }) {
       />
 
       <PageHead
-        notation="Free lessons · Made by VeraStack Labs"
-        pair={course.hero}
+        notation={`${course.descriptor} · Free lessons`}
+        pair={{ heading: course.hero.heading, sub: `${course.hero.sub} ${course.origin}` }}
         cta={false}
         compact
         crumbs={[{ label: "Resources", href: "/resources/" }]}
@@ -237,7 +239,7 @@ export async function LessonView({ course, slug }: { course: Course; slug: strin
         contentClass={`${shell} pb-[clamp(60px,8vw,110px)] pt-[clamp(28px,4vw,52px)]`}
         head={
           <PageHead
-            notation={`${course.name} · Lesson ${lesson.order}`}
+            notation={`${course.name} · ${course.descriptor} · Lesson ${lesson.order}`}
             pair={{ heading: lesson.title, sub: lesson.sub }}
             cta={false}
             compact

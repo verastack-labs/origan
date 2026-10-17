@@ -17,7 +17,10 @@ export type LessonPart = { readonly id: string; readonly label: string };
 export type Course = {
   /** Also the key for read ticks. */
   id: string;
+  /** The brand name, like "Oxidise". */
   name: string;
+  /** The plain name that carries the search terms, like "DSA in Rust". */
+  descriptor: string;
   /** With a leading and trailing slash. */
   path: string;
   description: string;
@@ -41,6 +44,8 @@ export type Course = {
   listingHeading: string;
   /** The heading above each later part's list, keyed by part number. */
   partHeadings?: Record<number, string>;
+  /** One optional line on where the name comes from. Shown once, on the index. */
+  origin: string;
   /** The closing paragraph on the index. */
   verifiedNote: string;
 };
@@ -48,6 +53,7 @@ export type Course = {
 export const rustCourse: Course = {
   id: "rust-dsa",
   name: rustDsa.name,
+  descriptor: rustDsa.descriptor,
   path: rustDsa.path,
   description: rustDsa.description,
   provider: rustDsa.provider,
@@ -60,7 +66,8 @@ export const rustCourse: Course = {
   snippets: { dir: ["rust", "rust-dsa", "src"], ext: ".rs" },
   about: "Data structures and algorithms in the Rust programming language",
   summary: "Data structures and algorithms, taught in Rust, with code that is compiled and tested.",
-  hero: { heading: "DSA in [Rust]", sub: "Data structures, then algorithms, one working build at a time." },
+  hero: { heading: "Oxidise", sub: "Data structures, then algorithms, one working build at a time." },
+  origin: "Rust is oxidised iron. Here, it's where your data structures harden.",
   listingHeading: "Part 1: data [structures]",
   partHeadings: { 2: "Part 2: [algorithms]" },
   verifiedNote:
@@ -70,6 +77,7 @@ export const rustCourse: Course = {
 export const javaCourse: Course = {
   id: "java-collections",
   name: javaCollections.name,
+  descriptor: javaCollections.descriptor,
   path: javaCollections.path,
   description: javaCollections.description,
   provider: javaCollections.provider,
@@ -82,7 +90,8 @@ export const javaCourse: Course = {
   snippets: { dir: ["java", "java-collections", "src"], ext: ".java" },
   about: "The Java Collections Framework in the Java programming language",
   summary: "The Java Collections Framework, taught to beginners, with code that is compiled and tested.",
-  hero: { heading: "Java [Collections]", sub: "The tools Java ships with, one lesson at a time." },
+  hero: { heading: "Filter [Coffee]", sub: "The tools Java ships with, one lesson at a time." },
+  origin: "Java is coffee. Here, you learn to brew it strong.",
   listingHeading: "Part 1: the [framework]",
   verifiedNote:
     "Every piece of Java on these pages is a real file that is compiled and run with assertions on before the page is built, so the code you read is the code that ran. Your progress is kept in this browser only. Nothing is sent anywhere.",
@@ -96,10 +105,11 @@ export const courseUrl = (course: Pick<Course, "path">, slug: string) =>
   `${site.url}${coursePath(course, slug)}`;
 
 /** The slice of a course a client component needs: small, and plain data. */
-export type CourseNav = Pick<Course, "id" | "name" | "path" | "parts" | "partNames">;
+export type CourseNav = Pick<Course, "id" | "name" | "descriptor" | "path" | "parts" | "partNames">;
 export const navOf = (course: Course): CourseNav => ({
   id: course.id,
   name: course.name,
+  descriptor: course.descriptor,
   path: course.path,
   parts: course.parts,
   partNames: course.partNames,

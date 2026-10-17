@@ -155,8 +155,9 @@ describe("Java writing rules", () => {
 });
 
 describe("Java resources", () => {
-  it("lists Java Collections second", () => {
-    expect(resources[1].name).toBe("Java Collections");
+  it("lists Filter Coffee second", () => {
+    expect(resources[1].name).toBe("Filter Coffee");
+    expect(resources[1].descriptor).toBe("Java Collections");
     expect(resources[1].href).toBe("/learn/java-collections/");
   });
 });
