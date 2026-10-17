@@ -73,14 +73,21 @@ function programsOf(mdx: string, page: string): Program[] {
   return out;
 }
 
+// The default libraries are large, and parsing them for every program is what makes this
+// suite slow, so each library file is parsed once and reused.
+const libCache = new Map<string, ts.SourceFile | undefined>();
+
 /** Compile one loose file the way the Playground does: strict, default libraries, no module. */
 function compile(code: string): readonly ts.Diagnostic[] {
   const name = "/playground.ts";
-  const options: ts.CompilerOptions = { strict: true, target: ts.ScriptTarget.ES2022, noEmit: true, types: [] };
+  const options: ts.CompilerOptions = { strict: true, target: ts.ScriptTarget.ES2022, noEmit: true, types: [], skipLibCheck: true };
   const host = ts.createCompilerHost(options);
   const original = host.getSourceFile.bind(host);
-  host.getSourceFile = (file, languageVersion, ...rest) =>
-    file === name ? ts.createSourceFile(file, code, languageVersion) : original(file, languageVersion, ...rest);
+  host.getSourceFile = (file, languageVersion, ...rest) => {
+    if (file === name) return ts.createSourceFile(file, code, languageVersion);
+    if (!libCache.has(file)) libCache.set(file, original(file, languageVersion, ...rest));
+    return libCache.get(file);
+  };
   const fileExists = host.fileExists.bind(host);
   host.fileExists = (file) => file === name || fileExists(file);
   const program = ts.createProgram([name], options, host);
