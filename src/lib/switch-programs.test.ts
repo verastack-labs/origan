@@ -32,7 +32,7 @@ function programsOf(mdx: string, page: string): Program[] {
   for (const m of mdx.matchAll(/<Snippet\s+([\s\S]*?)\/>/g)) {
     const file = attr(m[1], "file");
     const name = attr(m[1], "name");
-    if (!file || !name || file.endsWith(".json") || /\sjs(\s|$)/.test(m[1])) continue;
+    if (!file || !name || file.endsWith(".json") || /(?:^|\s)js(?:doc)?(?:\s|$)/.test(m[1])) continue;
     const also = (attr(m[1], "also") ?? "").split(",").filter(Boolean).map((r) => region(file, r.trim(), TS_SOURCE));
     out.push({ label: `${page}: ${file} ${name}`, code: [...also, region(file, name, TS_SOURCE)].join("\n\n") });
   }
@@ -56,7 +56,8 @@ function programsOf(mdx: string, page: string): Program[] {
 
   for (const m of mdx.matchAll(/<Fails\s+([\s\S]*?)\/>/g)) {
     const file = attr(m[1], "file");
-    if (!file) continue;
+    // JSDoc snippets are JavaScript. They are checked as JavaScript by scripts/check-ts-snippets.mjs.
+    if (!file || /(?:^|\s)jsdoc(?:\s|$)/.test(m[1])) continue;
     const snippet = errorSnippet(file, attr(m[1], "name") ?? "code");
     out.push({
       label: `${page}: fails ${file}`,

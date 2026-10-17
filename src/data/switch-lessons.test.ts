@@ -5,7 +5,7 @@ import { switchCourse } from "./courses";
 import { resources } from "./resources";
 import { getLessons } from "@/lib/lessons";
 import { hasRegion } from "@/lib/snippets";
-import { JS_SOURCE, TS_SOURCE } from "@/lib/ts-snippets";
+import { JS_SOURCE, JSDOC_SOURCE, TS_SOURCE } from "@/lib/ts-snippets";
 
 /**
  * The Switch's content rules, the same ones `java-lessons.test.ts` holds Java
@@ -120,11 +120,12 @@ describe("each Switch lesson's seven parts", () => {
 
 describe("Switch snippets", () => {
   it.each(lessons.map((l) => [l.slug, l]))("%s only names regions that exist in the checked project", (_, lesson) => {
-    const named: [string, string, "ts" | "js"][] = [];
+    const named: [string, string, "ts" | "js" | "jsdoc"][] = [];
 
     for (const m of lesson.body.matchAll(/<Snippet\b[^>]*\/>/g)) {
       const js = /\sjs(\s|\/|=\{true\})/.test(m[0]);
-      named.push([attr(m[0], "file")!, attr(m[0], "name")!, js ? "js" : "ts"]);
+      const jsdoc = /\sjsdoc(\s|\/|=\{true\})/.test(m[0]);
+      named.push([attr(m[0], "file")!, attr(m[0], "name")!, jsdoc ? "jsdoc" : js ? "js" : "ts"]);
       for (const extra of (attr(m[0], "also") ?? "").split(",").filter(Boolean)) {
         named.push([attr(m[0], "file")!, extra.trim(), "ts"]);
       }
@@ -138,7 +139,9 @@ describe("Switch snippets", () => {
       else named.push([file, name, "ts"]);
     }
     for (const m of lesson.body.matchAll(/<Fails\b[^>]*\/>/g)) {
-      named.push([`errors/${attr(m[0], "file")!}`, attr(m[0], "name") ?? "code", "ts"]);
+      const jsdoc = /\sjsdoc(\s|\/|=\{true\})/.test(m[0]);
+      if (jsdoc) named.push([attr(m[0], "file")!, attr(m[0], "name") ?? "code", "jsdoc"]);
+      else named.push([`errors/${attr(m[0], "file")!}`, attr(m[0], "name") ?? "code", "ts"]);
     }
     for (const m of lesson.body.matchAll(/<Practice\b[\s\S]*?\n>/g)) {
       const file = attr(m[0], "file")!;
@@ -147,7 +150,7 @@ describe("Switch snippets", () => {
 
     expect(named.length).toBeGreaterThan(6);
     for (const [file, name, kind] of named) {
-      const source = kind === "js" ? JS_SOURCE : TS_SOURCE;
+      const source = kind === "js" ? JS_SOURCE : kind === "jsdoc" ? JSDOC_SOURCE : TS_SOURCE;
       expect(hasRegion(file, name, source), `${file}${source.ext} has no region "${name}"`).toBe(true);
     }
   });

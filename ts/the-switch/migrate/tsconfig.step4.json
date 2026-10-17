@@ -1,0 +1,16 @@
+// Step 4: null and undefined are no longer allowed everywhere.
+// region: config
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": false,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noEmit": true,
+    "target": "ES2022",
+    "module": "NodeNext"
+  },
+  "include": ["src"]
+}
+// endregion

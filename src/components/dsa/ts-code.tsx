@@ -110,11 +110,13 @@ export async function TsBlock({
 }
 
 /** A snippet that is meant to fail: the code, the line that fails, and what TypeScript says. */
-export async function Fails({ file, name = "code" }: { file: string; name?: string }) {
-  const snippet = errorSnippet(file, name);
+export async function Fails({ file, name = "code", jsdoc = false }: { file: string; name?: string; jsdoc?: boolean }) {
+  const snippet = errorSnippet(file, name, jsdoc);
   return (
     <TsBlock
       code={snippet.code}
+      lang={jsdoc ? "javascript" : "typescript"}
+      play={!jsdoc}
       marks={{ error: snippet.errorLines }}
       footer={<ErrorNote errorCode={snippet.errorCode} message={snippet.message} />}
     />

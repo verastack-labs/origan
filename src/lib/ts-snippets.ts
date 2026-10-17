@@ -30,6 +30,10 @@ export const TS_SOURCE: SnippetSource = switchCourse.snippets;
 // same name would be what `import "./x.js"` finds, instead of the TypeScript.
 export const JS_SOURCE: SnippetSource = { dir: [...switchCourse.snippets.dir, "js"], ext: ".js" };
 
+// JavaScript with JSDoc types, checked as JavaScript (allowJs and checkJs) by
+// scripts/check-ts-snippets.mjs. Lesson 10 is about these.
+export const JSDOC_SOURCE: SnippetSource = { dir: [...switchCourse.snippets.dir, "jsdoc"], ext: ".js" };
+
 const MARK = /\s*\/\/ @error\s*$/;
 
 export type ErrorSnippet = {
@@ -64,11 +68,13 @@ export function stripErrorMarks(code: string): { code: string; errorLines: Set<n
 }
 
 /** A snippet that is meant to fail, by its file under `errors/` (no extension). */
-export function errorSnippet(file: string, name = "code"): ErrorSnippet {
-  const path = `errors/${file}`;
-  const raw = readFileSync(join(process.cwd(), ...TS_SOURCE.dir, `${path}${TS_SOURCE.ext}`), "utf8");
+export function errorSnippet(file: string, name = "code", jsdoc = false): ErrorSnippet {
+  // A JSDoc snippet that must fail lives beside the clean ones, in jsdoc/.
+  const source = jsdoc ? JSDOC_SOURCE : TS_SOURCE;
+  const path = jsdoc ? file : `errors/${file}`;
+  const raw = readFileSync(join(process.cwd(), ...source.dir, `${path}${source.ext}`), "utf8");
   const header = parseErrorHeader(raw, path);
-  const { code, errorLines } = stripErrorMarks(region(path, name, TS_SOURCE));
+  const { code, errorLines } = stripErrorMarks(region(path, name, source));
   if (errorLines.size === 0) throw new Error(`${path}: the region "${name}" has no line marked "// @error"`);
   return { code, errorLines, ...header };
 }

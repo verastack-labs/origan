@@ -1,0 +1,14 @@
+// Step 1 of the ladder: TypeScript may sit beside your JavaScript, and checks none of it.
+// region: config
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "strict": false,
+    "noEmit": true,
+    "target": "ES2022",
+    "module": "NodeNext"
+  },
+  "include": ["src"]
+}
+// endregion

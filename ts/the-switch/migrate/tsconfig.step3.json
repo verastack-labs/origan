@@ -1,0 +1,15 @@
+// Step 3: every value needs a type, so no quiet any.
+// region: config
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": false,
+    "noImplicitAny": true,
+    "noEmit": true,
+    "target": "ES2022",
+    "module": "NodeNext"
+  },
+  "include": ["src"]
+}
+// endregion

@@ -1,0 +1,14 @@
+// Step 5: the finish line. One switch turns on every strict check at once.
+// region: config
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "noEmit": true,
+    "target": "ES2022",
+    "module": "NodeNext"
+  },
+  "include": ["src"]
+}
+// endregion
