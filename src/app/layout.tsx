@@ -88,6 +88,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
+      // Smooth scrolling is for in-page links only. With this attribute Next
+      // switches it off while changing pages, so a new page opens at its top
+      // instantly instead of gliding there from wherever the reader was.
+      data-scroll-behavior="smooth"
       className={`${archivo.variable} ${azeret.variable} h-full antialiased`}
       // Set before first paint so the reveal styles can hide content only when
       // there is JavaScript to bring it back. Without this the hiding class
