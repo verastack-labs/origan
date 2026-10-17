@@ -63,6 +63,19 @@ export function ResourceSearch({ index, children }: { index: readonly SearchEntr
     inputRef.current?.focus();
   }, [update]);
 
+  // The band under the nav only shows its bottom rule while it is actually stuck.
+  const markerRef = useRef<HTMLDivElement>(null);
+  const [stuck, setStuck] = useState(false);
+  useEffect(() => {
+    const marker = markerRef.current;
+    if (!marker) return;
+    const io = new IntersectionObserver(([entry]) => setStuck(!entry.isIntersecting && entry.boundingClientRect.top < 64), {
+      rootMargin: "-64px 0px 0px 0px",
+    });
+    io.observe(marker);
+    return () => io.disconnect();
+  }, []);
+
   // `/` focuses the box, unless the reader is typing somewhere already.
   useEffect(() => {
     const onKey = (e: globalThis.KeyboardEvent) => {
@@ -128,7 +141,14 @@ export function ResourceSearch({ index, children }: { index: readonly SearchEntr
 
   return (
     <div>
-      <form role="search" onSubmit={(e) => e.preventDefault()} className="mt-6">
+      {/* Zero-height marker: once it scrolls under the nav, the search band is stuck and earns its rule. */}
+      <div ref={markerRef} aria-hidden="true" className="h-0" />
+      <form
+        role="search"
+        onSubmit={(e) => e.preventDefault()}
+        data-stuck={stuck || undefined}
+        className="sticky top-[63px] z-40 mt-3 border-b border-transparent bg-ground py-3 transition-[border-color] duration-200 data-[stuck]:border-line-2"
+      >
         <label htmlFor={inputId} className="sr-only">
           Search courses, languages and lessons
         </label>
