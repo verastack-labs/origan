@@ -5,6 +5,7 @@ import { ConsultantStats } from "@/components/consultant-stats";
 import { Reveal } from "@/components/reveal";
 import { Action } from "@/components/action";
 import { InterestButton } from "@/components/interest";
+import { Faq } from "@/components/faq";
 import { TalkSection } from "@/components/talk-section";
 import { StudentBand } from "@/components/student-band";
 import { section, shell } from "@/components/page-head";
@@ -69,6 +70,7 @@ export default function Home() {
         </div>
       </section>
 
+      <Faq />
       <TalkSection />
       <StudentBand />
     </>

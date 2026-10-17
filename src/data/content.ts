@@ -157,6 +157,54 @@ export const close = {
   secondary: { label: "How the partnership works", href: "/partnership/" },
 } as const;
 
+/* ---------------------------------------------------------------------- faq */
+
+/**
+ * The questions colleges and students ask. Rendered as disclosure rows on the
+ * overview and emitted as FAQPage structured data from this same list, so the
+ * visible text and the markup cannot differ. Every answer restates something
+ * the rest of the site already says; there is no public price, so the price
+ * answer says so.
+ */
+export const faq = {
+  heading: "Questions, [answered].",
+  sub: "What colleges and students ask first. Anything else, just write to Rigan.",
+  items: [
+    {
+      q: "So what is Origan, really?",
+      a: "It's a record of what each engineering student has covered, from first semester to the final drive. Students use a platform from year one, and a Campus Coach on campus keeps the record honest.",
+    },
+    {
+      q: "Is it only for computer science students?",
+      a: "No, every branch uses it. Mass recruiters screen on aptitude and hire well beyond computer science.",
+    },
+    {
+      q: "What does a Campus Coach actually do?",
+      a: "They sit with your students and listen. Five to ten conversations a campus day shape your roadmap, and your placement cell gets a report every two to four weeks.",
+    },
+    {
+      q: "Do we have to drop our training partner?",
+      a: "No, keep them. Origan runs alongside your trainers, from first year onward instead of one fortnight in the final year.",
+    },
+    {
+      q: "Will the college see my scores?",
+      a: "No. It sees groups, like a batch or a branch, never one student's results or a ranking.",
+    },
+    {
+      q: "How long do we have to commit?",
+      a: "Two years is the usual start, and one year is available. Two years is the shortest time that can show anything.",
+    },
+    {
+      q: "How much does it cost?",
+      a: "We talk about price in conversation, not on the website. Write to Rigan or register your interest, and he will set up a time.",
+    },
+    {
+      q: "Is DSA in Rust really free?",
+      a: "Yes, it's free to read, with no sign-up. It's made by VeraStack Labs and sits apart from the partnership.",
+    },
+  ],
+} as const;
+
 /* ------------------------------------------------------------------ enquiry */
 
 type Field = {
