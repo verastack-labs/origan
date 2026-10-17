@@ -187,7 +187,7 @@ Add types to `withGst`, so it accepts a number or text, and always gives back a 
     "`type Order = ChaiOrder | CoffeeOrder`, and the function takes an `Order`.",
     "The lassi call at the bottom is not in the union. It should now be underlined. Remove it.",
   ]}
-  explain="With `kind` as a literal in each type, checking `order.kind === \"chai\"` narrows the order. After the early return, TypeScript knows only a coffee order is left, so `order.strength` is allowed. The lassi call was billed as a mild coffee in JavaScript. Now it is refused."
+  explain="With `kind` as a literal in each type, checking `order.kind === 'chai'` narrows the order. After the early return, TypeScript knows only a coffee order is left, so `order.strength` is allowed. The lassi call was billed as a mild coffee in JavaScript. Now it is refused."
 >
 Describe the orders as a union and add types to `bill`. Chai costs 10. Coffee costs 20, or 30 if it is strong. The call with a lassi should be refused. Remove it.
 </Practice>
