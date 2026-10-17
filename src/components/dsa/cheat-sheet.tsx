@@ -47,7 +47,7 @@ export async function CheatRow({
         )}
       </header>
 
-      <div className="grid gap-px bg-line @[560px]:grid-cols-2">
+      <div className="grid gap-px bg-line @[760px]:grid-cols-2">
         <figure className="code-block cmp-code cmp-js m-0 min-w-0 bg-panel">
           <figcaption className="flex items-center justify-between gap-2 border-b border-line-2 px-3 py-1.5">
             <span className="notation">JavaScript</span>

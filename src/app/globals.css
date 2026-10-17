@@ -785,6 +785,21 @@ body > div:has(> div > iframe[src*="hcaptcha.com"][src*="frame=challenge"]) {
     break-inside: avoid;
   }
 
+  /* On paper the two sides sit together, and long lines wrap instead of scrolling. */
+  .cheat-row > div.grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .code-block pre {
+    overflow: visible !important;
+    white-space: pre-wrap !important;
+    word-break: break-word;
+  }
+
+  .cmp-code pre code {
+    width: auto !important;
+  }
+
   .cheat-row .cmp-code .line {
     font-size: 10.5px;
   }
