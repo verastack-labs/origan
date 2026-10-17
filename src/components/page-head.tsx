@@ -16,7 +16,16 @@ export const section = "py-[clamp(60px,8.5vw,120px)]";
  * repeating them on every route would spend the one image the site has.
  * A subpage opens with a ruled statement instead.
  */
-export function PageHead({ notation, pair }: { notation: string; pair: Pair }) {
+export function PageHead({
+  notation,
+  pair,
+  cta = true,
+}: {
+  notation: string;
+  pair: Pair;
+  /** The "Register your interest" button. The learning pages leave it off: their reader is a student. */
+  cta?: boolean;
+}) {
   return (
     <header className="border-b border-line bg-ground-2 pb-[clamp(50px,7vw,90px)] pt-[clamp(54px,8vw,110px)]">
       <div className={shell}>
@@ -24,9 +33,11 @@ export function PageHead({ notation, pair }: { notation: string; pair: Pair }) {
           {notation}
         </Reveal>
         <HeadingPair pair={pair} as="h1" size="page" className="mt-4" />
-        <Reveal className="mt-[26px]">
-          <InterestButton />
-        </Reveal>
+        {cta && (
+          <Reveal className="mt-[26px]">
+            <InterestButton />
+          </Reveal>
+        )}
       </div>
     </header>
   );

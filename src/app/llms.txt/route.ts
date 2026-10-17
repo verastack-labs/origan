@@ -1,4 +1,6 @@
+import { curriculum, lessonUrl, rustDsa } from "@/data/rust-dsa";
 import { site } from "@/data/site";
+import { getLessons } from "@/lib/lessons";
 
 /**
  * A plain-text brief for language models and answer engines.
@@ -9,6 +11,15 @@ import { site } from "@/data/site";
  * a model has no room to invent a customer, a price or a result.
  */
 export const dynamic = "force-static";
+
+const lessons = getLessons();
+const lessonLines = lessons
+  .map((lesson) => `- ${lessonUrl(lesson.slug)}: ${lesson.title}. ${lesson.sub}`)
+  .join("\n");
+const comingNext = curriculum
+  .filter((entry) => !lessons.some((lesson) => lesson.slug === entry.slug))
+  .map((entry) => entry.title)
+  .join("; ");
 
 const body = `# ${site.name}
 
@@ -27,6 +38,18 @@ ${site.name} is built by ${site.studio} in ${site.location}.
   the length of the partnership.
 - ${site.url}/partnership/: how the partnership is structured, the two
   engagement modes, the term, and what is delivered when.
+- ${site.url}/resources/: free study material for students, made by
+  ${site.studio}. It is separate from the partnership and needs no sign-up.
+
+## ${rustDsa.name}
+
+${rustDsa.description} It is free, open to anyone, and made by ${site.studio}
+(${site.labsUrl}).
+
+- ${site.url}${rustDsa.path}: the course index, listing all ${curriculum.length} lessons planned for Part 1.
+${lessonLines}
+
+Coming next, not yet published: ${comingNext}.
 
 ## What it is
 

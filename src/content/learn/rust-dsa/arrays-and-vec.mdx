@@ -1,0 +1,160 @@
+---
+title: Arrays and Vec in Rust
+sub: Slices, bounds checks, and capacity versus length.
+description: Learn arrays and Vec in Rust. Build a fixed-size list from an array, then use Vec, slices and bounds checks, with a cost table and three practice problems.
+order: 1
+part: 1
+updated: 2026-10-17
+slug: arrays-and-vec
+---
+
+<Part id="what" heading="A row of [slots]" sub="The structure almost everything else sits on." />
+
+An **array** is a row of values of the same type, stored side by side in memory. Because the slots are the same size and touch each other, the computer can jump straight to slot number *i* without looking at the ones before it. That is why reading by position is quick.
+
+Reach for an array-like structure when you need fast access by position, or when you just have a list of things and no special reason to pick anything fancier. Most of the time, in Rust, that means `Vec`.
+
+Rust gives you three related types, and it helps to separate them now:
+
+- **An array**, written `[i32; 5]`, holds exactly five `i32` values. The length is part of its type and is fixed when the program is compiled.
+- **A `Vec<i32>`** (say "vec", short for vector) is a growable list. It can add and remove items while the program runs.
+- **A slice**, written `&[i32]`, is a borrowed view of a run of items. It can look at part of an array or part of a `Vec` without copying anything.
+
+<Part id="idea" heading="Length is not [capacity]" sub="How many slots are used, and how many fit." />
+
+<ArrayDiagram />
+
+Two numbers describe a growable list. The **length** is how many slots hold a value. The **capacity** is how many slots have been set aside. In the picture, five slots are used out of eight, so the length is 5 and the capacity is 8.
+
+Reading slot *i* takes one step: the computer takes the address where the row starts and adds *i* times the size of one slot. Adding to the end, when there's room, is one step too: write into slot `len`, then add one to `len`.
+
+Putting something in the middle is different. To insert at slot 1, everything from slot 1 onwards has to shuffle one place to the right to make a gap. The longer the list, the more shuffling. Removing from the middle shuffles the other way.
+
+What happens when the row is full? A `Vec` asks for a bigger block of memory (usually about double), copies everything across, and gives the old block back. That copy is slow, but it happens rarely, so the average cost of a `push` stays tiny. Computer scientists call this **amortised** O(1): occasionally expensive, cheap when you average it over many pushes.
+
+<Part id="build" heading="Build a [fixed] array" sub="Eight slots, a length, and no surprises." />
+
+Before using `Vec`, build the idea yourself. This list sits on an array of exactly eight slots, and a field called `len` says how many are in use.
+
+<Snippet file="lesson1_vec" name="fixed-array" />
+
+Go through it in order.
+
+- `data: [i32; 8]` is the array, and `len: usize` is the count of used slots. A `usize` is the number type Rust uses for sizes and positions. It can't be negative.
+- `FixedArray { data: [0; 8], len: 0 }` fills all eight slots with `0` and says none of them are used yet. The `0`s are just placeholders. The list only believes the first `len` slots.
+- `push` writes into slot `len` and then adds one to `len`. If the array is already full it refuses, and hands the value back inside `Err`. That `Result<(), i32>` type means "either `Ok` with nothing, or `Err` with an `i32`". Making the caller deal with that is better than silently losing the number.
+- `get` returns an `Option<i32>`. Asking for a slot at or past `len` gives `None` instead of crashing, even though the array physically has a slot there. That slot is not part of the list yet.
+
+<Note title="Borrowing, in one minute">
+Look at the first parameter of each method. `&self` means "borrow the list to look at it". `&mut self` means "borrow the list so you can change it". The rule Rust checks for you is that at any moment there is either any number of readers or exactly one writer, never both. That's what stops one part of a program from changing a list while another part is in the middle of reading it. The caller keeps ownership the whole time; the method only borrows.
+</Note>
+
+Now the two moves that cost something. This is a second `impl` block for the same type, and Rust lets you split a type's methods this way.
+
+<Snippet file="lesson1_vec" name="fixed-array-shift" also="fixed-array" demo="fixed-array-demo" />
+
+`insert` starts at the end and copies each item one slot to the right, working backwards until it reaches the gap, then writes the new value in. It goes backwards so it doesn't overwrite an item before copying it. `remove` does the reverse, copying each later item one slot to the left. In both, the number of items copied can be as large as `len`. That is where the O(n) in the cost table comes from.
+
+Try the whole thing in the Playground. The first block above has a `main` ready.
+
+<Part id="std" heading="Use [Vec] instead" sub="Someone already built the grown-up version." />
+
+`Vec` is the same idea with the limits removed. It grows when it is full, it can hold any type, and it is heavily tested. In real code, you reach for it first.
+
+<Snippet file="lesson1_vec" name="vec-basics" />
+
+Notice the difference between `v[0]` and `v.get(7)`. Indexing with square brackets is *bounds checked*: Rust compares the index to the length every time, and if the index is out of range the program **panics**, which means it stops with an error message. It never reads memory that doesn't belong to the list. `get` does the same check but gives you an `Option` instead, so you decide what happens. Use `v[i]` when an out-of-range index would be a bug in your program, and `get` when the input might really be out of range.
+
+The capacity is something you can see and set:
+
+<Snippet file="lesson1_vec" name="vec-capacity" />
+
+`Vec::with_capacity(4)` reserves room for at least four items without storing any, so the length is 0 and the capacity is 4 or more. The next four pushes never need to grow the block. If you know roughly how many items are coming, this saves repeated copying.
+
+A **slice** looks at part of a list without copying it:
+
+<Snippet file="lesson1_vec" name="slices" />
+
+`&v[1..4]` means "items from position 1 up to, but not including, position 4". A function that takes `&[i32]` accepts a slice, a whole `Vec` (as `&v`) or a whole array, so it's the best type for a parameter that only reads.
+
+Last, the part of Rust that catches people out first:
+
+<Snippet file="lesson1_vec" name="borrow-rules" />
+
+Remove the `//` from the first `push` and the code stops compiling. `first` is a borrow of `scores`: it points inside the `Vec`'s block of memory. `push` might need to grow the `Vec`, which moves everything to a new block, and then `first` would point at memory that has been given back. In many languages that is a crash or a silent wrong answer. Rust refuses to compile it. The code as written is fine, because `first` is not used after the second `push`, so its borrow has already ended by then.
+
+<Part id="cost" heading="What each move [costs]" sub="n is the number of items in the list." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `v[i]`, `v.get(i)` | O(1) | Jump straight to the slot |
+| `v.push(x)` | O(1) amortised | Usually a single write; now and then a resize |
+| `v.pop()` | O(1) | Takes the last slot |
+| `v.insert(i, x)` | O(n) | Shifts every item after position `i` |
+| `v.remove(i)` | O(n) | Shifts every item after position `i` |
+| `v.contains(&x)` | O(n) | May look at every slot |
+| Space used | O(n) | One slot per item, plus any spare capacity |
+
+The pattern to remember: anything that works at the *end* of a `Vec` is cheap, and anything that works at the *front or middle* has to shuffle. If you find yourself inserting at the front over and over, a different structure (a queue, in lesson 5) will suit you better.
+
+<Part id="practise" heading="Three problems, [one] list" sub="Reverse it, clean it, rotate it." />
+
+All three change the list *in place*, meaning they reuse the memory they were given instead of building a new list. That is why the parameters are `&mut`: the caller lends the list for changing, and gets it back changed.
+
+<Practice
+  number={1}
+  title="Reverse in place"
+  file="lesson1_vec"
+  start="reverse-in-place-start"
+  solution="reverse-in-place"
+  hints={[
+    "Swap the first and the last items. Then swap the second and the second to last. Where does this stop?",
+    "Keep two indexes, `left` starting at 0 and `right` starting at the last position, and move them towards each other.",
+    "`nums.swap(a, b)` swaps two items. Stop once `left >= right`. Check the empty slice first, because `nums.len() - 1` would underflow on a `usize`.",
+  ]}
+  explain="Two indexes walk inwards from the ends and swap as they go. Each item is touched once, so it is O(n) time, and it needs only two extra variables, so O(1) extra space. The empty check matters: subtracting 1 from an unsigned 0 panics in a debug build. The parameter is `&mut [i32]`, a mutable borrow, so the caller keeps the data and sees it reversed."
+>
+Write `reverse_in_place`, which reverses the numbers in a slice without making a new list. `[1, 2, 3, 4]` becomes `[4, 3, 2, 1]`. It must also cope with an empty slice and a slice of one item.
+</Practice>
+
+<Practice
+  number={2}
+  title="Remove duplicates from a sorted list"
+  file="lesson1_vec"
+  start="remove-duplicates-start"
+  solution="remove-duplicates"
+  hints={[
+    "The list is sorted, so equal values sit next to each other. You only need to compare an item with its neighbour.",
+    "Use two indexes. `read` visits every item. `write` marks the next slot to fill with a value you are keeping.",
+    "Copy `nums[read]` into `nums[write]` only when it differs from `nums[write - 1]`, then add one to `write`. When the loop ends, call `nums.truncate(write)` to cut off the leftover tail.",
+  ]}
+  explain="The first item is always kept, so `write` starts at 1. After that, an item is kept only if it differs from the last one kept. `truncate` shortens the `Vec` to the first `write` items. It is one pass, so O(n) time, and it reuses the list, so O(1) extra space. The parameter is `&mut Vec<i32>` rather than a slice because the length changes, and a slice cannot change its length."
+>
+Write `remove_duplicates`, which takes a sorted `Vec` and removes repeats so each value appears once, keeping the order. `[1, 1, 2, 3, 3]` becomes `[1, 2, 3]`. Do it in one pass without building a second `Vec`.
+</Practice>
+
+<Practice
+  number={3}
+  title="Rotate to the right"
+  file="lesson1_vec"
+  start="rotate-right-start"
+  solution="rotate-right"
+  hints={[
+    "Rotating by the length of the list changes nothing, so first reduce `k` with `k % n`. That also handles a `k` bigger than the list.",
+    "Take `[1, 2, 3, 4, 5]` with `k = 2`, and reverse the whole list on paper. Look at where the first two items of the answer ended up.",
+    "Reverse everything, then reverse the first `k` items, then reverse the rest. `nums[..k].reverse()` reverses just a part of a slice.",
+  ]}
+  explain="Reversing the whole list puts the last `k` items at the front but backwards, and puts the rest at the back, also backwards. Reversing each part separately turns both back the right way round. That is three passes, O(n) time, with no extra space. The `n == 0` check avoids dividing by zero in `k % n`."
+>
+Write `rotate_right`, which moves the last `k` numbers to the front, keeping their order. `[1, 2, 3, 4, 5]` with `k = 2` becomes `[4, 5, 1, 2, 3]`. `k` can be larger than the list, and the list can be empty.
+</Practice>
+
+<Part id="interview" heading="How arrays [show up]" sub="In plain words, with no promises." />
+
+Array and list problems are a common place to start in coding tests and interviews, because they show whether you can handle indexes carefully. A few things are worth building as habits.
+
+- **Know the patterns.** Two indexes moving towards each other (problem 1) and a read index with a write index (problem 2) turn up again and again. Seeing them in a new problem is most of the work.
+- **Check the edges before you start.** Ask what happens for an empty list, a list of one item, and a list where every item is the same. Many wrong answers fail on exactly these.
+- **Ask what you are allowed to change.** Can you change the input, or must you leave it alone? Is it sorted? Can numbers repeat? These questions are normal in an interview, and they change the best answer.
+- **Say the cost.** After you write a solution, say its time and extra space out loud, such as "one pass, so O(n) time, and O(1) extra space". It shows you know what your code does.
+- **In Rust, say what is borrowed.** Explaining that a function takes `&mut [i32]` because it changes the list but doesn't own it shows you understand the design, not just the syntax.

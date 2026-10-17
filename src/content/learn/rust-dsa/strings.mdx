@@ -1,0 +1,164 @@
+---
+title: Strings in Rust
+sub: String, &str, UTF-8, and why you can't index by number.
+description: Learn strings in Rust. Understand String and &str, UTF-8 bytes versus characters, and why indexing a string by number fails, with a cost table and three practice problems.
+order: 2
+part: 1
+updated: 2026-10-17
+slug: strings
+---
+
+<Part id="what" heading="Text is [bytes]" sub="And Rust is honest about it." />
+
+A **string** is text. Inside the computer, text is stored as a row of bytes, and a rule called an **encoding** says which bytes mean which letters. Rust uses **UTF-8**, the encoding most of the world's software uses. In UTF-8, each English letter takes one byte, but many other characters take more. The letter `é` takes two bytes, and a letter from Hindi such as `अ` takes three.
+
+That one fact explains most of what is unusual about strings in Rust. Reach for a string whenever your data is text: names, words, lines of input, patterns to search for.
+
+Rust has two main string types:
+
+- **`String`** owns its text. It lives in memory it controls, it can grow, and it is cleaned up automatically when it goes out of use.
+- **`&str`** (say "string slice") is a borrowed view of text that lives somewhere else. It can't grow, and it doesn't own anything.
+
+A piece of text written directly in the code, like `"hello"`, is a `&str`. A rule of thumb that works well: **take `&str` as a parameter, return `String` when you build new text.**
+
+<Part id="idea" heading="Bytes are not [characters]" sub="One character can take several bytes." />
+
+<BytesDiagram />
+
+The word `héllo` has five characters but six bytes. The top row of the picture is what a reader sees. The bottom row is what is stored, with each byte numbered from zero and shown in hexadecimal (base 16, which is how bytes are usually written).
+
+This is why `word.len()` says 6: `len` counts **bytes**. To count characters you have to walk the text and count as you go, which is what `word.chars().count()` does.
+
+It also explains why Rust won't let you write `word[1]`. What should that mean: byte 1, or the second character? Here, byte 1 is half of `é`, which is not a character at all. Whichever answer Rust picked would either hide a slow walk or hand you a broken piece of a character, so it picks neither and gives a compile error. You have to say what you mean: `word.chars().nth(1)` for the second character, or a slice like `&word[0..1]` for a range of bytes.
+
+Slicing by bytes is allowed, but the cut points must fall on the edge between two characters. The dashed line in the picture marks a cut at byte 2, which lands in the middle of `é`. A slice that ends there panics.
+
+<Part id="build" heading="Three small [functions]" sub="Borrow some text, or build new text." />
+
+First, a function that returns part of its input.
+
+<Snippet file="lesson2_strings" name="first-word" />
+
+`text.find(' ')` searches for the first space and gives back an `Option<usize>`: `Some(position)` if it found one, `None` if not. A space is a single byte, so its position is always a clean cut point, and `&text[..end]` is safe.
+
+The result is a `&str` that points *into* `text`. Nothing is copied. Because it points into the input, Rust treats it as borrowed from the input, and it can't outlive it. Rust works this out for you in a simple case like this one, which is called *lifetime elision*: one input reference and one output reference means the output is tied to the input.
+
+Second, a function that builds new text.
+
+<Snippet file="lesson2_strings" name="shout" />
+
+`String::new()` makes an empty `String`. It has to be `mut` (changeable) because we push onto it. `out.push(c)` adds one character and `push_str` adds a whole piece of text. The function returns `out`, so ownership of the new `String` moves to the caller, who can keep it for as long as they like.
+
+Third, one that counts.
+
+<Snippet file="lesson2_strings" name="count-vowels" />
+
+`text.chars()` walks the characters one at a time. `.filter(...)` keeps the ones where the closure says true. A **closure** is a small unnamed function written between pipes: `|c| ...` takes `c` and returns a value. `matches!` checks a value against several patterns. `.count()` then counts what is left.
+
+<Note title="Ownership, with strings">
+A `String` owns its memory. When it goes out of use, the memory is released, with no `free` call from you. Passing it to a function by value *moves* it: the function becomes the owner, and the caller can no longer use it. Passing `&sentence` only *lends* it, which is why the demo above can call `first_word(&sentence)` and then still use `sentence`. Rust also quietly converts a `&String` into a `&str` when a function expects one, which is why a function that takes `&str` works with both kinds of text.
+</Note>
+
+<Part id="std" heading="What Rust already [gives]" sub="Compare, search, split and walk." />
+
+Everything above was to show how it works. In real code, use what the standard library has. Here are the two types side by side.
+
+<Snippet file="lesson2_strings" name="string-vs-str" />
+
+`to_string()` makes a new owned `String` from borrowed text, by copying it. `push_str` can then grow it. Notice that `literal` is still fine afterwards, since the copy was independent.
+
+And here is the length and indexing story from earlier, in code.
+
+<Snippet file="lesson2_strings" name="utf8" />
+
+When you do need to know *where* each character is, `char_indices` pairs every character with the byte position where it starts:
+
+<Snippet file="lesson2_strings" name="char-indices" />
+
+Notice the `l` after `é` starts at byte 3, not 2, because `é` took bytes 1 and 2.
+
+A few more methods you will use all the time, all on `&str`:
+
+- `len()` and `is_empty()` give the size in bytes and whether it is zero.
+- `chars()` and `bytes()` walk the text by character or by byte.
+- `contains("ab")`, `starts_with("ab")` and `find("ab")` search.
+- `split_whitespace()` splits into words, and `trim()` removes spaces at both ends.
+- `to_lowercase()` and `to_uppercase()` return a new `String`.
+- `parse::<i32>()` turns text such as `"42"` into a number, and tells you if it can't.
+
+<Part id="cost" heading="What each move [costs]" sub="n is the number of bytes in the text." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `s.len()` | O(1) | The byte count is stored |
+| `s.chars().count()` | O(n) | Has to walk every byte |
+| `s.chars().nth(i)` | O(i) | No jumping: it walks from the start |
+| `&s[a..b]` | O(1) | A view, not a copy. Rust only checks both cuts are on character edges |
+| `s.push_str(t)` | O(length of t) amortised | Copies `t` onto the end, and sometimes resizes |
+| `s.contains(t)`, `s.find(t)` | O(n) at least | Scans the text for the pattern |
+| `a == b` | O(n) | Compares byte by byte |
+| Space used | O(n) | One byte per byte of text, plus any spare capacity |
+
+The row to remember is `chars().nth(i)`. On an array, reading item *i* is instant. On text, reading character *i* costs *i* steps, because characters have different widths and the only way to find the *i*th is to count. If an algorithm needs to jump around by position, it is common to collect the characters into a `Vec<char>` first, which then costs O(n) space but allows O(1) reads. Problem 1 does exactly that.
+
+<Part id="practise" heading="Three problems, [one] idea" sub="Count the letters, then compare." />
+
+Problems 2 and 3 use a trick worth learning: when the text is only the letters `a` to `z`, an array of 26 counters is a perfect and cheap tally. Its size never changes with the input, so it counts as O(1) space.
+
+<Practice
+  number={1}
+  title="Is it a palindrome?"
+  file="lesson2_strings"
+  start="is-palindrome-start"
+  solution="is-palindrome"
+  hints={[
+    "A palindrome reads the same forwards and backwards. First decide what to ignore: here, case, spaces and punctuation.",
+    "`text.chars()` walks the characters. `c.is_alphanumeric()` is true for letters and digits. `c.to_lowercase()` gives the lowercase form, which can be more than one character for some letters, so use `flat_map` to flatten the results. Collect everything into a `Vec<char>`.",
+    "Now you have a list you can index. Use two indexes from the two ends, as in the reverse problem from lesson 1, and return `false` as soon as a pair differs.",
+  ]}
+  explain="Cleaning produces a `Vec<char>` because you can't index a `String` by number, but you can index a `Vec`. Two indexes then walk inwards comparing pairs. That is O(n) time, and O(n) extra space for the cleaned copy. An empty cleaned text counts as a palindrome, which also guards the `len() - 1` that would underflow."
+>
+Write `is_palindrome`, which returns `true` if the text reads the same both ways, ignoring case and anything that is not a letter or a digit. `"A man, a plan, a canal: Panama"` is a palindrome. `"rust"` is not. Empty text counts as a palindrome.
+</Practice>
+
+<Practice
+  number={2}
+  title="Are they anagrams?"
+  file="lesson2_strings"
+  start="is-anagram-start"
+  solution="is-anagram"
+  hints={[
+    "Two words are anagrams if they use exactly the same letters, the same number of times. If their lengths differ, you can stop straight away.",
+    "Make an array of 26 counters, one per letter. Count up for each letter of the first word and down for each letter of the second.",
+    "`(byte - b'a') as usize` turns a lowercase letter into a number from 0 to 25, because `b'a'` is the byte value of the letter a. If every counter ends at zero, the words are anagrams.",
+  ]}
+  explain="Counting up for one word and down for the other means that matching letters cancel out. If anything is left over, the words differ. The loop uses `bytes()`, which is correct here because the problem promises only `a` to `z`, and each of those is one byte. It is O(n) time and O(1) space, since the array is always 26 long."
+>
+Write `is_anagram`, which returns `true` if the two words use the same letters the same number of times. Both inputs contain only lowercase letters `a` to `z`. `"listen"` and `"silent"` are anagrams. `"rat"` and `"car"` are not.
+</Practice>
+
+<Practice
+  number={3}
+  title="First letter that appears once"
+  file="lesson2_strings"
+  start="first-unique-char-start"
+  solution="first-unique-char"
+  hints={[
+    "You can't tell if a letter is unique until you've seen the whole text, so one pass won't do. Count first, then look again.",
+    "Reuse the 26 counters from the anagram problem: one pass to count every letter.",
+    "In a second pass, `text.bytes().position(|b| ...)` returns the index of the first item where your closure says true, as an `Option<usize>`. Look for the first letter whose count is 1.",
+  ]}
+  explain="Two passes: one to count, one to find. `position` stops at the first match and returns its index, or `None` if nothing matches. The index is a byte position, which is the same as a character position here because the text is only `a` to `z`. For general text you would use `char_indices` instead. It is O(n) time and O(1) space."
+>
+Write `first_unique_char`, which returns the position of the first letter that appears exactly once, or `None` if there isn't one. The text contains only lowercase letters `a` to `z`. For `"loveleetcode"` the answer is `Some(2)`, because `v` is the first letter that appears once.
+</Practice>
+
+<Part id="interview" heading="Strings in the [interview]" sub="What to ask, and what to say." />
+
+String problems turn up often in coding tests and interviews, partly because they look easy and have a lot of edge cases. A few habits help.
+
+- **Ask about the alphabet.** Is the text only lowercase `a` to `z`? Is it ASCII? Could it hold any Unicode? The answer decides whether a 26-slot array is enough, and whether you can treat one byte as one character.
+- **Ask what to ignore.** Should case matter? Should spaces and punctuation count? Palindrome questions especially vary here.
+- **Count with an array when you can.** A fixed array of counters is simple and quick. For a bigger alphabet you would use a hash map, which comes in lesson 6.
+- **In Rust, say whether you are working with bytes or characters.** Explaining that you used `bytes()` because the input is ASCII, or `chars()` because it might not be, shows you understand why Rust won't let you index a string by number.
+- **Say the cost.** "Two passes over the text, so O(n) time, and a fixed array, so O(1) space" is a complete and honest answer.

@@ -34,3 +34,16 @@ jobs:
         env:
           NEXT_PUBLIC_BASE_PATH: ""
         run: pnpm build
+
+  # Every Rust snippet on the DSA in Rust pages is a real file in this crate,
+  # and the pages are built from it. If a snippet stops compiling or a test
+  # fails, the lesson that shows it is wrong, so this fails the pull request.
+  rust:
+    name: Rust snippets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - name: cargo test
+        working-directory: rust/rust-dsa
+        run: cargo test

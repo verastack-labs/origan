@@ -440,3 +440,38 @@ body > div:has(> div > iframe[src*="hcaptcha.com"][src*="frame=challenge"]) {
     opacity: 1;
   }
 }
+
+/*
+ * Rust and shell highlighting. The code is coloured at build time by shiki's
+ * css-variables theme, which writes `var(--shiki-…)` into the markup instead of
+ * a hex value. Pointing those variables at the site's tokens is what makes a
+ * code block follow the dark and light palettes, and why no highlighter or
+ * theme ships to the browser.
+ */
+:root {
+  --shiki-foreground: var(--color-fg);
+  --shiki-background: transparent;
+  --shiki-token-constant: var(--color-fg);
+  --shiki-token-string: var(--color-warn);
+  --shiki-token-string-expression: var(--color-warn);
+  --shiki-token-comment: var(--color-fg-3);
+  --shiki-token-keyword: var(--color-survey);
+  --shiki-token-parameter: var(--color-fg-2);
+  --shiki-token-function: var(--color-fg);
+  --shiki-token-punctuation: var(--color-fg-2);
+  --shiki-token-link: var(--color-survey);
+}
+
+.code-block pre {
+  margin: 0;
+  overflow-x: auto;
+  padding: 16px 18px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.65;
+  tab-size: 4;
+}
+
+.code-block code {
+  font-family: inherit;
+}

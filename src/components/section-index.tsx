@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
-import { sectionsByPath, sheets } from "@/data/site";
+import { sectionsByPath, sheetFor, sheets } from "@/data/site";
 
 const pill =
   "pointer-events-auto flex items-center gap-0.5 rounded-panel border border-line bg-ground p-1 md:bg-ground/90 md:backdrop-blur-[10px]";
@@ -147,7 +147,7 @@ function Register({ here, sections }: { here: string; sections: readonly { href:
   const button = useRef<HTMLButtonElement>(null);
   const index = Math.max(
     0,
-    sheets.findIndex((sheet) => sheet.href === here),
+    sheets.findIndex((sheet) => sheet.href === sheetFor(here)?.href),
   );
   const current = sheets[index];
 
