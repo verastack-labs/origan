@@ -42,4 +42,17 @@ function greet(name: string): string {
 greet("Asha"); // "Hello, Asha"
 // endregion
 
-export { demoRuntime, double, area, greet };
+function demoStrip() {
+  // region: strip-demo
+  type Order = { item: string; price: number };
+
+  function total(order: Order, quantity: number): number {
+    return order.price * quantity;
+  }
+
+  const chai: Order = { item: "chai", price: 15 };
+  console.log(total(chai, 2));
+  // endregion
+}
+
+export { demoRuntime, demoStrip, double, area, greet };

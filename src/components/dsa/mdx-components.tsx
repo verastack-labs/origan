@@ -27,6 +27,7 @@ import { PrintButton } from "./print-button";
 import { Practice } from "./practice";
 import { Snippet } from "./snippet";
 import { Compare, Fails } from "./ts-code";
+import { TypeStrip } from "./type-strip";
 
 /** A short aside: an idea that earns a box of its own, such as ownership. */
 function Note({ title, children }: { title: string; children: ReactNode }) {
@@ -143,7 +144,7 @@ const shared: MDXComponents = {
 };
 
 /** Diagrams and interactive blocks that only The Switch's lessons use. */
-const switchOnly: MDXComponents = { ...tsDiagrams };
+const switchOnly: MDXComponents = { ...tsDiagrams, TypeStrip };
 
 /**
  * The components for one course. Part, Snippet and Practice are bound to it

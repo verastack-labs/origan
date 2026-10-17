@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { area, demoRuntime, double, greet } from "./lesson0-why";
+import { area, demoRuntime, demoStrip, double, greet } from "./lesson0-why";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -8,6 +8,14 @@ describe("lesson 0: the runtime demo", () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     expect(() => demoRuntime()).toThrow(TypeError);
     expect(() => demoRuntime()).toThrow(/toUpperCase/);
+  });
+});
+
+describe("lesson 0: the type strip demo", () => {
+  it("prints the total of two cups of chai", () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    demoStrip();
+    expect(log.mock.calls).toEqual([[30]]);
   });
 });
 

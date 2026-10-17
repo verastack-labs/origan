@@ -141,6 +141,10 @@ Look at the "Checks types?" column. When you run `node hello.ts`, Node does not 
 TypeError: message.toUpperCase is not a function
 ```
 
+Here is the stripping itself, on `hello.ts`. Press the switch to see what Node leaves behind. Nothing in what is left was checked.
+
+<TypeStrip file="lesson1-setup" name="hello" />
+
 That is why most projects do both: `tsc --noEmit` to check, then something else to run. Many teams run the check in their editor all day and again before they publish code.
 
 If you want to skip the setup entirely, the Playground does both jobs in your browser. Open any block in this guide with the **Open in TypeScript Playground** button, and you will see your red lines as you type.

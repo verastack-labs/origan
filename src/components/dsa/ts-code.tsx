@@ -13,7 +13,7 @@ import { CopyButton } from "./copy-button";
  * and the TypeScript; `error` is a line TypeScript refuses. The marks are
  * classes on the line, and `globals.css` tints them with tokens.
  */
-const theme = createCssVariablesTheme({
+export const theme = createCssVariablesTheme({
   name: "origan",
   variablePrefix: "--shiki-",
   variableDefaults: {},
