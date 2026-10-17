@@ -3,6 +3,7 @@ import * as content from "./content";
 import { analyticsPage } from "./analytics";
 import { coachPage } from "./coach";
 import { featuresPage } from "./features";
+import { resourcesPage } from "./resources";
 
 /**
  * The heading rule from origan-internal/docs/copy-deck.md: a heading is one
@@ -30,6 +31,7 @@ for (const [name, value] of Object.entries(content)) collect(value, name, found)
 collect(analyticsPage, "analyticsPage", found);
 collect(coachPage, "coachPage", found);
 collect(featuresPage, "featuresPage", found);
+collect(resourcesPage, "resourcesPage", found);
 
 const plain = (s: string) => s.replace(/\[([^\]]+)\]/g, "$1");
 
@@ -65,7 +67,7 @@ describe("headings", () => {
   });
 
   it("never uses an em-dash", () => {
-    const text = JSON.stringify([content, analyticsPage, coachPage, featuresPage]);
+    const text = JSON.stringify([content, analyticsPage, coachPage, featuresPage, resourcesPage]);
     expect(text).not.toContain("—");
   });
 });

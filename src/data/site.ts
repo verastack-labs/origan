@@ -9,6 +9,8 @@ export const site = {
   url: "https://origan.verastack.dev",
   studio: "VeraStack Labs",
   studioUrl: "https://verastack-labs.github.io",
+  // The studio's own site, which the learning pages credit.
+  labsUrl: "https://verastack.dev",
   location: "Indiranagar, Bangalore",
   founder: "Rigan Burnwal",
   phone: "+91 93806 54730",
@@ -65,6 +67,7 @@ export const sheets = [
   { href: "/analytics/", label: "Analytics" },
   { href: "/coach/", label: "Campus Coach" },
   { href: "/partnership/", label: "The partnership" },
+  { href: "/resources/", label: "Resources" },
 ] as const;
 
 /** The sheets other than the overview, which the sitemap adds separately. */
@@ -110,6 +113,20 @@ export const coachSections = [
   { href: "#continuity", label: "Continuity" },
 ] as const;
 
+export const resourcesSections = [{ href: "#study", label: "Study material" }] as const;
+
+/**
+ * The sheet a path belongs to. The learning pages live under `/learn/` and
+ * hang off the Resources sheet, so the nav, the register and the title block
+ * all treat them as part of it rather than as a sheet nobody listed.
+ */
+export function sheetFor(path: string) {
+  const here = path.endsWith("/") ? path : `${path}/`;
+  const exact = sheets.find((sheet) => sheet.href === here);
+  if (exact) return exact;
+  return here.startsWith("/learn/") ? sheets.find((sheet) => sheet.href === "/resources/") : undefined;
+}
+
 /**
  * Which anchors belong to which sheet. The layout owns the section index, so
  * it needs to resolve this from the route rather than have every page pass it
@@ -122,4 +139,5 @@ export const sectionsByPath: Record<string, readonly { href: string; label: stri
   "/features/": featureSections,
   "/analytics/": analyticsSections,
   "/coach/": coachSections,
+  "/resources/": resourcesSections,
 };

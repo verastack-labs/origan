@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { sheets, site } from "@/data/site";
+import { sheetFor, sheets, site } from "@/data/site";
+import { rustDsa } from "@/data/rust-dsa";
 import { studentReferral } from "@/data/content";
 import { BenchmarkMark } from "./benchmark-mark";
 import { InterestButton, ReferralButton } from "./interest";
@@ -24,7 +25,7 @@ import { TitleBlock } from "./title-block";
 export function SiteFooter() {
   const pathname = usePathname();
   const here = pathname.endsWith("/") ? pathname : `${pathname}/`;
-  const sheet = sheets.find((s) => s.href === here);
+  const sheet = sheetFor(here);
 
   return (
     <footer className="border-t border-line bg-ground">
@@ -44,6 +45,15 @@ export function SiteFooter() {
             </div>
             <div className="mt-5">
               <ReferralButton tone="link">{studentReferral.footerLink}</ReferralButton>
+            </div>
+            {/* Free study material, linked here rather than from the header. */}
+            <div className="mt-3">
+              <Link
+                href={rustDsa.path}
+                className="text-[13.5px] text-fg-2 underline decoration-line decoration-1 underline-offset-4 transition-colors hover:text-survey hover:decoration-survey-2"
+              >
+                {rustDsa.name}
+              </Link>
             </div>
           </div>
 

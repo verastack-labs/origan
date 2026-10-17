@@ -1,0 +1,8 @@
+[package]
+name = "rust-dsa"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Every Rust snippet shown on the DSA in Rust pages, compiled and tested."
+
+[dependencies]

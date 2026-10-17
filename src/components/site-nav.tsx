@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { chainageFromProgress } from "@/lib/chainage";
-import { pages, site } from "@/data/site";
+import { pages, sheetFor, site } from "@/data/site";
 import { BenchmarkMark } from "./benchmark-mark";
 import { ThemeToggle } from "./theme-toggle";
 import { InterestButton } from "./interest";
@@ -80,9 +80,9 @@ export function SiteNav() {
         </div>
 
         {/* The overview is the wordmark's job, so five labels fit rather than six. */}
-        <div className="hidden items-center justify-center gap-[clamp(16px,1.8vw,26px)] lg:flex">
+        <div className="hidden items-center justify-center gap-[clamp(14px,1.45vw,22px)] lg:flex">
           {pages.map((sheet) => {
-            const current = here === sheet.href;
+            const current = sheetFor(here)?.href === sheet.href;
 
             return (
               <Link
@@ -105,8 +105,10 @@ export function SiteNav() {
           <ThemeToggle />
 
           <InterestButton tone="nav">
-            <span className="sm:hidden">Register</span>
-            <span className="hidden sm:inline">Register your interest</span>
+            {/* Six pages leave the header less room than five did, so the
+                short label holds until there is plenty. */}
+            <span className="xl:hidden">Register</span>
+            <span className="hidden whitespace-nowrap xl:inline">Register your interest</span>
           </InterestButton>
         </div>
       </div>
