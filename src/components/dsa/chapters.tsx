@@ -399,7 +399,7 @@ export function ChaptersLayout({
       <div className={contentClass}>
         <div className="chapters-layout">
           <aside className="chapters-aside hidden lg:block">
-            <div className="sticky top-[63px] flex h-[calc(100dvh-63px)] flex-col border-r border-line-2">
+            <div className="sticky top-[63px] flex h-[calc(100svh-63px)] flex-col border-r border-line-2">
               <div className="flex items-start justify-between gap-2 px-[11px] pb-4 pt-5">
                 <div className="chapters-fade min-w-0 flex-1 overflow-hidden pl-1">
                   <CourseTitle course={course} />
