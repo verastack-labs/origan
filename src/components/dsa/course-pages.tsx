@@ -11,7 +11,7 @@ import { ReadMark, ReadTick } from "@/components/dsa/read-tick";
 import { coursePath, courseUrl, navOf, type Course } from "@/data/courses";
 import { partOf } from "@/data/rust-dsa";
 import { site } from "@/data/site";
-import { courseJsonLd, jsonLdScript, lessonJsonLd } from "@/lib/course-jsonld";
+import { breadcrumbJsonLd, courseJsonLd, jsonLdScript, lessonJsonLd } from "@/lib/course-jsonld";
 import { getLesson, getLessons } from "@/lib/lessons";
 import { compileLesson } from "@/lib/mdx";
 
@@ -89,7 +89,7 @@ export function CourseIndex({ course }: { course: Course }) {
       <script
         type="application/ld+json"
         // A literal we build, with `<` escaped; never user input.
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(courseJsonLd(course, lessons)) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript([courseJsonLd(course, lessons), breadcrumbJsonLd(course)]) }}
       />
 
       <PageHead
@@ -226,7 +226,7 @@ export async function LessonView({ course, slug }: { course: Course; slug: strin
       <script
         type="application/ld+json"
         // A literal we build, with `<` escaped; never user input.
-        dangerouslySetInnerHTML={{ __html: jsonLdScript(lessonJsonLd(course, lesson)) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript([lessonJsonLd(course, lesson), breadcrumbJsonLd(course, lesson)]) }}
       />
 
       <ChaptersLayout
