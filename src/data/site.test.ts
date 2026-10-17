@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pages, sectionsByPath, sheets } from "./site";
+import { pages, sectionsByPath, sheets, site } from "./site";
 
 describe("the drawing set", () => {
   it("gives every sheet a section list", () => {
@@ -47,5 +47,13 @@ describe("the drawing set", () => {
         expect(section.href.startsWith("#"), `${section.href} is not an anchor`).toBe(true);
       }
     }
+  });
+});
+
+describe("the default description", () => {
+  it("is one sentence of search-snippet length", () => {
+    expect(site.description.length).toBeGreaterThanOrEqual(70);
+    expect(site.description.length).toBeLessThanOrEqual(170);
+    expect(site.description.match(/[.!?]/g)).toHaveLength(1);
   });
 });
