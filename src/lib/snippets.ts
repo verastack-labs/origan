@@ -87,16 +87,32 @@ const indent = (code: string) =>
     .join("\n");
 
 /** Top-level Rust items, as opposed to statements that need a function around them. */
-const ITEM = /^(pub\s+)?(fn|struct|enum|impl|trait|use|const|static|mod|type)\b|^#\[/m;
+const ITEM = /^(pub(\([a-z]+\))?\s+)?(unsafe\s+)?(async\s+)?(fn|struct|enum|impl|trait|use|const|static|mod|type)\b|^#\[/;
+
+/** Lines that only continue the one before: a closing bracket, a method chain, `else`. */
+const CONTINUATION = /^[})\].]|^(else|where)\b/;
+
+/**
+ * True when every top-level line starts an item. A single top-level statement
+ * (a `let`, a call) means the whole snippet belongs inside `main`, where items
+ * such as a `use` or a local `struct` are still valid.
+ */
+function onlyItems(code: string): boolean {
+  const starts = code
+    .split("\n")
+    .filter((l) => l !== "" && !/^\s/.test(l) && !l.startsWith("//") && !CONTINUATION.test(l));
+  return starts.length > 0 && starts.every((l) => ITEM.test(l));
+}
 
 /**
  * Make a snippet into something the Playground will run. A program is left
- * alone. Items get the demo as `main`. Bare statements are wrapped in `main`.
+ * alone. Items get the demo as `main`. Bare statements, with or without a
+ * `use` or a local type among them, are wrapped in `main`.
  */
 export function playgroundCode(code: string, demo?: string): string {
   if (/\bfn\s+main\s*\(/.test(code)) return `${code}\n`;
   if (demo) return `${code}\n\nfn main() {\n${indent(demo)}\n}\n`;
-  if (ITEM.test(code)) return `${code}\n\nfn main() {}\n`;
+  if (onlyItems(code)) return `${code}\n\nfn main() {}\n`;
   return `fn main() {\n${indent(code)}\n}\n`;
 }
 

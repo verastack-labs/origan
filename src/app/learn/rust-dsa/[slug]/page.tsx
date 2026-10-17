@@ -3,9 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHead, shell } from "@/components/page-head";
 import { components } from "@/components/dsa/mdx-components";
-import { ContentsBlock, ContentsRail, LessonNav, StudioCredit } from "@/components/dsa/lesson-chrome";
+import { ChaptersLayout, type Chapter } from "@/components/dsa/chapters";
+import { ContentsBlock, LessonNav, StudioCredit } from "@/components/dsa/lesson-chrome";
 import { ReadTick } from "@/components/dsa/read-tick";
-import { lessonPath, lessonUrl, rustDsa } from "@/data/rust-dsa";
+import { curriculum, lessonPath, lessonUrl, rustDsa } from "@/data/rust-dsa";
 import { site } from "@/data/site";
 import { getLesson, getLessons } from "@/lib/lessons";
 import { compileLesson } from "@/lib/mdx";
@@ -59,6 +60,13 @@ export default async function LessonPage({ params }: Props) {
 
   const Content = await compileLesson(lesson.body);
   const lessons = getLessons();
+  const published = new Set(lessons.map((l) => l.slug));
+  const chapters: Chapter[] = curriculum.map((entry) => ({
+    order: entry.order,
+    slug: entry.slug,
+    title: entry.title,
+    available: published.has(entry.slug),
+  }));
 
   return (
     <>
@@ -68,48 +76,47 @@ export default async function LessonPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: jsonLdScript(lessonJsonLd(lesson)) }}
       />
 
-      <PageHead
-        notation={`${rustDsa.name} · Lesson ${lesson.order}`}
-        pair={{ heading: lesson.title, sub: lesson.sub }}
-        cta={false}
-      />
+      <ChaptersLayout
+        chapters={chapters}
+        current={lesson.slug}
+        contentClass={`${shell} pb-[clamp(60px,8vw,110px)] pt-[clamp(28px,4vw,52px)]`}
+        head={
+          <PageHead
+            notation={`${rustDsa.name} · Lesson ${lesson.order}`}
+            pair={{ heading: lesson.title, sub: lesson.sub }}
+            cta={false}
+          />
+        }
+      >
+        <article className="lesson-article min-w-0">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+            <Link
+              href={rustDsa.path}
+              className="font-mono text-[10.5px] uppercase tracking-[0.11em] text-fg-2 transition-colors hover:text-survey"
+            >
+              <span aria-hidden="true">← </span>All lessons
+            </Link>
+            <StudioCredit />
+          </div>
 
-      <div className={`${shell} pb-[clamp(60px,8vw,110px)] pt-[clamp(28px,4vw,52px)]`}>
-        <div className="grid gap-x-[clamp(32px,5vw,80px)] lg:grid-cols-[minmax(0,720px)_220px] lg:justify-between">
-          <article className="min-w-0">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-              <Link
-                href={rustDsa.path}
-                className="font-mono text-[10.5px] uppercase tracking-[0.11em] text-fg-2 transition-colors hover:text-survey"
-              >
-                <span aria-hidden="true">← </span>All lessons
-              </Link>
-              <StudioCredit />
-            </div>
+          <ContentsBlock />
 
-            <ContentsBlock />
+          <Content components={components} />
 
-            <Content components={components} />
+          <div className="mt-[clamp(40px,5vw,64px)] flex flex-wrap items-center justify-between gap-4 border-t border-line pt-8">
+            <ReadTick slug={lesson.slug} />
+            <p className="font-mono text-[10px] uppercase tracking-[0.11em] text-fg-3">
+              Updated {lesson.updated}
+            </p>
+          </div>
 
-            <div className="mt-[clamp(40px,5vw,64px)] flex flex-wrap items-center justify-between gap-4 border-t border-line pt-8">
-              <ReadTick slug={lesson.slug} />
-              <p className="font-mono text-[10px] uppercase tracking-[0.11em] text-fg-3">
-                Updated {lesson.updated}
-              </p>
-            </div>
+          <div className="mt-8">
+            <LessonNav lesson={lesson} lessons={lessons} />
+          </div>
 
-            <div className="mt-8">
-              <LessonNav lesson={lesson} lessons={lessons} />
-            </div>
-
-            <StudioCredit className="mt-8" />
-          </article>
-
-          <aside>
-            <ContentsRail />
-          </aside>
-        </div>
-      </div>
+          <StudioCredit className="mt-8" />
+        </article>
+      </ChaptersLayout>
     </>
   );
 }

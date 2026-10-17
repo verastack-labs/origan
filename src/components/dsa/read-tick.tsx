@@ -93,6 +93,21 @@ export function ReadTick({ slug }: { slug: string }) {
   );
 }
 
+/** A bare tick for tight places such as the chapters sidebar. */
+export function ReadCheck({ slug }: { slug: string }) {
+  const read = useRead(slug);
+  if (!read) return null;
+
+  return (
+    <span className="shrink-0 text-survey">
+      <span className="sr-only">Read</span>
+      <svg width="11" height="11" viewBox="0 0 9 9" aria-hidden="true">
+        <path d="M1.5 4.7l2 2L7.5 2.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    </span>
+  );
+}
+
 /** A small tick beside a lesson in the index, for lessons already read here. */
 export function ReadMark({ slug }: { slug: string }) {
   const read = useRead(slug);

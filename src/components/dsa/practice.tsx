@@ -7,13 +7,15 @@ import { Snippet } from "./snippet";
  * One practice problem: the statement, the starting code, hints that open one
  * at a time, and a solution behind a toggle.
  *
- * `start` and `solution` are regions in the tested crate. The starter bodies
+ * `start` and `solution` are regions in the tested crate; `also` names shared
+ * regions (a node type, say) that both need to run in the Playground. The starter bodies
  * are `todo!()` and are only checked to compile; the solutions have tests.
  */
 export function Practice({
   number,
   title,
   file,
+  also,
   start,
   solution,
   hints,
@@ -23,6 +25,8 @@ export function Practice({
   number: number;
   title: string;
   file: string;
+  /** Regions the problem builds on, such as a node type. They go to the Playground, not the page. */
+  also?: string;
   start: string;
   solution: string;
   hints: readonly string[];
@@ -40,7 +44,7 @@ export function Practice({
         <div>{children}</div>
 
         <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.13em] text-fg-3">Start here</p>
-        <Snippet file={file} name={start} />
+        <Snippet file={file} name={start} also={also} />
 
         <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.13em] text-fg-3">Stuck?</p>
         <Hints hints={hints} />
@@ -53,7 +57,7 @@ export function Practice({
             </span>
           </summary>
           <div className="border-t border-line-2 px-3.5 pb-1 pt-2">
-            <Snippet file={file} name={solution} />
+            <Snippet file={file} name={solution} also={also} />
             <p className="mb-4 text-[15.5px] text-fg-2">{inlineCode(explain)}</p>
           </div>
         </details>

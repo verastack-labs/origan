@@ -2,7 +2,16 @@ import { Children, type ComponentProps, type ReactElement, type ReactNode } from
 import type { MDXComponents } from "mdx/types";
 import { playgroundCode } from "@/lib/snippets";
 import { CodeBlock } from "./code-block";
-import { ArrayDiagram, BytesDiagram, SetupDiagram } from "./diagrams";
+import {
+  ArrayDiagram,
+  BytesDiagram,
+  HashDiagram,
+  LinkedListDiagram,
+  QueueDiagram,
+  SetupDiagram,
+  StackDiagram,
+  TreeDiagram,
+} from "./diagrams";
 import { Part } from "./part";
 import { Practice } from "./practice";
 import { Snippet } from "./snippet";
@@ -85,4 +94,9 @@ export const components: MDXComponents = {
   SetupDiagram,
   ArrayDiagram,
   BytesDiagram,
+  LinkedListDiagram,
+  StackDiagram,
+  QueueDiagram,
+  HashDiagram,
+  TreeDiagram,
 };
