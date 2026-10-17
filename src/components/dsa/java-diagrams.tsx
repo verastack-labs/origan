@@ -602,3 +602,82 @@ export function SortedIndexDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 9: a min-heap as a tree and as the array it is really stored in. */
+export function HeapQueueDiagram() {
+  const values = [1, 2, 8, 5, 3, 9];
+  // Slot i sits at these tree positions.
+  const pos = [
+    { x: 360, y: 40 },
+    { x: 240, y: 100 },
+    { x: 480, y: 100 },
+    { x: 180, y: 160 },
+    { x: 300, y: 160 },
+    { x: 540, y: 160 },
+  ];
+  const parentOf = (i: number) => Math.floor((i - 1) / 2);
+  const left = 150;
+  const w = 70;
+
+  return (
+    <Figure
+      id="heap-queue"
+      title="A priority queue is a heap: the smallest item is always at the top"
+      caption="Every parent is smaller than its children, so the top is the smallest and poll() takes it first. The same tree lives in a plain array: the children of slot i are slots 2i+1 and 2i+2."
+      viewBox="0 0 720 300"
+    >
+      {pos.map((p, i) =>
+        i === 0 ? null : (
+          <line
+            key={`e${i}`}
+            x1={pos[parentOf(i)].x}
+            y1={pos[parentOf(i)].y + 16}
+            x2={p.x}
+            y2={p.y - 16}
+            className="stroke-fg-3"
+            strokeWidth={1.2}
+          />
+        ),
+      )}
+      {pos.map((p, i) => (
+        <g key={i}>
+          <circle
+            cx={p.x}
+            cy={p.y}
+            r={17}
+            className={i === 0 ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+            strokeWidth={i === 0 ? 1.8 : 1}
+          />
+          <text x={p.x} y={p.y + 5} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+            {values[i]}
+          </text>
+        </g>
+      ))}
+      <text x={392} y={30} fontSize={11} className="font-mono fill-survey">
+        poll() takes this
+      </text>
+
+      <text x={left} y={222} fontSize={10} className={faint}>
+        THE SAME HEAP IN AN ARRAY
+      </text>
+      {values.map((v, i) => (
+        <g key={`a${i}`}>
+          <rect
+            x={left + i * w}
+            y={232}
+            width={w}
+            height={34}
+            className={i === 0 ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+            strokeWidth={i === 0 ? 1.8 : 1}
+          />
+          <text x={left + i * w + w / 2} y={254} textAnchor="middle" fontSize={13} className="font-mono fill-fg">
+            {v}
+          </text>
+          <text x={left + i * w + w / 2} y={286} textAnchor="middle" fontSize={11} className={faint}>
+            {i}
+          </text>
+        </g>
+      ))}
+    </Figure>
+  );
+}
