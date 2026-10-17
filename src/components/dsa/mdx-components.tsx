@@ -6,12 +6,17 @@ import { CodeBlock } from "./code-block";
 import {
   ArrayDiagram,
   BytesDiagram,
+  GraphDiagram,
   HashDiagram,
+  HeapDiagram,
   LinkedListDiagram,
+  OrderedDiagram,
   QueueDiagram,
   SetupDiagram,
   StackDiagram,
   TreeDiagram,
+  TrieDiagram,
+  UnionFindDiagram,
 } from "./diagrams";
 import * as javaDiagrams from "./java-diagrams";
 import { Part } from "./part";
@@ -98,6 +103,11 @@ const shared: MDXComponents = {
   QueueDiagram,
   HashDiagram,
   TreeDiagram,
+  HeapDiagram,
+  OrderedDiagram,
+  GraphDiagram,
+  TrieDiagram,
+  UnionFindDiagram,
   ...javaDiagrams,
 };
 

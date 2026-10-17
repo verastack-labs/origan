@@ -5,7 +5,7 @@ export const site = {
   name: "Origan",
   tagline: "A record of what each batch has covered",
   description:
-    "The record of what each student has actually covered, from first semester to the final drive. For engineering colleges, built with a platform students use every week and a Campus Coach on campus.",
+    "Origan keeps a record of what each engineering student has covered, from first semester to the final drive, with a Campus Coach on campus.",
   url: "https://origan.verastack.dev",
   studio: "VeraStack Labs",
   studioUrl: "https://verastack-labs.github.io",
@@ -15,6 +15,8 @@ export const site = {
   founder: "Rigan Burnwal",
   phone: "+91 93806 54730",
   email: "rigan@verastack.dev",
+  // Profiles that identify the studio behind the site, for the structured data.
+  sameAs: ["https://github.com/verastack-labs", "https://verastack.dev"],
 } as const;
 
 /**

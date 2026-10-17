@@ -1,0 +1,160 @@
+---
+title: Ordered maps in Rust
+sub: BTreeMap, range queries, and keys that stay in order.
+description: Learn ordered maps in Rust. Build a sorted map with binary search, then use BTreeMap and its range queries, with a cost table and three practice problems.
+order: 9
+part: 1
+updated: 2026-10-17
+slug: ordered-maps
+---
+
+<Part id="what" heading="A dictionary with an [index]" sub="Keys that stay in order." />
+
+Open a paper dictionary and look up "maple". You do not read from page one. You flip to the M section, then narrow in, and there it is.
+
+Now ask a different question: which words come between "map" and "mat"? That is easy too. Find "map", then keep reading until you pass "mat". The words you want are all side by side, because the dictionary keeps its words in alphabetical order.
+
+An **ordered map** works like that. It stores pairs of a **key** and a **value** (as in lesson 6), but it keeps them sorted by key. Because of that, it can answer questions a hash map cannot:
+
+- What is the smallest key? The largest?
+- Which key is just below this one? Just above it?
+- Which pairs have keys between two limits? This is a **range query**.
+
+Reach for an ordered map when the order of the keys matters: a leaderboard, a timetable, grade boundaries, or anything where you ask "what is the closest one?" If you only ever look things up by exact key, a hash map is simpler and a bit faster.
+
+<Part id="idea" heading="Sorted, so neighbours [stay] close" sub="Find the start, then walk." />
+
+<OrderedDiagram />
+
+Suppose the keys are 10, 20, 30, up to 80, in order. You want every key from 30 up to, but not including, 60.
+
+You do not check all eight. First you find where the range starts: the slot holding 30. Then you step along, 30, 40, 50, until you reach 60, which is past the end, and stop. You never touch 10, 20, 70 or 80.
+
+Two small pieces of vocabulary. In Rust, `30..60` is a **half-open range**: it includes the start but not the end. It is the same style as `0..n` in a `for` loop. `30..=60` includes the end too.
+
+How do you find the start without checking every key? With **binary search**. Look at the middle key. If it is too small, throw away the left half. If it is too big, throw away the right half. Repeat. Each look halves what is left, so even a million keys take only about twenty looks. This is the same halving trick as the search tree in lesson 7, and it works because the keys are sorted.
+
+So a range query has two parts. Finding the start costs O(log n). Walking the results costs O(k), where k is how many you got back.
+
+**Remember:** sorted keys put neighbours next to each other. Find the start once, then just walk.
+
+<Part id="build" heading="Build a sorted [map]" sub="A Vec of pairs and binary search." />
+
+Here is the simplest ordered map: a `Vec` of `(key, value)` pairs, always kept sorted by key.
+
+<Snippet file="lesson9_ordered" name="sorted-map" />
+
+Go through it in order.
+
+- `find` does the binary search. `binary_search_by_key` returns a `Result`. `Ok(i)` means the key is at slot `i`. `Err(i)` means the key is missing, and `i` is the slot where it would have to go to keep the order. That one answer serves both `get` and `insert`.
+- `insert` uses it. If the key is found, `std::mem::replace` swaps in the new value and hands back the old one. If not, `Vec::insert` puts the new pair in exactly the slot `find` suggested.
+- `remove` finds the slot, then takes the pair out. The `?` returns `None` early if the key was missing.
+- `range` uses `partition_point`, a binary search for the first slot where a test stops being true. Slots before `from` fail `k < from`, so the first slot that passes is where the range starts. The same trick finds where it ends. The `max(start)` stops a backwards range, such as `range(30, 10)`, from panicking.
+
+Here it is in use.
+
+<Snippet file="lesson9_ordered" name="sorted-map-demo" play={false} />
+
+The keys went in as 50, 20, 40, 10, 30, and `range(20, 45)` still returned 20, 30, 40 in order. The Playground link on the code above runs this.
+
+There is one cost to be honest about. Searching is quick, but `insert` and `remove` must shift every later pair along, as in lesson 1. That is O(n). For a big map with many changes, that hurts.
+
+<Part id="std" heading="BTreeMap does it [better]" sub="Sorted, and fast to change." />
+
+The standard library's `BTreeMap` keeps its keys sorted too, but it stores them in a balanced tree instead of one long `Vec`. Inserting and removing are O(log n), with no shifting. Lesson 7 met the same idea in `BTreeSet`, which is a `BTreeMap` with keys and no values.
+
+<Snippet file="lesson9_ordered" name="btree-basics" />
+
+You did nothing to sort the names. Iterating a `BTreeMap` always visits the keys in order. `first_key_value` and `last_key_value` give the smallest and largest pair. The entry API from lesson 6 works here as well.
+
+The star feature is `range`:
+
+<Snippet file="lesson9_ordered" name="btree-range" />
+
+`20..45` includes 20 but not 45. `..=20` means "everything up to and including 20", and `40..` means "from 40 onwards". Each call returns an iterator, so you can `.map`, `.count`, or `.collect` it like any other.
+
+A range query can also answer "what is the nearest key?" Add `next_back()`, which takes the *last* item of an iterator, or `next()`, which takes the first. Here is a grade lookup, where each key is the lowest score that earns a grade:
+
+<Snippet file="lesson9_ordered" name="btree-grades" />
+
+`range(..=score)` is every boundary at or below 72. The last of those, found by `next_back()`, is the closest one below: 70, which is a B. Going the other way, `range(60..).next()` is the first boundary at or above 60.
+
+**Remember:** `range(..=x).next_back()` is the closest key at or below `x`, and `range(x..).next()` is the closest at or above.
+
+Two cautions. Keys must have a total order, so an `f64` cannot be a key. And `range` panics if the start is bigger than the end, so check the bounds first if they come from outside.
+
+<Part id="cost" heading="What each move [costs]" sub="n is the size, k the results returned." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Get by key | O(log n) | Walks down the tree, discarding a side each step |
+| Insert or remove | O(log n) | Finds the place, then changes one node |
+| Smallest or largest key | O(log n) | Walks to the left or right edge |
+| Range query | O(log n + k) | Finds the start, then steps through k results |
+| Visit every pair in order | O(n) | Each pair is visited once |
+| Space used | O(n) | One entry per pair |
+
+How does that compare with the others? A `HashMap` gets and inserts in O(1) on average, but it has no order, so it cannot do a range query at all. The sorted `Vec` you built also gets in O(log n) and does ranges in O(log n + k), but its insert and remove are O(n). `BTreeMap` is the one that is good at everything, for a little more than O(1).
+
+<Part id="practise" heading="Three problems, [one] idea" sub="Nearest keys, sorted counts, history." />
+
+Each starter has a signature and a `todo!()`, which is a placeholder that panics if it runs. Replace it with your code. The Playground link on each starter runs a tiny demo.
+
+<Practice
+  number={1}
+  title="Floor and ceiling"
+  file="lesson9_ordered"
+  start="floor-ceiling-start"
+  solution="floor-ceiling"
+  hints={[
+    "Think of the set as a sorted row. The floor of x is the last value at or before x. The ceiling is the first value at or after x.",
+    "`set.range(..=x)` covers everything up to and including x. `set.range(x..)` covers x and everything above it.",
+    "The floor is the *last* item of the first range, so use `.next_back()`. The ceiling is the *first* item of the second, so use `.next()`. Both give an `Option`, which is what you return. Add `.copied()` to turn `&i32` into `i32`.",
+  ]}
+  explain="Each range query finds its start in O(log n) and the code only asks for one item, so both lookups are O(log n). If x itself is in the set, it is both the floor and the ceiling, because both ranges include it. If x is smaller than everything, the floor range is empty and `next_back()` gives `None`, which is the right answer, and the same goes for the ceiling when x is bigger than everything. A plain loop over the set would be O(n)."
+>
+Write `floor_and_ceiling`, which takes a `BTreeSet<i32>` and a number `x`. It returns a pair: the biggest value in the set that is at most `x`, and the smallest value that is at least `x`. Either can be `None`. For the set `{10, 20, 30}` and `x = 25`, the answer is `(Some(20), Some(30))`.
+</Practice>
+
+<Practice
+  number={2}
+  title="Letters, a to z"
+  file="lesson9_ordered"
+  start="letter-counts-start"
+  solution="letter-counts"
+  hints={[
+    "You need a count for each letter, and the answer must be in alphabetical order. Which map keeps its keys sorted?",
+    "A `BTreeMap<char, usize>` does it. Use the entry API from lesson 6: `*counts.entry(c).or_insert(0) += 1`.",
+    "Skip characters that are not letters with `c.is_alphabetic()`, and use `c.to_ascii_lowercase()` so that H and h count together. At the end, `counts.into_iter().collect()` gives the `Vec` of pairs, already in order.",
+  ]}
+  explain="A `HashMap` would count just as well, but it would give the letters back in no useful order, and you would have to sort them afterwards. A `BTreeMap` keeps the keys sorted as they go in, so the answer needs no extra step. The entry API looks the key up once and gives you a slot to add to. It is O(n log m) time, where n is the number of characters and m is the number of different letters, and O(m) space."
+>
+Write `letter_counts`, which counts how many times each letter appears in some text, ignoring case and ignoring anything that is not a letter. Return the counts as a `Vec` of `(letter, count)` pairs, in alphabetical order, with lowercase letters. `"Hello"` gives `[('e', 1), ('h', 1), ('l', 2), ('o', 1)]`.
+</Practice>
+
+<Practice
+  number={3}
+  title="A map with a memory"
+  file="lesson9_ordered"
+  start="time-map-start"
+  solution="time-map"
+  hints={[
+    "Each key has its own history of changes over time. That is two layers of lookup: first find the key's history, then find the right moment inside it.",
+    "Use a `HashMap<String, BTreeMap<u32, String>>`. The outer map finds the key. The inner map is the history, sorted by time.",
+    "To `set`, use `entry(key.to_string()).or_default().insert(time, value.to_string())`. To `get`, look for the last entry at or before `time`: `range(..=time).next_back()`. Use `?` to return `None` early if the key or the entry is missing.",
+  ]}
+  explain="The outer `HashMap` finds the key in O(1) on average. The inner `BTreeMap` is sorted by time, so finding the latest entry at or before a given time is one range query, O(log n) in the size of that key's history. Combining the two structures gives each job to the one that is good at it. `or_default` creates an empty history the first time a key appears. Setting the same time again replaces the old value, because a map holds one value per key. The returned `&str` borrows from the map, so no text is copied."
+>
+Write a `TimeMap`, which remembers how values change over time. `set(key, value, time)` records that the key had that value at that time. `get(key, time)` returns the value the key had at that time: the one set most recently at or before it, or `None` if there was none. After `set("mood", "calm", 1)` and `set("mood", "busy", 4)`, `get("mood", 5)` is `Some("busy")` and `get("mood", 3)` is `Some("calm")`.
+</Practice>
+
+<Part id="interview" heading="Ordered maps in the [interview]" sub="What to ask, and what to say." />
+
+Ordered maps solve a family of questions that a hash map cannot. A few habits help.
+
+- **Spot the signals.** "The closest", "the next larger", "at or before", "between a and b", and "in sorted order" all point to an ordered map or set.
+- **Know the four words.** The **floor** of x is the biggest key at or below x. The **ceiling** is the smallest key at or above it. The **predecessor** is the key just before x, and the **successor** is the key just after. Using the right word makes your answer clear.
+- **Explain why not a hash map.** A hash map scatters its keys on purpose, so it cannot find neighbours or ranges. That one sentence shows you understand both structures.
+- **Explain why not a sorted Vec.** Searching is just as quick, but every insert shifts the items after it, which is O(n). That is the cost the tree removes.
+- **Ask about the range ends.** Is the end included? Rust's `a..b` leaves it out, and `a..=b` keeps it. Guessing wrong is an easy way to be off by one.
+- **Say the cost.** "Get, insert and remove are O(log n), and a range query is O(log n + k)" is a complete answer.

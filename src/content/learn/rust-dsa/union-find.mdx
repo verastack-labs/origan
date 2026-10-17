@@ -1,0 +1,163 @@
+---
+title: Union-find in Rust
+sub: Disjoint sets, path compression, and union by rank.
+description: Learn union-find in Rust. Build it with a Vec, speed it up with path compression and ranks, with a cost table and three practice problems.
+order: 12
+part: 1
+updated: 2026-10-17
+slug: union-find
+---
+
+<Part id="what" heading="Friend groups that [merge]" sub="Who is in the same circle?" />
+
+It is the first week of college. Asha becomes friends with Chen. Later, Chen becomes friends with Dia. Nobody introduced Asha to Dia, but they are now in the same circle, through Chen.
+
+Two questions keep coming up. Are these two people in the same circle? And when two people become friends, how do you merge their circles into one?
+
+That is exactly what **union-find** does. It keeps track of items split into groups, where every item is in exactly one group. Mathematicians call these **disjoint sets**, and *disjoint* only means "with no overlap". It has two moves:
+
+- **find** tells you which group an item is in
+- **union** merges two groups into one
+
+Reach for it when things join up over time and you keep asking "are these connected?": friend circles, networks that gain links, regions in an image, or building the cheapest set of roads that joins every town.
+
+<Part id="idea" heading="Every group has a [leader]" sub="Point at someone, follow the pointers." />
+
+<UnionFindDiagram />
+
+Here is the idea, in the plainest form. Every person points at one other person. A group's **leader** is the one who points at themselves. To find out which group you are in, follow the pointers upward until you reach the leader. Two people are in the same group when they reach the same leader.
+
+To merge two groups, take one leader and make them point at the other leader. That is all. Two circles are now one.
+
+Try it on four people, numbered 0 to 3. Merge 0 with 1, so 0 points at 1. Merge 1 with 2, so 1 points at 2. Merge 2 with 3, so 2 points at 3. You get a chain: 0 points at 1, which points at 2, which points at 3. To find 0's leader, you walk three steps. With a thousand people merged this way, it would be a thousand steps. The simple version can get slow.
+
+Two small ideas fix this, and they work together.
+
+**Path compression.** When a find walks up a chain, it learns who the leader is. So on the way back, it points every person it passed straight at the leader. In the picture, one `find(3)` turns the long chain into a flat group, and every later find takes one step. The walk is done once, and then it never has to be done again.
+
+**Union by rank.** Rank is a number for each leader that stands for how tall their tree could be. When merging, hang the shorter tree under the taller one, never the other way. Then a merge cannot make a tall tree much taller. The rank only goes up by one when two trees of the same height are joined.
+
+Used together, they make find and union so fast that people call the cost "almost constant". The exact name is the **inverse Ackermann function**, written α(n), and it grows so slowly that it never goes above 4 for any amount of data that could fit in the universe.
+
+**Remember:** point everyone you pass at the leader, and hang the shorter tree under the taller one.
+
+<Part id="build" heading="Build it in [two] steps" sub="The slow version, then the fast one." />
+
+First, the simple version with no tricks. Each element starts as its own leader.
+
+<Snippet file="lesson12_union_find" name="slow-union-find" />
+
+`parent[i]` is who `i` points at. `new` makes everyone point at themselves, so everyone starts alone. `find` follows pointers until it finds someone who points at themselves. `union` finds both leaders and hangs one under the other. `depth` is only here so you can see the problem.
+
+<Snippet file="lesson12_union_find" name="slow-union-find-demo" play={false} />
+
+Three merges built a chain, and element 0 is three steps from its leader, exactly as in the example. Now the fast version.
+
+<Snippet file="lesson12_union_find" name="union-find" />
+
+Go through it in order.
+
+- `rank` holds the height cap for each leader, and `groups` counts the groups. Both are kept up to date as things merge.
+- `find` walks up twice. The first walk finds the leader. The second walk goes up again from `x`, and points each person at the leader. That second walk is path compression.
+- `union` finds the two leaders. If they are the same, the two were already together, so it returns `false` and changes nothing. Otherwise `std::mem::swap` makes sure `top` is the leader with the larger rank, and `bottom` is hung underneath. Only if the ranks were equal does the winner's rank go up by one. Every real merge also takes one off `groups`.
+- `connected` is just two finds compared.
+
+<Note title="Why does find need &mut self?">
+Asking "who is the leader?" sounds like reading, so you might expect `&self`. But path compression *changes* the `parent` list while it looks. Rust is strict about this: a method that changes anything must say `&mut self`. So `find`, and `connected` which calls it, borrow the structure mutably. You pay a little in convenience, and in return every later search is faster.
+</Note>
+
+<Snippet file="lesson12_union_find" name="union-find-demo" play={false} />
+
+Four friends end up in one group, and 4 and 5 stay alone, so three groups remain. The Playground link on the code above runs this.
+
+<Part id="std" heading="Names on top of [indices]" sub="std has no union-find. Add names yourself." />
+
+The standard library has no union-find. (The `petgraph` crate has one, if you ever need it in a project.) What Rust does give you are the pieces: a `Vec` for the pointers, `std::mem::swap` for the rank step, and a `HashMap` for something real data needs.
+
+Real data has names, not numbers. Union-find is built on `Vec` positions, so you turn each name into a number first, the same way as the station names in lesson 10.
+
+<Snippet file="lesson12_union_find" name="friend-names" also="union-find" />
+
+The structure only ever sees numbers. The table is how you talk to it in words.
+
+**Remember:** union-find works on numbers. Keep a `HashMap` beside it to turn names into numbers.
+
+<Part id="cost" heading="What each move [costs]" sub="n is how many items there are." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Make n groups of one | O(n) | Fill two `Vec`s |
+| Find a leader | O(α(n)) | Short trees, and compression keeps them short |
+| Union two groups | O(α(n)) | Two finds and a few changes |
+| Are two items together? | O(α(n)) | Two finds |
+| How many groups? | O(1) | A counter, updated on each real merge |
+| Space used | O(n) | A parent and a rank for each item |
+
+Without the two tricks, a find can walk a chain of n items, so it is O(n). With both, α(n) is at most 4 in practice, so you can read it as constant. One thing union-find cannot do is split a group back apart. It only merges.
+
+<Part id="practise" heading="Three problems, [one] structure" sub="Count groups, find a loop, build roads." />
+
+These use the `UnionFind` you just built. The Playground link on each problem includes it. Each starter has a `todo!()`, a placeholder that panics if it runs. Replace it with your code.
+
+<Practice
+  number={1}
+  title="How many groups?"
+  file="lesson12_union_find"
+  also="union-find"
+  start="count-groups-start"
+  solution="count-groups"
+  hints={[
+    "Begin with n separate groups. Each time two groups really merge, there is one fewer.",
+    "Make a `UnionFind::new(n)` and call `union` for every pair in the list.",
+    "You do not need to count anything yourself. The `groups()` method returns how many groups are left.",
+  ]}
+  explain="Every pair becomes one `union` call. A pair whose two ends are already together changes nothing, so repeated or redundant pairs are harmless, and `groups()` has already been lowered once for each real merge. It takes O(n + p · α(n)) time, where p is the number of pairs and α(n) is the tiny cost from the table above. A graph search could count the pieces too, as in lesson 10, but it would need the whole graph built first. Union-find handles pairs one at a time as they arrive."
+>
+Write `count_groups`, which takes `n` items numbered 0 to n-1, and a list of pairs that are connected. It returns how many separate groups there are once every pair has been joined. `n = 5` with the pairs `(0,1)`, `(1,2)` and `(3,4)` gives 2.
+</Practice>
+
+<Practice
+  number={2}
+  title="The edge that closes a loop"
+  file="lesson12_union_find"
+  also="union-find"
+  start="first-redundant-start"
+  solution="first-redundant"
+  hints={[
+    "An edge is redundant when its two ends are already connected, because adding it would close a loop.",
+    "Add the edges one at a time, in order. `union` returns `false` when both ends were already in the same group.",
+    "Return the first edge for which `union` returns `false`. If you reach the end of the list without one, return `None`.",
+  ]}
+  explain="The return value of `union` is the whole trick. It is `true` for an edge that joins two different groups, which is how a tree grows with no loop. It is `false` for an edge that links two items already together, and that edge is the one that makes a loop. Each edge costs about O(α(n)), so the whole thing is nearly linear. This is the standard way to detect a loop in an undirected graph as edges arrive."
+>
+Write `first_redundant`, which takes `n` items and a list of edges, and adds the edges one by one in order. Return the first edge that connects two items that were already connected, or `None` if there is no such edge. For three items and the edges `(0,1)`, `(1,2)`, `(2,0)`, the answer is `Some((2, 0))`.
+</Practice>
+
+<Practice
+  number={3}
+  title="The cheapest roads"
+  file="lesson12_union_find"
+  also="union-find"
+  start="min-cost-start"
+  solution="min-cost"
+  hints={[
+    "You want to join every place using as little total cost as possible. Think greedy: always take the cheapest road that is still useful.",
+    "Sort a copy of the roads by cost. A road is useful only if its two ends are not already connected, which is exactly what `union` tells you.",
+    "Loop over the sorted roads. When `union` returns `true`, add the road's cost to the total. At the end, if more than one group is left, the places cannot all be joined, so return `None`.",
+  ]}
+  explain="This is Kruskal's algorithm. It is greedy, meaning it takes the best choice available right now, and for this problem that is always safe. A road whose ends are already connected can only add cost without joining anything new, so skipping it is correct. Sorting costs O(E log E) for E roads and dominates, since the unions are nearly constant. `(uf.groups() <= 1).then_some(total)` returns `Some(total)` when everything ended up in one group (or when there was nothing to join), and `None` otherwise."
+>
+Write `min_cost_connect`, which takes `n` places and a list of possible roads `(a, b, cost)`. Return the smallest total cost of roads that makes every place reachable from every other, or `None` if that is impossible. Three places with roads `(0,1,4)`, `(1,2,2)` and `(0,2,9)` give `Some(6)`: take the 2 and the 4, and skip the 9.
+</Practice>
+
+<Part id="interview" heading="Union-find in the [interview]" sub="What to ask, and what to say." />
+
+Union-find is a small structure with a big reputation. A few habits help.
+
+- **Spot the signals.** "Are these connected?", "how many groups?", "merge", "same component", "does this edge make a cycle?", and "cheapest way to connect everything" all point here.
+- **Name both tricks.** Saying "path compression and union by rank" shows you know the real structure. Even one of them gets you most of the speed, but name both.
+- **Say the cost the right way.** "Nearly constant, formally O(α(n)), where α is the inverse Ackermann function and never exceeds 4 in practice" is the answer an interviewer wants.
+- **Compare it with graph search.** For a fixed graph, BFS or DFS from lesson 10 can count the pieces too. Union-find wins when edges arrive over time and you keep asking "are these connected right now?".
+- **Know what it cannot do.** It merges groups but cannot split them. If a problem deletes links, you need another idea.
+- **Use the return value.** `union` returning `false` for an edge that was already redundant is a neat, short way to detect a cycle.
+- **In Rust, explain the `&mut`.** Mentioning that `find` needs `&mut self` because it compresses paths, and why that is worth it, shows you understand ownership as well as the algorithm.

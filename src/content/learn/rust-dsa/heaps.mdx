@@ -1,0 +1,167 @@
+---
+title: Heaps and priority queues in Rust
+sub: BinaryHeap, Reverse for a min-heap, and the most urgent first.
+description: Learn heaps and priority queues in Rust. Build a min-heap on a Vec, use BinaryHeap and Reverse, with a cost table and three practice problems.
+order: 8
+part: 1
+updated: 2026-10-17
+slug: heaps
+---
+
+<Part id="what" heading="Most [urgent] goes first" sub="A queue where importance beats arrival." />
+
+Picture a hospital emergency room. You arrive with a sprained ankle, and you wait. Ten minutes later someone arrives with chest pain. They are seen first, even though you were there before them.
+
+That is not a normal queue. A normal queue (lesson 5) is first come, first served. This one is **most urgent first**.
+
+Computer scientists call it a **priority queue**. Every item carries a **priority**, which is a number that says how urgent it is. You can add an item at any time. When you ask for the next item, you always get the one with the highest priority.
+
+A **heap** is the structure that makes a priority queue fast. Reach for one whenever you keep asking "what is the best item so far?": the next task to run, the nearest place to visit, the five biggest scores in a stream of millions.
+
+<Part id="idea" heading="A tree with one [rule]" sub="Parents beat their children." />
+
+<HeapDiagram />
+
+A heap is a tree with one rule. In a **min-heap**, every parent is no bigger than its children. (A **max-heap** flips it: every parent is no smaller.) Follow the rule all the way up, and the smallest value must be sitting at the very top.
+
+Notice what the rule does not say. It does not sort the whole tree. Siblings can be in any order, and 40 sits above 25 in the picture. The heap only keeps promise one: the best item is on top. That is a much weaker promise than "everything is sorted", and weaker promises are cheaper to keep.
+
+The tree is also **complete**, meaning every level is full, except maybe the last, which fills from the left. That shape lets a heap live in a plain `Vec`, with no pointers at all. Read the tree level by level, left to right, and you get the row in the picture. Two small formulas find family members from a slot number `i`:
+
+- the parent of slot `i` is at `(i - 1) / 2`
+- the children of slot `i` are at `2i + 1` and `2i + 2`
+
+Check it on slot 2, which holds 15. Its children should be at `2*2 + 1 = 5` and `2*2 + 2 = 6`. Those hold 25 and 50, exactly as drawn.
+
+Now the two moves. Start with a tiny example, then the rule.
+
+**Push 5.** Put it in the next free slot, at the end of the row. That is slot 7, under 40. But 5 is smaller than 40, so it swaps places with it. Then it is smaller than 20, so it swaps again. Then it is smaller than 10, and swaps once more. Now it sits on top. It floated up three levels.
+
+**Pop the top.** You cannot just remove slot 0, because that leaves a hole. So take the last value in the row and drop it into the hole. It is probably too big for the top, so it sinks. At each step it swaps with the *smaller* of its two children, until both children are no smaller than it.
+
+Every swap moves one level. A tree with n values is only about log n levels tall, so both moves take O(log n) steps. That is a handful of steps even for a million values.
+
+**Remember:** a heap does not keep everything sorted. It keeps the best item on top, and fixes that cheaply after every change.
+
+<Part id="build" heading="Build a min-[heap]" sub="Float up on push, sink on pop." />
+
+This heap holds `i32` values and keeps the smallest on top.
+
+<Snippet file="lesson8_heap" name="min-heap" />
+
+Go through it in order.
+
+- `items` is the `Vec` from the picture. There is no node type, because the slot numbers *are* the links.
+- `peek` looks at slot 0 and copies it out. `first()` gives an `Option`, which is `None` for an empty heap.
+- `push` adds to the end, then loops. While the new value is smaller than its parent, it swaps with it and moves up. The moment it is no smaller, it stops. The `break` is the whole reason pushing is quick.
+- `pop` swaps the top with the last value, and then calls `pop` on the `Vec`, which removes the last slot cheaply. What is left at the top is the value that moved in, so `sink` fixes it.
+- `sink` looks at slot `i` and its two children, finds the smallest of the three, and swaps if a child won. The checks `left < n` and `right < n` stop it reading past the end of the `Vec`.
+
+<Note title="No pointers needed">
+In lesson 7 a tree needed `Option<Box<Node>>` for every link. A heap skips all of that, because a complete tree can be stored as a row and the links are just arithmetic. This is a good trick to remember: when a structure has a regular shape, you can often store it as a flat `Vec` and compute the links.
+</Note>
+
+Here it is in use.
+
+<Snippet file="lesson8_heap" name="min-heap-demo" play={false} />
+
+The values went in as 50, 20, 40, 10, 30 and came out smallest first. The Playground link on the code above runs this.
+
+<Part id="std" heading="BinaryHeap and [Reverse]" sub="A max-heap, and how to flip it." />
+
+The standard library has `BinaryHeap`. It is the same idea, finished and well tested. One surprise: it is a **max-heap**, so `pop` gives the *biggest* item. That suits our hospital, where a bigger number means more urgent.
+
+<Snippet file="lesson8_heap" name="binary-heap" />
+
+Each item here is a tuple of an urgency and a name. Rust compares tuples from left to right, so the urgency decides, and the name only matters if two urgencies are equal. `peek` borrows the top without removing it, so it returns `Option<&T>`, and `pop` takes it out and returns `Option<T>`.
+
+What if you want the smallest first? There is no `MinHeap` type. Instead you wrap each item in `Reverse`, a small standard-library type that flips the comparison. A bigger number now counts as "smaller", so it sinks, and the true smallest rises.
+
+<Snippet file="lesson8_heap" name="reverse-heap" />
+
+`Reverse(n)` wraps the number, so what comes back from `pop` is wrapped too. The line `let Reverse(smallest) = ...` unwraps it again. It is a **tuple struct** (a struct whose fields have no names), so `.0` works too.
+
+**Remember:** `BinaryHeap` gives the biggest first. For smallest first, wrap each item in `Reverse`.
+
+Two more facts worth knowing. An item must have a total order, meaning any two items can be compared. `i32` and `String` can. `f64` cannot, because of `NaN` ("not a number"), which is not smaller or bigger than anything. And building a heap from a whole `Vec` in one go is cheaper than pushing one value at a time:
+
+<Snippet file="lesson8_heap" name="heap-from-vec" />
+
+`into_sorted_vec` hands back everything in ascending order. Do not loop over a heap with `iter()` and expect order. It visits the values in storage order, which is only partly sorted.
+
+<Part id="cost" heading="What each move [costs]" sub="n is how many items are in the heap." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Peek at the top | O(1) | It is always slot 0 |
+| Push | O(log n) | Floats up at most one level at a time |
+| Pop the top | O(log n) | Sinks at most one level at a time |
+| Build from n values at once | O(n) | Cheaper than n separate pushes |
+| Push n values, pop them all | O(n log n) | This is heap sort |
+| Find a given value | O(n) | Only the top is known to be smallest, so you must look everywhere |
+| Space used | O(n) | One slot per value |
+
+The row to remember is the last-but-one. A heap is excellent at "give me the best" and poor at "is this value in here?". If you need to search, reach for a hash map or a sorted structure.
+
+<Part id="practise" heading="Three problems, [one] idea" sub="Smash stones, find a rank, merge lists." />
+
+Each starter has a function signature and a `todo!()`, which is a placeholder that panics if it is ever run. Replace it with your code. The Playground link on each starter runs a small demo, so you can try your answer straight away.
+
+<Practice
+  number={1}
+  title="The last stone"
+  file="lesson8_heap"
+  start="last-stone-start"
+  solution="last-stone"
+  hints={[
+    "You need the heaviest stone, again and again, while new stones keep appearing. Which structure hands over the biggest item every time?",
+    "`BinaryHeap` is already a max-heap, so you do not need `Reverse` here. `BinaryHeap::from(stones)` builds one from the `Vec`.",
+    "Loop while the heap holds at least two stones. Pop two. If they are different, push the difference back. When the loop ends, pop once more, and use `unwrap_or(0)` in case the heap is empty.",
+  ]}
+  explain="Each round removes the two heaviest stones and puts back at most one, so there are at most n rounds, and each push or pop costs O(log n). That is O(n log n) overall. Sorting once would not be enough, because the leftover chunk can land anywhere in the order, and a heap handles that without re-sorting. The `let ... else` line pops twice and stops if either pop finds nothing. The final `unwrap_or(0)` covers the case where every stone cancelled out."
+>
+Write `last_stone_weight`, which plays a game with a pile of stones, each with a weight. Each turn, take the two heaviest stones and smash them together. If they weigh the same, both vanish. If not, the lighter one vanishes and the heavier one shrinks by the lighter one's weight. Return the weight of the last stone, or 0 if none is left. `[2, 7, 4, 1, 8, 1]` gives `1`.
+</Practice>
+
+<Practice
+  number={2}
+  title="The k-th largest"
+  file="lesson8_heap"
+  start="kth-largest-start"
+  solution="kth-largest"
+  hints={[
+    "Sorting the whole list works, but it puts everything in order when you only want one answer. Can you keep track of just the k biggest values?",
+    "Keep a *min*-heap that never holds more than k values. Its smallest value is the k-th largest so far, because k-1 bigger values sit above it.",
+    "`BinaryHeap<Reverse<i32>>` is a min-heap. Push every number, and each time the heap grows past k, pop once, which throws away the smallest. Return the top at the end. Check `k == 0` and `k > nums.len()` first.",
+  ]}
+  explain="Think of the heap as a club that only has room for the k biggest numbers. When a new number joins and the club is full, the smallest member leaves. Because it is a min-heap, the smallest member is always on top, ready to be removed in O(log k). After one pass, the club holds exactly the k biggest numbers, and its smallest member is the k-th largest. That is O(n log k) time and O(k) space, which beats sorting when k is small. `peek().map(|&Reverse(n)| n)` unwraps the `Reverse` to get the plain number."
+>
+Write `kth_largest`, which returns the k-th largest number in a slice, counting duplicates. The largest is the 1st. `[3, 2, 1, 5, 6, 4]` with `k = 2` gives `Some(5)`. Return `None` if `k` is 0 or bigger than the slice.
+</Practice>
+
+<Practice
+  number={3}
+  title="Merge sorted lists"
+  file="lesson8_heap"
+  start="merge-sorted-start"
+  solution="merge-sorted"
+  hints={[
+    "Picture several queues of numbers, each already sorted. The next number out of the merged list is the smallest of all the front numbers.",
+    "Put the first value of each list into a min-heap. Store a tuple `(value, list_id, position)` so you know where each value came from. Tuples compare left to right, so the value decides.",
+    "Pop the smallest, add it to the answer, then push the next value from the same list, if there is one. Wrap each tuple in `Reverse` to make it a min-heap.",
+  ]}
+  explain="The heap never holds more than one value per list, so it has at most k entries, where k is the number of lists. Each of the n values is pushed once and popped once, at O(log k) each, so the total is O(n log k). Joining everything and sorting would be O(n log n), and it would ignore the fact that the lists are already sorted. Storing the list number and position inside the tuple is what lets you find the successor of the value you just took."
+>
+Write `merge_sorted`, which takes several lists that are each sorted smallest first, and returns one sorted `Vec` holding every value. `[[1, 4, 7], [2, 5], [3, 6]]` gives `[1, 2, 3, 4, 5, 6, 7]`. Some lists may be empty.
+</Practice>
+
+<Part id="interview" heading="Heaps in the [interview]" sub="What to ask, and what to say." />
+
+Heap questions have a recognisable smell. A few habits help.
+
+- **Spot the signals.** "The k largest", "the k smallest", "the next best", "merge k sorted things", and "keep a running median" all point to a heap.
+- **Know the size-k trick.** To find the k largest, keep a *min*-heap of size k, as in problem 2. It feels backwards, but the smallest of the winners is exactly the one that gets thrown out. It costs O(n log k), not O(n log n).
+- **Say which heap you need.** Rust's `BinaryHeap` is a max-heap. For smallest-first, say out loud that you will wrap items in `Reverse`. It shows you know the standard library.
+- **Be honest about searching.** A heap cannot find an arbitrary value quickly, and it has no cheap way to change an item's priority. If a problem needs either, mention a different structure, or the trick of pushing a new entry and ignoring the stale one when it appears.
+- **Mention where heaps are used.** The shortest-path algorithm called Dijkstra's, task schedulers, and event simulations all lean on a priority queue. You do not need to code them. Knowing the connection makes your answer sound less like a trick.
+- **Say the cost.** "Push and pop are O(log n), peek is O(1), and building from n values is O(n)" is a complete answer.

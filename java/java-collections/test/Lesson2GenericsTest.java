@@ -18,9 +18,16 @@ public class Lesson2GenericsTest {
     }
 
     static void testIntegerEquals() {
-        // 1000 is outside the small range Java caches, so == is false on the
-        // standard JDK settings. That is exactly the trap the lesson names.
-        Check.eq("true\nfalse\n", Check.printed(Lesson2Generics::equalsTrapDemo));
+        // Java guarantees that boxing 127 gives the same cached object every
+        // time, so == is true there. For 1000 it makes no promise either way,
+        // so only equals() is asserted, never that == is false.
+        Check.isTrue(Integer.valueOf(127) == Integer.valueOf(127), "small Integers are cached");
+        Integer a = 1000;
+        Integer b = 1000;
+        Check.isTrue(a.equals(b), "equal numbers are equals()");
+        String[] lines = Check.printed(Lesson2Generics::equalsTrapDemo).split("\n");
+        Check.eq("true", lines[0]); // the equals line; the == line is allowed to vary
+        Check.eq(2, lines.length);
     }
 
     static void testNullUnboxingThrows() {

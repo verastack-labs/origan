@@ -48,6 +48,17 @@ jobs:
         working-directory: rust/rust-dsa
         run: cargo test
 
+      # The Playground link on each lesson must also compile on its own, not
+      # only inside the crate. This builds every link with rustc.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Playground links compile
+        run: pnpm check:playground
+
   # Every Java snippet on the Java Collections pages is a real file in this
   # project, and the pages are built from it. There is no Gradle or Maven: the
   # script compiles with javac and runs the tests with java -ea, so a snippet

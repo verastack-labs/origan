@@ -1,5 +1,5 @@
 import { rustCourse, type Course } from "@/data/courses";
-import { hasRegion, playgroundCode, region } from "@/lib/snippets";
+import { region, snippetProgram } from "@/lib/snippets";
 import { CodeBlock } from "./code-block";
 
 /**
@@ -36,10 +36,8 @@ export async function Snippet({
 
   if (course.language === "java") return <CodeBlock code={code} lang="java" tip={tip} />;
 
-  const demoName = demoRegion ?? `${name}-demo`;
-  const demo = hasRegion(file, demoName, source) ? region(file, demoName, source) : undefined;
-  const before = also ? also.split(",").map((r) => region(file, r.trim(), source)) : [];
-  const program = play ? playgroundCode([...before, code].join("\n\n"), demo) : undefined;
+  // The same function the Playground check compiles, so the check tests the real links.
+  const program = snippetProgram({ file, name, also, demo: demoRegion, play }, source);
 
   return <CodeBlock code={code} lang="rust" program={program} />;
 }

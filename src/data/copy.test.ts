@@ -77,3 +77,21 @@ describe("headings", () => {
     expect(text).not.toContain("—");
   });
 });
+
+describe("the FAQ", () => {
+  it("has six to eight questions, each answered in one to three sentences", () => {
+    expect(content.faq.items.length).toBeGreaterThanOrEqual(6);
+    expect(content.faq.items.length).toBeLessThanOrEqual(8);
+    for (const { q, a } of content.faq.items) {
+      expect(q.endsWith("?")).toBe(true);
+      const sentences = a.split(/(?<=[.!?])\s+/).length;
+      expect(sentences, q).toBeGreaterThanOrEqual(1);
+      expect(sentences, q).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it("states no price, and no digit-led claim", () => {
+    const text = content.faq.items.map((i) => i.a).join(" ");
+    expect(text).not.toMatch(/[₹$]|\d/);
+  });
+});

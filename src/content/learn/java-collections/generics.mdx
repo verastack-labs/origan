@@ -87,7 +87,7 @@ true
 false
 ```
 
-`equals` asks "do these hold the same number?". `==` asks "are these the very same object?". Small values from -128 to 127 happen to be shared, so `==` appears to work for them, which is how the bug sneaks into code that passes a quick test. For anything that is an object, use `equals`.
+`equals` asks "do these hold the same number?". `==` asks "are these the very same object?". Java guarantees that the numbers from -128 to 127 are shared, so `==` works for them, which is how the bug sneaks into code that passes a quick test. For 1000 it makes no promise, and the second line is usually `false`. For anything that is an object, use `equals`.
 
 **Trap 2: unboxing `null`.** A map answers `null` for a missing key. A plain `int` cannot hold `null`, so unboxing it fails.
 

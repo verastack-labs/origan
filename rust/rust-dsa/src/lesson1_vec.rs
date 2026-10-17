@@ -85,6 +85,20 @@ mod tests {
     use super::*;
 
     #[test]
+    fn fixed_array_push_demo() {
+        // region: fixed-array-push-demo
+        let mut list = FixedArray::new();
+        list.push(10).unwrap();
+        list.push(30).unwrap();
+
+        println!("{:?}", list.get(1));
+        assert_eq!(list.get(0), Some(10));
+        assert_eq!(list.get(1), Some(30));
+        assert_eq!(list.get(2), None); // past `len`, so nothing there yet
+        // endregion
+    }
+
+    #[test]
     fn fixed_array_demo() {
         // region: fixed-array-demo
         let mut list = FixedArray::new();

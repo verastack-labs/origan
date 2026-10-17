@@ -125,3 +125,28 @@ export function playgroundCode(code: string, demo?: string): string {
 export function playgroundUrl(code: string): string {
   return `https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&code=${encodeURIComponent(code)}`;
 }
+
+export type SnippetProps = {
+  file: string;
+  name: string;
+  also?: string;
+  demo?: string;
+  play?: boolean;
+};
+
+/**
+ * The program a `<Snippet>` sends to the Playground, or undefined when it has
+ * no link. This mirrors what `snippet.tsx` does, so a test can compile exactly
+ * what a reader would open.
+ */
+export function snippetProgram(
+  { file, name, also, demo, play = true }: SnippetProps,
+  source: SnippetSource = RUST,
+): string | undefined {
+  if (!play) return undefined;
+  const code = region(file, name, source);
+  const demoName = demo ?? `${name}-demo`;
+  const demoCode = hasRegion(file, demoName, source) ? region(file, demoName, source) : undefined;
+  const before = also ? also.split(",").map((r) => region(file, r.trim(), source)) : [];
+  return playgroundCode([...before, code].join("\n\n"), demoCode);
+}
