@@ -492,3 +492,66 @@ export function JavaHashDiagram() {
     </Figure>
   );
 }
+
+/** Lesson 7: twins that must agree. Equal objects must send you to the same shelf. */
+export function TwinsDiagram() {
+  const shelf = (x: number, n: number, hit: boolean, key: string) => (
+    <g key={key}>
+      <rect
+        x={x}
+        y={150}
+        width={70}
+        height={34}
+        className={hit ? "fill-panel-2 stroke-survey" : "fill-panel stroke-line"}
+        strokeWidth={hit ? 1.8 : 1}
+      />
+      <text x={x + 35} y={172} textAnchor="middle" fontSize={12} className={hit ? "font-mono fill-fg" : faint}>
+        {`shelf ${n}`}
+      </text>
+    </g>
+  );
+
+  return (
+    <Figure
+      id="twins"
+      title="Two equal objects must hash to the same shelf, or the lookup misses"
+      caption="Left: a broken pair. a and b are equal, but their hash codes differ, so b goes to shelf 6 while a sits on shelf 11. Right: a fixed pair. Equal objects share a hash code, so b finds a on shelf 11."
+      viewBox="0 0 720 250"
+    >
+      <text x={20} y={30} fontSize={10} className={faint}>
+        BROKEN
+      </text>
+      <text x={20} y={70} fontSize={13} className="font-mono fill-fg">
+        a (1, &quot;Asha&quot;)
+      </text>
+      <text x={20} y={100} fontSize={13} className="font-mono fill-fg">
+        b (1, &quot;Asha K&quot;)
+      </text>
+      <line x1={150} x2={265} y1={66} y2={150} className="stroke-survey-2" strokeWidth={1.4} />
+      <line x1={150} x2={195} y1={96} y2={150} strokeDasharray="4 3" className="stroke-warn" strokeWidth={1.4} />
+      {shelf(160, 6, false, "b6")}
+      {shelf(230, 11, true, "a11")}
+      <text x={20} y={204} fontSize={12} className="font-mono fill-warn">
+        equals says yes, hashCode says no
+      </text>
+
+      <line x1={360} x2={360} y1={24} y2={226} className="stroke-line" strokeWidth={1} />
+
+      <text x={390} y={30} fontSize={10} className={faint}>
+        FIXED
+      </text>
+      <text x={390} y={70} fontSize={13} className="font-mono fill-fg">
+        a (1, &quot;Asha&quot;)
+      </text>
+      <text x={390} y={100} fontSize={13} className="font-mono fill-fg">
+        b (1, &quot;Asha&quot;)
+      </text>
+      <line x1={520} x2={560} y1={66} y2={150} className="stroke-survey-2" strokeWidth={1.4} />
+      <line x1={520} x2={570} y1={96} y2={150} className="stroke-survey-2" strokeWidth={1.4} />
+      {shelf(530, 11, true, "ab11")}
+      <text x={390} y={204} fontSize={12} className="font-mono fill-survey">
+        equal objects, equal hashCode
+      </text>
+    </Figure>
+  );
+}

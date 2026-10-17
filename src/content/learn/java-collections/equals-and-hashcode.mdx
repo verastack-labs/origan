@@ -1,0 +1,214 @@
+---
+title: equals and hashCode
+sub: Two methods that must always agree.
+description: Learn equals and hashCode in Java. See why HashSet and HashMap need both, break the contract on purpose and watch lookups fail, then fix it by hand and with a record, with a cost table and practice problems.
+order: 7
+part: 1
+updated: 2026-10-17
+slug: equals-and-hashcode
+---
+
+<Part id="what" heading="Twins who must [agree]" sub="Equal objects have to look alike to a hash map." />
+
+Imagine twins, Asha and Meera. A teacher asks "Are these two the same person?" and the answer is no, they are twins. But for a school photo, the teacher says "Group the students by the colour of their shirts." Twins who dress alike must end up in the same group. If one twin wears red and the other wears blue, the photographer who looks in the "red" group for Meera will not find her.
+
+Java has the same arrangement. Two methods that every object has, **`equals`** and **`hashCode`**, are twins that must agree.
+
+- **`equals(other)`** answers "Are these two the same thing?" It is how Java compares *content*. Two students with the same id and the same name should usually count as one student.
+- **`hashCode()`** returns a number, the fingerprint you met in lesson 6. A `HashMap` or `HashSet` uses it to choose a shelf.
+
+The agreement is called the **contract**, which is just a rule that classes promise to follow: **if two objects are equal, their hash codes must be equal too.** The other way round is allowed to be loose. Two different objects can share a hash code (that is a collision, and it is fine).
+
+Break the contract and nothing crashes. Lookups just quietly stop working, which is the worst kind of bug. This lesson shows it happen, then shows how to fix it.
+
+**Remember:** if `a.equals(b)` is true, then `a.hashCode()` must equal `b.hashCode()`. Override both together or neither.
+
+<Part id="idea" heading="Same fingerprint, same [shelf]" sub="Why the hash map needs the two to match." />
+
+<TwinsDiagram />
+
+A hash map looks for an object in two steps. First it takes the object's `hashCode()` and goes to that shelf. Then, on that shelf only, it uses `equals` to find the exact match.
+
+If two equal objects have *different* hash codes, the first step sends them to different shelves. The map goes to shelf 6 looking for `b`, and `a` is sitting on shelf 11. It never gets as far as asking `equals`. The picture shows this on the left. On the right, equal objects share a hash code, so they share a shelf, and `equals` can do its job.
+
+The same Java feature that makes a `HashSet` quick is the feature that makes this bug silent. A set that checks every item would never miss. A set that trusts the shelf number depends on you keeping your promise.
+
+<Part id="use" heading="Break it, then [fix] it" sub="Default equals, a broken pair, a fixed pair, a record." />
+
+Start with a class that overrides neither method.
+
+<Snippet file="Lesson7EqualsAndHashCode" name="plain-student" />
+
+<Snippet file="Lesson7EqualsAndHashCode" name="default-equals" />
+
+```text
+true
+false
+2
+```
+
+A student always equals themselves. But `a` and `b` have the same details and are still not equal. When you don't write `equals`, Java uses the one every object inherits, and that one asks only "is this the very same object in memory?" So a `HashSet` happily keeps both students, and counts 2. If you meant one student, that is wrong.
+
+So we write our own `equals`. Here is a version with a classic mistake. It says two students are equal if their ids match, and it forgets that `hashCode` has to follow.
+
+<Snippet file="Lesson7EqualsAndHashCode" name="broken-student" />
+
+`equals` looks at the id only. `hashCode` mixes in the name as well. Two students with id 1 and different names (say "Asha" and "Asha K", the same person typed two ways) are equal, but get different hash codes.
+
+<Snippet file="Lesson7EqualsAndHashCode" name="broken-demo" />
+
+```text
+true
+false
+buckets: 11 and 6
+```
+
+They are equal, their hash codes differ, and with 16 shelves they point at shelf 11 and shelf 6. (The `bucketFor` helper is the one from our tiny `HashMap` in lesson 6. Hash codes of strings come from a fixed formula, so you will see the same numbers.)
+
+Now put one in a `HashSet` and ask about the other:
+
+<Snippet file="Lesson7EqualsAndHashCode" name="broken-set" />
+
+```text
+false
+```
+
+The student is in the set, and the set says no. Let us be careful about what we claim here. Java does not say what a set will do once your class breaks the contract, so the answer is "whatever happens". On the JDK these lessons use, you get `false`, because the set looks on the wrong shelf. You must never write code that depends on this. Treat it as a symptom to recognise.
+
+The fix: make `equals` and `hashCode` use the **same fields**.
+
+<Snippet file="Lesson7EqualsAndHashCode" name="student" />
+
+Notice the steps in `equals`: return `true` for the same object straight away; return `false` if the other is not a `Student` (and `instanceof` is already `false` for `null`); then compare the fields. `Objects.equals(a, b)` compares two values and copes with `null`. `Objects.hash(...)` builds one hash code from several fields.
+
+<Snippet file="Lesson7EqualsAndHashCode" name="fixed-demo" />
+
+```text
+true
+true
+true
+1
+```
+
+Equal, same hash code, found in the set, and adding the second one changes nothing: the set still holds 1.
+
+<Snippet file="Lesson7EqualsAndHashCode" name="buckets-demo" />
+
+```text
+buckets: 11 and 11
+```
+
+Both land on shelf 11, as the right-hand side of the picture promised.
+
+Writing all of that by hand is boring, and each line is another chance for a typo. When a class is just a bundle of values, Java has a shortcut called a **record**.
+
+<Snippet file="Lesson7EqualsAndHashCode" name="pupil-record" />
+
+<Snippet file="Lesson7EqualsAndHashCode" name="record-demo" />
+
+```text
+true
+true
+1
+Asha
+```
+
+A record writes `equals`, `hashCode` and `toString` for you, and it compares *every* part, so the two can never disagree. It also makes the parts final, which matters more than it looks (see the next section). For small data holders, such as a map key, a record is usually the best answer.
+
+**Remember:** a record gets `equals` and `hashCode` for free, always in agreement. Hand-written ones must use the same fields.
+
+<Part id="inside" heading="The [rules] of the contract" sub="What equals promises, and what to avoid." />
+
+The contract has a few more clauses. Memorise these five for `equals`, since interviewers ask for them.
+
+- **Reflexive.** `a.equals(a)` is always true.
+- **Symmetric.** If `a.equals(b)` is true, then `b.equals(a)` is true.
+- **Transitive.** If `a` equals `b` and `b` equals `c`, then `a` equals `c`.
+- **Consistent.** Asking twice gives the same answer, as long as nothing changed.
+- **Never equal to `null`.** `a.equals(null)` is false, and must not throw.
+
+For `hashCode`, the rules are shorter. The same object must give the same number each time you ask, during one run of the program. And equal objects must give equal numbers. That is the twin rule from the start of the lesson.
+
+Two habits keep you out of trouble.
+
+**Use the same fields in both.** The broken class above used one field in `equals` and two in `hashCode`. The `Book` and `Username` problems below show the opposite danger: `equals` ignores something (the title, or letter case), so `hashCode` must ignore it as well.
+
+**Don't change a key after you store it.** Suppose you put a student in a `HashSet`, and then change the student's name. The hash code changes, but the student is still sitting on the old shelf. The set will probably look in the wrong place and lose them. The safest keys can't change at all, which is one more reason to prefer records, `String`s and `Integer`s as keys.
+
+The cheapest `hashCode` that satisfies the contract returns the same number for everything. It is *legal*. It would also put every key on one shelf, and turn your fast map into one long chain. A good `hashCode` spreads different objects across many numbers.
+
+<Part id="cost" heading="What the pair [costs]" sub="Both methods run on every lookup." />
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| `equals` on a class with k fields | O(k) | Compares each field, stopping at the first difference |
+| `hashCode` on a class with k fields | O(k) | Mixes every field in |
+| Lookup in a `HashSet` or `HashMap`, good `hashCode` | O(1) on average | Keys spread over many shelves |
+| Lookup with a `hashCode` that is the same for everything | O(n) | One shelf holds every key |
+| Lookup when the pair breaks the contract | Wrong, not slow | Equal objects land on different shelves and are missed |
+| A `String` key's `hashCode` | O(length) | It reads every letter |
+
+The last two rows are the point of the lesson. A slow lookup is a performance bug. A lookup that gives the wrong answer is a correctness bug, and those are harder to find.
+
+<Part id="practise" heading="Three problems, [one] contract" sub="Write the pair, pick a key, handle case." />
+
+<Practice
+  number={1}
+  title="The same book"
+  file="Lesson7EqualsAndHashCode"
+  start="book-start"
+  solution="book"
+  hints={[
+    "Two books are the same book when their `isbn` matches. The title does not matter, because a reprint can change it.",
+    "Write `equals(Object other)` first. Use `other instanceof Book that` and compare the isbn with `isbn.equals(that.isbn)`.",
+    "Now `hashCode`. It must use the same fields as `equals`, so return `isbn.hashCode()` and nothing about the title.",
+  ]}
+  explain="`equals` uses only the isbn, so `hashCode` uses only the isbn. If `hashCode` also used the title, two books with the same isbn and different titles would be equal yet hash differently, which is the bug from the lesson. The pattern `other instanceof Book that` handles a `null` argument and a wrong type in one test. Lookups stay O(1) on average, and each call costs O(length of the isbn)."
+>
+Complete the `Book` class so that two books with the same `isbn` are equal and can be found in a `HashSet`, whatever their titles say. Add both `equals` and `hashCode`.
+</Practice>
+
+<Practice
+  number={2}
+  title="Standing on the same square"
+  file="Lesson7EqualsAndHashCode"
+  start="revisits-start"
+  solution="revisits"
+  hints={[
+    "You want a `HashSet` of squares seen so far. The trouble is the square type: an `int[]` of two numbers will not work as a key.",
+    "Arrays compare by identity, so two arrays holding `{0, 1}` are not equal and have different hash codes. Make a small record instead: `record Square(int row, int col) {}`.",
+    "For each step, `seen.add(new Square(step[0], step[1]))`. If `add` returns false, you have been there before: return true. If you reach the end, return false.",
+  ]}
+  explain="A record is the quickest way to get a key with a working `equals` and `hashCode`, because both are built from every part. An `int[]` would fail silently: the set would keep both `{0, 1}` arrays and never report a repeat. Using the result of `add` merges the check and the insert, so the walk is O(n) time and O(n) space."
+>
+Write `revisits`, which takes a path as a list of `{row, col}` steps and returns `true` if the path ever stands on the same square twice. The path `(0,0), (0,1), (1,1), (0,1)` revisits, so it returns `true`. An empty path returns `false`.
+</Practice>
+
+<Practice
+  number={3}
+  title="Names that ignore case"
+  file="Lesson7EqualsAndHashCode"
+  start="username-start"
+  solution="username"
+  hints={[
+    "Write `equals` first. `String` has a method, `equalsIgnoreCase`, that does exactly the comparison you need.",
+    "Now think about `hashCode`. \"Asha\" and \"ASHA\" are equal here, so they must give the same hash code, but their plain `hashCode()` values differ.",
+    "Hash a version of the text that is the same for both: `text.toLowerCase(Locale.ROOT).hashCode()`.",
+  ]}
+  explain="Because `equals` ignores case, `hashCode` has to ignore it too, otherwise \"Asha\" and \"ASHA\" would be equal and still land on different shelves. Lower-casing first gives both the same number. `Locale.ROOT` stops the result depending on the computer's language settings. This is the general rule: whatever `equals` ignores, `hashCode` must ignore. The idea works for ordinary letters, which is what the exercise uses."
+>
+Complete the `Username` class so that `Asha` and `ASHA` count as the same username, and a `HashSet` of usernames holds only one of them. Add both `equals` and `hashCode`.
+</Practice>
+
+<Part id="interview" heading="The contract in the [interview]" sub="This is one of the most asked questions." />
+
+If an interviewer asks you one `HashMap` question, it is usually this one.
+
+- **"Why override `hashCode` when you override `equals`?"** Because hash collections find an object by shelf first and by `equals` second. Equal objects need equal hash codes, or they land on different shelves and a lookup misses an object that is really there.
+- **"What happens if you override only `equals`?"** Equal objects may get different hash codes (the default one is tied to the object itself), so `HashSet` and `HashMap` can miss them. It is a silent bug, which is why it is worth saying out loud.
+- **"What happens if you override only `hashCode`?"** Equal hash codes still lead to the right shelf, but `equals` then says "different object", so lookups still fail.
+- **"Do unequal objects need different hash codes?"** No. Sharing a hash code is a collision, and is allowed. Only the other direction is a rule.
+- **"What makes a good `hashCode`?"** It uses the same fields as `equals`, gives the same answer every time for an unchanged object, and spreads different objects across many numbers.
+- **"Can you use a mutable object as a key?"** You can, but changing it after it is stored can lose it. Prefer immutable keys, such as `String`, `Integer` and records.
+- **"How do you shortcut all this?"** Use a record. For a normal class, `Objects.equals` and `Objects.hash` keep the code short.
+- **Say the cost.** "`equals` and `hashCode` each cost O(fields). With a good hash, a lookup is O(1) on average. With a broken pair, it is not slow, it is wrong."
