@@ -14,7 +14,18 @@ const theme = createCssVariablesTheme({
   fontStyle: true,
 });
 
-const labels: Record<string, string> = { rust: "Rust", java: "Java", bash: "Terminal", text: "Output" };
+const labels: Record<string, string> = {
+  rust: "Rust",
+  java: "Java",
+  bash: "Terminal",
+  text: "Output",
+  typescript: "TypeScript",
+  javascript: "JavaScript",
+  json: "JSON",
+  html: "HTML",
+  css: "CSS",
+  http: "HTTP",
+};
 
 /**
  * One block of code: the label, a copy button, and, for Rust, a link that

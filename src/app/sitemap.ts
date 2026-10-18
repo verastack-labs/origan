@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { courses, courseUrl } from "@/data/courses";
 import { pages, site } from "@/data/site";
+import { articleUrl, offTheSyllabus } from "@/data/off-the-syllabus";
+import { getArticles } from "@/lib/articles";
 import { getLessons } from "@/lib/lessons";
 
 export const dynamic = "force-static";
@@ -40,5 +42,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.6,
       })),
     ]),
+    // Off the Syllabus: the index, then each article, dated by when its facts
+    // were last checked.
+    {
+      url: `${site.url}${offTheSyllabus.path}`,
+      lastModified,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    },
+    ...getArticles().map((article) => ({
+      url: articleUrl(article.slug),
+      lastModified: new Date(article.checked),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
   ];
 }

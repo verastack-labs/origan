@@ -6,6 +6,7 @@ import { StudioCredit } from "@/components/dsa/lesson-chrome";
 import { resources, resourcesPage } from "@/data/resources";
 import { javaCourse, rustCourse, switchCourse } from "@/data/courses";
 import { getLessons } from "@/lib/lessons";
+import { getArticles } from "@/lib/articles";
 import { buildSearchIndex } from "@/lib/search-index";
 import { ResourceSearch } from "@/components/resource-search";
 import { site } from "@/data/site";
@@ -36,6 +37,7 @@ const counts: Record<string, number> = {
   "dsa-in-rust": getLessons(rustCourse).length,
   "java-collections": getLessons(javaCourse).length,
   "the-switch": getLessons(switchCourse).length,
+  "off-the-syllabus": getArticles().length,
 };
 
 export default function Resources() {
@@ -97,7 +99,7 @@ export default function Resources() {
                         ))}
                       </span>
                       <span className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-survey">
-                        Open the lessons{" "}
+                        {resource.cta ?? "Open the lessons"}{" "}
                         <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-0.5">
                           →
                         </span>

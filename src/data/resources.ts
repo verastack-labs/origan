@@ -1,4 +1,5 @@
 import { javaCollections } from "./java-collections";
+import { offTheSyllabus, otsTopics } from "./off-the-syllabus";
 import { rustDsa } from "./rust-dsa";
 import { theSwitch } from "./the-switch";
 
@@ -19,6 +20,8 @@ export type Resource = {
   unit: readonly [string, string];
   /** Short topic names, shown as pills so a reader sees what is inside before opening it. */
   topics: readonly string[];
+  /** The line at the foot of the card, where "Open the lessons" does not fit. */
+  cta?: string;
 };
 
 export const resources: readonly Resource[] = [
@@ -61,6 +64,16 @@ export const resources: readonly Resource[] = [
       "Cheat sheet",
     ],
   },
+  {
+    id: "off-the-syllabus",
+    name: offTheSyllabus.name,
+    descriptor: offTheSyllabus.descriptor,
+    summary: offTheSyllabus.summary,
+    href: offTheSyllabus.path,
+    unit: ["article", "articles"],
+    topics: otsTopics,
+    cta: "Read the articles",
+  },
 ];
 
 export const resourcesPage = {
@@ -68,7 +81,7 @@ export const resourcesPage = {
   heading: "Free [study] material",
   sub: "Made by VeraStack Labs. Open to anyone, no sign-up.",
   description:
-    "Free courses for engineering students by VeraStack Labs: Oxidise (DSA in Rust), Filter Coffee (Java Collections) and The Switch (JavaScript to TypeScript). Every code sample is tested.",
+    "Free courses for engineering students by VeraStack Labs: Oxidise (DSA in Rust), Filter Coffee (Java Collections) and The Switch (JavaScript to TypeScript), plus Off the Syllabus, articles on the web and its tools. Every code sample is tested.",
   /** The share card's one line under the title. */
-  card: "Oxidise · Filter Coffee · The Switch. Free, no sign-up.",
+  card: "Oxidise · Filter Coffee · The Switch · Off the Syllabus. Free, no sign-up.",
 };

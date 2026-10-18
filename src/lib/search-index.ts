@@ -1,6 +1,8 @@
 import { courses, coursePath, type Course } from "@/data/courses";
 import { resources } from "@/data/resources";
 import { partOf } from "@/data/rust-dsa";
+import { articlePath, offTheSyllabus, otsPlan, otsTopics, seriesOf } from "@/data/off-the-syllabus";
+import { getArticles } from "@/lib/articles";
 import { getLessons } from "@/lib/lessons";
 import type { SearchEntry } from "@/lib/search";
 
@@ -16,6 +18,7 @@ import type { SearchEntry } from "@/lib/search";
 export function buildSearchIndex(
   list: readonly Course[] = courses,
   liveSlugs: (course: Course) => ReadonlySet<string> = (c) => new Set(getLessons(c).map((l) => l.slug)),
+  liveArticles: ReadonlySet<string> = new Set(getArticles().map((a) => a.slug)),
 ): SearchEntry[] {
   const out: SearchEntry[] = [];
 
@@ -53,5 +56,48 @@ export function buildSearchIndex(
     }
   }
 
+  out.push(...articleEntries(liveArticles));
   return out;
+}
+
+/**
+ * Off the Syllabus: the collection, and every article in the plan, written or
+ * not. An article is found by its title, its series, its angle and the topics
+ * it declares.
+ */
+function articleEntries(live: ReadonlySet<string>): SearchEntry[] {
+  const written = new Map(getArticles().map((a) => [a.slug, a]));
+  const entries: SearchEntry[] = [
+    {
+      id: "collection:off-the-syllabus",
+      kind: "collection",
+      title: offTheSyllabus.name,
+      descriptor: offTheSyllabus.descriptor,
+      courseName: offTheSyllabus.name,
+      language: "Web",
+      href: offTheSyllabus.path,
+      published: true,
+      articleCount: live.size,
+      topics: otsTopics,
+      text: [offTheSyllabus.summary, offTheSyllabus.descriptor],
+    },
+  ];
+
+  for (const entry of otsPlan) {
+    const article = written.get(entry.slug);
+    entries.push({
+      id: `article:${entry.slug}`,
+      kind: "article",
+      title: entry.title,
+      courseName: offTheSyllabus.name,
+      language: "Web",
+      href: articlePath(entry.slug),
+      published: live.has(entry.slug),
+      articleNumber: entry.order,
+      series: seriesOf(entry.series).name,
+      topics: article ? article.topics : [],
+      text: [entry.angle],
+    });
+  }
+  return entries;
 }

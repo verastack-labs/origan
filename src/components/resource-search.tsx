@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import {
   emptyState,
+  isInner,
   maxQueryLength,
   placeholder,
   readQuery,
@@ -241,21 +242,29 @@ export function ResourceSearch({ index, children }: { index: readonly SearchEntr
   );
 }
 
+/** The small line under a result: what it is, where it sits, and how big it is. */
+function rowMeta(entry: SearchEntry): string[] {
+  switch (entry.kind) {
+    case "course":
+      return ["Course", entry.descriptor ?? entry.language, `${entry.lessonCount ?? 0} ${entry.lessonCount === 1 ? "lesson" : "lessons"}`];
+    case "collection":
+      return ["Collection", entry.descriptor ?? entry.language, `${entry.articleCount ?? 0} ${entry.articleCount === 1 ? "article" : "articles"}`];
+    case "article":
+      return [entry.courseName, entry.series ?? entry.language, `Article ${entry.articleNumber ?? 0}`];
+    default:
+      return [entry.courseName, entry.language, `Lesson ${entry.lessonNumber ?? 0}`];
+  }
+}
+
 function Row({ result }: { result: SearchResult }) {
   const { entry } = result;
-  const meta = [
-    entry.kind === "course" ? "Course" : entry.courseName,
-    entry.kind === "course" ? (entry.descriptor ?? entry.language) : entry.language,
-    entry.kind === "course"
-      ? `${entry.lessonCount ?? 0} ${entry.lessonCount === 1 ? "lesson" : "lessons"}`
-      : `Lesson ${entry.lessonNumber ?? 0}`,
-  ];
+  const meta = rowMeta(entry);
   const body = (
     <span className="min-w-0">
         <span className="block text-[clamp(17px,1.9vw,20px)] font-semibold tracking-[-0.02em] text-fg">
           <Highlighted text={entry.title} ranges={result.ranges} />
         </span>
-        {entry.kind === "lesson" && result.ranges.length === 0 && entry.text[0] && (
+        {isInner(entry) && result.ranges.length === 0 && entry.text[0] && (
           // The match is somewhere other than the title, so say where it is.
           <span className="mt-1 block text-[14.5px] text-fg-2">{entry.text[0]}</span>
         )}

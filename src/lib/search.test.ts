@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { courses } from "@/data/courses";
+import { otsPlan } from "@/data/off-the-syllabus";
 import { buildSearchIndex } from "./search-index";
 import { getLessons } from "./lessons";
 import {
   emptyState,
+  isInner,
   maxQueryLength,
   normalize,
   readQuery,
@@ -44,7 +46,8 @@ describe("the index", () => {
       }
     }
     const lessonCount = courses.reduce((n, c) => n + c.curriculum.length, 0);
-    expect(index).toHaveLength(courses.length + lessonCount);
+    // Off the Syllabus adds the collection and one entry for each article in its plan.
+    expect(index).toHaveLength(courses.length + lessonCount + 1 + otsPlan.length);
   });
 
   it("has unique ids and is plain data", () => {
@@ -78,7 +81,8 @@ describe("matching", () => {
   it("matches the language", () => {
     expect(languages("rust")).toEqual(new Set(["Rust"]));
     // "java" is also the start of "JavaScript", in The Switch's descriptor.
-    expect(languages("JAVA")).toEqual(new Set(["Java", "TypeScript"]));
+    // Off the Syllabus (language "Web") has an article on JavaScript engines, so it matches too.
+    expect(languages("JAVA")).toEqual(new Set(["Java", "TypeScript", "Web"]));
   });
 
   it("matches part names and topic pills", () => {
@@ -113,7 +117,8 @@ describe("matching", () => {
     // JSON and JavaScript lessons.
     expect(titles("js")).toContain("Setting up, and how to read these pages");
     expect(titles("js")).toContain("Data from outside");
-    expect(languages("js")).toEqual(new Set(["Java", "TypeScript"]));
+    // And the Web article on JSON-LD, whose title starts with "js".
+    expect(languages("js")).toEqual(new Set(["Java", "TypeScript", "Web"]));
   });
 
   it("finds nothing for an empty or punctuation-only query", () => {
@@ -179,8 +184,8 @@ describe("ranking", () => {
   it("puts a course above a lesson on a tie", () => {
     const results = search(index, "java");
     expect(results[0].entry.kind).toBe("course");
-    const first = results.findIndex((r) => r.entry.kind === "lesson");
-    expect(results.slice(0, first).every((r) => r.entry.kind === "course")).toBe(true);
+    const first = results.findIndex((r) => isInner(r.entry));
+    expect(results.slice(0, first).every((r) => r.entry.kind === "course" || r.entry.kind === "collection")).toBe(true);
     expect(results[0].entry.title).toBe("Filter Coffee");
   });
 

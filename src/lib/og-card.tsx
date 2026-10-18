@@ -76,7 +76,7 @@ export function lessonCard({ kicker, title, sub }: { kicker: string; title: stri
           <div
             style={{
               display: "flex",
-              fontSize: title.length > 24 ? 92 : 112,
+              fontSize: title.length > 48 ? 64 : title.length > 24 ? 92 : 112,
               fontWeight: 800,
               letterSpacing: -4,
               color: FG,

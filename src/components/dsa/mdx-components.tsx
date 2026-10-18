@@ -29,6 +29,8 @@ import { Snippet } from "./snippet";
 import { Compare, Fails } from "./ts-code";
 import { NarrowingStepper } from "./narrowing-stepper";
 import { TypeStrip } from "./type-strip";
+import { ArticleH2, RepoJsonLd, Sample } from "./ots-components";
+import * as otsDiagrams from "./ots-diagrams";
 
 /** A short aside: an idea that earns a box of its own, such as ownership. */
 function Note({ title, children }: { title: string; children: ReactNode }) {
@@ -168,3 +170,12 @@ export function componentsFor(course: Course): MDXComponents {
 }
 
 export const components = componentsFor(rustCourse);
+
+/**
+ * The components for an Off the Syllabus article. Articles are not lessons,
+ * so there is no Part, Snippet or Practice: headings carry their own anchors,
+ * and code comes from the checked folder through <Sample>.
+ */
+export function articleComponents(): MDXComponents {
+  return { ...shared, ...otsDiagrams, h2: ArticleH2, Sample, RepoJsonLd };
+}

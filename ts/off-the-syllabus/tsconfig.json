@@ -1,0 +1,12 @@
+// The options every TypeScript sample in Off the Syllabus is type-checked with.
+// scripts/check-ts-snippets.mjs reads this file. `dom` is on because several
+// articles are about the browser.
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "NodeNext",
+    "strict": true,
+    "noEmit": true
+  }
+}

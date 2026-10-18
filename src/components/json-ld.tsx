@@ -9,8 +9,8 @@ import { site } from "@/data/site";
  * does not match the page, and an answer engine will happily repeat a number
  * that was invented to fill a schema field.
  */
-export function JsonLd() {
-  const graph = {
+export function siteGraph() {
+  return {
     "@context": "https://schema.org",
     "@graph": [
       {
@@ -57,6 +57,10 @@ export function JsonLd() {
       },
     ],
   };
+}
+
+export function JsonLd() {
+  const graph = siteGraph();
 
   return (
     <script
