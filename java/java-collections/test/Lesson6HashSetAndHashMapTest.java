@@ -61,6 +61,58 @@ public class Lesson6HashSetAndHashMapTest {
         Check.isTrue(bucket >= 0 && bucket < 8, "bucket out of range");
     }
 
+    /**
+     * The hash map stepper on the HashMap page puts these keys into a TinyHashMap
+     * and draws its buckets. This reads the real buckets back, with reflection,
+     * and the page's TypeScript test (src/lib/steps/hash-map.test.ts) asserts the
+     * same hash codes, buckets and chains.
+     */
+    static void testStepperKeysLandWhereThePageSaysTheyDo() throws Exception {
+        Check.eq(2050251, "Asha".hashCode());
+        Check.eq(2539842, "Ravi".hashCode());
+        Check.eq(74220700, "Meera".hashCode());
+        Check.eq(72504801, "Kiran".hashCode());
+        Check.eq(66044729, "Divya".hashCode());
+
+        Check.eq(3, Lesson6HashSetAndHashMap.TinyHashMap.bucketFor("Asha", 8));
+        Check.eq(2, Lesson6HashSetAndHashMap.TinyHashMap.bucketFor("Ravi", 8));
+        Check.eq(4, Lesson6HashSetAndHashMap.TinyHashMap.bucketFor("Meera", 8));
+        Check.eq(1, Lesson6HashSetAndHashMap.TinyHashMap.bucketFor("Kiran", 8));
+        Check.eq(1, Lesson6HashSetAndHashMap.TinyHashMap.bucketFor("Divya", 8)); // the collision
+
+        Lesson6HashSetAndHashMap.TinyHashMap<String, String> map = new Lesson6HashSetAndHashMap.TinyHashMap<>();
+        map.put("Asha", "98450 11111");
+        map.put("Ravi", "98450 22222");
+        map.put("Meera", "98450 44444");
+        map.put("Kiran", "98450 55555");
+        map.put("Divya", "98450 66666");
+        map.put("Asha", "98450 33333"); // replaces: the size stays 5
+
+        Check.eq(5, map.size());
+        Check.eq(8, map.bucketCount());
+        Check.eq("98450 33333", map.get("Asha"));
+
+        // Each bucket's chain, front first, read from the real object.
+        java.lang.reflect.Field bucketsField = map.getClass().getDeclaredField("buckets");
+        bucketsField.setAccessible(true);
+        Object[] table = (Object[]) bucketsField.get(map);
+        Class<?> nodeClass = Class.forName("Lesson6HashSetAndHashMap$TinyHashMap$Node");
+        java.lang.reflect.Field keyField = nodeClass.getDeclaredField("key");
+        java.lang.reflect.Field nextField = nodeClass.getDeclaredField("next");
+        keyField.setAccessible(true);
+        nextField.setAccessible(true);
+
+        StringBuilder chains = new StringBuilder();
+        for (int i = 0; i < table.length; i++) {
+            chains.append(i).append(':');
+            for (Object node = table[i]; node != null; node = nextField.get(node)) {
+                chains.append(keyField.get(node)).append(node == null ? "" : ",");
+            }
+            chains.append('|');
+        }
+        Check.eq("0:|1:Divya,Kiran,|2:Ravi,|3:Asha,|4:Meera,|5:|6:|7:|", chains.toString());
+    }
+
     static void testStartersAreStubs() {
         Check.throwsA(UnsupportedOperationException.class, () -> Lesson6HashSetAndHashMap.Starters.firstDuplicate(List.of()));
         Check.throwsA(UnsupportedOperationException.class, () -> Lesson6HashSetAndHashMap.Starters.twoSum(new int[0], 1));

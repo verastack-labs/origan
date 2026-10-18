@@ -39,6 +39,21 @@ public class Lesson3ArrayListTest {
         }
     }
 
+    /**
+     * The growth stepper on the ArrayList page adds "A" to "H" to a TinyList and
+     * shows its capacity. These are the numbers the real class gives, and the
+     * page's TypeScript test (src/lib/steps/array-list.test.ts) asserts the same.
+     */
+    static void testTinyListCapacityAfterEachAdd() {
+        Lesson3ArrayList.TinyList<String> list = new Lesson3ArrayList.TinyList<>();
+        StringBuilder seen = new StringBuilder();
+        for (String item : List.of("A", "B", "C", "D", "E", "F", "G", "H")) {
+            list.add(item);
+            seen.append(list.capacity()).append(' ');
+        }
+        Check.eq("4 4 4 4 7 7 7 11 ", seen.toString());
+    }
+
     static void testTinyListInsertAndRemove() {
         Lesson3ArrayList.TinyList<String> list = new Lesson3ArrayList.TinyList<>();
         list.add("a");
