@@ -312,6 +312,35 @@
     transition: max-width 200ms var(--ease-survey);
   }
 
+  /* A new article arriving beside a sidebar that stayed. It fades up a few
+     pixels, quickly; there is no slide, because the thing that moved was the
+     reader's attention, not the page. */
+  .article-arrive {
+    animation: article-arrive 180ms var(--ease-survey) both;
+  }
+
+  /* The blocks that were already on screen when an article arrived are marked
+     still: they appear with it, without replaying their own entrance, which
+     is for scrolling down to a block and reads as flicker when every one of
+     them fires at once. */
+  .js .rv[data-still] {
+    transition: none;
+  }
+
+  .js .rv-plot[data-still] .plot-ink,
+  .js .rv-plot[data-still] .plot-pen,
+  .js .rv-label[data-still] .plot-char {
+    animation: none;
+  }
+
+  .js .rv-plot[data-still] .plot-ink {
+    clip-path: none;
+  }
+
+  .js .rv-label[data-still] .plot-char {
+    opacity: 1;
+  }
+
   @media (min-width: 1024px) {
     .chapters-layout {
       display: grid;
@@ -419,6 +448,17 @@
   from {
     opacity: 0;
     transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes article-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -544,6 +584,7 @@ body > div:has(> div > iframe[src*="hcaptcha.com"][src*="frame=challenge"]) {
   .range,
   .set-out,
   .sheet-change,
+  .article-arrive,
   .rv-plot[data-in="true"] .plot-ink,
   .rv-plot[data-in="true"] .plot-pen,
   .rv-label[data-in="true"] .plot-char {

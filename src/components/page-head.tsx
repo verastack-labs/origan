@@ -73,6 +73,42 @@ export function PageHead({
   );
 }
 
+/**
+ * The opening of a lesson or article, set inside its column instead of across
+ * the page. The chapters sidebar stays put while this changes, so it is the
+ * heading the reader lands on and the one that takes focus after a move.
+ */
+export function ArticleHead({
+  notation,
+  pair,
+  crumbs,
+  current,
+  meta,
+}: {
+  notation: string;
+  pair: Pair;
+  crumbs: readonly Crumb[];
+  current: string;
+  meta?: ReactNode;
+}) {
+  return (
+    <header className="mb-[clamp(20px,2.6vw,32px)]">
+      <Trail crumbs={crumbs} current={current} />
+      <Reveal variant="label" className="notation">
+        {notation}
+      </Reveal>
+      <HeadingPair
+        pair={pair}
+        as="h1"
+        size="page"
+        className="mt-4"
+        headingProps={{ id: "lesson-title", tabIndex: -1, "data-lesson-title": "" }}
+      />
+      {meta && <div className="mt-6">{meta}</div>}
+    </header>
+  );
+}
+
 function Trail({ crumbs, current }: { crumbs: readonly Crumb[]; current: string }) {
   const parent = crumbs[crumbs.length - 1];
   return (

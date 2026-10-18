@@ -81,7 +81,7 @@ export function LessonNav({
   return (
     <nav aria-label="Previous and next lesson" className="grid gap-px overflow-hidden rounded-panel border border-line bg-line sm:grid-cols-2">
       {prev ? (
-        <Link href={coursePath(course, prev.slug)} rel="prev" className={`${cell} hover:bg-panel-2`}>
+        <Link href={coursePath(course, prev.slug)} rel="prev" scroll={false} className={`${cell} hover:bg-panel-2`}>
           <span className="notation">Previous</span>
           <span className="mt-2 block text-[17px] font-semibold tracking-[-0.01em] text-fg">{prev.title}</span>
         </Link>
@@ -92,7 +92,7 @@ export function LessonNav({
         </Link>
       )}
       {next ? (
-        <Link href={coursePath(course, next.slug)} rel="next" className={`${cell} hover:bg-panel-2 sm:text-right`}>
+        <Link href={coursePath(course, next.slug)} rel="next" scroll={false} className={`${cell} hover:bg-panel-2 sm:text-right`}>
           <span className="notation">Next</span>
           <span className="mt-2 block text-[17px] font-semibold tracking-[-0.01em] text-fg">{next.title}</span>
         </Link>

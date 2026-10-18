@@ -83,6 +83,7 @@ export function HeadingPair({
   size = "section",
   className = "",
   headingClassName = "",
+  headingProps,
 }: {
   pair: Pair;
   as?: "h1" | "h2" | "h3";
@@ -91,6 +92,8 @@ export function HeadingPair({
   className?: string;
   /** Extra classes for the heading itself, such as a width that forces a break. */
   headingClassName?: string;
+  /** Attributes for the heading element, such as an `id` and `tabIndex` so it can take focus. */
+  headingProps?: Record<string, unknown>;
 }) {
   const s = sizes[size];
   // text-pretty: a wrapped line never leaves a single word alone on the last row.
@@ -107,6 +110,7 @@ export function HeadingPair({
         as={as}
         variant="plot"
         className={`${pair.kicker ? s.gap : ""} text-balance ${s.heading} ${headingClassName}`}
+        {...headingProps}
       >
         {accented(pair.heading)}
       </Reveal>

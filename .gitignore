@@ -43,3 +43,7 @@ next-env.d.ts
 
 # Java snippets: compiled classes
 /java/java-collections/out/
+
+# Playwright
+/test-results/
+/playwright-report/

@@ -1,10 +1,12 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHead, sectionCompact, shell } from "@/components/page-head";
+import { ArticleHead, PageHead, sectionCompact, shell } from "@/components/page-head";
 import { HeadingPair } from "@/components/heading-pair";
 import { Reveal } from "@/components/reveal";
-import { ChaptersLayout, type Chapter, type ChaptersNav } from "@/components/dsa/chapters";
+import { ChaptersLayout, type Chapter, type ChaptersNav, type PartsBySlug } from "@/components/dsa/chapters";
+import { LessonArticle } from "@/components/dsa/lesson-article";
 import { ContentsBlock, StudioCredit } from "@/components/dsa/lesson-chrome";
 import { inlineCode } from "@/components/dsa/inline-code";
 import { ProseLink } from "@/components/dsa/prose-link";
@@ -286,7 +288,7 @@ function NextInSeries({ article, published }: { article: Article; published: Rea
   return (
     <nav aria-label="Next in this series" className="overflow-hidden rounded-panel border border-line">
       {next.kind === "article" ? (
-        <Link href={articlePath(next.entry.slug)} rel="next" className={`${cell} transition-colors hover:bg-panel-2`}>
+        <Link href={articlePath(next.entry.slug)} rel="next" scroll={false} className={`${cell} transition-colors hover:bg-panel-2`}>
           <span className="notation">Next in this series</span>
           <span className={`${title} text-fg`}>{next.entry.title}</span>
           <span className="mt-1 block text-[14.5px] text-fg-2">{next.entry.angle}</span>
@@ -308,6 +310,38 @@ function NextInSeries({ article, published }: { article: Article; published: Rea
   );
 }
 
+const headingsWithSources = (article: Article) => [...headingsOf(article.body), { id: "sources", label: "Sources" }];
+
+/**
+ * The layout every article shares, above `[slug]` in a route group, so the
+ * sidebar stays mounted while the article beside it is replaced.
+ */
+export function ArticlesShell({ children }: { children: ReactNode }) {
+  const articles = getArticles();
+  const published = new Set(articles.map((a) => a.slug));
+  const nav: ChaptersNav = {
+    id: "off-the-syllabus",
+    name: offTheSyllabus.name,
+    descriptor: offTheSyllabus.descriptor,
+    path: offTheSyllabus.path,
+    partNames: {},
+    kicker: "Free articles",
+    reads: false,
+  };
+  const partsBySlug: PartsBySlug = Object.fromEntries(articles.map((a) => [a.slug, headingsWithSources(a)]));
+
+  return (
+    <ChaptersLayout
+      course={nav}
+      chapters={chaptersOf(published)}
+      partsBySlug={partsBySlug}
+      contentClass={`${shell} pb-[clamp(60px,8vw,110px)] pt-[clamp(28px,4vw,52px)]`}
+    >
+      {children}
+    </ChaptersLayout>
+  );
+}
+
 export async function ArticleView({ slug }: { slug: string }) {
   const article = getArticle(slug);
   if (!article) notFound();
@@ -316,17 +350,7 @@ export async function ArticleView({ slug }: { slug: string }) {
   const articles = getArticles();
   const published = new Set(articles.map((a) => a.slug));
   const series = seriesOf(article.series);
-  const headings = [...headingsOf(article.body), { id: "sources", label: "Sources" }];
-  const nav: ChaptersNav = {
-    id: "off-the-syllabus",
-    name: offTheSyllabus.name,
-    descriptor: offTheSyllabus.descriptor,
-    path: offTheSyllabus.path,
-    parts: headings,
-    partNames: {},
-    kicker: "Free articles",
-    reads: false,
-  };
+  const headings = headingsWithSources(article);
 
   return (
     <>
@@ -336,54 +360,44 @@ export async function ArticleView({ slug }: { slug: string }) {
         dangerouslySetInnerHTML={{ __html: jsonLdScript([articleJsonLd(article), otsBreadcrumbJsonLd(article)]) }}
       />
 
-      <ChaptersLayout
-        course={nav}
-        chapters={chaptersOf(published)}
-        current={article.slug}
-        contentClass={`${shell} pb-[clamp(60px,8vw,110px)] pt-[clamp(28px,4vw,52px)]`}
-        head={
-          <PageHead
-            notation={`${offTheSyllabus.name} · ${series.name}`}
-            pair={{ heading: article.title, sub: article.sub }}
-            cta={false}
-            compact
-            crumbs={[
-              { label: "Resources", href: "/resources/" },
-              { label: offTheSyllabus.name, href: offTheSyllabus.path },
-            ]}
-            current={`Article ${article.order}`}
-            meta={
-              <p className="flex flex-wrap items-center gap-x-5 gap-y-1.5 font-mono text-[11px] uppercase tracking-[0.1em] text-fg-3">
-                <span>{readMinutes(article)} min read</span>
-                <span aria-hidden="true" className="hidden h-3 w-px bg-line sm:block" />
-                <span>
-                  Last checked <time dateTime={article.checked}>{longDate(article.checked)}</time>
-                </span>
-              </p>
-            }
-          />
-        }
-      >
-        <article className="lesson-article min-w-0">
-          <div className="mb-6 flex flex-wrap items-center justify-end gap-x-6 gap-y-2">
-            <StudioCredit />
-          </div>
+      <LessonArticle title={article.title}>
+        <ArticleHead
+          notation={`${offTheSyllabus.name} · ${series.name}`}
+          pair={{ heading: article.title, sub: article.sub }}
+          crumbs={[
+            { label: "Resources", href: "/resources/" },
+            { label: offTheSyllabus.name, href: offTheSyllabus.path },
+          ]}
+          current={`Article ${article.order}`}
+          meta={
+            <p className="flex flex-wrap items-center gap-x-5 gap-y-1.5 font-mono text-[11px] uppercase tracking-[0.1em] text-fg-3">
+              <span>{readMinutes(article)} min read</span>
+              <span aria-hidden="true" className="hidden h-3 w-px bg-line sm:block" />
+              <span>
+                Last checked <time dateTime={article.checked}>{longDate(article.checked)}</time>
+              </span>
+            </p>
+          }
+        />
 
-          <ContentsBlock parts={headings} />
+        <div className="mb-6 flex flex-wrap items-center justify-end gap-x-6 gap-y-2">
+          <StudioCredit />
+        </div>
 
-          <ShortVersion lines={article.short} />
+        <ContentsBlock parts={headings} />
 
-          <Content components={articleComponents()} />
+        <ShortVersion lines={article.short} />
 
-          <Sources article={article} />
+        <Content components={articleComponents()} />
 
-          <div className="mt-[clamp(32px,4vw,48px)]">
-            <NextInSeries article={article} published={published} />
-          </div>
+        <Sources article={article} />
 
-          <StudioCredit className="mt-8" />
-        </article>
-      </ChaptersLayout>
+        <div className="mt-[clamp(32px,4vw,48px)]">
+          <NextInSeries article={article} published={published} />
+        </div>
+
+        <StudioCredit className="mt-8" />
+      </LessonArticle>
     </>
   );
 }
