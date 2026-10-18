@@ -8,7 +8,7 @@ export const site = {
     "Origan keeps a record of what each engineering student has covered, from first semester to the final drive, with a Campus Coach on campus.",
   url: "https://origan.verastack.dev",
   studio: "VeraStack Labs",
-  studioUrl: "https://verastack-labs.github.io",
+  studioUrl: "https://verastack.dev",
   // The studio's own site, which the learning pages credit.
   labsUrl: "https://verastack.dev",
   location: "Indiranagar, Bangalore",
