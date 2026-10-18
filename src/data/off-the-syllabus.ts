@@ -86,7 +86,8 @@ export const otsPlan: readonly PlanEntry[] = [
  * the topics the live articles declare, so a pill never promises a page that
  * does not exist.
  */
-export const otsTopics: readonly string[] = ["Core Web Vitals", "LCP", "CLS", "INP", "PageSpeed Insights", "Lighthouse", "Field data", "Lab data", "JSON-LD", "Structured data", "schema.org"];
+export const otsTopics: readonly string[] = ["Core Web Vitals", "LCP", "CLS", "INP", "PageSpeed Insights", "Lighthouse", "Field data", "Lab data", "JSON-LD", "Structured data", "schema.org",
+  "API clients", "Postman", "Bruno", "Insomnia", "Hoppscotch", "curl"];
 
 export const seriesOf = (id: SeriesId): Series => {
   const series = otsSeries.find((s) => s.id === id);
