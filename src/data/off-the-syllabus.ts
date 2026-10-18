@@ -87,7 +87,8 @@ export const otsPlan: readonly PlanEntry[] = [
  * does not exist.
  */
 export const otsTopics: readonly string[] = ["Core Web Vitals", "LCP", "CLS", "INP", "PageSpeed Insights", "Lighthouse", "Field data", "Lab data", "JSON-LD", "Structured data", "schema.org",
-  "API clients", "Postman", "Bruno", "Insomnia", "Hoppscotch", "curl"];
+  "API clients", "Postman", "Bruno", "Insomnia", "Hoppscotch", "curl",
+  "Typing a URL", "DNS and TLS", "How a browser loads a page"];
 
 export const seriesOf = (id: SeriesId): Series => {
   const series = otsSeries.find((s) => s.id === id);

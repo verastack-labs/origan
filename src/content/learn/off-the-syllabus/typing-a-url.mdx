@@ -1,0 +1,186 @@
+---
+title: What happens when you type a URL
+sub: From the address bar to the first painted pixel, one step at a time.
+description: The trip a web address takes before a page appears. DNS, the connection and its secure handshake, the request, the HTML coming back, and how a browser turns it into pixels, with a way to time each step yourself.
+slug: typing-a-url
+order: 11
+series: how-things-work
+published: 2026-10-18
+checked: 2026-10-18
+topics:
+  - Typing a URL
+  - DNS and TLS
+  - How a browser loads a page
+short:
+  - "Typing an address starts a chain: the browser looks up the server's IP address (DNS), opens a connection to it (TCP, then a secure handshake called TLS), sends a request, and gets HTML back."
+  - "Then the browser turns that HTML and the page's CSS into a tree of boxes, works out where each goes, and paints pixels."
+  - "If the browser already holds a fresh copy from an earlier visit, it can skip the network steps entirely."
+  - "Your browser keeps a stopwatch for every step. The Try it yourself section prints it for a real page."
+sources:
+  - title: "MDN: What is a URL?"
+    url: https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_URL
+  - title: "MDN: How the web works"
+    url: https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Web_standards/How_the_web_works
+  - title: "MDN: How browsers work"
+    url: https://developer.mozilla.org/en-US/docs/Web/Performance/Guides/How_browsers_work
+  - title: "MDN: DNS"
+    url: https://developer.mozilla.org/en-US/docs/Glossary/DNS
+  - title: "MDN: Transport Layer Security (TLS)"
+    url: https://developer.mozilla.org/en-US/docs/Web/Security/Transport_Layer_Security
+  - title: "MDN: Evolution of HTTP"
+    url: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Evolution_of_HTTP
+  - title: "MDN: HTTP caching"
+    url: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching
+  - title: "MDN: HTTP messages"
+    url: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages
+  - title: "MDN: PerformanceNavigationTiming"
+    url: https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
+  - title: "MDN: PerformanceResourceTiming"
+    url: https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
+  - title: "W3C: Resource Timing"
+    url: https://www.w3.org/TR/resource-timing/
+  - title: "IETF: RFC 8446, TLS 1.3"
+    url: https://www.rfc-editor.org/rfc/rfc8446.html
+---
+
+You open your phone, type `origan.verastack.dev` and press Go. A second later there is a page.
+
+That second is not empty. A dozen small things happen, in a fixed order, across machines in several places. Most of the time you never see them. This article walks through them one at a time, using the same words MDN, the web's reference site, uses.
+
+One thing first. A **browser** is the program that fetches and shows web pages. A **server** is a computer that holds the pages and hands them out. Everything below is the two of them talking.
+
+Here is the whole trip on one picture. Keep it in mind. We will visit each box.
+
+<UrlJourneyDiagram />
+
+**Remember:** the page cannot be drawn until the steps before it have finished, unless the browser already holds a fresh copy.
+
+## Start with the address
+
+The thing you type is a **URL**, short for Uniform Resource Locator: a web address. It has parts, and each part answers a different question. MDN's own example is `https://developer.mozilla.org/en-US/search?q=URL`.
+
+- The **scheme**, `https`, says which protocol (set of rules) to use. For websites it is HTTPS or its plain version, HTTP.
+- The **domain**, `developer.mozilla.org`, says which server you want.
+- The **port** says which "gate" on the server. It is left out when it is the standard one: 80 for HTTP and 443 for HTTPS.
+- The **path**, `/en-US/search`, says which thing on the server.
+- The **parameters**, `?q=URL`, are extra key and value pairs. This is also called the query.
+- The **anchor**, written `#something`, points to a part of the page. MDN is clear that it is never sent to the server.
+
+Here it is as code, with a test.
+
+<Sample file="typing-a-url.ts" name="parts" />
+
+Notice `sentToServer`. The browser sends the path and the query, and nothing after the `#`. The fragment is used by the browser itself, after the page arrives, to scroll to the right place.
+
+**Remember:** the part after `#` never leaves your browser.
+
+## Does the browser already know?
+
+Before it goes anywhere, the browser can check its own **HTTP cache**, a store of replies from earlier visits. MDN says the cache stores a response and reuses it for later requests, and that a stored response stays fresh for a time that the server sets. For example, a reply sent with `Cache-Control: max-age=604800` is fresh for 604,800 seconds, which is one week. While it is fresh, the browser can use it and does not ask the server at all.
+
+That is the dashed line on the picture. A fresh copy skips every network step and goes straight to drawing the page. It is why a page you visited an hour ago can open at once.
+
+If there is nothing fresh, the trip begins.
+
+## Step 1: DNS, finding the address
+
+Computers do not find each other by name. They use numbers called **IP addresses**, like `192.0.2.172`, the example MDN uses. The name you typed has to be turned into one.
+
+That is the job of **DNS**, the Domain Name System. MDN calls it like an address book for websites: it holds the domain names with the IP addresses that go with them. Looking a name up in it is called a **DNS lookup**.
+
+Two details from MDN are worth knowing. A big site is often served from many machines around the world, so the address you get can depend on where you are. And a page usually needs only one lookup per name, though it needs one for each different name the page uses, such as a separate server for images.
+
+**Remember:** DNS turns a name into a number. Nothing is fetched yet.
+
+## Step 2: connecting
+
+Now the browser knows where the server is. Next it must open a line.
+
+It does this with a **TCP handshake**. TCP is the protocol that makes sure data arrives complete and in order. The handshake takes three messages that MDN names SYN, SYN-ACK and ACK: the browser says hello, the server says hello back, and the browser confirms. Think of two people on a phone call: "Hello?" "Hello, I can hear you." "Good, I can hear you too."
+
+After that, since the address began with `https`, comes the secure part. **TLS**, Transport Layer Security, is the protocol that makes the line private. MDN lists three things it gives you:
+
+- **encryption**: the data is scrambled in transit so an eavesdropper cannot read it;
+- **integrity**: nobody can change it on the way without being noticed;
+- **authentication**: the server can prove it is who it says it is.
+
+That proof is a **certificate**: a digitally signed document that ties the site's keys to its domain name. During the TLS handshake the two sides agree on a version, agree on a set of algorithms, check the certificate, and agree on a secret key. After that, everything, including the HTTP headers, is encrypted. The current version is TLS 1.3, which is defined in a document called RFC 8446.
+
+How long does all this take? MDN's walkthrough counts three round trips for TCP and five for TLS, eight in all, before the browser can even ask for the page. A **round trip** is one message there and one reply back. That count is MDN's model. Real numbers depend on the versions in use, and a newer protocol, HTTP/3, uses QUIC over UDP instead of TCP. Treat eight as "this part is not free", and not as a rule.
+
+**Remember:** DNS finds the server. TCP opens the line. TLS makes it private. No page has been requested yet.
+
+## Step 3: the request and the reply
+
+Now the browser asks for the page. An HTTP request is a few lines of text: a start line with the method and the path, some headers, and an empty line. For `https://example.com/` it looks like this, simplified.
+
+```http
+GET / HTTP/1.1
+Host: example.com
+```
+
+The server answers in the same shape: a status line, headers, an empty line, and then the body, which here is the page's HTML.
+
+```http
+HTTP/1.1 200 OK
+Content-Type: text/html
+
+<!doctype html> ...
+```
+
+`200 OK` means all went well. If you want to see messages like these being built by hand, [the article on API clients](/learn/off-the-syllabus/api-clients/) in this series does exactly that.
+
+The time from asking to the first piece of the reply arriving is called **Time to First Byte**, or **TTFB**. MDN notes that the first chunk of content is usually 14KB of data. Why that number? When a connection is new, the server does not blast out data at full speed. It starts with a small window of data, waits for an acknowledgement, and then doubles it, a process called TCP slow start. So the first chunk is small, and it pays to make that first chunk count.
+
+**Remember:** the reply is just text. The first bytes of it are the first thing the next step has to work with.
+
+## Step 4: from HTML to pixels
+
+The browser does not wait for the whole reply. MDN says it starts parsing, reading the HTML as it arrives, and tries to show something from the data it already has. While it reads, a helper called the preload scanner looks ahead and starts fetching images and files the page will need.
+
+Then the browser builds two things.
+
+- The **DOM**, the Document Object Model: a tree that mirrors the HTML, with a node for each tag.
+- The **CSSOM**, the CSS Object Model: a tree of every style rule.
+
+MDN stresses that they are independent trees. The browser combines them into a **render tree**, which holds only what will actually be drawn, with its computed styles. A `display: none` element is left out, and so is the `<head>`.
+
+Next comes **layout**: working out the size and position of every box. Then **paint**: drawing the boxes into pixels. The first time pixels are drawn is the first paint. If layers overlap, the browser then **composites** them, putting them in the right order, which can happen on the graphics chip.
+
+And that is the second you waited for.
+
+The measures from the first article in this series sit on this path. Largest Contentful Paint is the time until the biggest thing is painted. A layout shift is layout happening again after something moved. Now you know where each one lives.
+
+**Remember:** the HTML becomes a tree, the CSS becomes a tree, the two become a render tree, and then the browser measures, draws and layers.
+
+## Try it yourself
+
+Your browser kept a stopwatch for the whole trip. You can read it in about five minutes.
+
+1. Open any website. Wait for it to finish loading.
+2. Press `F12` to open DevTools and click the **Console** tab.
+3. Paste this and press Enter.
+
+<Sample file="typing-a-url-console.js" name="console" />
+
+You will see a small table of milliseconds: the DNS lookup, the TCP connect, the TLS handshake, the wait for the server, the download, and the time until the page was ready to use. A millisecond is a thousandth of a second.
+
+What do the numbers tell you? Try three things.
+
+- Reload the same page. Which numbers shrank or went to zero? The browser can reuse a connection or a cached lookup.
+- Open a different site, one far from you. Which number grew?
+- Find a page that feels slow. Which step is it stuck in: waiting for the server, or building the page?
+
+The code for the table is below. It splits the connect interval into TCP and TLS. MDN says `connectEnd` includes the time to establish the connection and also the TLS handshake, and that `secureConnectionStart` marks the moment just before the secure handshake begins. So TCP is the stretch up to `secureConnectionStart`, and TLS is the rest.
+
+<Sample file="typing-a-url.ts" name="timing" />
+
+## The honest trade-offs
+
+This picture is a good map, and every map leaves things out.
+
+- **It is simplified.** Real trips have extras: redirects from one address to another, proxies and content delivery networks in the middle, and a browser that may open several connections at once. The steps above are the ones in MDN's walkthrough, in MDN's order.
+- **The round-trip count is a model.** MDN's three plus five is from its own walkthrough. Newer protocols change it. HTTP/3 runs over QUIC and UDP instead of TCP, so the TCP steps do not apply to it.
+- **Your numbers are yours.** The console table shows one visit, from one network, on one device. A different time of day or a different phone will give different numbers. It is a way to learn the steps, not a verdict on a site.
+- **The cache changes everything.** A fresh cached copy skips the network steps. If you test a page, test it with and without a cached copy, or you will measure only the easy case.
+- **Some numbers are zero.** A step the browser did not need, such as a DNS lookup it already had, takes no time. MDN also says some timings read as zero for cross-origin requests that do not allow them to be shared. A zero is not always an error.

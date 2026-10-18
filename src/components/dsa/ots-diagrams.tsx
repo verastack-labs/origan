@@ -293,7 +293,7 @@ export function UrlJourneyDiagram() {
       id="ots-url"
       title="What happens between typing a URL and seeing the page"
       alt="Six stations in a row. You type an address. DNS turns the name into an IP address. The browser connects with TCP and TLS. It sends a request, and the server sends the HTML back. The browser then renders the page into pixels. The first three after typing are setting up the road, request and response are waiting for the server, and render is the browser's own work. A dashed line shows that a fresh cached copy skips straight to render."
-      caption="Most of the wait happens before a single pixel of your page exists."
+      caption="Nothing is drawn until the steps before it have finished."
       wide={wide}
       narrow={narrow}
     />
