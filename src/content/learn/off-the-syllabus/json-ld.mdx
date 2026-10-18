@@ -1,0 +1,182 @@
+---
+title: "JSON-LD: the hidden data that describes your page"
+sub: A small block of JSON that tells search engines what a page is, with Origan's own site as the worked example.
+description: What JSON-LD is, what @context, @type and @id mean, and how to write it. Every example is the structured data this site really sends, printed from the code that makes it.
+slug: json-ld
+order: 5
+series: being-found
+published: 2026-10-18
+checked: 2026-10-18
+topics:
+  - JSON-LD
+  - Structured data
+  - schema.org
+short:
+  - "JSON-LD is a block of JSON inside a script tag. It is not drawn on screen. It tells machines what a page is: an article, an organisation, a trail of breadcrumbs."
+  - "The words come from a shared vocabulary called schema.org. The @context key says which vocabulary, and @type says what kind of thing this is."
+  - "Google recommends JSON-LD, says the markup must describe what a reader can actually see, and says correct markup does not promise any special result in search."
+  - "Every example here is the JSON-LD that Origan really sends, printed by the same code that puts it on the page, including this page's own."
+sources:
+  - title: "W3C: JSON-LD 1.1"
+    url: https://www.w3.org/TR/json-ld11/
+  - title: "schema.org: Getting started"
+    url: https://schema.org/docs/gs.html
+  - title: "schema.org: TechArticle"
+    url: https://schema.org/TechArticle
+  - title: "schema.org: Organization"
+    url: https://schema.org/Organization
+  - title: "Google Search Central: Introduction to structured data markup"
+    url: https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data
+  - title: "Google Search Central: General structured data guidelines"
+    url: https://developers.google.com/search/docs/appearance/structured-data/sd-policies
+  - title: "Google Search Central: Article structured data"
+    url: https://developers.google.com/search/docs/appearance/structured-data/article
+  - title: "Google Search Central: Breadcrumb structured data"
+    url: https://developers.google.com/search/docs/appearance/structured-data/breadcrumb
+  - title: "Google Search Central: Structured data testing tools"
+    url: https://developers.google.com/search/docs/appearance/structured-data
+  - title: "MDN: the script element"
+    url: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script
+  - title: "MDN: JSON, and how it differs from JavaScript"
+    url: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON
+  - title: "WHATWG HTML Standard: restrictions for contents of script elements"
+    url: https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
+---
+
+Think of a visiting card. You can read it: a name, a phone number, a shop, an area. A person finds it easy. But a machine looking at a photo of the card sees a pile of marks.
+
+Now think of the form a bank gives you, with boxes marked **Name**, **Phone**, **Address**. Nothing is guessed. Each fact sits in a labelled box.
+
+A web page is the visiting card. A search engine, or any other program that reads pages, has to guess which words are the title, which is the date and who wrote it. **JSON-LD** is the labelled form hidden behind the page, so the guessing is not needed.
+
+## The smallest useful example
+
+Here is a complete block. It says that this page is a technical article, and gives its headline, its dates and its author.
+
+<Sample file="json-ld-samples.html" name="minimal" />
+
+Let's read it from the outside in.
+
+The `<script>` tag is how a page carries code. This one is special. Its `type` is `application/ld+json`, which is not JavaScript. MDN says that when a script's type is not JavaScript, its content is treated as a data block and the browser does not process it. So the text sits there, quietly, for anything that wants to read it. Visitors never see it.
+
+The part inside is **JSON**, which stands for JavaScript Object Notation, a plain-text way to write data as names and values. JSON is stricter than JavaScript. Names must be in double quotes, and there are no comments and no trailing commas.
+
+The **LD** stands for **Linked Data**. The W3C, the body that writes web standards, defines JSON-LD 1.1 as a JSON-based format to serialise (write out) Linked Data. In plain words: JSON where the names are linked to agreed meanings.
+
+**Remember:** JSON-LD is ordinary JSON in a script tag whose type tells the browser to leave it alone.
+
+## Three keywords worth knowing
+
+Three names in that block start with an `@`. They are the grammar.
+
+- **`@context`** says which dictionary the words come from. Here it is `https://schema.org`. A context maps short names such as `headline` to full identifiers, so everyone means the same thing by them.
+- **`@type`** says what kind of thing the block describes. Here it is `TechArticle`.
+- **`@id`** gives a thing a name that other parts can point to. The block above does not need one. You will see why in a moment.
+
+The dictionary is **schema.org**, a collection of shared vocabularies that webmasters can use to mark up their pages, so that search engines and other applications understand them better. It lists the types and the names that go with each type.
+
+`TechArticle` is one of those types. schema.org describes it as a technical article, such as a how-to guide or step-by-step instructions, and it is a more specific kind of `Article`.
+
+Real pages describe more than one thing. When they do, a block can hold a list called `@graph`, and the things in it can point at each other with `@id`:
+
+<Sample file="json-ld-samples.html" name="graph" />
+
+The website says who published it by pointing at the studio's `@id`. It does not copy the studio's details again. That is the whole trick of `@id`: say it once, point to it everywhere.
+
+**Remember:** `@context` is the dictionary, `@type` is the kind of thing, and `@id` is a name tag other things can point to.
+
+## Origan's own site, piece by piece
+
+Now the real thing. Every block below was printed by the code that Origan uses to build its own pages. None of it was typed into this article. If the code changes, so does the page.
+
+Every page on this site carries a graph with three things. The first is the studio behind it. Each one is shown here on its own, with an `@context` added, so that it can be read by itself.
+
+<RepoJsonLd which="organization" label="JSON-LD · Organization" />
+
+A few things to notice.
+
+- `@id` is an address with a `#studio` at the end. It does not have to open a page. It is only a stable name for the studio, so other blocks can point at it.
+- `sameAs` lists other places that identify the same studio, such as its GitHub page.
+- The `address` gives the area and city, not a street. The site's code says why: the area is enough to place the studio.
+- schema.org's `Organization` type has all of these properties: `sameAs`, `founder`, `logo`, `address`, `email` and `telephone`.
+
+The second is the website, which points back at the studio.
+
+<RepoJsonLd which="website" label="JSON-LD · WebSite" />
+
+`publisher` holds nothing but an `@id`. That one line is the link from the website to the studio.
+
+The code that makes this block also says what it leaves out. It has no price, because there is no public price. It has no star rating and no reviews, because there are no customers to rate it. That is a rule worth copying: say only what is true and visible.
+
+Next, a lesson page. Each lesson of The Switch, the TypeScript course on this site, describes itself like this.
+
+<RepoJsonLd which="lesson" label="JSON-LD · LearningResource" />
+
+Look at `isPartOf`. A lesson says which course it belongs to, and `position` says where it sits in the order. Look also at `dateModified`: it is the date the lesson was last updated.
+
+Every page also carries a trail of breadcrumbs, the little "Origan, then Resources, then The Switch, then this lesson" path.
+
+<RepoJsonLd which="breadcrumb" label="JSON-LD · BreadcrumbList" />
+
+Google's breadcrumb guide says the list must hold the trail in order, that `position` 1 is the start, and that the last item does not need an `item` address, because it is the page itself. Origan gives it one anyway.
+
+Last, the block for the page you are reading. It is built from this article's own front matter: the title, the one-line summary, the dates, and the topic pills.
+
+<RepoJsonLd which="article" label="JSON-LD · TechArticle" />
+
+Two choices are worth explaining. First, `dateModified` is the "Last checked" date, shown at the top of this page: the day each fact was last compared with its source. Second, the type is `TechArticle`, which is a kind of `Article`. Google's article guide lists `Article`, `NewsArticle` and `BlogPosting` as the types it documents, so it never names `TechArticle`; schema.org does, and defines it as a more specific `Article`. This site chose the more specific type.
+
+**Remember:** a good block says only what the visible page already says. Print it from the same data as the page, so the two cannot drift apart.
+
+## How the page gets it
+
+The block has to end up inside a script tag, written into the page when it is built. Here is the idea as a small function, with a test that holds it to its promises.
+
+<Sample file="json-ld.ts" name="tag" />
+
+One line deserves a pause: the `replace` that writes every `<` as `<`. The HTML standard says that text like a closing script tag inside a script has to be escaped, because the parser looks for it to end the block. In JSON, `<` is the same character as `<`, so the data is unchanged but the danger is gone. Without it, a headline that happened to contain `</script>` would cut the block short.
+
+A crawler reads the data back like this:
+
+<Sample file="json-ld.ts" name="read" />
+
+And this is the check that this site's tests apply to every block it prints: it must be valid JSON, and it must have an `@context` and an `@type`.
+
+<Sample file="json-ld.ts" name="check" />
+
+Where does the tag go? Google says it can sit in the `<head>` or the `<body>`.
+
+<Sample file="json-ld-samples.html" name="placement" />
+
+## Check your work
+
+Google points to two free tools. The **Rich Results Test** is the official Google tool for testing your structured data, and it shows which rich results (special-looking search listings) your page can produce. The **Schema Markup Validator** at validator.schema.org tests any schema.org markup, and does not run Google-specific checks.
+
+A valid block is a start, not a finish. Google says that correct markup is still no promise that your structured data will show up in search results.
+
+## Try it yourself
+
+You will read the structured data of a real page in five minutes.
+
+1. Open any page of this site, such as the home page, in your browser.
+2. Open DevTools with `F12`, and click the **Console** tab.
+3. Paste this and press Enter.
+
+<Sample file="json-ld-console.js" name="console" />
+
+You will see how many blocks the page has, then each one as an object you can open. The home page has more than one. The first is the graph above.
+
+4. Now try a page you built, or any site you like. Does it have a block? If it does, does `@type` say what you expect?
+5. Copy a block and paste it into the Schema Markup Validator. Does it say it is fine?
+
+For a challenge, write the block for your own project's home page: a `WebSite` with a `name` and a `url`. Check it with the tests above.
+
+## The honest trade-offs
+
+JSON-LD is useful, and it has real costs.
+
+- **It is invisible, so it can lie.** Nobody sees the block, so nobody notices when it is wrong. Google's guidelines say not to mark up content that is not visible to readers, and not to mark up misleading content. Print the block from the same data as the page, as this site does.
+- **It promises nothing.** Google says correct markup is no promise of an appearance in search results. Treat it as a way to be understood, not a way to be ranked.
+- **Google documents fewer types than schema.org has.** Google's article page lists only `Article`, `NewsArticle` and `BlogPosting`, and says there are no required properties, only recommended ones such as `headline`, `datePublished`, `dateModified`, `author` and `image`. If your goal is a specific search feature, read Google's page for that feature first.
+- **It is one more thing to keep right.** Every field you add is a field that can go stale. A small, true block beats a large one that is half wrong.
+- **Generators are not a substitute for reading.** A plugin can write a block for you, but you are still the person who must check that every line of it is true.

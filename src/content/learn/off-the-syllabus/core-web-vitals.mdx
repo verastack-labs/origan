@@ -190,7 +190,7 @@ This takes five minutes and nothing to install. You will watch the real numbers 
 
 <Sample file="core-web-vitals-console.js" name="console" />
 
-You will see a line for the LCP, with the element the browser chose. The number is in milliseconds. Now scroll the page and watch for lines starting "layout shift". Most pages print none, which is exactly what you want.
+You will see a line for the LCP, with the element the browser chose. The number is in milliseconds. Now scroll the page and watch for lines starting "layout shift". The code leaves out shifts right after a tap and shifts too small to see. A calm page prints few lines, and the numbers are small. A line with a big number is a jump you could point at on screen.
 
 How does it work? A `PerformanceObserver` is a way of asking the browser to tell your code about things it measured. The `buffered: true` option, per MDN, also queues up the entries that happened before you started watching, which is why pasting it after the page has loaded still works.
 

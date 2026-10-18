@@ -1,0 +1,45 @@
+<!-- Article 5: JSON-LD. Every block here is parsed by src/data/ots-articles.test.ts,
+     which holds each one to valid JSON with an @context and an @type. -->
+
+<!-- region: minimal -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "What happens when you type a URL",
+  "datePublished": "2026-10-18",
+  "dateModified": "2026-10-18",
+  "author": { "@type": "Organization", "name": "VeraStack Labs" }
+}
+</script>
+<!-- endregion -->
+
+<!-- region: graph -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://example.com/#studio",
+      "name": "Example Studio"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://example.com/#website",
+      "name": "Example",
+      "publisher": { "@id": "https://example.com/#studio" }
+    }
+  ]
+}
+</script>
+<!-- endregion -->
+
+<!-- region: placement -->
+<head>
+  <title>What happens when you type a URL</title>
+  <script type="application/ld+json">
+  { "@context": "https://schema.org", "@type": "TechArticle", "headline": "What happens when you type a URL" }
+  </script>
+</head>
+<!-- endregion -->

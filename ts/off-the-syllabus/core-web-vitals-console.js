@@ -10,7 +10,8 @@ new PerformanceObserver((list) => {
 
 new PerformanceObserver((list) => {
   for (const entry of list.getEntries()) {
-    if (!entry.hadRecentInput) console.log("layout shift:", entry.value.toFixed(4));
+    // Skip shifts after a tap, and shifts too small to see.
+    if (!entry.hadRecentInput && entry.value > 0.0001) console.log("layout shift:", entry.value.toFixed(4));
   }
 }).observe({ type: "layout-shift", buffered: true });
 // endregion

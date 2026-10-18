@@ -140,6 +140,8 @@ export function readMinutes(article: Pick<Article, "body" | "short">): number {
 export function slugify(text: string): string {
   return text
     .toLowerCase()
+    // "Origan's" is one word, not "origan" and "s".
+    .replace(/['’]/g, "")
     .replace(/&/g, " and ")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");

@@ -17,6 +17,8 @@ import {
 import { hasRegion } from "@/lib/snippets";
 import { OTS_SOURCE } from "@/lib/ots-snippets";
 import { repoSample, type RepoSample } from "@/lib/ots-samples";
+import { jsonLdScript } from "@/lib/course-jsonld";
+import { jsonLdTag } from "../../ts/off-the-syllabus/json-ld";
 
 /**
  * Off the Syllabus's content rules, the same kind of rules as
@@ -201,6 +203,7 @@ describe("headings and the series", () => {
   it("makes anchors from the heading's own words", () => {
     expect(slugify("The honest trade-offs")).toBe("the-honest-trade-offs");
     expect(slugify("Try it yourself")).toBe("try-it-yourself");
+    expect(slugify("Origan's own site, piece by piece")).toBe("origans-own-site-piece-by-piece");
     expect(slugify("Good, needs improvement, poor")).toBe("good-needs-improvement-poor");
   });
 
@@ -368,6 +371,17 @@ describe("JSON-LD", () => {
     expect(ld.about.map((t) => t.name)).toEqual(article.topics);
     expect(ld.articleSection).toBe(seriesOf(article.series).name);
     expect(JSON.stringify(ld)).not.toContain(EM_DASH);
+  });
+
+  it("the article's own jsonLdTag writes the same JSON the site's jsonLdScript does", () => {
+    const samples = [
+      { "@context": "https://schema.org", "@type": "Thing", name: "plain" },
+      { "@context": "https://schema.org", "@type": "Thing", name: "a < b </script> c" },
+      ...articles.map((a) => articleJsonLd(a)),
+    ];
+    for (const sample of samples) {
+      expect(jsonLdTag(sample)).toBe(`<script type="application/ld+json">${jsonLdScript(sample)}</script>`);
+    }
   });
 
   it("emits a CollectionPage on the index, with an article for each published page", () => {
