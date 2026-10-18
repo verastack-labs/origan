@@ -1,0 +1,212 @@
+---
+title: LCP, CLS and INP in plain words
+sub: Three numbers Google watches, explained so you can say them out loud.
+description: What Largest Contentful Paint, Cumulative Layout Shift and Interaction to Next Paint measure, the thresholds Google calls good, and how to see all three in your own browser.
+slug: core-web-vitals
+order: 1
+series: fast-pages
+published: 2026-10-18
+checked: 2026-10-18
+topics:
+  - Core Web Vitals
+  - LCP
+  - CLS
+  - INP
+short:
+  - "The Core Web Vitals are three measurements of how a page feels: how soon the main content shows up (LCP), how much the page jumps around (CLS), and how quickly it answers a tap (INP)."
+  - "Good means an LCP of 2.5 seconds or less, a CLS of 0.1 or less, and an INP of 200 milliseconds or less, judged at the 75th percentile of visits."
+  - "INP replaced an older measure called FID in March 2024, so any advice that talks about FID is out of date."
+  - "You can watch all three in your own browser in about five minutes. The Try it yourself section shows how."
+sources:
+  - title: "web.dev: Web Vitals"
+    url: https://web.dev/articles/vitals
+  - title: "web.dev: Largest Contentful Paint (LCP)"
+    url: https://web.dev/articles/lcp
+  - title: "web.dev: Cumulative Layout Shift (CLS)"
+    url: https://web.dev/articles/cls
+  - title: "web.dev: Interaction to Next Paint (INP)"
+    url: https://web.dev/articles/inp
+  - title: "web.dev: Interaction to Next Paint becomes a Core Web Vital"
+    url: https://web.dev/blog/inp-cwv-launch
+  - title: "web.dev: First Input Delay (FID)"
+    url: https://web.dev/articles/fid
+  - title: "web.dev: Optimize Largest Contentful Paint"
+    url: https://web.dev/articles/optimize-lcp
+  - title: "web.dev: Optimize Cumulative Layout Shift"
+    url: https://web.dev/articles/optimize-cls
+  - title: "web.dev: Why lab and field data can be different"
+    url: https://web.dev/articles/lab-and-field-data-differences
+  - title: "Google Search Central: Understanding page experience in Google Search results"
+    url: https://developers.google.com/search/docs/appearance/page-experience
+  - title: "Google PageSpeed Insights: about the report"
+    url: https://developers.google.com/speed/docs/insights/v5/about
+  - title: "MDN: PerformanceObserver.observe()"
+    url: https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver/observe
+  - title: "GitHub: GoogleChrome/web-vitals"
+    url: https://github.com/GoogleChrome/web-vitals
+---
+
+You open a train-booking page in the morning rush. Three small things go wrong, one after another.
+
+First, you stare at a blank white page. Nothing shows for a long moment. Then the booking form finally appears.
+
+Second, you reach for the **Pay** button. Just as your thumb lands, an offer banner loads above it and shoves everything down. Your tap hits **Cancel** instead.
+
+Third, you tap **Confirm**. Nothing happens. You tap again. A second later the page wakes up and books two seats.
+
+Nobody had to teach you that these feel bad. The [Core Web Vitals](https://web.dev/articles/vitals) are Google's way of putting a number on each of them. Let's meet the three.
+
+## The three numbers
+
+The **Core Web Vitals** are three measurements. Each one is a number for one kind of bad feeling:
+
+| Name | In full | Which story | What it asks |
+| --- | --- | --- | --- |
+| LCP | [Largest Contentful Paint](https://web.dev/articles/lcp) | The blank page | How soon did the main content show up? |
+| CLS | [Cumulative Layout Shift](https://web.dev/articles/cls) | The jumping button | How much did the page move around? |
+| INP | [Interaction to Next Paint](https://web.dev/articles/inp) | The dead tap | How long did the page take to respond? |
+
+Before we go one by one, two small words. A **metric** is just a measurement with a name. A **paint** is the moment the browser actually draws something on your screen. "Next paint" means "the next time the screen changes."
+
+Here are all three on one timeline. We will come back to each part.
+
+<CoreVitalsDiagram />
+
+**Remember:** LCP is about the arrival. CLS is about things moving. INP is about the wait after you tap.
+
+## LCP: when the main thing shows up
+
+Largest Contentful Paint is the time from when you start loading the page to when the biggest thing in view is drawn. On a news page that is usually the top photo. On a blog post it might be the heading.
+
+"Biggest" is not a vibe. web.dev lists what can count: an image, an image inside an SVG, a video (using its poster image or first frame), an element with a background image loaded with `url()`, and a block of text. A CSS gradient does not count.
+
+The rule: **LCP is good at 2.5 seconds or less, and poor above 4 seconds.** In between is "needs improvement."
+
+Where does that time go? web.dev splits LCP into four parts and gives rough guidelines for each. About 40% is waiting for the server's first byte. Under 10% is the delay before the browser starts fetching the main image. About 40% is downloading it. Under 10% is the time to draw it once it arrives. These are guidelines, not laws, but they tell you where to look first.
+
+One mistake is worth knowing now. Telling the browser to lazy-load the very image that is your LCP element makes it start fetching later. web.dev puts it bluntly: never lazy-load your LCP image. It also suggests `fetchpriority="high"` on the image you expect to be the LCP element, but only on one or two, because marking many images as high priority stops it helping.
+
+<Sample file="core-web-vitals-image.html" name="lcp-image" />
+
+**Remember:** LCP is a stopwatch for the biggest thing on screen. Start it at the click, stop it when that thing is drawn.
+
+## CLS: how much the page jumps
+
+Back to the Pay button that ran away. That jump is a **layout shift**: a visible element changes its position between one drawn frame and the next.
+
+Cumulative Layout Shift gives each shift a score, then adds them up in a clever way. One shift's score is two fractions multiplied:
+
+- the **impact fraction**: how much of the screen the moving things covered, before and after the move;
+- the **distance fraction**: how far the biggest mover went, as a share of the screen's longer side.
+
+Let's try one. A banner loads and pushes a block of text down. Between its old and new places, that text covered 60% of the screen (0.6). The biggest move was a quarter of the screen height (0.25).
+
+<Sample file="core-web-vitals" name="shift-score" />
+
+That is 0.6 times 0.25, which is 0.15. One shift, and already past the "good" line.
+
+The rule: **CLS is good at 0.1 or less, and poor above 0.25.** Unlike LCP, it has no unit. It is just a score.
+
+Now the clever part. A page can shift many times. Adding up every shift in a long visit would punish pages that people keep open for hours. So CLS looks at **bursts**. A burst is a run of shifts with less than one second between them, lasting at most five seconds. CLS is the score of the worst burst. The original definition summed every shift in the page's life, so older articles may quote different numbers.
+
+Also, a shift that happens within half a second of a tap or key press is not counted. If you open a menu and the page moves, you asked for it. Scrolling and pinch-zoom do not count as input, though.
+
+This is the definition, written as code.
+
+<Sample file="core-web-vitals" name="cls" />
+
+The most common cause of a jump is a picture with no size. The browser does not know how tall it will be, so it draws the text first, then pushes it down when the picture arrives. web.dev's advice is to always put `width` and `height` attributes on images and videos, and to use the CSS `aspect-ratio` property where that is not practical.
+
+<Sample file="core-web-vitals-image.html" name="no-size" />
+
+<Sample file="core-web-vitals-image.html" name="sized" />
+
+The first block makes the browser guess. The second tells it the shape up front, so it can keep a gap of the right size. The same page also lists other culprits: ads and embeds that load late (reserve their space), web fonts that swap in (a topic for a later article), and animations that move things with `top` or `left` instead of `transform`.
+
+**Remember:** a shift is a surprise. CLS counts the surprises, and forgives the ones you asked for.
+
+## INP: how fast the page answers you
+
+Interaction to Next Paint is the dead tap. It measures how long the page takes to show you that it heard you.
+
+Which actions count? Mouse clicks, taps on a touchscreen, and key presses, on a physical or an on-screen keyboard. Scrolling, hovering and zooming do not.
+
+The clock runs from the moment you start the interaction until the browser can draw the next frame showing something has happened. web.dev splits that wait into three parts:
+
+1. **Input delay:** the time before your code even starts running, often because the page is busy with something else.
+2. **Processing time:** the time your event handlers take to run.
+3. **Presentation delay:** the time from your code finishing to the new frame appearing on screen.
+
+The rule: **INP is good at 200 milliseconds or less, and poor above 500 milliseconds.** A millisecond is a thousandth of a second, so 200 is a fifth of a second.
+
+How does one number come out of a whole visit with many taps? INP is calculated when you leave the page. A visit with fewer than 50 interactions reports its worst one. With more, the page forgives one outlier for every 50 interactions, so one weird slow tap does not condemn it.
+
+<Sample file="core-web-vitals" name="inp" />
+
+You may have read about **FID**, [First Input Delay](https://web.dev/articles/fid). It only measured the delay before the page started handling your very first interaction. It ignored the processing, the painting and every later tap. INP replaced it as a Core Web Vital in March 2024. If an article still says "the three vitals are LCP, CLS and FID", it is older than that.
+
+**Remember:** INP is not "how fast is the page". It is "how long did I wait after I tapped", and the page's slowest answer counts.
+
+## Good, needs improvement, poor
+
+Here are the three rules side by side. They are the boundaries that web.dev publishes.
+
+| Metric | Good | Needs improvement | Poor |
+| --- | --- | --- | --- |
+| LCP | 2.5 s or less | up to 4 s | above 4 s |
+| INP | 200 ms or less | up to 500 ms | above 500 ms |
+| CLS | 0.1 or less | up to 0.25 | above 0.25 |
+
+And as code, with the edges tested:
+
+<Sample file="core-web-vitals" name="thresholds" />
+
+One more phrase from web.dev: these are judged **at the 75th percentile of page loads, separately for mobile and desktop**. A percentile sounds scary and is not. Line up every visit from the best to the worst. The 75th percentile is the visit three quarters of the way along. It means one visit in four was worse than this number.
+
+<Sample file="core-web-vitals" name="percentile" />
+
+Why a percentile and not the average? One reason: a page that is fine for most people but awful for a quarter of them should not pass, and a plain average can hide that. A page passes only if all three metrics are good at that point.
+
+## Whose numbers are these
+
+There are two ways to get a number. You can **measure real visitors** as they use the page. That is called **field data**. Or you can **run a test yourself**, in a controlled setup. That is **lab data**.
+
+They often disagree, and that is normal. In a test, nobody taps at a random moment, so a lab cannot know your INP. Real visitors scroll, see personalised content, and sometimes get a page back instantly from the browser's memory (the back/forward cache). A lab does none of that. web.dev's advice is that lab data is best for debugging and field data is what you should use to prioritise. The next article in this series shows how to read both in one report.
+
+**Remember:** field data says what happened to real people. Lab data says what one test saw. You want both, and you should trust the first when they disagree.
+
+If you want to collect field numbers from your own visitors, Google publishes a small open-source library, [`web-vitals`](https://github.com/GoogleChrome/web-vitals), with a function for each metric. It is licensed under Apache 2.0.
+
+<Sample file="core-web-vitals-library.mjs" name="library" />
+
+## Try it yourself
+
+This takes five minutes and nothing to install. You will watch the real numbers for a real page.
+
+1. Open any website in Chrome. A busy one, such as a news site, works well.
+2. Open DevTools, the browser's built-in toolbox. Press `F12`, or right-click the page and choose Inspect.
+3. Click the **Console** tab.
+4. Paste the code below and press Enter.
+
+<Sample file="core-web-vitals-console.js" name="console" />
+
+You will see a line for the LCP, with the element the browser chose. The number is in milliseconds. Now scroll the page and watch for lines starting "layout shift". The code leaves out shifts right after a tap and shifts too small to see. A calm page prints few lines, and the numbers are small. A line with a big number is a jump you could point at on screen.
+
+How does it work? A [`PerformanceObserver`](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver) is a way of asking the browser to tell your code about things it measured. The `buffered: true` option, per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver/observe), also queues up the entries that happened before you started watching, which is why pasting it after the page has loaded still works.
+
+Now, a challenge. Open a page you built. Does the biggest thing on screen carry a `width` and `height`? If not, you have found your first CLS fix.
+
+The same idea as a function you can keep in a project, with a type for each piece:
+
+<Sample file="core-web-vitals" name="watch" />
+
+## The honest trade-offs
+
+Core Web Vitals are useful. They are also easy to over-trust. Here is when to hold them loosely.
+
+- **A good score is not a promise of a top spot.** [Google says](https://developers.google.com/search/docs/appearance/page-experience) its ranking systems use Core Web Vitals, and that good results do not mean your pages will rank at the top of search results. Fix a slow page for your visitors first.
+- **They measure feel, not value.** A page can pass all three and still be hard to understand. They say nothing about whether the content is any good.
+- **Small sites may have no field data at all.** The tools that show real-visitor numbers need enough visits to report. A new site will often see nothing there. Lab tests still work.
+- **The 75th percentile hides the slowest quarter.** Passing means three visits in four were good. The fourth visit may have been painful.
+- **The rules change.** FID became INP, and the definition of CLS changed from a lifetime sum to the worst burst. Check the date on whatever you read, including this page. This one says when it was last checked.
+- **Your own phone is one phone.** The console snippet shows what your device saw. It is a good start, not a verdict.

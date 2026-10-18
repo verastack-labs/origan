@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Reveal } from "./reveal";
 import { InterestButton } from "./interest";
@@ -29,6 +30,7 @@ export function PageHead({
   crumbs,
   current,
   compact = false,
+  meta,
 }: {
   notation: string;
   pair: Pair;
@@ -41,6 +43,8 @@ export function PageHead({
   current?: string;
   /** Less air above and below, for the learning pages. */
   compact?: boolean;
+  /** A line of small facts under the heading, such as an article's read time. */
+  meta?: ReactNode;
   /** The "Register your interest" button. The learning pages leave it off: their reader is a student. */
   cta?: boolean;
 }) {
@@ -58,6 +62,7 @@ export function PageHead({
           {notation}
         </Reveal>
         <HeadingPair pair={pair} as="h1" size="page" className="mt-4" />
+        {meta && <div className="mt-6">{meta}</div>}
         {cta && (
           <Reveal className="mt-[26px]">
             <InterestButton />

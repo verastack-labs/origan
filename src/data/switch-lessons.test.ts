@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { switchCourse } from "./courses";
-import { resources } from "./resources";
+import { liveResources as resources } from "./resources";
 import { getLessons } from "@/lib/lessons";
 import { hasRegion } from "@/lib/snippets";
 import { JS_SOURCE, JSDOC_SOURCE, TS_SOURCE } from "@/lib/ts-snippets";
@@ -261,8 +261,8 @@ describe("Switch writing rules", () => {
 });
 
 describe("Switch on the Resources page", () => {
-  it("is the third card, with its descriptor and the topic pills from the plan", () => {
-    const card = resources[2];
+  it("is a card, with its descriptor and the topic pills from the plan", () => {
+    const card = resources.find((r) => r.id === "the-switch")!;
     expect(card.name).toBe("The Switch");
     expect(card.descriptor).toBe("JavaScript to TypeScript");
     expect(card.href).toBe("/learn/js-to-ts/");

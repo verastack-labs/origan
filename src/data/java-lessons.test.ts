@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { javaCourse } from "./courses";
-import { resources } from "./resources";
+import { liveResources as resources } from "./resources";
 import { getLessons } from "@/lib/lessons";
 import { hasRegion } from "@/lib/snippets";
 
@@ -155,9 +155,10 @@ describe("Java writing rules", () => {
 });
 
 describe("Java resources", () => {
-  it("lists Filter Coffee second", () => {
-    expect(resources[1].name).toBe("Filter Coffee");
-    expect(resources[1].descriptor).toBe("Java Collections");
-    expect(resources[1].href).toBe("/learn/java-collections/");
+  it("has Filter Coffee on the shelf", () => {
+    const card = resources.find((r) => r.id === "java-collections")!;
+    expect(card.name).toBe("Filter Coffee");
+    expect(card.descriptor).toBe("Java Collections");
+    expect(card.href).toBe("/learn/java-collections/");
   });
 });

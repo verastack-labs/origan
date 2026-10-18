@@ -20,9 +20,15 @@ export const theme = createCssVariablesTheme({
   fontStyle: true,
 });
 
-export type Lang = "typescript" | "javascript" | "json";
+export type Lang = "typescript" | "javascript" | "json" | "html" | "css";
 
-const labels: Record<Lang, string> = { typescript: "TypeScript", javascript: "JavaScript", json: "tsconfig.json" };
+const labels: Record<Lang, string> = {
+  typescript: "TypeScript",
+  javascript: "JavaScript",
+  json: "tsconfig.json",
+  html: "HTML",
+  css: "CSS",
+};
 
 export type Marks = { diff?: ReadonlySet<number>; error?: ReadonlySet<number> };
 
@@ -82,7 +88,10 @@ export async function TsBlock({
   play = lang === "typescript",
   footer,
   program,
+  label,
 }: {
+  /** The name in the corner, where the language's own would not say enough ("JSON-LD"). */
+  label?: string;
   code: string;
   /** What the Playground gets, when the snippet needs other regions to run on its own. */
   program?: string;
@@ -97,7 +106,7 @@ export async function TsBlock({
   return (
     <figure className="code-block cmp-code my-6 overflow-hidden rounded-panel border border-line bg-panel">
       <figcaption className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line-2 px-3 py-2">
-        <span className="notation">{labels[lang]}</span>
+        <span className="notation">{label ?? labels[lang]}</span>
         <span className="flex flex-wrap items-center gap-2">
           <CopyButton code={code} />
           {play && <PlaygroundLink code={program ?? code} />}

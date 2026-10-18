@@ -1,0 +1,17 @@
+<!-- Article 1: the most common cause of a layout shift, and its fix. Checked by
+     src/data/ots-articles.test.ts, which parses every HTML sample. -->
+
+<!-- region: no-size -->
+<img src="diwali-sale.jpg" alt="Diwali sale banner">
+<h1>Festive offers</h1>
+<!-- endregion -->
+
+<!-- region: sized -->
+<img src="diwali-sale.jpg" width="1200" height="400" alt="Diwali sale banner">
+<h1>Festive offers</h1>
+<!-- endregion -->
+
+<!-- region: lcp-image -->
+<!-- The picture you expect to be the biggest thing on screen: not lazy, and fetched early. -->
+<img src="diwali-sale.jpg" width="1200" height="400" fetchpriority="high" alt="Diwali sale banner">
+<!-- endregion -->

@@ -1,0 +1,140 @@
+---
+title: Why 100vh breaks on phones, and the svh fix
+sub: What 100vh really means on a phone, and the three newer units that fix it. A real fix from this site.
+description: Why a full-height section can hang off the bottom of a phone screen, what svh, lvh and dvh measure, and the actual change made on Origan's hero and sidebar, with a page that prints the numbers live.
+slug: svh-on-phones
+order: 14
+series: found-here
+published: 2026-10-18
+checked: 2026-10-18
+topics:
+  - svh and dvh
+  - CSS viewport units
+  - Mobile browsers
+short:
+  - "On a phone, 100vh is the height of the screen with the browser's address bar tucked away. When the bar is showing, a 100vh box is taller than what you can see."
+  - "Three newer units say which height you mean. svh is the visible height with the bars showing, lvh is with them hidden, and dvh follows whichever it is right now."
+  - "dvh can change while you scroll, and MDN warns that it can make content resize and hurt performance. svh stays still."
+  - "This site's hero and sidebar were changed from vh and dvh to svh for exactly that reason. This article shows the real change."
+sources:
+  - title: "web.dev: The large, small, and dynamic viewport units"
+    url: https://web.dev/blog/viewport-units
+  - title: "MDN: CSS length units, viewport-percentage lengths"
+    url: https://developer.mozilla.org/en-US/docs/Web/CSS/length
+  - title: "MDN: min-height"
+    url: https://developer.mozilla.org/en-US/docs/Web/CSS/min-height
+  - title: "MDN: clamp()"
+    url: https://developer.mozilla.org/en-US/docs/Web/CSS/clamp
+  - title: "MDN: calc()"
+    url: https://developer.mozilla.org/en-US/docs/Web/CSS/calc
+  - title: "MDN: position"
+    url: https://developer.mozilla.org/en-US/docs/Web/CSS/position
+  - title: "Python docs: http.server"
+    url: https://docs.python.org/3/library/http.server.html
+---
+
+You build a landing page. The top section should fill the screen, so you write the obvious thing:
+
+<Sample file="svh.css" name="naive" />
+
+On your laptop it is perfect. Then you open it on your phone. The big button at the bottom of the section is nowhere to be seen. You scroll a little, the browser's address bar slides away, and the button appears. You have not changed anything. The page just disagreed with itself about how tall "the screen" is.
+
+This is one of the most common phone bugs on the web, and it was also a bug on this very site. Here is what is going on, and the fix.
+
+## The bug in one picture
+
+On a phone, the browser draws its own controls around your page: an address bar at the top, sometimes a toolbar at the bottom. When you scroll down, they often slide away to give the page more room. So the visible area is not one fixed height. It has two.
+
+<ViewportUnitsDiagram />
+
+**Remember:** a phone screen has two heights, one with the browser's bars showing and one with them gone.
+
+## What vh means
+
+First, a word. The **viewport** is the part of the page you can see right now. A **unit** such as `px` or `%` is what a number is measured in. `vh` is a unit too. It stands for "viewport height", and `1vh` is one percent of it. So `100vh` means the full height of the viewport.
+
+Which of the two phone heights is that? [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/length) says `vh` is equivalent to `lvh`, the large viewport. That is the height with the browser's bars tucked away. [web.dev](https://web.dev/blog/viewport-units) puts the problem plainly: although the viewport can change size, the `vw` and `vh` sizes do not. So when the page first loads and the bars are showing, an element sized at `100vh` is too tall for what you can see, and it only fits once the bars retract.
+
+That is your hidden button. It is sitting in the part of the section that is under the address bar.
+
+## Three units that say what they mean
+
+To fix it, CSS got three new families of units. Each has a letter in front of `vh`:
+
+<Sample file="svh.css" name="units" />
+
+- **`svh`**, the small viewport height. MDN says to use it when you want the smallest possible viewport, so the content you design fills the viewport when the browser's interface is expanded. Everything fits with the bars showing.
+- **`lvh`**, the large viewport height. The largest possible viewport, with the interface retracted. This is the one plain `vh` equals.
+- **`dvh`**, the dynamic viewport height. It follows the bars: it is the small height while they show, and the large height after they retract.
+
+`dvh` sounds like the perfect answer, and sometimes it is. But read what MDN says about it. The sizes of the dynamic units are not stable, even when the viewport itself is unchanged, and because `dvh` tracks the bars it can cause content to resize while a user is scrolling, which can degrade the user interface and performance. A box that keeps changing height as you scroll can make a page feel jumpy.
+
+How old are these units? web.dev's article from November 2022 lists the versions that support them: Chrome 108, Edge 108, Firefox 101 and Safari 15.4, and says they are available in all three browser engines.
+
+**Remember:** `svh` is smallest and steady. `lvh` is largest and steady. `dvh` is exact but moves.
+
+## The fix on this site
+
+Now the real story. This site's home page opens with a big hero section. Its height was set like this:
+
+<Sample file="svh.css" name="hero-before" />
+
+[`clamp()`](https://developer.mozilla.org/en-US/docs/Web/CSS/clamp) picks a middle value but keeps it between a minimum and a maximum: here at least 540 pixels, at most 880, and ideally 88% of the screen's height. And it was [`min-height`](https://developer.mozilla.org/en-US/docs/Web/CSS/min-height), so the box can still grow if the content needs more room.
+
+Sized in `vh`, the hero was measured against the large viewport, which is the situation described above: with the bars showing, a box measured that way is taller than the visible area. The fix was one letter:
+
+<Sample file="svh.css" name="hero-after" />
+
+The same change went into the lesson pages' sidebar, the "Chapters" panel on wide screens. It is stuck under the site's 63-pixel header with [`position: sticky`](https://developer.mozilla.org/en-US/docs/Web/CSS/position), which keeps an element in place once you scroll to it, and it is as tall as the screen minus that header. It had been sized with `dvh`, and was changed to `svh`:
+
+<Sample file="svh.css" name="sidebar" />
+
+[`calc()`](https://developer.mozilla.org/en-US/docs/Web/CSS/calc) lets you mix units, so "100svh minus 63px" is fine. The reason for the change is in the commit that made it: size them with `svh`, so that an Android address bar cannot shift the page.
+
+Was `dvh` wrong? Not everywhere. Two places on this site still use it:
+
+<Sample file="svh.css" name="drawer" />
+
+The phone drawer for the chapters, and the dialog for the interest form, cover the screen while they are open. My reading, and the commit does not say this, is that these are the cases `dvh` suits: a panel that should fit exactly whatever the bars are doing, in a view where the page behind it is held still.
+
+Here is the whole picture, as it stands in the code today:
+
+| Where | Unit now | What it was |
+| --- | --- | --- |
+| The home page hero | `88svh` | `88vh` |
+| The chapters sidebar on a wide screen | `100svh`, minus the header | `100dvh`, minus the header |
+| The chapters drawer on a phone | `dvh` | unchanged |
+| The interest form dialog | `dvh` | unchanged |
+
+**Remember:** the fix was not "never use dvh". It was "do not let the height of something big change while the page scrolls".
+
+## How to choose
+
+A small guide:
+
+- **Use `svh`** for big things you want to stay still, such as a hero. They fit with the bars showing, and they never resize. The cost: when the bars retract, there is a little extra room below.
+- **Use `lvh`** for a background that should always fill the screen, where a bit hidden behind the bars does not matter.
+- **Use `dvh`** for panels and dialogs that should fit exactly while they are open, and where a resize as the bars move is fine.
+- **Use plain `vh`** when you are happy that it means `lvh`, or when you are building for a laptop only.
+
+## Try it yourself
+
+You will see the four numbers change on a real phone. It takes about ten minutes.
+
+1. Save the page below as `svh-demo.html`.
+2. Open it on your phone. You can send the file to yourself and open it, or put it on any web host you already use, or serve the folder from your laptop on your home Wi-Fi with `python -m http.server`, which listens on port 8000 and serves the current folder. [Python's own docs](https://docs.python.org/3/library/http.server.html) say that server is not recommended for production, so stop it when you are done.
+3. Scroll down and up. Watch the box at the top.
+
+<Sample file="svh-demo.html" name="page" />
+
+On a desktop browser the four numbers usually match, because there are no bars that move. They only part ways on a phone browser whose bars move. Which of them changes as you scroll? Which stay put? Is `100vh` the same as `100svh` or `100lvh` when the page first loads?
+
+If you have a project, open it on your phone and find the one thing sized with `100vh`. Change it to `100svh`. Does the bottom of it appear on the first screen now?
+
+## The honest trade-offs
+
+- **`svh` leaves a gap.** After the bars slide away, a `100svh` box is a little shorter than what you can see. For a hero that is usually fine. For something that must cover the whole screen, it is not.
+- **`dvh` is exact, and it moves.** MDN says it can make content resize while someone scrolls. Use it for things that open and stay, not for sections that people scroll past.
+- **These units arrived in 2022.** web.dev lists the first versions: Chrome 108, Firefox 101, Safari 15.4. A browser older than that does not know them. If your visitors use very old phones, check.
+- **Laptops hide the problem.** On a desktop browser the four units usually match, so you cannot see the bug there. Test on a real phone.
+- **This is one cause among several.** A page can also jump because of an image with no size, or a font that swaps in. This article is only about the units.

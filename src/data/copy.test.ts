@@ -5,6 +5,7 @@ import { coachPage } from "./coach";
 import { featuresPage } from "./features";
 import { javaCourse, rustCourse, switchCourse } from "./courses";
 import { resourcesPage } from "./resources";
+import { offTheSyllabus, otsSeries } from "./off-the-syllabus";
 
 /**
  * The heading rule from origan-internal/docs/copy-deck.md: a heading is one
@@ -40,6 +41,12 @@ for (const course of [rustCourse, javaCourse, switchCourse]) {
   for (const [part, heading] of Object.entries(course.partHeadings ?? {})) {
     collect({ heading, sub: "listing" }, `${course.id}.part${part}`, found);
   }
+}
+
+// Off the Syllabus: the index hero and the heading above each series.
+collect({ heading: offTheSyllabus.heading, sub: "hero" }, "off-the-syllabus.hero", found);
+for (const series of otsSeries) {
+  collect({ heading: series.heading, sub: series.sub }, `off-the-syllabus.${series.id}`, found);
 }
 
 const plain = (s: string) => s.replace(/\[([^\]]+)\]/g, "$1");

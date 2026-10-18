@@ -9,7 +9,8 @@
 export type SearchEntry = {
   /** Unique and stable, used as the React key. */
   id: string;
-  kind: "course" | "lesson";
+  /** A course or a collection, or one lesson or article inside it. */
+  kind: "course" | "lesson" | "collection" | "article";
   /** What the row is called, and what the match is highlighted in. */
   title: string;
   /** Courses only: the plain name ("DSA in Rust"), searched like the title. */
@@ -24,6 +25,18 @@ export type SearchEntry = {
   lessonNumber?: number;
   /** Courses only: how many lessons are live. */
   lessonCount?: number;
+  /** Articles only: the series it belongs to, searched like the title. */
+  series?: string;
+  /** Articles only: its number in the plan. */
+  articleNumber?: number;
+  /** Collections only: how many articles are live. */
+  articleCount?: number;
+  /** The id of the shelf item (a card on The Open Shelf) this belongs to, so a starred card can bring its results first. */
+  shelfId: string;
+  /** The filter chips this sits under (`rust`, `web`). A lesson or an article sits under its course's. */
+  filters: readonly string[];
+  /** A collection that is still being built: found by name and pills, shown as "Coming soon", never a link. */
+  comingSoon?: boolean;
   /** The topic pills of a course. */
   topics: readonly string[];
   /** Everything else worth finding: a lesson's angle, its part name, the course summary. */
@@ -133,8 +146,9 @@ function rangesFor(title: string, terms: readonly Alternative[][]) {
  * A typed word matches the start of a word in the entry, so "hash" finds
  * "HashMap" and "hashCode". Order: the title is the whole query; the title
  * starts with it; every word is a word of the title; every word is in the
- * title, the topics or the language; then anything else. A course beats a
- * lesson on a tie, and ties after that keep the order of the index.
+ * title, the topics or the language; then anything else. Within a tier, whole
+ * words beat word starts. A course beats a lesson on a tie, and ties after that keep the order of
+ * the index, which is the shelf's order.
  */
 export function search(index: readonly SearchEntry[], query: string): SearchResult[] {
   const typed = wordsOf(query.slice(0, maxQueryLength));
@@ -142,11 +156,11 @@ export function search(index: readonly SearchEntry[], query: string): SearchResu
   const terms = typed.map(alternativesFor);
   const joined = typed.join(" ");
 
-  const out: { result: SearchResult; at: number }[] = [];
+  const out: { result: SearchResult; at: number; whole: boolean }[] = [];
   index.forEach((entry, at) => {
     const title = wordsOf(entry.title);
     const named = [...title, ...wordsOf(entry.descriptor ?? "")];
-    const near = [...named, ...entry.topics.flatMap(wordsOf), ...wordsOf(entry.language)];
+    const near = [...named, ...entry.topics.flatMap(wordsOf), ...wordsOf(entry.language), ...wordsOf(entry.series ?? "")];
     const all = [...near, ...entry.text.flatMap(wordsOf), ...wordsOf(entry.courseName)];
     if (!matchesAll(all, terms)) return;
 
@@ -161,17 +175,24 @@ export function search(index: readonly SearchEntry[], query: string): SearchResu
             : matchesAll(near, terms)
               ? 4
               : 5;
-    out.push({ result: { entry, tier, ranges: rangesFor(entry.title, terms) }, at });
+    // Within a tier, a typed word that is a whole word of the name ("java" in "Java Collections")
+    // beats one that is only the start of a longer word ("java" in "JavaScript").
+    const whole = terms.every((alts) => alts.some((alt) => alt.every((w) => named.includes(w))));
+    out.push({ result: { entry, tier, ranges: rangesFor(entry.title, terms) }, at, whole });
   });
 
   out.sort(
     (a, b) =>
       a.result.tier - b.result.tier ||
-      Number(a.result.entry.kind === "lesson") - Number(b.result.entry.kind === "lesson") ||
+      Number(b.whole) - Number(a.whole) ||
+      Number(isInner(a.result.entry)) - Number(isInner(b.result.entry)) ||
       a.at - b.at,
   );
   return out.map((o) => o.result);
 }
+
+/** A lesson or an article, as opposed to a course or a collection: on a tie, the whole beats the part. */
+export const isInner = (entry: Pick<SearchEntry, "kind">) => entry.kind === "lesson" || entry.kind === "article";
 
 /** The words for a screen reader to hear after the list changes. */
 export function resultsAnnouncement(count: number, query: string): string {

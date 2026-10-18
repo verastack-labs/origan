@@ -1,5 +1,7 @@
 import { courses, courseUrl, type Course } from "@/data/courses";
 import { sheets, site } from "@/data/site";
+import { articleUrl, offTheSyllabus, otsPlan } from "@/data/off-the-syllabus";
+import { getArticles, type Article } from "@/lib/articles";
 import { getLessons } from "@/lib/lessons";
 
 /**
@@ -50,12 +52,35 @@ ${course.description} It is free, open to anyone, and made by ${site.studio}
 Coming next, not yet published: ${comingNext}.`;
 }
 
+/** Off the Syllabus: its index and every published article, with when its facts were last checked. */
+function articlePages(articles: readonly Article[]): string {
+  const lines = articles
+    .map((a) => `- [${a.title}](${articleUrl(a.slug)}): ${a.sub} Last checked ${a.checked}.`)
+    .join("\n");
+  return `- [${offTheSyllabus.name} (${offTheSyllabus.descriptor})](${site.url}${offTheSyllabus.path}): the index of the collection, listing all ${otsPlan.length} articles planned across 5 series.
+${lines}`;
+}
+
+function articleSection(articles: readonly Article[]): string {
+  const comingNext = otsPlan
+    .filter((entry) => !articles.some((a) => a.slug === entry.slug))
+    .map((entry) => entry.title)
+    .join("; ");
+  return `## ${offTheSyllabus.name} (${offTheSyllabus.descriptor})
+
+${offTheSyllabus.description} It is free, open to anyone, and made by ${site.studio}
+(${site.labsUrl}). Each article says when its facts were last checked.
+
+Coming next, not yet published: ${comingNext}.`;
+}
+
 export function buildLlmsTxt(): string {
   const sheetLines = sheets
     .map((sheet) => `- [${sheet.label}](${site.url}${sheet.href}): ${sheetSummaries[sheet.href]}`)
     .join("\n");
   const coursePageLines = courses.map(coursePages).join("\n");
   const courseSections = courses.map(courseSection).join("\n\n");
+  const articles = getArticles();
 
   return `# ${site.name}
 
@@ -67,8 +92,11 @@ ${site.name} is built by ${site.studio} in ${site.location}.
 
 ${sheetLines}
 ${coursePageLines}
+${articlePages(articles)}
 
 ${courseSections}
+
+${articleSection(articles)}
 
 ## What it is
 

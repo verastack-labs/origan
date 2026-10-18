@@ -6,6 +6,7 @@ import { sheetFor, sheets, site } from "@/data/site";
 import { javaCollections } from "@/data/java-collections";
 import { rustDsa } from "@/data/rust-dsa";
 import { theSwitch } from "@/data/the-switch";
+import { offTheSyllabus } from "@/data/off-the-syllabus";
 import { studentReferral } from "@/data/content";
 import { BenchmarkMark } from "./benchmark-mark";
 import { InterestButton, ReferralButton } from "./interest";
@@ -59,6 +60,12 @@ export function SiteFooter() {
                   {course.name}: {course.descriptor}
                 </Link>
               ))}
+              <Link
+                href={offTheSyllabus.path}
+                className="text-[13.5px] text-fg-2 underline decoration-line decoration-1 underline-offset-4 transition-colors hover:text-survey hover:decoration-survey-2"
+              >
+                {offTheSyllabus.name}
+              </Link>
             </div>
           </div>
 

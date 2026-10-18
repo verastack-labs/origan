@@ -1,0 +1,204 @@
+---
+title: API clients compared
+sub: Postman, Bruno, Insomnia, Hoppscotch and curl, with a fair "use this when" for each.
+description: A fair comparison of five tools for sending API requests. Licence, pricing model, offline use and where your requests are stored, each checked in the tool's own docs, with no winner declared.
+slug: api-clients
+order: 8
+series: tools
+published: 2026-10-18
+checked: 2026-10-18
+topics:
+  - API clients
+  - Postman
+  - Bruno
+  - Insomnia
+  - Hoppscotch
+  - curl
+short:
+  - "An API client builds an HTTP request for you, sends it, and shows the reply. Postman, Bruno, Insomnia, Hoppscotch and curl all do that. They differ in what surrounds it: cost, accounts, and where your saved requests live."
+  - "Every fact in the table was read from each tool's own docs or repository on 18 October 2026. Tools change, so check the date before you trust a row."
+  - "Bruno keeps requests as plain files in a folder you can put in Git. Insomnia lets you pick local, Git or cloud storage. Postman needs an account for collections. Hoppscotch runs in a browser tab. curl is one command that lives in your terminal."
+  - "There is no winner here and no benchmark. Each tool gets an honest line on when to use it and when to skip it."
+sources:
+  - title: "Postman: pricing"
+    url: https://www.postman.com/pricing/
+  - title: "Postman Docs: the lightweight API Client"
+    url: https://learning.postman.com/docs/getting-started/basics/using-api-client/
+  - title: "Postman Docs: sign up for Postman"
+    url: https://learning.postman.com/docs/getting-started/installation/account/sign-up-for-postman
+  - title: "Postman Docs: create collections"
+    url: https://learning.postman.com/docs/collections/use-collections/create-collections
+  - title: "Postman Docs: set up Native Git"
+    url: https://learning.postman.com/docs/use/native-git/setup
+  - title: "Postman Docs: the Postman CLI"
+    url: https://learning.postman.com/docs/postman-cli/postman-cli-overview
+  - title: "Postman: Terms of Service, 25 August 2025 version"
+    url: https://www.postman.com/legal/archives/terms-of-service-08252025/
+  - title: "GitHub: usebruno/bruno"
+    url: https://github.com/usebruno/bruno
+  - title: "Bruno Docs: create a collection"
+    url: https://docs.usebruno.com/get-started/bruno-basics/create-a-collection
+  - title: "Bruno Docs: Bruno CLI"
+    url: https://docs.usebruno.com/bru-cli/overview
+  - title: "Bruno: pricing"
+    url: https://www.usebruno.com/pricing
+  - title: "GitHub: Kong/insomnia"
+    url: https://github.com/Kong/insomnia
+  - title: "Insomnia Docs: storage options"
+    url: https://developer.konghq.com/insomnia/storage/
+  - title: "Insomnia: pricing"
+    url: https://insomnia.rest/pricing
+  - title: "Insomnia Docs: Inso CLI"
+    url: https://developer.konghq.com/inso-cli/
+  - title: "GitHub: hoppscotch/hoppscotch"
+    url: https://github.com/hoppscotch/hoppscotch
+  - title: "Hoppscotch Docs: quick start"
+    url: https://docs.hoppscotch.io/documentation/getting-started/quick-start
+  - title: "Hoppscotch Docs: home"
+    url: https://docs.hoppscotch.io/
+  - title: "curl: the project"
+    url: https://curl.se/
+  - title: "curl: licence"
+    url: https://curl.se/docs/copyright.html
+  - title: "curl: manual"
+    url: https://curl.se/docs/manpage.html
+  - title: "Everything curl: verbose mode"
+    url: https://everything.curl.dev/usingcurl/verbose/index.html
+  - title: "MDN: HTTP messages"
+    url: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages
+  - title: "JSONPlaceholder"
+    url: https://jsonplaceholder.typicode.com/
+  - title: "GitHub Docs: the Zen of GitHub endpoint"
+    url: https://docs.github.com/en/rest/meta/meta#get-the-zen-of-github
+---
+
+Your teacher says, "Test your backend with [Postman](https://www.postman.com/)." The senior in the next row says, "Postman wants a login now, use [Bruno](https://www.usebruno.com/)." A friend who lives in a terminal says, "Why not just [curl](https://curl.se/)?" A fourth person drops a link to something that runs in a browser tab.
+
+They are all right about something. This article lays the five side by side, with the facts checked in each tool's own docs, so you can pick for your situation and not for the loudest friend.
+
+One rule for this page: there is no winner. Where a tool is better at something, the page says what. Where I could not confirm a fact, I left it out.
+
+## What an API client does
+
+First, two words. An **API** (application programming interface) is a way for one program to ask another for things. On the web, you usually ask over **HTTP**, the same language your browser speaks. An **API client** is a tool that lets you write one of those requests by hand, send it, and read the reply, without writing a whole program first.
+
+What does the tool actually send? The same thing a browser does: a few lines of text. [MDN describes an HTTP request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages) as a start line, some headers, an empty line, and sometimes a body. Here is that, written as code, so you can see what every form and flag below turns into.
+
+<Sample file="api-clients.ts" name="request" />
+
+For example, here is the request the second command in this article builds:
+
+<Sample file="api-clients.ts" name="example" />
+
+Every tool here produces text like that. The differences are everything around it.
+
+**Remember:** an API client is a form for writing an HTTP request. Method, address, headers, body. The reply comes back the same way for every tool.
+
+## The five, side by side
+
+Each cell below comes from the tool's own docs or repository, read on 18 October 2026. "Account" means signing up with the company.
+
+| Tool | Licence | Cost model | Without an account | Where your requests live |
+| --- | --- | --- | --- | --- |
+| **Postman** | Proprietary. It is licensed to you under Postman's Terms of Service. | A free plan, with paid plans above it. The pricing page lists Free, Solo, Team and Enterprise. | The lightweight API Client works signed out and stores its work locally. Collections need a free account. | Collections need an account. Native Git can connect a workspace to a folder in your Git project. |
+| **Bruno** | MIT. | An Open Source edition at no cost, with paid Pro and Ultimate editions. | Yes. The docs say it is offline-first by design. | Plain files in a folder on your disk. |
+| **[Insomnia](https://insomnia.rest/)** | Apache-2.0. | A free Essentials plan, with paid Pro and Enterprise plans. | Yes. The local Scratch Pad needs no login. | Your choice: Local Vault on your device, Git Sync in a Git repository, or Cloud Sync in Insomnia Cloud. |
+| **[Hoppscotch](https://hoppscotch.io/)** | MIT for the Community Edition. The Enterprise Edition is separate. | Free on Hoppscotch Cloud, with a self-hosted Enterprise Edition. | It runs in a browser, as a desktop app, and from a command line. Signing in syncs data across devices. | Collections sit in workspaces, in local session storage or synced to your account. |
+| **curl** | The curl licence, which curl's own page describes as inspired by MIT/X but not identical. | Free. The project calls itself free and open source software. | Nothing to sign up for. | Nowhere. It is a command, so the request lives in your shell history or a script you keep. |
+
+Two things to read carefully. First, a licence is not a price: an open source licence tells you what you may do with the code, and a tool can be open source and also sell paid plans, as Bruno and Insomnia do. Second, "cost model" is the shape, not the numbers. Pricing pages change often, and the plans' limits are on the pages linked below. I kept numbers out on purpose.
+
+All five can also run from a terminal. Postman, Bruno, Insomnia and Hoppscotch each have a command line tool for running saved requests or tests, and curl is a command line tool already.
+
+**Remember:** the table is a snapshot with a date on it. Open the tool's own pricing and docs page before you decide.
+
+## Postman
+
+Postman is a commercial API platform. It has a free plan, and the paid plans add team features. On the checked day, the pricing page listed features such as API monitoring, mock servers and a collection runner, with different limits on each plan.
+
+How does it store your work? When you are not signed in, the desktop app opens as the lightweight API Client, where you can build and send requests, with all your work stored locally. To create a collection, the docs say you must sign in. Postman also has a feature called [Native Git](https://learning.postman.com/docs/use/native-git/setup), which connects a workspace to a Git project so that collections, environments and more live as files in your project folder, and syncs them with Postman Cloud.
+
+- **Use this when:** your team already uses it, or you want shared cloud workspaces and the other tools around requests, such as monitors and mock servers.
+- **Skip it when:** you want your saved requests as plain files with no account, or you do not want to sign in to save a collection.
+
+## Bruno
+
+Bruno is open source under the MIT licence, and its repository describes itself as a lightweight alternative to Postman and Insomnia. Its big idea is storage: it keeps your collections directly in a folder on your filesystem, in plain text. The docs' collection dialog lets you pick the file format, and recommends YAML. It also creates a `.gitignore` for a new collection, because the folder is meant to go into Git.
+
+It is offline by design. The docs say it works locally without a cloud account, and the repository says there are no plans to add cloud sync, ever. There is a command line tool for running collections, and there are paid editions with extra features.
+
+Why might this suit a student? If your assignment lives in a Git repository, your requests can sit in that same repository, as text, next to the code they test. A teammate who clones the repo gets the requests too. That follows directly from the way it stores files, and you do not need an account for it.
+
+**Remember:** requests kept as files in your repository travel with your code, and need nobody's server.
+
+- **Use this when:** you want requests as plain files in your Git repository, no account, and everything on your own machine.
+- **Skip it when:** your team wants a hosted shared workspace with live collaboration. Bruno has said it will not add cloud sync.
+
+## Insomnia
+
+Insomnia is open source under Apache-2.0, from Kong. Its README calls it a cross-platform API client for GraphQL, REST, WebSockets, SSE and gRPC. (GraphQL and gRPC are other ways programs ask each other for things. REST is the plain style this article's examples use.)
+
+Its storage is a choice. Local Vault keeps everything on your device, and works offline without sending data to the cloud. Git Sync stores projects in a Git repository you choose, independent of the cloud. Cloud Sync stores them in Insomnia Cloud for collaboration. And you can start with no account at all: the [local Scratch Pad](https://developer.konghq.com/insomnia/storage/) is described as free forever and needs no login.
+
+Read the plan limits before you rely on Git Sync. The pricing and storage pages tie it to the plan: on the free Essentials plan, Git Sync projects are for up to three users.
+
+- **Use this when:** you want to choose, project by project, whether things stay local, go in Git, or sync to a cloud, and you like an open source client.
+- **Skip it when:** you need Git storage for a larger team on the free plan. Check the limits first.
+
+## Hoppscotch
+
+Hoppscotch calls itself an open source API development ecosystem. The Community Edition is MIT licensed. You can use the web app in a browser without installing anything, there is a desktop app for Windows, macOS and Linux, and a command line tool. It can also be installed as a Progressive Web App, which is a website that behaves like an installed app, and its README lists offline support among the benefits. You can self-host it, and the Enterprise Edition is a self-hosted version with extras such as single sign-on.
+
+Hoppscotch Cloud has a free tier, and signing in syncs your data across devices.
+
+- **Use this when:** you want to send a request right now from any machine, with nothing to install, or you want to host an open source client yourself.
+- **Skip it when:** you want your requests as files in your repository. Its collections live in workspaces, not in your project folder.
+
+## curl
+
+curl is not an app. It is a command line tool and a library for transferring data with URLs, and it is free and open source. There is no window, no saved history, no form. You type one command.
+
+A GET request needs only the address. [GitHub's API](https://docs.github.com/en/rest/meta/meta#get-the-zen-of-github) has a small endpoint at `/zen` that returns a short sentence.
+
+```sh
+curl https://api.github.com/zen
+```
+
+A POST request sends data. [JSONPlaceholder](https://jsonplaceholder.typicode.com/) is a free fake API for practice; its own page says a POSTed resource is not really created on the server, and the reply is faked as if it were. curl's `--json` option sends a JSON body and sets the headers for it. It was added in curl 7.82.0.
+
+```sh
+curl --json '{"title":"chai","body":"two sugars","userId":1}' https://jsonplaceholder.typicode.com/posts
+```
+
+Add `-v` (verbose) to see the request curl built. Lines beginning with `>` are what it sent, and lines beginning with `<` are what came back.
+
+```sh
+curl -v https://api.github.com/zen
+```
+
+**Remember:** with `-v`, a `>` line is something curl sent, and a `<` line is something that came back.
+
+- **Use this when:** you want something you can paste into a README, run in a script or in CI, or use on a machine with nothing else installed.
+- **Skip it when:** you are exploring an API you do not know yet and want forms, saved history and environments. curl has none of those.
+
+## Try it yourself
+
+This takes about ten minutes, and you will learn more than from any table.
+
+1. Open a terminal and run the first curl command above. You should see one sentence.
+2. Run the second one. You should see your JSON come back with an `id` added.
+3. Run `curl -v https://api.github.com/zen` and find the line that starts with `> GET`. Compare it with what `rawRequest` writes above.
+4. Now pick one GUI client. Open the Hoppscotch web app, or install Bruno or Insomnia, or use Postman's lightweight client. Send the same two requests with its forms.
+5. Find where the tool kept the request you just made. Is it a file? A workspace? Your account?
+6. Write one line: "I would use ___ for ___ because ___."
+
+If your line for step 6 is different for different tasks, that is a good result. It is the point of this article.
+
+## The honest trade-offs
+
+- **This is a snapshot, not a ranking.** Everything in the table is from 18 October 2026. Pricing pages, plan limits and licences change. Treat each row as "true on that day".
+- **I benchmarked nothing.** There are no speed or memory numbers here, because I could not source any fairly. A tool that feels fast to a friend may not feel fast to you.
+- **Licence, price and openness are three separate questions.** Open source does not mean free of paid plans. A paid plan does not mean closed. Look at each on its own.
+- **Where your requests live matters more than it looks.** Plain files can be reviewed in Git and survive without an account. Cloud workspaces make sharing easy and tie you to a service. Neither is wrong. They suit different teams.
+- **The list is short on purpose.** Other options exist, including plugins inside code editors. Five tools are enough to see the shape of the choice.
+- **Features move.** If a row here is out of date by the time you read it, trust the tool's own docs, and tell the person who made this page.

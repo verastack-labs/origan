@@ -19,6 +19,12 @@
  *    teaches. A file with the expect-error headers must fail exactly as it
  *    says. Every other file must be clean, and must also run.
  *
+ * 6. Off the Syllabus keeps its samples in ts/off-the-syllabus/. Every .ts file
+ *    there is type-checked with that folder's own tsconfig (strict must be on),
+ *    every .js file must parse, and runs too unless its first lines say
+ *    `// browser-only`. HTML, CSS and JSON-LD samples are checked by
+ *    src/data/ots-articles.test.ts, which has the parsers for them.
+ *
  * It uses the TypeScript compiler's own API rather than the `tsc` command, so
  * one run checks every file and reports error codes as data.
  */
@@ -191,15 +197,58 @@ ${run.stderr}`);
   }
 }
 
+// --- 6. Off the Syllabus -----------------------------------------------------------
+
+const otsDir = join(root, "ts", "off-the-syllabus");
+const otsConfigPath = join(otsDir, "tsconfig.json");
+const otsRead = ts.readConfigFile(otsConfigPath, ts.sys.readFile);
+if (otsRead.error) {
+  console.error(flat(otsRead.error.messageText));
+  process.exit(1);
+}
+const otsConverted = ts.convertCompilerOptionsFromJson(otsRead.config.compilerOptions, otsDir);
+if (otsConverted.errors.length) {
+  console.error(otsConverted.errors.map((d) => flat(d.messageText)).join(String.fromCharCode(10)));
+  process.exit(1);
+}
+const otsOptions = { ...otsConverted.options, skipLibCheck: true };
+if (otsOptions.strict !== true) fail(rel(otsConfigPath), "compilerOptions.strict must be true");
+
+const otsTs = readdirSync(otsDir)
+  .filter((f) => f.endsWith(".ts"))
+  .map((f) => join(otsDir, f));
+for (const d of ts.getPreEmitDiagnostics(ts.createProgram(otsTs, otsOptions))) {
+  fail("type error in an Off the Syllabus file", describe(d));
+}
+
+const otsJs = readdirSync(otsDir)
+  .filter((f) => f.endsWith(".js") || f.endsWith(".mjs"))
+  .map((f) => join(otsDir, f));
+for (const file of otsJs) {
+  const where = rel(file);
+  const syntax = spawnSync(process.execPath, ["--check", file], { encoding: "utf8" });
+  if (syntax.status !== 0) {
+    fail(where, `does not parse:
+${syntax.stderr}`);
+    continue;
+  }
+  if (/^\/\/ browser-only\s*$/m.test(readFileSync(file, "utf8"))) continue;
+  const run = spawnSync(process.execPath, [file], { encoding: "utf8", cwd: otsDir });
+  if (run.status !== 0) fail(where, `crashed:
+${run.stderr}`);
+}
+
 // --- report -------------------------------------------------------------------------
 
 if (failures.length) {
-  console.error(`The Switch snippets: ${failures.length} problem(s).\n\n${failures.join("\n\n")}`);
+  console.error(`Snippets: ${failures.length} problem(s).\n\n${failures.join("\n\n")}`);
   process.exit(1);
 }
 
 console.log(
   `The Switch snippets: ${lessonFiles.length} TypeScript files strict-clean, ` +
     `${errorFiles.length} expected errors confirmed (code, line and message), ` +
-    `${jsFiles.length} JavaScript files parse and run, ${jsdocFiles.length} JSDoc files checked as JavaScript, type stripping runs.`,
+    `${jsFiles.length} JavaScript files parse and run, ${jsdocFiles.length} JSDoc files checked as JavaScript, type stripping runs.
+` +
+    `Off the Syllabus snippets: ${otsTs.length} TypeScript files strict-clean, ${otsJs.length} JavaScript files parse.`,
 );

@@ -16,7 +16,7 @@ import type { ReactNode } from "react";
 
 /** Marker references for arrowheads, unique to one drawing. */
 type Heads = { grey: string; accent: string; warn: string };
-type Drawing = { viewBox: string; draw: (heads: Heads) => ReactNode };
+export type Drawing = { viewBox: string; draw: (heads: Heads) => ReactNode };
 
 function Frame({
   id,
@@ -112,7 +112,7 @@ export function TsFigure({
 
 // --- drawing helpers ---------------------------------------------------------
 
-type Tone = "fg" | "fg2" | "fg3" | "survey" | "warn";
+export type Tone = "fg" | "fg2" | "fg3" | "survey" | "warn";
 const fillOf: Record<Tone, string> = {
   fg: "font-mono fill-fg",
   fg2: "font-mono fill-fg-2",
@@ -121,7 +121,7 @@ const fillOf: Record<Tone, string> = {
   warn: "font-mono fill-warn",
 };
 
-function Txt({
+export function Txt({
   x,
   y,
   children,
@@ -153,7 +153,7 @@ function Txt({
 }
 
 /** A small uppercase tag, in the house `STATION 1` voice. */
-function Tag({ x, y, children, anchor = "start" }: { x: number; y: number; children: ReactNode; anchor?: "start" | "middle" | "end" }) {
+export function Tag({ x, y, children, anchor = "start" }: { x: number; y: number; children: ReactNode; anchor?: "start" | "middle" | "end" }) {
   return (
     <text x={x} y={y} fontSize={11} textAnchor={anchor} letterSpacing="0.08em" className="font-mono fill-fg-3">
       {children}
@@ -161,7 +161,7 @@ function Tag({ x, y, children, anchor = "start" }: { x: number; y: number; child
   );
 }
 
-type Edge = "line" | "survey" | "warn" | "dash" | "dashWarn" | "ghost";
+export type Edge = "line" | "survey" | "warn" | "dash" | "dashWarn" | "ghost";
 const edgeClass: Record<Edge, string> = {
   line: "fill-panel-2 stroke-line",
   survey: "fill-panel-2 stroke-survey",
@@ -171,7 +171,7 @@ const edgeClass: Record<Edge, string> = {
   ghost: "fill-ground stroke-line",
 };
 
-function Box({
+export function Box({
   x,
   y,
   w,
@@ -214,7 +214,7 @@ function mustFit(text: string | undefined, size: number, w: number) {
 }
 
 /** A box with one or two centred lines: a title and a quieter line under it. */
-function Card({
+export function Card({
   x,
   y,
   w,
@@ -259,7 +259,7 @@ function Card({
   );
 }
 
-function Line({
+export function Line({
   x1,
   y1,
   x2,
@@ -290,7 +290,7 @@ function Line({
   );
 }
 
-function Curve({ d, head, tone = "grey", dashed = false }: { d: string; head?: string; tone?: "grey" | "survey" | "warn"; dashed?: boolean }) {
+export function Curve({ d, head, tone = "grey", dashed = false }: { d: string; head?: string; tone?: "grey" | "survey" | "warn"; dashed?: boolean }) {
   return (
     <path
       d={d}
@@ -304,7 +304,7 @@ function Curve({ d, head, tone = "grey", dashed = false }: { d: string; head?: s
 }
 
 /** A vertical dimension line with a reading to its right (the narrow version of `Dimension`). */
-function DimensionV({ x, y1, y2, lines }: { x: number; y1: number; y2: number; lines: string[] }) {
+export function DimensionV({ x, y1, y2, lines }: { x: number; y1: number; y2: number; lines: string[] }) {
   const mid = (y1 + y2) / 2;
   return (
     <g>
@@ -329,7 +329,7 @@ function DimensionV({ x, y1, y2, lines }: { x: number; y1: number; y2: number; l
 }
 
 /** A horizontal dimension line, as in the other courses, with the reading above. */
-function DimensionH({ x1, x2, y, text }: { x1: number; x2: number; y: number; text: string }) {
+export function DimensionH({ x1, x2, y, text }: { x1: number; x2: number; y: number; text: string }) {
   return (
     <g className="stroke-survey-2" strokeWidth={1}>
       <line x1={x1} x2={x2} y1={y} y2={y} />

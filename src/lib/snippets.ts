@@ -8,8 +8,8 @@ import { join } from "node:path";
  * (the crate at `rust/rust-dsa/`, the classes at `java/java-collections/`),
  * between `// region: name` and `// endregion` markers, where the tests
  * compile and run it. A page names a file and a region, and this module cuts
- * the lines out. So the page shows exactly what was tested. Both languages use
- * `//` comments, so one marker syntax serves both.
+ * the lines out. So the page shows exactly what was tested. Rust and
+ * Java both use `//` comments, so one marker syntax serves both.
  *
  * Node-only, and safe because every route is prerendered at build time.
  */
@@ -18,8 +18,10 @@ export type SnippetSource = { readonly dir: readonly string[]; readonly ext: str
 /** DSA in Rust, the default so the original callers keep working. */
 const RUST: SnippetSource = { dir: ["rust", "rust-dsa", "src"], ext: ".rs" };
 
-const START = /^\s*\/\/ region: ([a-z0-9-]+)\s*$/;
-const END = /^\s*\/\/ endregion\s*$/;
+// `//` for Rust, Java, TypeScript and JavaScript. Off the Syllabus also has HTML
+// (`<!-- region: x -->`) and CSS (`/* region: x */`) samples, which cannot use it.
+const START = /^\s*(?:\/\/|\/\*|<!--) region: ([a-z0-9-]+)\s*(?:\*\/|-->)?\s*$/;
+const END = /^\s*(?:\/\/|\/\*|<!--) endregion\s*(?:\*\/|-->)?\s*$/;
 
 /** Every region in a source file, by name, with indentation removed. */
 export function parseRegions(source: string): Map<string, string> {

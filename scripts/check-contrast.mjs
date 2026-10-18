@@ -31,6 +31,7 @@ const pairs = [
   ["survey", "ground", 4.5, "accent text and links"],
   ["survey", "ground-2", 4.5, "accent text on a banded section"],
   ["survey", "panel", 4.5, "accent text inside a panel"],
+  ["survey", "panel-2", 4.5, "a code chip inside a link"],
   ["survey-ink", "survey", 4.5, "label on the primary control"],
   ["warn", "panel", 4.5, "the warn tone inside a panel"],
   ["survey-2", "ground", 3, "the surface model, a graphical boundary"],

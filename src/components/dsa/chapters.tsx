@@ -38,6 +38,23 @@ export type Chapter = {
   part: number;
   /** Published lessons are links. The rest are listed, dimmed, and say so. */
   available: boolean;
+  /**
+   * A named group, for a collection that has series instead of parts (Off the
+   * Syllabus). When any chapter has one, the list is grouped by it.
+   */
+  group?: string;
+};
+
+/**
+ * What the sidebar needs to know about what it is listing. A course is one
+ * (`navOf`), and so is a collection of articles, whose "parts" are the
+ * headings of the article being read.
+ */
+export type ChaptersNav = CourseNav & {
+  /** The small label above the title. */
+  kicker?: string;
+  /** Read ticks are for lessons. Articles turn them off. */
+  reads?: boolean;
 };
 
 const EVENT = "origan-rust-dsa-chapters";
@@ -71,7 +88,7 @@ const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)"
  * Measured on scroll in an animation frame, the way the site's section index
  * does it, so a long page costs one read per frame.
  */
-function useActivePart(parts: CourseNav["parts"]): number {
+function useActivePart(parts: ChaptersNav["parts"]): number {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -122,27 +139,33 @@ function ChapterList({
   active,
   onNavigate,
 }: {
-  course: CourseNav;
+  course: ChaptersNav;
   chapters: readonly Chapter[];
   current: string;
   active: number;
   onNavigate?: () => void;
 }) {
   const row = "relative flex items-baseline gap-3 rounded-control py-2 pl-3 pr-2 text-[14.5px] leading-snug";
-  const partNumbers = [...new Set(chapters.map((c) => c.part))];
+  // A collection groups by name; a course groups by part number. Either way the
+  // groups come out in the order the chapters were given.
+  const byName = chapters.some((c) => c.group !== undefined);
+  const partNumbers = byName
+    ? [...new Set(chapters.map((c) => c.group ?? ""))]
+    : [...new Set(chapters.map((c) => c.part))];
   const grouped = partNumbers.length > 1;
+  const inGroup = (c: Chapter, group: number | string) => (byName ? (c.group ?? "") === group : c.part === group);
 
   return (
     <nav aria-label="Chapters">
       {partNumbers.map((part) => (
       <div key={part} className={grouped && part !== partNumbers[0] ? "mt-5" : ""}>
       {grouped && (
-        <p className="notation mb-1.5 whitespace-nowrap pl-3">
-          Part {part} · {course.partNames[part]}
+        <p className="notation mb-1.5 pl-3">
+          {byName ? part : `Part ${part} · ${course.partNames[part as number]}`}
         </p>
       )}
       <ol className="grid gap-px">
-        {chapters.filter((c) => c.part === part).map((chapter) => {
+        {chapters.filter((c) => inGroup(c, part)).map((chapter) => {
           const here = chapter.slug === current;
           const number = (
             <span
@@ -167,7 +190,7 @@ function ChapterList({
                 >
                   {number}
                   <span className="min-w-0 flex-1">{chapter.title}</span>
-                  <ReadCheck course={course.id} slug={chapter.slug} />
+                  {course.reads !== false && <ReadCheck course={course.id} slug={chapter.slug} />}
                 </Link>
               ) : (
                 <div className={`${row} text-fg-3`}>
@@ -220,10 +243,12 @@ function ChapterList({
 }
 
 /** The course title, linking to the index. */
-function CourseTitle({ course, onNavigate }: { course: CourseNav; onNavigate?: () => void }) {
+function CourseTitle({ course, onNavigate }: { course: ChaptersNav; onNavigate?: () => void }) {
   return (
     <>
-      <p className="notation whitespace-nowrap">{Object.keys(course.partNames).length > 1 ? "Free lessons" : "Part 1"}</p>
+      <p className="notation whitespace-nowrap">
+        {course.kicker ?? (Object.keys(course.partNames).length > 1 ? "Free lessons" : "Part 1")}
+      </p>
       <Link
         href={course.path}
         onClick={onNavigate}
@@ -278,7 +303,7 @@ export function ChaptersLayout({
   contentClass,
   children,
 }: {
-  course: CourseNav;
+  course: ChaptersNav;
   chapters: readonly Chapter[];
   current: string;
   /** The page heading. It sits under the chapters bar, so the bar is the first thing below the site header. */
