@@ -21,8 +21,8 @@ sources:
     url: https://www.w3.org/TR/json-ld11/
   - title: "schema.org: Getting started"
     url: https://schema.org/docs/gs.html
-  - title: "schema.org: TechArticle"
-    url: https://schema.org/TechArticle
+  - title: "schema.org: Article"
+    url: https://schema.org/Article
   - title: "schema.org: Organization"
     url: https://schema.org/Organization
   - title: "Google Search Central: Introduction to structured data markup"
@@ -55,6 +55,10 @@ Here is a complete block. It says that this page is a technical article, and giv
 
 <Sample file="json-ld-samples.html" name="minimal" />
 
+Here is the same page both ways. Flip between what a reader sees and what a search engine reads.
+
+<JsonLdLens />
+
 Let's read it from the outside in.
 
 The `<script>` tag is how a page carries code. This one is special. Its `type` is `application/ld+json`, which is not JavaScript. [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script) says that when a script's type is not JavaScript, its content is treated as a data block and the browser does not process it. So the text sits there, quietly, for anything that wants to read it. Visitors never see it.
@@ -70,12 +74,12 @@ The **LD** stands for **Linked Data**. The W3C, the body that writes web standar
 Three names in that block start with an `@`. They are the grammar.
 
 - **`@context`** says which dictionary the words come from. Here it is `https://schema.org`. A context maps short names such as `headline` to full identifiers, so everyone means the same thing by them.
-- **`@type`** says what kind of thing the block describes. Here it is [`TechArticle`](https://schema.org/TechArticle).
+- **`@type`** says what kind of thing the block describes. Here it is [`Article`](https://schema.org/Article).
 - **`@id`** gives a thing a name that other parts can point to. The block above does not need one. You will see why in a moment.
 
 The dictionary is **[schema.org](https://schema.org/docs/gs.html)**, a collection of shared vocabularies that webmasters can use to mark up their pages, so that search engines and other applications understand them better. It lists the types and the names that go with each type.
 
-`TechArticle` is one of those types. schema.org describes it as a technical article, such as a how-to guide or step-by-step instructions, and it is a more specific kind of `Article`.
+`Article` is one of those types: a piece of writing, such as a news story, a guide or this page.
 
 Real pages describe more than one thing. When they do, a block can hold a list called `@graph`, and the things in it can point at each other with `@id`:
 
@@ -122,9 +126,9 @@ Every page also carries a trail of breadcrumbs, the little "Origan, then Resourc
 
 Last, the block for the page you are reading. It is built from this article's own front matter: the title, the one-line summary, the dates, and the topic pills.
 
-<RepoJsonLd which="article" label="JSON-LD · TechArticle" />
+<RepoJsonLd which="article" label="JSON-LD · Article" />
 
-Two choices are worth explaining. First, `dateModified` is the "Last checked" date, shown at the top of this page: the day each fact was last compared with its source. Second, the type is `TechArticle`, which is a kind of `Article`. [Google's article guide](https://developers.google.com/search/docs/appearance/structured-data/article) lists `Article`, `NewsArticle` and `BlogPosting` as the types it documents, so it never names `TechArticle`; schema.org does, and defines it as a more specific `Article`. This site chose the more specific type.
+Two choices are worth explaining. First, `dateModified` is the "Last checked" date, shown at the top of this page: the day each fact was last compared with its source. Second, the type is plain `Article`. schema.org also has more specific kinds, such as `TechArticle` for how-to guides, but [Google's article guide](https://developers.google.com/search/docs/appearance/structured-data/article) documents only `Article`, `NewsArticle` and `BlogPosting`. When in doubt, pick the type the search engine says it reads.
 
 **Remember:** a good block says only what the visible page already says. Print it from the same data as the page, so the two cannot drift apart.
 

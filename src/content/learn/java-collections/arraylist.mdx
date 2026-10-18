@@ -112,6 +112,10 @@ Engine
 
 Five items didn't fit in four slots, so the array grew from 4 to 7. Then we inserted at index 1 and removed index 0, and the items shifted accordingly.
 
+To see the growing itself, add the letters A to H to a `TinyList` one at a time. Watch what happens when the array is full, and how much gets copied.
+
+<ArrayListGrowthStepper />
+
 <ArrayListShiftDiagram />
 
 This picture is the cost of inserting near the front. Everything after the new item has to move one place, and the longer the list, the more there is to move. Reading a slot never moves anything, which is why `get` is quick.

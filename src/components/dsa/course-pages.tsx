@@ -1,10 +1,12 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHead, sectionCompact, shell } from "@/components/page-head";
+import { ArticleHead, PageHead, sectionCompact, shell } from "@/components/page-head";
 import { HeadingPair } from "@/components/heading-pair";
 import { Reveal } from "@/components/reveal";
-import { ChaptersLayout, type Chapter } from "@/components/dsa/chapters";
+import { ChaptersLayout, type Chapter, type PartsBySlug } from "@/components/dsa/chapters";
+import { LessonArticle } from "@/components/dsa/lesson-article";
 import { ContentsBlock, LessonNav, StudioCredit } from "@/components/dsa/lesson-chrome";
 import { componentsFor } from "@/components/dsa/mdx-components";
 import { ReadMark, ReadTick } from "@/components/dsa/read-tick";
@@ -209,13 +211,13 @@ export function CourseIndex({ course }: { course: Course }) {
   );
 }
 
-export async function LessonView({ course, slug }: { course: Course; slug: string }) {
-  const lesson = getLesson(slug, course);
-  if (!lesson) notFound();
-
-  const Content = await compileLesson(lesson.body);
-  // A reference page lists its topic groups where the other lessons list their seven parts.
-  const shown: Course = { ...course, parts: partsFor(course, slug) };
+/**
+ * The layout every lesson of a course shares. It sits above `[slug]` in a route
+ * group, so it stays mounted while the reader moves from lesson to lesson: the
+ * sidebar keeps its scroll and its folds, and only the article beside it is
+ * replaced.
+ */
+export function CourseLessonsShell({ course, children }: { course: Course; children: ReactNode }) {
   const lessons = getLessons(course);
   const published = new Set(lessons.map((l) => l.slug));
   const chapters: Chapter[] = course.curriculum.map((entry) => ({
@@ -225,6 +227,28 @@ export async function LessonView({ course, slug }: { course: Course; slug: strin
     part: partOf(entry),
     available: published.has(entry.slug),
   }));
+  // A reference page lists its topic groups where the other lessons list their seven parts.
+  const partsBySlug: PartsBySlug = Object.fromEntries(lessons.map((l) => [l.slug, partsFor(course, l.slug)]));
+
+  return (
+    <ChaptersLayout
+      course={navOf(course)}
+      chapters={chapters}
+      partsBySlug={partsBySlug}
+      contentClass={`${shell} pb-[clamp(60px,8vw,110px)] pt-[clamp(28px,4vw,52px)]`}
+    >
+      {children}
+    </ChaptersLayout>
+  );
+}
+
+export async function LessonView({ course, slug }: { course: Course; slug: string }) {
+  const lesson = getLesson(slug, course);
+  if (!lesson) notFound();
+
+  const Content = await compileLesson(lesson.body);
+  const shown: Course = { ...course, parts: partsFor(course, slug) };
+  const lessons = getLessons(course);
 
   return (
     <>
@@ -234,48 +258,38 @@ export async function LessonView({ course, slug }: { course: Course; slug: strin
         dangerouslySetInnerHTML={{ __html: jsonLdScript([lessonJsonLd(course, lesson), breadcrumbJsonLd(course, lesson)]) }}
       />
 
-      <ChaptersLayout
-        course={navOf(shown)}
-        chapters={chapters}
-        current={lesson.slug}
-        contentClass={`${shell} pb-[clamp(60px,8vw,110px)] pt-[clamp(28px,4vw,52px)]`}
-        head={
-          <PageHead
-            notation={`${course.name} · ${course.descriptor} · Lesson ${lesson.order}`}
-            pair={{ heading: lesson.title, sub: lesson.sub }}
-            cta={false}
-            compact
-            crumbs={[
-              { label: "Resources", href: "/resources/" },
-              { label: course.name, href: course.path },
-            ]}
-            current={`Lesson ${lesson.order}`}
-          />
-        }
-      >
-        <article className="lesson-article min-w-0">
-          <div className="mb-6 flex flex-wrap items-center justify-end gap-x-6 gap-y-2">
-            <StudioCredit />
-          </div>
+      <LessonArticle title={lesson.title}>
+        <ArticleHead
+          notation={`${course.name} · ${course.descriptor} · Lesson ${lesson.order}`}
+          pair={{ heading: lesson.title, sub: lesson.sub }}
+          crumbs={[
+            { label: "Resources", href: "/resources/" },
+            { label: course.name, href: course.path },
+          ]}
+          current={`Lesson ${lesson.order}`}
+        />
 
-          <ContentsBlock parts={shown.parts} />
+        <div className="mb-6 flex flex-wrap items-center justify-end gap-x-6 gap-y-2">
+          <StudioCredit />
+        </div>
 
-          <Content components={componentsFor(shown)} />
+        <ContentsBlock parts={shown.parts} />
 
-          <div className="mt-[clamp(40px,5vw,64px)] flex flex-wrap items-center justify-between gap-4 border-t border-line pt-8">
-            <ReadTick course={course.id} slug={lesson.slug} />
-            <p className="font-mono text-[10px] uppercase tracking-[0.11em] text-fg-3">
-              Updated {lesson.updated}
-            </p>
-          </div>
+        <Content components={componentsFor(shown)} />
 
-          <div className="mt-8">
-            <LessonNav course={course} lesson={lesson} lessons={lessons} />
-          </div>
+        <div className="mt-[clamp(40px,5vw,64px)] flex flex-wrap items-center justify-between gap-4 border-t border-line pt-8">
+          <ReadTick course={course.id} slug={lesson.slug} />
+          <p className="font-mono text-[10px] uppercase tracking-[0.11em] text-fg-3">
+            Updated {lesson.updated}
+          </p>
+        </div>
 
-          <StudioCredit className="mt-8" />
-        </article>
-      </ChaptersLayout>
+        <div className="mt-8">
+          <LessonNav course={course} lesson={lesson} lessons={lessons} />
+        </div>
+
+        <StudioCredit className="mt-8" />
+      </LessonArticle>
     </>
   );
 }

@@ -2,7 +2,9 @@ import type { ReactNode } from "react";
 import { langOfSample, sampleCode } from "@/lib/ots-snippets";
 import { repoSampleText, type RepoSample } from "@/lib/ots-samples";
 import { slugify } from "@/lib/articles";
+import { asArticle, jsonFromScript } from "@/lib/demos/json-ld-lens";
 import { TsBlock } from "./ts-code";
+import { JsonLdLensView } from "./ots-interactives/json-ld-lens";
 
 /**
  * The parts of an Off the Syllabus article that are not lessons' parts: a
@@ -47,4 +49,14 @@ export async function Sample({
 /** JSON-LD this repository really emits, printed from the function that emits it. */
 export async function RepoJsonLd({ which, label = "JSON-LD" }: { which: RepoSample; label?: string }) {
   return <TsBlock code={repoSampleText(which)} lang="json" play={false} label={label} />;
+}
+
+/**
+ * The same page as a reader sees it and as the JSON-LD behind it, with a
+ * toggle. The data is read from the article's own `minimal` sample, so it is
+ * the block the article prints.
+ */
+export function JsonLdLens() {
+  const data = asArticle(jsonFromScript(sampleCode("json-ld-samples.html", "minimal")));
+  return <JsonLdLensView data={data} />;
 }

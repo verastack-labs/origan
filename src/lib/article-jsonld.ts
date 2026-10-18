@@ -21,11 +21,11 @@ const collection = () => ({
   url: indexUrl(),
 });
 
-/** One article, as a TechArticle that is part of the collection. */
+/** One article, as an Article (the type Google's article guide documents) that is part of the collection. */
 export function articleJsonLd(article: Article) {
   return {
     "@context": "https://schema.org",
-    "@type": "TechArticle",
+    "@type": "Article",
     headline: article.title,
     description: article.description,
     url: articleUrl(article.slug),
@@ -59,7 +59,7 @@ export function collectionJsonLd(articles: readonly Article[]) {
     datePublished: liveResources.find((r) => r.id === "off-the-syllabus")?.published,
     publisher: publisher(),
     hasPart: articles.map((a) => ({
-      "@type": "TechArticle",
+      "@type": "Article",
       headline: a.title,
       url: articleUrl(a.slug),
     })),

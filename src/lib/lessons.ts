@@ -64,7 +64,8 @@ const cached = new Map<string, Lesson[]>();
 
 /** Every published lesson of a course, in teaching order. */
 export function getLessons(course: Pick<Course, "id" | "contentDir"> = rustCourse): Lesson[] {
-  let lessons = cached.get(course.id);
+  // In development the files are read each time, so an edit to a lesson shows on reload.
+  let lessons = process.env.NODE_ENV === "development" ? undefined : cached.get(course.id);
   if (!lessons) {
     const dir = dirOf(course);
     lessons = readdirSync(dir)

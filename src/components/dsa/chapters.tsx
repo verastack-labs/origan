@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useSelectedLayoutSegment } from "next/navigation";
 import {
   useCallback,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -14,7 +16,9 @@ import {
 } from "react";
 import { List, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { coursePath, type CourseNav } from "@/data/courses";
+import { activeSlug } from "@/lib/arrival";
 import { CHAPTERS_KEY } from "@/lib/chapters";
+import { AnnounceContext } from "./announce";
 import { ReadCheck } from "./read-tick";
 
 /**
@@ -25,6 +29,11 @@ import { ReadCheck } from "./read-tick";
  * drawer, opened from a bar under the site header, and built on the native
  * `<dialog>` so focus, Escape and the inert page behind it come from the
  * browser rather than from script.
+ *
+ * It is rendered by a layout that stays mounted while the reader moves between
+ * lessons, so it keeps its scroll, its folded state and its expanded
+ * sub-items; only the highlight moves. Which lesson is current comes from the
+ * layout's selected segment, and the parts listed under it from `partsBySlug`.
  *
  * The folded state is not React state. It lives on `<html data-chapters>`,
  * where an inline script in the layout sets it before first paint, and the
@@ -50,12 +59,15 @@ export type Chapter = {
  * (`navOf`), and so is a collection of articles, whose "parts" are the
  * headings of the article being read.
  */
-export type ChaptersNav = CourseNav & {
+export type ChaptersNav = Omit<CourseNav, "parts"> & {
   /** The small label above the title. */
   kicker?: string;
   /** Read ticks are for lessons. Articles turn them off. */
   reads?: boolean;
 };
+
+/** The parts of each lesson, listed under it while it is the one being read. */
+export type PartsBySlug = Readonly<Record<string, CourseNav["parts"]>>;
 
 const EVENT = "origan-rust-dsa-chapters";
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -81,6 +93,8 @@ function writeCollapsed(next: boolean) {
   window.dispatchEvent(new Event(EVENT));
 }
 
+const NO_PARTS: CourseNav["parts"] = [];
+
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
@@ -88,19 +102,19 @@ const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)"
  * Measured on scroll in an animation frame, the way the site's section index
  * does it, so a long page costs one read per frame.
  */
-function useActivePart(parts: ChaptersNav["parts"]): number {
+function useActivePart(parts: CourseNav["parts"]): number {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
-    const elements = parts.map((part) => document.getElementById(part.id));
     let frame = 0;
 
     const measure = () => {
       frame = 0;
       const line = window.innerHeight * 0.34;
       let current = 0;
-      elements.forEach((part, i) => {
-        if (part && part.getBoundingClientRect().top <= line) current = i;
+      parts.forEach((part, i) => {
+        const el = document.getElementById(part.id);
+        if (el && el.getBoundingClientRect().top <= line) current = i;
       });
       setActive(current);
     };
@@ -136,12 +150,14 @@ function ChapterList({
   course,
   chapters,
   current,
+  parts,
   active,
   onNavigate,
 }: {
   course: ChaptersNav;
   chapters: readonly Chapter[];
   current: string;
+  parts: CourseNav["parts"];
   active: number;
   onNavigate?: () => void;
 }) {
@@ -180,6 +196,7 @@ function ChapterList({
               {chapter.available ? (
                 <Link
                   href={coursePath(course, chapter.slug)}
+                  scroll={false}
                   aria-current={here ? "page" : undefined}
                   onClick={onNavigate}
                   className={`${row} transition-colors ${
@@ -206,7 +223,7 @@ function ChapterList({
 
               {here && (
                 <ol className="mb-2 ml-[21px] mt-1 border-l border-line-2">
-                  {course.parts.map((part, i) => {
+                  {parts.map((part, i) => {
                     const seen = active === i;
                     return (
                       <li key={part.id}>
@@ -298,20 +315,22 @@ function CollapseButton({
 export function ChaptersLayout({
   course,
   chapters,
-  current,
-  head,
+  partsBySlug,
   contentClass,
   children,
 }: {
   course: ChaptersNav;
   chapters: readonly Chapter[];
-  current: string;
-  /** The page heading. It sits under the chapters bar, so the bar is the first thing below the site header. */
-  head: ReactNode;
+  partsBySlug: PartsBySlug;
   contentClass: string;
   children: ReactNode;
 }) {
-  const active = useActivePart(course.parts);
+  const slugs = useMemo(() => chapters.map((c) => c.slug), [chapters]);
+  const segment = useSelectedLayoutSegment();
+  const current = activeSlug(segment, slugs) ?? "";
+  const parts = partsBySlug[current] ?? NO_PARTS;
+  const active = useActivePart(parts);
+  const [announcement, setAnnouncement] = useState("");
   const collapsed = useSyncExternalStore(subscribe, readCollapsed, () => false);
   const bodyId = useId();
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -324,7 +343,15 @@ export function ChaptersLayout({
 
   const now = chapters.find((c) => c.slug === current);
 
-  useEffect(() => revealCurrent(bodyRef.current), []);
+  // Cleared first, so the same title said twice still reads as a change.
+  const announce = useCallback((text: string) => {
+    setAnnouncement("");
+    window.setTimeout(() => setAnnouncement(text), 60);
+  }, []);
+
+  // On arrival, and each time the lesson changes: the list scrolls only if the
+  // current lesson is out of its view, and never moves otherwise.
+  useEffect(() => revealCurrent(bodyRef.current), [current]);
 
   const openDrawer = () => {
     const dialog = dialogRef.current;
@@ -405,10 +432,11 @@ export function ChaptersLayout({
   };
 
   return (
+    <AnnounceContext.Provider value={announce}>
     <div>
       {/* Below lg: the bar that opens the drawer. Sticky under the site header,
           which is 62px plus its rule. */}
-      <div className="sticky top-[63px] z-30 border-b border-line-2 bg-ground lg:hidden">
+      <div data-sticky-top className="sticky top-[63px] z-30 border-b border-line-2 bg-ground lg:hidden">
         <div className="mx-auto max-w-[1240px] px-[clamp(18px,4vw,60px)]">
           <button
             ref={triggerRef}
@@ -433,8 +461,6 @@ export function ChaptersLayout({
         </div>
       </div>
 
-      {head}
-
       <div className={contentClass}>
         <div className="chapters-layout">
           <aside className="chapters-aside hidden lg:block">
@@ -456,7 +482,7 @@ export function ChaptersLayout({
                 className="chapters-fade chapters-body min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-10"
               >
                 <div className="w-[var(--rail-open)] pr-3">
-                  <ChapterList course={course} chapters={chapters} current={current} active={active} />
+                  <ChapterList course={course} chapters={chapters} current={current} parts={parts} active={active} />
                 </div>
               </div>
 
@@ -514,10 +540,24 @@ export function ChaptersLayout({
             </button>
           </div>
           <div ref={drawerListRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-24 pt-2">
-            <ChapterList course={course} chapters={chapters} current={current} active={active} onNavigate={closeDrawer} />
+            <ChapterList
+              course={course}
+              chapters={chapters}
+              current={current}
+              parts={parts}
+              active={active}
+              onNavigate={closeDrawer}
+            />
           </div>
         </div>
       </dialog>
+
+      {/* Says the title of the lesson that has just arrived. The text changes
+          while the region itself stays, which is what a screen reader needs. */}
+      <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {announcement}
+      </p>
     </div>
+    </AnnounceContext.Provider>
   );
 }

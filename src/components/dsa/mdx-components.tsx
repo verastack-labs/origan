@@ -29,8 +29,18 @@ import { Practice } from "./practice";
 import { Snippet } from "./snippet";
 import { Compare, Fails } from "./ts-code";
 import { NarrowingStepper } from "./narrowing-stepper";
+import { BinarySearchStepper } from "./interactives/binary-search-stepper";
+import { BfsStepper } from "./interactives/bfs-stepper";
+import { HeapStepper } from "./interactives/heap-stepper";
+import { ArrayListGrowthStepper } from "./interactives/array-list-stepper";
+import { HashMapStepper } from "./interactives/hash-map-stepper";
 import { TypeStrip } from "./type-strip";
-import { ArticleH2, RepoJsonLd, Sample } from "./ots-components";
+import { ArticleH2, JsonLdLens, RepoJsonLd, Sample } from "./ots-components";
+import { ClsDemo } from "./ots-interactives/cls-demo";
+import { CurlBuilder } from "./ots-interactives/curl-builder";
+import { InpDemo } from "./ots-interactives/inp-demo";
+import { UrlStepper } from "./ots-interactives/url-stepper";
+import { ViewportDemo } from "./ots-interactives/viewport-demo";
 import * as otsDiagrams from "./ots-diagrams";
 
 /** A short aside: an idea that earns a box of its own, such as ownership. */
@@ -143,6 +153,12 @@ const shared: MDXComponents = {
   UnionFindDiagram,
   ...javaDiagrams,
   ...algoDiagrams,
+  // Interactive blocks. Each is a Stepper underneath, with a static state without script.
+  BinarySearchStepper,
+  BfsStepper,
+  HeapStepper,
+  ArrayListGrowthStepper,
+  HashMapStepper,
 };
 
 /** Diagrams and interactive blocks that only The Switch's lessons use. */
@@ -176,5 +192,18 @@ export const components = componentsFor(rustCourse);
  * and code comes from the checked folder through <Sample>.
  */
 export function articleComponents(): MDXComponents {
-  return { ...shared, ...otsDiagrams, h2: ArticleH2, Sample, RepoJsonLd };
+  return {
+    ...shared,
+    ...otsDiagrams,
+    h2: ArticleH2,
+    Sample,
+    RepoJsonLd,
+    // Interactive blocks, each with a static state without script.
+    ClsDemo,
+    InpDemo,
+    UrlStepper,
+    ViewportDemo,
+    JsonLdLens,
+    CurlBuilder,
+  };
 }

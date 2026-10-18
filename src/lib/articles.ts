@@ -100,7 +100,8 @@ let cached: Article[] | undefined;
 
 /** Every published article, in the order of the plan. */
 export function getArticles(): Article[] {
-  if (!cached) {
+  // In development the files are read each time, so an edit to an article shows on reload.
+  if (!cached || process.env.NODE_ENV === "development") {
     const dir = join(process.cwd(), ...ARTICLES_DIR);
     cached = readdirSync(dir)
       .filter((f) => f.endsWith(".mdx"))
