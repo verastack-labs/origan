@@ -1,7 +1,7 @@
 "use client";
 
 import type { ShelfFilter } from "@/data/resources";
-import { countLabel, type FilterCount } from "@/lib/shelf";
+import { STARRED, countLabel, type FilterCount } from "@/lib/shelf";
 
 /**
  * The filter chips above The Open Shelf: a row of bordered buttons, "All" first.
@@ -19,12 +19,15 @@ export function ShelfChips({
   counts,
   active,
   onChange,
+  starred = 0,
 }: {
   filters: readonly ShelfFilter[];
   counts: Readonly<Record<string, FilterCount>>;
   /** The chosen filter id, or null for All. */
   active: string | null;
   onChange: (filter: string | null) => void;
+  /** How many items are starred. The Starred chip is there only when this is above zero. */
+  starred?: number;
 }) {
   const chip =
     "shrink-0 rounded-control border border-line px-3.5 py-2 text-left transition-colors duration-150 hover:border-survey-2 aria-pressed:border-survey aria-pressed:bg-panel-2";
@@ -55,6 +58,17 @@ export function ShelfChips({
           </span>
         </button>
       ))}
+      {starred > 0 && (
+        <button type="button" aria-pressed={active === STARRED} onClick={() => onChange(STARRED)} className={chip}>
+          <span className="flex items-baseline gap-2">
+            <span className="text-[14px] font-bold text-fg">Starred</span>
+            <span className="font-mono text-[10.5px] tabular-nums text-fg-3">{starred}</span>
+          </span>
+          <span className="mt-0.5 block whitespace-nowrap font-mono text-[10.5px] tracking-[0.02em] text-fg-3">
+            the ones you pinned
+          </span>
+        </button>
+      )}
     </div>
   );
 }

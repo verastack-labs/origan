@@ -3,6 +3,7 @@ import { Reveal } from "@/components/reveal";
 import { inlineCode } from "@/components/dsa/inline-code";
 import type { Resource } from "@/data/resources";
 import { pillsFor } from "@/lib/shelf";
+import { StarButton } from "./star-button";
 
 /**
  * One card on The Open Shelf: the brand and its descriptor, a line, the topic
@@ -54,7 +55,22 @@ function Body({ resource }: { resource: Resource }) {
   );
 }
 
-export function ShelfCard({ resource, count, hidden }: { resource: Resource; count: number; hidden: boolean }) {
+export function ShelfCard({
+  resource,
+  count,
+  hidden,
+  starred = false,
+  onToggleStar,
+}: {
+  resource: Resource;
+  count: number;
+  hidden: boolean;
+  /** Starred on this device. The star is drawn only when there is a handler for it. */
+  starred?: boolean;
+  onToggleStar?: () => void;
+}) {
+  const star = onToggleStar && <StarButton name={resource.name} starred={starred} onToggle={onToggleStar} />;
+
   if (resource.status === "coming") {
     return (
       <Reveal
@@ -62,7 +78,7 @@ export function ShelfCard({ resource, count, hidden }: { resource: Resource; cou
         hidden={hidden}
         data-card={resource.id}
         data-status="coming"
-        className="flex min-w-0 overflow-hidden rounded-panel border border-dashed border-line bg-ground"
+        className="relative flex min-w-0 overflow-hidden rounded-panel border border-dashed border-line bg-ground"
       >
         <div className="flex w-full flex-col p-[clamp(20px,2.6vw,32px)]">
           <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-3">Coming soon</span>
@@ -72,6 +88,7 @@ export function ShelfCard({ resource, count, hidden }: { resource: Resource; cou
             Not open yet
           </span>
         </div>
+        {star}
       </Reveal>
     );
   }
@@ -84,7 +101,7 @@ export function ShelfCard({ resource, count, hidden }: { resource: Resource; cou
       hidden={hidden}
       data-card={resource.id}
       data-status="live"
-      className="flex min-w-0 overflow-hidden rounded-panel border border-line bg-panel"
+      className="relative flex min-w-0 overflow-hidden rounded-panel border border-line bg-panel"
     >
       <Link
         href={resource.href}
@@ -102,6 +119,7 @@ export function ShelfCard({ resource, count, hidden }: { resource: Resource; cou
           </span>
         </span>
       </Link>
+      {star}
     </Reveal>
   );
 }

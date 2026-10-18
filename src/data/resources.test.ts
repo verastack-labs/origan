@@ -94,7 +94,8 @@ describe("a coming card", () => {
 
   it("is quieter than a live card: a dashed border, not a solid one", () => {
     const live = html(liveResources[0], 12);
-    expect(live).not.toContain("border-dashed");
+    // (A "+N more" pill is dashed too, so look at the card's own border.)
+    expect(/<li class="[^"]*border-dashed/.test(live)).toBe(false);
     expect(live).toContain("<a ");
   });
 });

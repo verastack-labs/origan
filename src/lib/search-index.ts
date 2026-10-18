@@ -27,6 +27,7 @@ export function buildSearchIndex(
     const shelf = liveResource(course.path);
     const topics = shelf?.topics ?? [];
     const filters = shelf?.filters ?? [];
+    const shelfId = shelf?.id ?? course.id;
 
     out.push({
       id: `course:${course.id}`,
@@ -38,6 +39,7 @@ export function buildSearchIndex(
       href: course.path,
       published: true,
       lessonCount: live.size,
+      shelfId,
       filters,
       topics,
       text: [course.summary, ...(course.descriptor ? [course.descriptor] : []), ...Object.values(course.partNames)],
@@ -53,6 +55,7 @@ export function buildSearchIndex(
         href: coursePath(course, entry.slug),
         published: live.has(entry.slug),
         lessonNumber: entry.order,
+        shelfId,
         filters,
         topics: [],
         text: [entry.angle, course.partNames[partOf(entry)] ?? ""],
@@ -90,6 +93,7 @@ function comingEntries(): SearchEntry[] {
             href: "",
             published: false,
             comingSoon: true,
+            shelfId: r.id,
             filters: r.filters,
             topics: r.topics,
             text: [r.summary, r.descriptor],
@@ -106,7 +110,9 @@ function comingEntries(): SearchEntry[] {
  */
 function articleEntries(live: ReadonlySet<string>): SearchEntry[] {
   const written = new Map(getArticles().map((a) => [a.slug, a]));
-  const filters = liveResource(offTheSyllabus.path)?.filters ?? [];
+  const shelf = liveResource(offTheSyllabus.path);
+  const filters = shelf?.filters ?? [];
+  const shelfId = shelf?.id ?? "off-the-syllabus";
   const entries: SearchEntry[] = [
     {
       id: "collection:off-the-syllabus",
@@ -118,6 +124,7 @@ function articleEntries(live: ReadonlySet<string>): SearchEntry[] {
       href: offTheSyllabus.path,
       published: true,
       articleCount: live.size,
+      shelfId,
       filters,
       topics: otsTopics,
       text: [offTheSyllabus.summary, offTheSyllabus.descriptor],
@@ -136,6 +143,7 @@ function articleEntries(live: ReadonlySet<string>): SearchEntry[] {
       published: live.has(entry.slug),
       articleNumber: entry.order,
       series: seriesOf(entry.series).name,
+      shelfId,
       filters,
       topics: article ? article.topics : [],
       text: [entry.angle],

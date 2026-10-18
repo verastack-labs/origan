@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
@@ -15,6 +15,9 @@ import {
   type SearchEntry,
   type SearchResult,
 } from "@/lib/search";
+import { STARRED } from "@/lib/shelf";
+import { starAnnouncement, starsFirst } from "@/lib/stars";
+import { toggleStar, useStars } from "@/lib/stars-store";
 import {
   countByFilter,
   filterAnnouncement,
@@ -27,6 +30,7 @@ import {
 import { shelfFilters, type Resource } from "@/data/resources";
 import { ShelfCard } from "./shelf-card";
 import { ShelfChips } from "./shelf-chips";
+import { reducedMotion } from "./star-button";
 
 /**
  * A search box over the courses, their languages and their chapters.
@@ -60,20 +64,35 @@ export function ResourceSearch({
   const [filter, setFilter] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const [filterMessage, setFilterMessage] = useState("");
+  const [starMessage, setStarMessage] = useState("");
+
+  const filterIds = useMemo(() => shelfFilters.map((f) => f.id), []);
+  const shelfIds = useMemo(() => resources.map((r) => r.id), [resources]);
+  // Starred on this device. The server and the first render see none, so the markup matches;
+  // the real list arrives right after mount, and only then does the shelf reorder.
+  const starred = useStars(shelfIds);
+  // The Starred chip needs a star; if the last one is removed, the view is All again.
+  const active = filter === STARRED && starred.size === 0 ? null : filter;
 
   const searching = query.trim() !== "";
-  const results = useMemo(() => searchWithin(index, query, filter), [index, query, filter]);
-  const filterIds = useMemo(() => shelfFilters.map((f) => f.id), []);
+  const results = useMemo(() => searchWithin(index, query, active, starred), [index, query, active, starred]);
   const filterCounts = useMemo(() => countByFilter(filterIds, resources), [filterIds, resources]);
-  const shown = useMemo(() => new Set(filterItems(resources, filter).map((r) => r.id)), [resources, filter]);
-  // Live cards first, then the ones that are coming, each in the shelf's own order.
-  const ordered = useMemo(() => liveFirst(resources), [resources]);
+  const shown = useMemo(
+    () =>
+      new Set(
+        (active === STARRED ? resources.filter((r) => starred.has(r.id)) : filterItems(resources, active)).map((r) => r.id),
+      ),
+    [resources, active, starred],
+  );
+  // The shelf's own order is live cards, then coming ones. Starred cards go in front of that.
+  const ordered = useMemo(() => starsFirst(liveFirst(resources), starred), [resources, starred]);
+  const orderKey = ordered.map((r) => r.id).join(" ");
 
   // Arriving with ?q= or ?filter= in the address, and coming back to it with Back.
   useEffect(() => {
     const fromAddress = () => {
       setQuery(readQuery(window.location.search));
-      setFilter(readFilter(window.location.search, filterIds));
+      setFilter(readFilter(window.location.search, [...filterIds, STARRED]));
     };
     fromAddress();
     window.addEventListener("popstate", fromAddress);
@@ -97,11 +116,57 @@ export function ResourceSearch({
       if (url !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
         window.history.replaceState(window.history.state, "", url);
       }
-      const label = next === null ? null : (shelfFilters.find((f) => f.id === next)?.label ?? null);
-      setFilterMessage(filterAnnouncement(filterItems(resources, next).length, label));
+      const label = next === null ? null : next === STARRED ? "Starred" : (shelfFilters.find((f) => f.id === next)?.label ?? null);
+      const count = next === STARRED ? starred.size : filterItems(resources, next).length;
+      setFilterMessage(filterAnnouncement(count, label));
     },
-    [resources],
+    [resources, starred],
   );
+
+  // FLIP, meaning First, Last, Invert, Play: measure each card before the reorder (first) and after
+  // (last), then animate from the difference back to nothing. The positions are recorded in
+  // `press` and used in the layout effect below, after React has reordered and before the paint.
+  const cardsRef = useRef<HTMLUListElement>(null);
+  const flip = useRef<{ rects: Map<string, DOMRect>; focus: string } | null>(null);
+
+  const press = useCallback(
+    (id: string, name: string) => {
+      const rects = new Map<string, DOMRect>();
+      cardsRef.current?.querySelectorAll<HTMLElement>("[data-card]").forEach((el) => {
+        if (!el.hidden) rects.set(el.dataset.card!, el.getBoundingClientRect());
+      });
+      flip.current = { rects, focus: id };
+      const now = !starred.has(id);
+      setStarMessage(starAnnouncement(name, now));
+      toggleStar(id, shelfIds);
+      // Unstarring the last star while looking at Starred would leave an empty view.
+      if (!now && starred.size === 1 && filter === STARRED) choose(null);
+    },
+    [starred, shelfIds, filter, choose],
+  );
+
+  useLayoutEffect(() => {
+    const job = flip.current;
+    if (!job) return;
+    flip.current = null;
+    // Moving a node can drop keyboard focus, so put it back on the star that was pressed.
+    cardsRef.current?.querySelector<HTMLElement>(`[data-card="${job.focus}"] button`)?.focus({ preventScroll: true });
+    if (reducedMotion()) return;
+    cardsRef.current?.querySelectorAll<HTMLElement>("[data-card]").forEach((el) => {
+      const first = job.rects.get(el.dataset.card!);
+      if (!first || el.hidden) return;
+      // Cancel what is running, so presses in a row never stack their animations.
+      el.getAnimations().forEach((a) => a.cancel());
+      const last = el.getBoundingClientRect();
+      const dx = first.left - last.left;
+      const dy = first.top - last.top;
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+      el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], {
+        duration: 360,
+        easing: "cubic-bezier(0.2, 0.7, 0.2, 1)",
+      });
+    });
+  }, [orderKey]);
 
   const clear = useCallback(() => {
     update("");
@@ -189,7 +254,7 @@ export function ResourceSearch({
 
   return (
     <div>
-      <ShelfChips filters={shelfFilters} counts={filterCounts} active={filter} onChange={choose} />
+      <ShelfChips filters={shelfFilters} counts={filterCounts} active={active} onChange={choose} starred={starred.size} />
 
       {/* Zero-height marker: once it scrolls under the nav, the search band is stuck and earns its rule. */}
       <div ref={markerRef} aria-hidden="true" className="h-0" />
@@ -244,13 +309,16 @@ export function ResourceSearch({
       <p role="status" aria-live="polite" className="sr-only">
         {announcement}
       </p>
+      <p role="status" aria-live="polite" className="sr-only">
+        {starMessage}
+      </p>
 
       {searching &&
         (results.length > 0 ? (
           <div className="search-results mt-6">
             <p aria-hidden="true" className="font-mono text-[11px] uppercase tracking-[0.1em] text-fg-3">
               {results.length} {results.length === 1 ? "result" : "results"}
-              {filter !== null && ` in ${shelfFilters.find((f) => f.id === filter)?.label ?? filter}`}
+              {active !== null && ` in ${active === STARRED ? "Starred" : (shelfFilters.find((f) => f.id === active)?.label ?? active)}`}
             </p>
             <ul
               ref={listRef}
@@ -290,9 +358,16 @@ export function ResourceSearch({
       {/* The grid is sized by its own width, not the window's (a container query, like the
           Compare block): one column when narrow, two when the list itself has room. */}
       <div hidden={searching} className="@container">
-        <ul className="mt-6 grid grid-cols-1 gap-[clamp(16px,2vw,24px)] @[880px]:grid-cols-2">
+        <ul ref={cardsRef} className="mt-6 grid grid-cols-1 gap-[clamp(16px,2vw,24px)] @[880px]:grid-cols-2">
           {ordered.map((resource) => (
-            <ShelfCard key={resource.id} resource={resource} count={counts[resource.id] ?? 0} hidden={!shown.has(resource.id)} />
+            <ShelfCard
+              key={resource.id}
+              resource={resource}
+              count={counts[resource.id] ?? 0}
+              hidden={!shown.has(resource.id)}
+              starred={starred.has(resource.id)}
+              onToggleStar={() => press(resource.id, resource.name)}
+            />
           ))}
         </ul>
       </div>

@@ -1,4 +1,5 @@
 import { search, type SearchEntry, type SearchResult } from "./search";
+import { rankStarred } from "./stars";
 
 /**
  * The filter chips above The Open Shelf: plain functions on plain data, so the
@@ -64,9 +65,28 @@ export function withFilter(location: { pathname: string; search: string; hash: s
   return `${location.pathname}${rest ? `?${rest}` : ""}${location.hash}`;
 }
 
-/** Search within a filter: the entries under it first, then the usual search over those. */
-export function searchWithin(index: readonly SearchEntry[], query: string, filter: string | null): SearchResult[] {
-  return search(filter === null ? index : index.filter((entry) => entry.filters.includes(filter)), query);
+/** The filter chip for the items a student has starred. It is not a subject, so it is not in `shelfFilters`. */
+export const STARRED = "starred";
+
+/**
+ * Search within a filter: the entries under it first, then the usual search
+ * over those. `starred` is the set of starred shelf ids; with the Starred chip
+ * chosen it is what is kept, and in any case the starred collections' results
+ * come first.
+ */
+export function searchWithin(
+  index: readonly SearchEntry[],
+  query: string,
+  filter: string | null,
+  starred: ReadonlySet<string> = new Set(),
+): SearchResult[] {
+  const under =
+    filter === null
+      ? index
+      : filter === STARRED
+        ? index.filter((entry) => starred.has(entry.shelfId))
+        : index.filter((entry) => entry.filters.includes(filter));
+  return rankStarred(search(under, query), starred);
 }
 
 /** More pills than this and a card shows only the first few, then "+N more". */

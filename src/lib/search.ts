@@ -31,6 +31,8 @@ export type SearchEntry = {
   articleNumber?: number;
   /** Collections only: how many articles are live. */
   articleCount?: number;
+  /** The id of the shelf item (a card on The Open Shelf) this belongs to, so a starred card can bring its results first. */
+  shelfId: string;
   /** The filter chips this sits under (`rust`, `web`). A lesson or an article sits under its course's. */
   filters: readonly string[];
   /** A collection that is still being built: found by name and pills, shown as "Coming soon", never a link. */
