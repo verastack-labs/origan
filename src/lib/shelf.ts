@@ -69,6 +69,21 @@ export function searchWithin(index: readonly SearchEntry[], query: string, filte
   return search(filter === null ? index : index.filter((entry) => entry.filters.includes(filter)), query);
 }
 
+/** More pills than this and a card shows only the first few, then "+N more". */
+export const PILL_LIMIT = 9;
+export const PILLS_SHOWN = 8;
+
+/**
+ * The pills a card draws. A short list is shown whole. A long one is cut to
+ * about two lines of a half-width card, with the rest counted. Never "+1 more":
+ * a list that is only one over is shown whole. Search still finds every pill,
+ * and a screen reader is told all of them.
+ */
+export function pillsFor(topics: readonly string[]): { shown: readonly string[]; more: number } {
+  if (topics.length <= PILL_LIMIT) return { shown: topics, more: 0 };
+  return { shown: topics.slice(0, PILLS_SHOWN), more: topics.length - PILLS_SHOWN };
+}
+
 /** The words for a screen reader after a chip is chosen. */
 export function filterAnnouncement(count: number, label: string | null): string {
   const noun = count === 1 ? "item" : "items";

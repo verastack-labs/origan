@@ -7,6 +7,7 @@ import {
   filterAnnouncement,
   filterItems,
   liveFirst,
+  pillsFor,
   readFilter,
   searchWithin,
   withFilter,
@@ -157,5 +158,27 @@ describe("the live shelf", () => {
   it("is every resource that has pages", () => {
     expect(liveResources.map((r) => r.id)).toEqual(resources.filter((r) => r.status === "live").map((r) => r.id));
     for (const r of liveResources) expect(r.href).toMatch(/^\/learn\/[a-z-]+\/$/);
+  });
+});
+
+describe("the pills on a card", () => {
+  const topics = (n: number) => Array.from({ length: n }, (_, i) => `Topic ${i + 1}`);
+
+  it("shows a short list whole", () => {
+    expect(pillsFor(topics(4))).toEqual({ shown: topics(4), more: 0 });
+    expect(pillsFor(topics(9))).toEqual({ shown: topics(9), more: 0 });
+  });
+
+  it("cuts a long list to eight and counts the rest, never leaving a lonely +1", () => {
+    expect(pillsFor(topics(19))).toEqual({ shown: topics(8), more: 11 });
+    expect(pillsFor(topics(10))).toEqual({ shown: topics(8), more: 2 });
+  });
+
+  it("leaves every real shelf item with fewer than nine pills, or a +N more that is at least two", () => {
+    for (const r of resources) {
+      const { shown, more } = pillsFor(r.topics);
+      expect(shown.length + more, r.id).toBe(r.topics.length);
+      expect(more === 0 || more >= 2, r.id).toBe(true);
+    }
   });
 });

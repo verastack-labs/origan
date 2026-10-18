@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 import { inlineCode } from "@/components/dsa/inline-code";
 import type { Resource } from "@/data/resources";
+import { pillsFor } from "@/lib/shelf";
 
 /**
  * One card on The Open Shelf: the brand and its descriptor, a line, the topic
@@ -36,16 +37,18 @@ function Heading({ resource, muted }: { resource: Resource; muted: boolean }) {
 }
 
 function Body({ resource }: { resource: Resource }) {
+  const { shown, more } = pillsFor(resource.topics);
   return (
     <>
       <span className="mt-2.5 max-w-[44ch] text-[15.5px] text-fg-2">{inlineCode(resource.summary)}</span>
       <span className="sr-only">Topics: {resource.topics.join(", ")}.</span>
       <span aria-hidden="true" className="mt-5 flex max-w-[72ch] flex-wrap gap-1.5">
-        {resource.topics.map((topic) => (
+        {shown.map((topic) => (
           <span key={topic} className={pill}>
             {topic}
           </span>
         ))}
+        {more > 0 && <span className={`${pill} border-dashed text-fg-3`}>+{more} more</span>}
       </span>
     </>
   );
@@ -59,13 +62,13 @@ export function ShelfCard({ resource, count, hidden }: { resource: Resource; cou
         hidden={hidden}
         data-card={resource.id}
         data-status="coming"
-        className="overflow-hidden rounded-panel border border-dashed border-line bg-ground"
+        className="flex min-w-0 overflow-hidden rounded-panel border border-dashed border-line bg-ground"
       >
-        <div className="flex h-full flex-col p-[clamp(20px,2.6vw,32px)]">
+        <div className="flex w-full flex-col p-[clamp(20px,2.6vw,32px)]">
           <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-3">Coming soon</span>
           <Heading resource={resource} muted />
           <Body resource={resource} />
-          <span className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-3">
+          <span className="mt-auto pt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-3">
             Not open yet
           </span>
         </div>
@@ -81,18 +84,18 @@ export function ShelfCard({ resource, count, hidden }: { resource: Resource; cou
       hidden={hidden}
       data-card={resource.id}
       data-status="live"
-      className="overflow-hidden rounded-panel border border-line bg-panel"
+      className="flex min-w-0 overflow-hidden rounded-panel border border-line bg-panel"
     >
       <Link
         href={resource.href}
-        className="group flex h-full flex-col p-[clamp(20px,2.6vw,32px)] transition-colors hover:bg-panel-2"
+        className="group flex w-full flex-col p-[clamp(20px,2.6vw,32px)] transition-colors hover:bg-panel-2"
       >
         <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-fg-3">
           Free · {count} {count === 1 ? one : many}
         </span>
         <Heading resource={resource} muted={false} />
         <Body resource={resource} />
-        <span className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-survey">
+        <span className="mt-auto pt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-survey">
           {resource.cta ?? "Open the lessons"}{" "}
           <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-0.5">
             →

@@ -287,8 +287,10 @@ export function ResourceSearch({
           </div>
         ))}
 
-      <div hidden={searching}>
-        <ul className="mt-6 flex flex-col gap-[clamp(16px,2vw,24px)]">
+      {/* The grid is sized by its own width, not the window's (a container query, like the
+          Compare block): one column when narrow, two when the list itself has room. */}
+      <div hidden={searching} className="@container">
+        <ul className="mt-6 grid grid-cols-1 gap-[clamp(16px,2vw,24px)] @[880px]:grid-cols-2">
           {ordered.map((resource) => (
             <ShelfCard key={resource.id} resource={resource} count={counts[resource.id] ?? 0} hidden={!shown.has(resource.id)} />
           ))}
