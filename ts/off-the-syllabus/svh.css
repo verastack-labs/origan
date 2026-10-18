@@ -1,0 +1,53 @@
+/* Article 14: Why 100vh breaks on phones, and the svh fix. The page text is
+   src/content/learn/off-the-syllabus/svh-on-phones.mdx.
+
+   These rules are the CSS behind the Tailwind classes this site really uses.
+   src/data/ots-articles.test.ts reads hero.tsx and chapters.tsx and checks that
+   the classes are still there, so the article cannot drift from the code. */
+
+/* region: naive */
+.hero {
+  height: 100vh;
+}
+/* endregion */
+
+/* region: hero-before */
+.hero {
+  min-height: clamp(540px, 88vh, 880px);
+}
+/* endregion */
+
+/* region: hero-after */
+.hero {
+  min-height: clamp(540px, 88svh, 880px);
+}
+/* endregion */
+
+/* region: sidebar */
+/* The chapters sidebar on a wide screen: stuck under the 63px header, and as
+   tall as the screen is when the browser's own bars are showing. */
+.chapters-sidebar {
+  position: sticky;
+  top: 63px;
+  height: calc(100svh - 63px);
+}
+/* endregion */
+
+/* region: drawer */
+/* The phone drawer covers the whole screen while it is open. */
+.chapters-drawer {
+  height: 100dvh;
+}
+/* endregion */
+
+/* region: units */
+.full-height-large {
+  height: 100lvh;
+}
+.full-height-small {
+  height: 100svh;
+}
+.full-height-dynamic {
+  height: 100dvh;
+}
+/* endregion */

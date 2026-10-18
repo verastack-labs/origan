@@ -1,0 +1,46 @@
+<!-- Article 14. A page that prints what vh, svh, lvh and dvh come to, live. Open it
+     on a phone and scroll. src/data/ots-articles.test.ts checks that it is well
+     formed HTML, and a script keeps the numbers current. -->
+
+<!-- region: page -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>vh, svh, lvh and dvh</title>
+  <style>
+    body { margin: 0; font: 16px/1.4 system-ui, sans-serif; }
+    .readout { position: sticky; top: 0; margin: 0; padding: 12px; background: #fff7cc; border-bottom: 2px solid #222; }
+    .probe { position: fixed; left: -9999px; top: 0; visibility: hidden; }
+    .scroll-me { height: 300vh; padding: 12px; }
+  </style>
+</head>
+<body>
+  <pre class="readout" id="readout"></pre>
+  <div class="scroll-me">Scroll down, then up, and watch the numbers above.</div>
+  <script>
+    const units = ["vh", "svh", "lvh", "dvh"];
+    const probes = units.map((unit) => {
+      const probe = document.createElement("div");
+      probe.className = "probe";
+      probe.style.height = "100" + unit;
+      document.body.append(probe);
+      return probe;
+    });
+
+    function show() {
+      const lines = units.map((unit, i) => {
+        return "100" + unit + " = " + Math.round(probes[i].getBoundingClientRect().height) + "px";
+      });
+      lines.push("window.innerHeight = " + window.innerHeight + "px");
+      document.getElementById("readout").textContent = lines.join("\n");
+    }
+
+    window.addEventListener("scroll", show);
+    window.addEventListener("resize", show);
+    show();
+  </script>
+</body>
+</html>
+<!-- endregion -->

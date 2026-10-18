@@ -235,6 +235,36 @@ describe("headings and the series", () => {
   });
 });
 
+describe("the svh article's claims about this site's own code", () => {
+  const read = (...parts: string[]) => readFileSync(join(root, ...parts), "utf8");
+  const hero = read("src", "components", "hero.tsx");
+  const chapters = read("src", "components", "dsa", "chapters.tsx");
+  const dialog = read("src", "components", "form-dialog.tsx");
+
+  it("the hero is sized in svh, as the article shows", () => {
+    expect(hero).toContain("min-h-[clamp(540px,88svh,880px)]");
+    expect(hero).not.toMatch(/88vh/);
+  });
+
+  it("the wide-screen chapters sidebar is sticky under the 63px header and 100svh tall, less the header", () => {
+    expect(chapters).toContain("sticky top-[63px]");
+    expect(chapters).toContain("h-[calc(100svh-63px)]");
+  });
+
+  it("the phone drawer and the interest dialog still use dvh", () => {
+    expect(chapters).toContain("h-dvh");
+    expect(dialog).toContain("100dvh");
+  });
+
+  it("the CSS the article prints matches those classes", () => {
+    const css = readFileSync(join(samplesDir, "svh.css"), "utf8");
+    expect(css).toContain("clamp(540px, 88svh, 880px)");
+    expect(css).toContain("clamp(540px, 88vh, 880px)");
+    expect(css).toContain("calc(100svh - 63px)");
+    expect(css).toContain("height: 100dvh");
+  });
+});
+
 describe("Off the Syllabus on the Resources page", () => {
   it("is the fourth card, with its descriptor, a count of articles and its topic pills", () => {
     const card = resources[3];
@@ -271,7 +301,8 @@ export function htmlProblems(html: string): string[] {
   }
   if (stack.length) problems.push(`unclosed: ${stack.join(", ")}`);
   const stripped = text.replace(/<\/?[a-zA-Z](?:"[^"]*"|'[^']*'|[^>"'])*>/g, "");
-  if (/[<>]/.test(stripped.replace(/&[lg]t;/g, ""))) problems.push("a stray < or >");
+  // A ">" in text is fine to a browser. A "<" that opens nothing is not.
+  if (/<(?![!/a-zA-Z])/.test(stripped)) problems.push("a stray <");
   return problems;
 }
 
@@ -308,6 +339,7 @@ describe("the HTML samples", () => {
     expect(htmlProblems("<div><p>hi</div>")).not.toEqual([]);
     expect(htmlProblems("<ul><li>one</ul>")).not.toEqual([]);
     expect(htmlProblems("<p>a < b</p>")).not.toEqual([]);
+    expect(htmlProblems("<p>a > b</p><script>const f = (x) => x;</script>")).toEqual([]);
     expect(htmlProblems('<img src="a.jpg" alt="x"><br><p>fine</p>')).toEqual([]);
   });
 });
