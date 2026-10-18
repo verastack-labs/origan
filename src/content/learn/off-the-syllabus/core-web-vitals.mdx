@@ -123,6 +123,10 @@ The most common cause of a jump is a picture with no size. The browser does not 
 
 The first block makes the browser guess. The second tells it the shape up front, so it can keep a gap of the right size. The same page also lists other culprits: ads and embeds that load late (reserve their space), web fonts that swap in (a topic for a later article), and animations that move things with `top` or `left` instead of `transform`.
 
+Here is the Pay button again, with an ad that loads late. Press **Load the page** and watch the button. Then switch on **Reserve the space** and replay it.
+
+<ClsDemo />
+
 **Remember:** a shift is a surprise. CLS counts the surprises, and forgives the ones you asked for.
 
 ## INP: how fast the page answers you
@@ -138,6 +142,10 @@ The clock runs from the moment you start the interaction until the browser can d
 3. **Presentation delay:** the time from your code finishing to the new frame appearing on screen.
 
 The rule: **INP is good at 200 milliseconds or less, and poor above 500 milliseconds.** A millisecond is a thousandth of a second, so 200 is a fifth of a second.
+
+You can feel the difference between a slow tap and a quick one. This button does a chunk of slow work when you press it. Press it as it is, then switch on **Yield to the browser**, which cuts the same work into pieces, and press it again.
+
+<InpDemo />
 
 How does one number come out of a whole visit with many taps? INP is calculated when you leave the page. A visit with fewer than 50 interactions reports its worst one. With more, the page forgives one outlier for every 50 interactions, so one weird slow tap does not condemn it.
 

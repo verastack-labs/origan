@@ -55,6 +55,10 @@ Here is a complete block. It says that this page is a technical article, and giv
 
 <Sample file="json-ld-samples.html" name="minimal" />
 
+Here is the same page both ways. Flip between what a reader sees and what a search engine reads.
+
+<JsonLdLens />
+
 Let's read it from the outside in.
 
 The `<script>` tag is how a page carries code. This one is special. Its `type` is `application/ld+json`, which is not JavaScript. [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script) says that when a script's type is not JavaScript, its content is treated as a data block and the browser does not process it. So the text sits there, quietly, for anything that wants to read it. Visitors never see it.

@@ -90,6 +90,10 @@ For example, here is the request the second command in this article builds:
 
 <Sample file="api-clients.ts" name="example" />
 
+Try building one. Change the method, the address or the header, and watch both the curl command and the request text change. Nothing is sent. It writes the longer flags that every version of curl understands. The `--json` option you will meet below is a shorter way to say the same thing.
+
+<CurlBuilder />
+
 Every tool here produces text like that. The differences are everything around it.
 
 **Remember:** an API client is a form for writing an HTTP request. Method, address, headers, body. The reply comes back the same way for every tool.

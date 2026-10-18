@@ -788,6 +788,31 @@ html:not(.js) .js-only {
   }
 }
 
+/*
+ * Steppers (see components/dsa/stepper.tsx). Whatever moves in a picture gets
+ * `.st-move`: a short ease on position, size and colour, 150 to 250ms, no
+ * overshoot. The motion is off under reduced motion, and the state still
+ * changes, so nothing depends on seeing it.
+ */
+.stepper .st-move {
+  transition:
+    left 240ms var(--ease-survey),
+    width 240ms var(--ease-survey),
+    transform 240ms var(--ease-survey),
+    opacity 200ms linear,
+    background-color 200ms linear,
+    border-color 200ms linear,
+    color 200ms linear,
+    fill 200ms linear,
+    stroke 200ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepper .st-move {
+    transition: none;
+  }
+}
+
 /* "Is it worth it for you?" lists: a small empty box in front of each item. */
 .checklist ul {
   list-style: none;
