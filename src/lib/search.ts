@@ -31,6 +31,10 @@ export type SearchEntry = {
   articleNumber?: number;
   /** Collections only: how many articles are live. */
   articleCount?: number;
+  /** The filter chips this sits under (`rust`, `web`). A lesson or an article sits under its course's. */
+  filters: readonly string[];
+  /** A collection that is still being built: found by name and pills, shown as "Coming soon", never a link. */
+  comingSoon?: boolean;
   /** The topic pills of a course. */
   topics: readonly string[];
   /** Everything else worth finding: a lesson's angle, its part name, the course summary. */

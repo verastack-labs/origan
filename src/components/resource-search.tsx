@@ -11,11 +11,21 @@ import {
   placeholder,
   readQuery,
   resultsAnnouncement,
-  search,
   withQuery,
   type SearchEntry,
   type SearchResult,
 } from "@/lib/search";
+import {
+  countByFilter,
+  filterAnnouncement,
+  filterItems,
+  readFilter,
+  searchWithin,
+  withFilter,
+} from "@/lib/shelf";
+import { shelfFilters, type LiveResource } from "@/data/resources";
+import { ShelfCard } from "./shelf-card";
+import { ShelfChips } from "./shelf-chips";
 
 /**
  * A search box over the courses, their languages and their chapters.
@@ -30,25 +40,42 @@ import {
  * The results are a plain list of links. Arrow keys move between them, Enter
  * opens the focused one (or the first, from the box), and Escape clears.
  */
-export function ResourceSearch({ index, children }: { index: readonly SearchEntry[]; children: ReactNode }) {
+export function ResourceSearch({
+  index,
+  resources,
+  counts,
+}: {
+  index: readonly SearchEntry[];
+  resources: readonly LiveResource[];
+  /** How many lessons or articles each resource has, by id. */
+  counts: Readonly<Record<string, number>>;
+}) {
   const router = useRouter();
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
+  const [filterMessage, setFilterMessage] = useState("");
 
   const searching = query.trim() !== "";
-  const results = useMemo(() => search(index, query), [index, query]);
+  const results = useMemo(() => searchWithin(index, query, filter), [index, query, filter]);
+  const filterIds = useMemo(() => shelfFilters.map((f) => f.id), []);
+  const filterCounts = useMemo(() => countByFilter(filterIds, resources), [filterIds, resources]);
+  const shown = useMemo(() => new Set(filterItems(resources, filter).map((r) => r.id)), [resources, filter]);
 
-  // Arriving with ?q= in the address, and coming back to it with Back.
+  // Arriving with ?q= or ?filter= in the address, and coming back to it with Back.
   useEffect(() => {
-    const fromAddress = () => setQuery(readQuery(window.location.search));
+    const fromAddress = () => {
+      setQuery(readQuery(window.location.search));
+      setFilter(readFilter(window.location.search, filterIds));
+    };
     fromAddress();
     window.addEventListener("popstate", fromAddress);
     return () => window.removeEventListener("popstate", fromAddress);
-  }, []);
+  }, [filterIds]);
 
   const update = useCallback((next: string) => {
     const value = next.slice(0, maxQueryLength);
@@ -58,6 +85,20 @@ export function ResourceSearch({ index, children }: { index: readonly SearchEntr
       window.history.replaceState(window.history.state, "", url);
     }
   }, []);
+
+  // Choosing a chip. The address is replaced, not pushed, like the query.
+  const choose = useCallback(
+    (next: string | null) => {
+      setFilter(next);
+      const url = withFilter(window.location, next);
+      if (url !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
+        window.history.replaceState(window.history.state, "", url);
+      }
+      const label = next === null ? null : (shelfFilters.find((f) => f.id === next)?.label ?? null);
+      setFilterMessage(filterAnnouncement(filterItems(resources, next).length, label));
+    },
+    [resources],
+  );
 
   const clear = useCallback(() => {
     update("");
@@ -93,9 +134,12 @@ export function ResourceSearch({ index, children }: { index: readonly SearchEntr
 
   // Said once the typing pauses, so a screen reader is not read every letter.
   useEffect(() => {
-    const t = window.setTimeout(() => setAnnouncement(resultsAnnouncement(results.length, query)), 350);
+    const t = window.setTimeout(
+      () => setAnnouncement(query.trim() === "" ? filterMessage : resultsAnnouncement(results.length, query)),
+      350,
+    );
     return () => window.clearTimeout(t);
-  }, [results.length, query]);
+  }, [results.length, query, filterMessage]);
 
   const links = () => Array.from(listRef.current?.querySelectorAll<HTMLAnchorElement>("a[data-result]") ?? []);
 
@@ -142,6 +186,8 @@ export function ResourceSearch({ index, children }: { index: readonly SearchEntr
 
   return (
     <div>
+      <ShelfChips filters={shelfFilters} counts={filterCounts} active={filter} onChange={choose} />
+
       {/* Zero-height marker: once it scrolls under the nav, the search band is stuck and earns its rule. */}
       <div ref={markerRef} aria-hidden="true" className="h-0" />
       <form
@@ -201,6 +247,7 @@ export function ResourceSearch({ index, children }: { index: readonly SearchEntr
           <div className="search-results mt-6">
             <p aria-hidden="true" className="font-mono text-[11px] uppercase tracking-[0.1em] text-fg-3">
               {results.length} {results.length === 1 ? "result" : "results"}
+              {filter !== null && ` in ${shelfFilters.find((f) => f.id === filter)?.label ?? filter}`}
             </p>
             <ul
               ref={listRef}
@@ -237,7 +284,13 @@ export function ResourceSearch({ index, children }: { index: readonly SearchEntr
           </div>
         ))}
 
-      <div hidden={searching}>{children}</div>
+      <div hidden={searching}>
+        <ul className="mt-6 flex flex-col gap-[clamp(16px,2vw,24px)]">
+          {resources.map((resource) => (
+            <ShelfCard key={resource.id} resource={resource} count={counts[resource.id] ?? 0} hidden={!shown.has(resource.id)} />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

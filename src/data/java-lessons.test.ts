@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { javaCourse } from "./courses";
-import { resources } from "./resources";
+import { liveResources as resources } from "./resources";
 import { getLessons } from "@/lib/lessons";
 import { hasRegion } from "@/lib/snippets";
 

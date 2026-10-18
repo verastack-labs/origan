@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { offTheSyllabus, otsPlan, otsSeries, otsTopics, seriesOf } from "./off-the-syllabus";
-import { resources } from "./resources";
+import { liveResources as resources } from "./resources";
 import { articleJsonLd, collectionJsonLd, otsBreadcrumbJsonLd } from "@/lib/article-jsonld";
 import {
   ARTICLES_DIR,

@@ -24,7 +24,9 @@ export function buildSearchIndex(
 
   for (const course of list) {
     const live = liveSlugs(course);
-    const topics = resources.find((r) => r.href === course.path)?.topics ?? [];
+    const shelf = liveResource(course.path);
+    const topics = shelf?.topics ?? [];
+    const filters = shelf?.filters ?? [];
 
     out.push({
       id: `course:${course.id}`,
@@ -36,6 +38,7 @@ export function buildSearchIndex(
       href: course.path,
       published: true,
       lessonCount: live.size,
+      filters,
       topics,
       text: [course.summary, ...(course.descriptor ? [course.descriptor] : []), ...Object.values(course.partNames)],
     });
@@ -50,6 +53,7 @@ export function buildSearchIndex(
         href: coursePath(course, entry.slug),
         published: live.has(entry.slug),
         lessonNumber: entry.order,
+        filters,
         topics: [],
         text: [entry.angle, course.partNames[partOf(entry)] ?? ""],
       });
@@ -57,7 +61,42 @@ export function buildSearchIndex(
   }
 
   out.push(...articleEntries(liveArticles));
+  out.push(...comingEntries());
   return out;
+}
+
+/** The shelf item for a path, if it is live. */
+function liveResource(href: string) {
+  const found = resources.find((r) => r.status === "live" && r.href === href);
+  return found?.status === "live" ? found : undefined;
+}
+
+/**
+ * Collections that are being built. They are found by name, descriptor and
+ * topic pills, like any collection, but there is no page: the result says
+ * "Coming soon" and is not a link.
+ */
+function comingEntries(): SearchEntry[] {
+  return resources.flatMap((r) =>
+    r.status === "coming"
+      ? [
+          {
+            id: `coming:${r.id}`,
+            kind: "collection" as const,
+            title: r.name,
+            descriptor: r.descriptor,
+            courseName: r.name,
+            language: r.filters.join(" "),
+            href: "",
+            published: false,
+            comingSoon: true,
+            filters: r.filters,
+            topics: r.topics,
+            text: [r.summary, r.descriptor],
+          },
+        ]
+      : [],
+  );
 }
 
 /**
@@ -67,6 +106,7 @@ export function buildSearchIndex(
  */
 function articleEntries(live: ReadonlySet<string>): SearchEntry[] {
   const written = new Map(getArticles().map((a) => [a.slug, a]));
+  const filters = liveResource(offTheSyllabus.path)?.filters ?? [];
   const entries: SearchEntry[] = [
     {
       id: "collection:off-the-syllabus",
@@ -78,6 +118,7 @@ function articleEntries(live: ReadonlySet<string>): SearchEntry[] {
       href: offTheSyllabus.path,
       published: true,
       articleCount: live.size,
+      filters,
       topics: otsTopics,
       text: [offTheSyllabus.summary, offTheSyllabus.descriptor],
     },
@@ -95,6 +136,7 @@ function articleEntries(live: ReadonlySet<string>): SearchEntry[] {
       published: live.has(entry.slug),
       articleNumber: entry.order,
       series: seriesOf(entry.series).name,
+      filters,
       topics: article ? article.topics : [],
       text: [entry.angle],
     });
