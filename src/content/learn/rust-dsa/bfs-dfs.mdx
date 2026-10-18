@@ -29,6 +29,10 @@ Both searches share one skeleton. You keep a to-do list of vertices to visit. Ta
 
 Walk through the picture with BFS. Start with vertex 0. Visit it, and add its neighbours 1, 2 and 3 to the queue. Take 1 from the front, visit it, and add its new neighbour 4. Take 2, and add 5 and 6. Take 3, and add 7. The queue now holds 4, 5, 6, 7, and those are the second ring, in the order they are taken. DFS on the same graph goes 0, 1, 4, and then has to back up to reach 2.
 
+Now watch the queue do it. Press Next and follow the numbers: the one at the front of the queue is taken, and anyone new joins the back.
+
+<BfsStepper />
+
 **The visited set.** There is one rule you must never skip. Keep a record of vertices you have seen, and never add one twice. Real graphs have loops: a road from A to B, and B back to A. Without a record, the search would go round and round forever. A `Vec<bool>` indexed by vertex works, because vertices are numbers. A `HashSet` works when they are names.
 
 **A graph in pieces.** A search from one vertex only reaches the vertices connected to it, its own **component**. If the graph has several pieces, you start a fresh search at every vertex you have not seen yet. The number of fresh starts is the number of pieces.

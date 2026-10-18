@@ -28,6 +28,10 @@ Look at the middle: 23. It is smaller than 45, so 45 cannot be in 23's half. Eve
 
 The pattern never changes. Look at the middle, compare, and move one edge. The picture shows the faded boxes that are ruled out.
 
+Now try it yourself. Pick a number to hunt for and press Next. Try the ends, and try 40, which is not in the row, to see what happens when the edges meet.
+
+<BinarySearchStepper />
+
 Two details trip people up, so get them right now.
 
 **Is the right edge in or out?** In this lesson `hi` is one past the end, just like Rust's ranges `lo..hi`. The search runs while `lo < hi`. Pick one convention and stick to it. Most binary search bugs are an edge that is off by one.

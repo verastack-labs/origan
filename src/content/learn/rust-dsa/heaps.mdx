@@ -37,6 +37,10 @@ Now the two moves. Start with a tiny example, then the rule.
 
 **Push 5.** Put it in the next free slot, at the end of the row. That is slot 7, under 40. But 5 is smaller than 40, so it swaps places with it. Then it is smaller than 20, so it swaps again. Then it is smaller than 10, and swaps once more. Now it sits on top. It floated up three levels.
 
+Try it. Pick a value to push, and press Next to watch it climb. Push 5 to see the example above, 12 to see one that stops partway, and 60 to see one that has nothing to do.
+
+<HeapStepper />
+
 **Pop the top.** You cannot just remove slot 0, because that leaves a hole. So take the last value in the row and drop it into the hole. It is probably too big for the top, so it sinks. At each step it swaps with the *smaller* of its two children, until both children are no smaller than it.
 
 Every swap moves one level. A tree with n values is only about log n levels tall, so both moves take O(log n) steps. That is a handful of steps even for a million values.
