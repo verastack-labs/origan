@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { hasContextAndType, jsonLdTag, readJsonLd } from "./json-ld";
 
 describe("jsonLdTag", () => {
-  const data = { "@context": "https://schema.org", "@type": "TechArticle", headline: "Hello" };
+  const data = { "@context": "https://schema.org", "@type": "Article", headline: "Hello" };
 
   it("wraps the JSON in a script tag of the right type", () => {
     const tag = jsonLdTag(data);

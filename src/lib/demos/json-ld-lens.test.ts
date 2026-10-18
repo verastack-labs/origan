@@ -6,7 +6,7 @@ describe("the JSON-LD lens", () => {
   const data = asArticle(jsonFromScript(sampleCode("json-ld-samples.html", "minimal")));
 
   it("reads the article's own minimal sample", () => {
-    expect(data["@type"]).toBe("TechArticle");
+    expect(data["@type"]).toBe("Article");
     expect(data.headline).toBe("What happens when you type a URL");
     expect(data.author.name).toBe("VeraStack Labs");
   });

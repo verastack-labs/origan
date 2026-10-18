@@ -388,10 +388,10 @@ describe("JSON-LD", () => {
     expect(hasContextAndType(JSON.parse(JSON.stringify(value)))).toBe(true);
   });
 
-  it.each(articles.map((a) => [a.slug, a]))("%s emits a TechArticle with the fields the plan asks for", (_, article) => {
+  it.each(articles.map((a) => [a.slug, a]))("%s emits an Article with the fields the plan asks for", (_, article) => {
     const ld = articleJsonLd(article);
     expect(hasContextAndType(ld)).toBe(true);
-    expect(ld["@type"]).toBe("TechArticle");
+    expect(ld["@type"]).toBe("Article");
     expect(ld.headline).toBe(article.title);
     expect(ld.description).toBe(article.description);
     expect(ld.datePublished).toBe(article.published);
