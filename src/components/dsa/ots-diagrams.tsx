@@ -24,51 +24,50 @@ import {
 /** The three vitals on one time axis: when LCP happens, when a layout shift happens, and the gap INP measures. */
 export function CoreVitalsDiagram() {
   const wide: Drawing = {
-    viewBox: "0 0 680 268",
+    viewBox: "0 0 680 246",
     draw: (m) => (
       <>
-        <Tag x={8} y={76}>LOADING</Tag>
-        <Tag x={8} y={138}>STABILITY</Tag>
-        <Tag x={8} y={200}>RESPONSE</Tag>
-        <line x1={8} x2={672} y1={104} y2={104} className="stroke-line" />
-        <line x1={8} x2={672} y1={166} y2={166} className="stroke-line" />
+        <Tag x={8} y={54}>LOADING</Tag>
+        <Tag x={8} y={106}>STABILITY</Tag>
+        <Tag x={8} y={160}>RESPONSE</Tag>
+        <line x1={8} x2={672} y1={76} y2={76} className="stroke-line" />
+        <line x1={8} x2={672} y1={132} y2={132} className="stroke-line" />
 
-        <DimensionH x1={150} x2={330} y={78} text="until the biggest item shows" />
-        <Txt x={346} y={82} size={12.5} tone="survey">
+        <DimensionH x1={150} x2={330} y={50} text="until the biggest item shows" />
+        <Txt x={346} y={54} size={12.5} tone="survey">
           LCP · good: 2.5 s or less
         </Txt>
 
-        <Box x={380} y={112} w={72} h={16} edge="ghost" />
-        <Txt x={416} y={124} size={11} anchor="middle" tone="fg3">
+        <Box x={380} y={86} w={72} h={16} edge="ghost" />
+        <Txt x={416} y={98} size={11} anchor="middle" tone="fg3">
           button
         </Txt>
-        <Box x={380} y={130} w={72} h={16} edge="warn" />
-        <Txt x={416} y={142} size={11} anchor="middle" tone="warn">
+        <Box x={380} y={104} w={72} h={16} edge="warn" />
+        <Txt x={416} y={116} size={11} anchor="middle" tone="warn">
           button
         </Txt>
-        <Txt x={470} y={126} size={12.5}>
+        <Txt x={470} y={100} size={12.5}>
           the button jumps down
         </Txt>
-        <Txt x={470} y={146} size={12.5} tone="survey">
+        <Txt x={470} y={120} size={12.5} tone="survey">
           CLS · good: 0.1 or less
         </Txt>
 
-        <circle cx={500} cy={200} r={5} className="fill-survey" />
-        <rect x={604} y={195} width={10} height={10} className="fill-survey" />
-        <DimensionH x1={500} x2={609} y={206} text="tap to next paint" />
-        <Txt x={672} y={230} size={12.5} anchor="end" tone="survey">
+        <circle cx={500} cy={156} r={5} className="fill-survey" />
+        <rect x={604} y={151} width={10} height={10} className="fill-survey" />
+        <DimensionH x1={500} x2={609} y={190} text="tap to next paint" />
+        <Txt x={476} y={160} size={12.5} anchor="end" tone="survey">
           INP · good: 200 ms or less
         </Txt>
 
-        <Line x1={330} y1={86} x2={330} y2={238} dashed />
-        <Line x1={416} y1={150} x2={416} y2={238} dashed />
-        <Line x1={500} y1={206} x2={500} y2={238} dashed />
-        <Line x1={609} y1={206} x2={609} y2={238} dashed />
-        <Line x1={150} y1={240} x2={672} y2={240} head={m.grey} />
-        <Txt x={150} y={260} size={12} tone="fg3">
+        <Line x1={150} y1={214} x2={672} y2={214} head={m.grey} />
+        {[330, 416, 500, 609].map((x) => (
+          <line key={x} x1={x} x2={x} y1={208} y2={220} className="stroke-fg-3" strokeWidth={1.25} />
+        ))}
+        <Txt x={150} y={236} size={12} tone="fg3">
           page starts loading
         </Txt>
-        <Txt x={672} y={260} size={12} anchor="end" tone="fg3">
+        <Txt x={672} y={236} size={12} anchor="end" tone="fg3">
           time
         </Txt>
       </>
@@ -144,7 +143,7 @@ export function CoreVitalsDiagram() {
 /** Where the two halves of a PageSpeed Insights report come from. */
 export function FieldLabDiagram() {
   const wide: Drawing = {
-    viewBox: "0 0 680 214",
+    viewBox: "0 0 680 200",
     draw: (m) => (
       <>
         <Card x={8} y={20} w={210} h={66} title="Field data" sub="real visitors, 28 days" edge="survey" />
@@ -158,9 +157,6 @@ export function FieldLabDiagram() {
           from Lighthouse
         </Txt>
         <Card x={462} y={70} w={210} h={66} title="PageSpeed report" sub="both, side by side" />
-        <Txt x={8} y={210} size={12} tone="fg3">
-          what happened to people
-        </Txt>
       </>
     ),
   };
@@ -172,17 +168,17 @@ export function FieldLabDiagram() {
         <Card x={12} y={12} w={150} h={58} title="Field data" sub="real visitors" edge="survey" />
         <Card x={178} y={12} w={150} h={58} title="Lab data" sub="one test phone" />
         <Line x1={87} y1={70} x2={87} y2={150} head={m.accent} tone="survey" />
-        <Line x1={253} y1={70} x2={253} y2={150} head={m.grey} />
-        <Txt x={87} y={102} size={12} anchor="middle" tone="survey">
+        <Line x1={236} y1={70} x2={236} y2={150} head={m.grey} />
+        <Txt x={97} y={100} size={12} tone="survey">
           from CrUX
         </Txt>
-        <Txt x={253} y={102} size={12} anchor="middle" tone="fg2">
-          from Lighthouse
+        <Txt x={97} y={118} size={12} tone="fg3">
+          28 days
         </Txt>
-        <Txt x={87} y={122} size={12} anchor="middle" tone="fg3">
-          last 28 days
+        <Txt x={246} y={100} size={12} tone="fg2">
+          Lighthouse
         </Txt>
-        <Txt x={253} y={122} size={12} anchor="middle" tone="fg3">
+        <Txt x={246} y={118} size={12} tone="fg3">
           right now
         </Txt>
         <Card x={12} y={156} w={316} h={64} title="PageSpeed report" sub="both, side by side" />

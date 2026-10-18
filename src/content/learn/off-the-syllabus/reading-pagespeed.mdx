@@ -1,0 +1,165 @@
+---
+title: Reading a PageSpeed Insights report without panicking
+sub: Which numbers come from real people, which come from a test, and what to do about a red score.
+description: A calm guide to PageSpeed Insights. Field data versus lab data, how the pass or fail verdict and the 0 to 100 score are worked out, and the order to read a report in.
+slug: reading-pagespeed
+order: 2
+series: fast-pages
+published: 2026-10-18
+checked: 2026-10-18
+topics:
+  - PageSpeed Insights
+  - Lighthouse
+  - Field data
+  - Lab data
+short:
+  - "A PageSpeed Insights report has two halves. Field data is what real visitors experienced over the last 28 days. Lab data is one simulated test run just now."
+  - "The pass or fail verdict for the Core Web Vitals comes from the field data. The 0 to 100 score comes from the lab test, which is a different thing."
+  - "Read the field half first. A red lab score on a page real visitors find fast is a prompt to look, not an emergency."
+  - "Lighthouse scores move between runs, so compare the median of several runs and not a single one."
+sources:
+  - title: "Google: About PageSpeed Insights"
+    url: https://developers.google.com/speed/docs/insights/v5/about
+  - title: "Chrome for Developers: Lighthouse performance scoring"
+    url: https://developer.chrome.com/docs/lighthouse/performance/performance-scoring
+  - title: "Chrome for Developers: Lighthouse overview"
+    url: https://developer.chrome.com/docs/lighthouse/overview
+  - title: "GitHub: Lighthouse score variability"
+    url: https://github.com/GoogleChrome/lighthouse/blob/main/docs/variability.md
+  - title: "web.dev: Why lab and field data can be different"
+    url: https://web.dev/articles/lab-and-field-data-differences
+  - title: "web.dev: Total Blocking Time (TBT)"
+    url: https://web.dev/articles/tbt
+  - title: "web.dev: Web Vitals"
+    url: https://web.dev/articles/vitals
+  - title: "Chrome for Developers: Chrome UX Report (CrUX)"
+    url: https://developer.chrome.com/docs/crux
+  - title: "Chrome for Developers: Lighthouse LCP audit"
+    url: https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint
+  - title: "Google: Get started with the PageSpeed Insights API"
+    url: https://developers.google.com/speed/docs/insights/v5/get-started
+---
+
+Your college fest has a website. You paste its address into PageSpeed Insights, a free tool from Google, and wait. Then a big red circle appears with a number inside it. It says 41.
+
+Your stomach drops. Is the site broken? Will people leave? Should you rewrite it tonight?
+
+Take a breath. That 41 is real, but it is not what you think it is. It is the result of one test, run on a pretend phone, a few seconds ago. It is not a verdict on your site, and it is not what your visitors saw. This article is about telling those two things apart.
+
+## One report, two halves
+
+A PageSpeed Insights report has two kinds of numbers in it. They look alike, they sit on the same page, and they mean different things.
+
+**Field data** is what happened to real people. When someone visits a page in Chrome, the browser can report how fast it felt. These reports are collected in a public dataset called the **Chrome User Experience Report**, or **CrUX** (said "crux"). PageSpeed Insights reads it for you. The window is the previous 28 days, and the numbers are the 75th percentile: the visit three quarters of the way from the best to the worst, so one visit in four was slower than that.
+
+**Lab data** is a test. PageSpeed Insights loads your page itself, using a tool called **Lighthouse**. Lighthouse is open source, and it also runs inside Chrome's DevTools. The load happens on a simulated device on a fixed network. For a mobile test that is a mid-tier phone on a mobile connection. For a desktop test it is an emulated desktop on a wired connection.
+
+<FieldLabDiagram />
+
+**Remember:** field data is what happened. Lab data is what a test saw. Both are true, and neither is the whole story.
+
+## Start with the field data
+
+Read the real-visitor half first. It answers the question you care about: did people have a good time?
+
+The field half shows the four numbers that matter, each at the 75th percentile: LCP, INP, CLS, and also FCP, the time until the first text or image is drawn. If you need a refresher on the first three, the previous article in this series has them in plain words.
+
+At the top there is a verdict: the Core Web Vitals assessment, passed or failed. The rule, from the PageSpeed Insights docs, is simple. If all three of INP, LCP and CLS have enough data, the page passes only when the 75th percentile of every one is good. If there is not enough INP data, the page passes when LCP and CLS are both good. If LCP or CLS lacks data, the page cannot be assessed. Here are those rules as code:
+
+<Sample file="pagespeed.ts" name="assessment" />
+
+Two more things to know about this half.
+
+First, **URL or origin**. When your exact page has enough visits, PageSpeed Insights shows data for that page. When it does not, it falls back to the **origin**, which means every page on your site taken together. If even the origin has too few visits, there is no real-visitor data at all, and the report simply does not show it. A new or quiet site will often see exactly that. It is not an error. Nobody has visited enough yet.
+
+Second, mobile and desktop are separate. The report covers both, so check the one your visitors actually use. If your college's students mostly open the site on phones, the mobile tab is the one that counts.
+
+**Remember:** the pass or fail verdict is about real visitors. It does not come from the big circle.
+
+## Then the lab score
+
+Now the circle. The lab score is a number from 0 to 100, and it has colours: 90 to 100 is green, 50 to 89 is orange, and below 50 is red.
+
+<Sample file="pagespeed.ts" name="bands" />
+
+How is it worked out? Lighthouse measures a handful of lab metrics, turns each into its own small score from 0 to 1, and takes a **weighted average**. A weighted average is an average where some things count for more. In Lighthouse 10 the weights are these:
+
+| Metric | What it is | Weight |
+| --- | --- | --- |
+| FCP | First Contentful Paint: the first text or image appears | 10% |
+| SI | Speed Index: how quickly the page fills in | 10% |
+| LCP | Largest Contentful Paint | 25% |
+| TBT | Total Blocking Time: how long the page was too busy to respond | 30% |
+| CLS | Cumulative Layout Shift | 25% |
+
+As code, with a worked example:
+
+<Sample file="pagespeed.ts" name="weights" />
+
+Try the arithmetic by hand with some made-up metric scores. Say FCP is 0.9, SI is 0.8, LCP is 0.5, TBT is 0.6 and CLS is 0.9. Then 0.1 times 0.9 is 0.09, plus 0.08, plus 0.125, plus 0.18, plus 0.225. That is 0.7, so the score is 70 and the circle is orange.
+
+Notice what carries the most weight. Total Blocking Time is 30% of the score. It is a lab measure: it adds up the time after the first paint when the main thread was blocked, meaning busy and unable to answer a tap. Only the part of each long task beyond 50 milliseconds counts. web.dev calls it a reasonable stand-in for INP in the lab, but not a substitute for it. A standard lab test cannot guess when a real person will tap, so INP comes from the field.
+
+One more fact calms a lot of panic. The report also lists **Opportunities** and **Diagnostics**: suggestions and notes about things that could be better. The Lighthouse docs are clear that only the metrics count towards the score, not the results of Opportunities or Diagnostics. Fixing them can improve the metrics, so there is an indirect link. But a long list of suggestions is not a long list of penalties.
+
+**Remember:** the score is five measurements, weighted. The suggestions are advice, and they do not subtract points.
+
+## Why the two halves disagree
+
+Sooner or later you will see a green field half and a red circle, or the other way round. This is normal, and web.dev explains why. A lab test is one device, one network, one place. Real visitors are many of each. In the field:
+
+- different visitors can see a different largest element, because of screen size, personalised content or tests;
+- real people scroll, which causes layout shifts a lab test often misses;
+- repeat visitors and people using the back button get pages from the browser's memory, which makes real visits faster;
+- INP can only come from real taps, because a lab cannot guess when you will tap.
+
+Lab results can also differ from the real ones for a quieter reason: the test phone may be slower than most of your visitors' phones, or faster. Neither is wrong. They answer different questions.
+
+Lighthouse also changes its own thresholds by device. Its LCP audit page lists stricter lab thresholds for desktop than for mobile: a green desktop LCP is 1.2 seconds or less, against 2.5 seconds for mobile. The Core Web Vitals themselves use the same thresholds for both. So a lab colour and a field verdict can disagree even about the same LCP number.
+
+web.dev's advice is to use lab data for debugging and testing before you release, and field data to decide what to work on.
+
+## A calm order to read it in
+
+Here is the order that keeps you out of trouble. Keep it open next to your own report.
+
+<Checklist title="Read it in this order">
+
+- Is there field data? If not, nobody has visited enough yet. Use the lab half as a guide, and say so.
+- Did the Core Web Vitals assessment pass? If yes, real visitors are mostly happy, whatever the circle says.
+- If it failed, which of the three is not good? That one is your job.
+- Only now look at the lab score and its metrics, to find out why that one metric is slow.
+- Run the lab test several times before believing a change helped.
+
+</Checklist>
+
+That last step matters because Lighthouse scores are not steady. The Lighthouse docs say performance scores will change due to inherent variability, and recommend running it several times and using a median. They give a figure: the median of 5 runs is twice as stable as 1 run. The median is the middle value when you line the runs up in order, so one wild run cannot drag it.
+
+<Sample file="pagespeed.ts" name="median" />
+
+**Remember:** one run proves nothing. Five runs and the median is a number you can compare.
+
+## Try it yourself
+
+This takes about five minutes.
+
+1. Open [pagespeed.web.dev](https://pagespeed.web.dev) in your browser.
+2. Paste the address of a site you care about: your college's, a project of yours, or any public page.
+3. Wait for the report. Do not look at the circle yet.
+4. Find the field half. Is there data? Did it pass? Which tab is it showing, mobile or desktop?
+5. Now look at the lab score and write down its colour.
+6. Press the button to run it again. Do this three more times and write each score down.
+7. Take the median of your numbers. How far apart were the highest and the lowest?
+
+If the field half says there is no data for your page, that is a real finding. It tells you how many people really visit it.
+
+## The honest trade-offs
+
+PageSpeed Insights is a good first look. It is not the last word.
+
+- **The lab score is one test on one pretend device.** It is helpful for finding what to fix. It is not a measurement of your visitors.
+- **There may be no field data.** The report needs enough real visits. Small or new sites often have none, and then the lab half is all you have. Say so when you share a result.
+- **The score moves between runs.** A change of a few points after an edit may be noise. Use the median of several runs, as above.
+- **The tool is Google's, and it changes.** Lighthouse has changed its weights between versions, and its docs still list older ones for comparison. The numbers in this article are for Lighthouse 10 as the docs show them on the date at the top. Check the date.
+- **Chasing the circle can mislead you.** Because TBT carries 30% of the score, you can raise the number by changing how a page loads without making any real visitor happier. Use the field data to check you actually helped.
+- **The API is changing too.** Google's PageSpeed Insights API docs say it can be used with or without a key, though a key is recommended for frequent automated queries, and that they plan to stop including real-world CrUX data in the API and point to the CrUX API instead. If you build something on it, read those docs first.
