@@ -56,6 +56,11 @@ export const shelfFilters: readonly ShelfFilter[] = [
   { id: "java", label: "Java", hint: "the Collections Framework" },
   { id: "typescript", label: "TypeScript", hint: "coming from JavaScript" },
   { id: "web", label: "Web", hint: "the web and its tools" },
+  { id: "terminal", label: "Terminal", hint: "the command line" },
+  { id: "cloud", label: "Cloud", hint: "servers, storage and bills" },
+  { id: "ai", label: "AI", hint: "how LLMs work" },
+  { id: "os", label: "OS", hint: "what runs under your code" },
+  { id: "databases", label: "Databases", hint: "SQL, indexes, transactions" },
 ];
 
 export const resources: readonly Resource[] = [
@@ -116,6 +121,54 @@ export const resources: readonly Resource[] = [
     topics: otsTopics,
     cta: "Read the articles",
   },
+  // Coming soon. Each of these is a collection whose build is next. The shelf must
+  // always have at least one: when a collection finishes, something else is shown
+  // as coming (`resources.test.ts` holds it to that).
+  {
+    id: "black-screen",
+    status: "coming",
+    name: "Black Screen",
+    descriptor: "The terminal",
+    summary: "The terminal from your first `cd` to SSH, with a practice shell in the page.",
+    filters: ["terminal"],
+    topics: ["Moving around", "Files", "Pipes", "grep and find", "Processes", "Permissions", "SSH", "Terminal apps"],
+  },
+  {
+    id: "cloud-kitchen",
+    status: "coming",
+    name: "Cloud Kitchen",
+    descriptor: "Cloud basics",
+    summary: "The cloud explained like a kitchen with no dining room, hands-on with free tiers only.",
+    filters: ["cloud"],
+    topics: ["Servers and VMs", "Containers", "Regions", "Storage", "Serverless", "CDNs", "DNS", "IAM", "Costs"],
+  },
+  {
+    id: "context-window",
+    status: "coming",
+    name: "Context Window",
+    descriptor: "AI for engineers",
+    summary: "How LLMs work, from tokens to RAG, vendor-neutral and without the hype.",
+    filters: ["ai"],
+    topics: ["Tokens", "Context window", "Prompting", "Embeddings", "RAG", "Tool use", "Evals", "Local models"],
+  },
+  {
+    id: "kernel-panic",
+    status: "coming",
+    name: "Kernel Panic",
+    descriptor: "Operating systems",
+    summary: "What your OS does under every program you run.",
+    filters: ["os"],
+    topics: ["Processes", "Threads", "Memory", "Filesystems", "Boot", "Containers", "Unix to today"],
+  },
+  {
+    id: "table-manners",
+    status: "coming",
+    name: "Table Manners",
+    descriptor: "Databases in practice",
+    summary: "Databases the way real projects use them.",
+    filters: ["databases"],
+    topics: ["SQL vs NoSQL", "Indexes", "Joins", "Transactions", "N+1", "Migrations", "Backups"],
+  },
 ];
 
 /** The entries that have pages today. */
@@ -127,6 +180,13 @@ export const resourcesPage = {
   sub: "Made by VeraStack Labs. Open to anyone, no sign-up.",
   description:
     "Free courses for engineering students by VeraStack Labs: Oxidise (DSA in Rust), Filter Coffee (Java Collections) and The Switch (JavaScript to TypeScript), plus Off the Syllabus, articles on the web and its tools. Every code sample is tested.",
+  /** The note at the foot of the shelf. The link is a mailto, so a student can suggest a topic. */
+  more: {
+    heading: "More on the way",
+    before: "The VeraStack Labs team is building new courses and collections right now. Want a topic covered?",
+    link: "Tell us",
+    subject: "Topic for The Open Shelf",
+  },
   /** The share card's one line under the title. */
   card: "Oxidise · Filter Coffee · The Switch · Off the Syllabus. Free, no sign-up.",
 };

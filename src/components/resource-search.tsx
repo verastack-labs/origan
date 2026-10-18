@@ -19,11 +19,12 @@ import {
   countByFilter,
   filterAnnouncement,
   filterItems,
+  liveFirst,
   readFilter,
   searchWithin,
   withFilter,
 } from "@/lib/shelf";
-import { shelfFilters, type LiveResource } from "@/data/resources";
+import { shelfFilters, type Resource } from "@/data/resources";
 import { ShelfCard } from "./shelf-card";
 import { ShelfChips } from "./shelf-chips";
 
@@ -46,7 +47,7 @@ export function ResourceSearch({
   counts,
 }: {
   index: readonly SearchEntry[];
-  resources: readonly LiveResource[];
+  resources: readonly Resource[];
   /** How many lessons or articles each resource has, by id. */
   counts: Readonly<Record<string, number>>;
 }) {
@@ -65,6 +66,8 @@ export function ResourceSearch({
   const filterIds = useMemo(() => shelfFilters.map((f) => f.id), []);
   const filterCounts = useMemo(() => countByFilter(filterIds, resources), [filterIds, resources]);
   const shown = useMemo(() => new Set(filterItems(resources, filter).map((r) => r.id)), [resources, filter]);
+  // Live cards first, then the ones that are coming, each in the shelf's own order.
+  const ordered = useMemo(() => liveFirst(resources), [resources]);
 
   // Arriving with ?q= or ?filter= in the address, and coming back to it with Back.
   useEffect(() => {
@@ -286,7 +289,7 @@ export function ResourceSearch({
 
       <div hidden={searching}>
         <ul className="mt-6 flex flex-col gap-[clamp(16px,2vw,24px)]">
-          {resources.map((resource) => (
+          {ordered.map((resource) => (
             <ShelfCard key={resource.id} resource={resource} count={counts[resource.id] ?? 0} hidden={!shown.has(resource.id)} />
           ))}
         </ul>
@@ -301,6 +304,7 @@ function rowMeta(entry: SearchEntry): string[] {
     case "course":
       return ["Course", entry.descriptor ?? entry.language, `${entry.lessonCount ?? 0} ${entry.lessonCount === 1 ? "lesson" : "lessons"}`];
     case "collection":
+      if (entry.comingSoon) return ["Coming soon", entry.descriptor ?? entry.language];
       return ["Collection", entry.descriptor ?? entry.language, `${entry.articleCount ?? 0} ${entry.articleCount === 1 ? "article" : "articles"}`];
     case "article":
       return [entry.courseName, entry.series ?? entry.language, `Article ${entry.articleNumber ?? 0}`];
@@ -347,7 +351,9 @@ function Row({ result }: { result: SearchResult }) {
       ) : (
         <div className={`${row} bg-ground`}>
           {body}
-          <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-fg-3">Coming next</span>
+          <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-fg-3">
+            {entry.comingSoon ? "Coming soon" : "Coming next"}
+          </span>
         </div>
       )}
     </li>

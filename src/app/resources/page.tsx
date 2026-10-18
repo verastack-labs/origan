@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageHead, sectionCompact, shell } from "@/components/page-head";
 import { Reveal } from "@/components/reveal";
 import { StudioCredit } from "@/components/dsa/lesson-chrome";
-import { liveResources, resourcesPage } from "@/data/resources";
+import { resources, resourcesPage } from "@/data/resources";
 import { javaCourse, rustCourse, switchCourse } from "@/data/courses";
 import { getLessons } from "@/lib/lessons";
 import { getArticles } from "@/lib/articles";
@@ -58,11 +58,23 @@ export default function Resources() {
           </Reveal>
           <div className="mt-5" />
 
-          <ResourceSearch index={index} resources={liveResources} counts={counts} />
+          <ResourceSearch index={index} resources={resources} counts={counts} />
 
-          <p className="mt-8 max-w-[52ch] text-[15.5px] text-fg-2">
-            More will be added here as they are ready.
-          </p>
+          <div className="mt-10 max-w-[56ch] border-t border-line pt-8">
+            <h2 className="text-[clamp(20px,2.4vw,26px)] font-bold leading-[1.15] tracking-[-0.025em] text-fg">
+              {resourcesPage.more.heading}
+            </h2>
+            <p className="mt-2.5 text-[15.5px] text-fg-2">
+              {resourcesPage.more.before}{" "}
+              <a
+                href={`mailto:${site.email}?subject=${encodeURIComponent(resourcesPage.more.subject)}`}
+                className="text-fg underline decoration-survey-2 decoration-1 underline-offset-4 transition-colors hover:text-survey"
+              >
+                {resourcesPage.more.link}
+              </a>
+              .
+            </p>
+          </div>
           <StudioCredit className="mt-6" />
         </div>
       </section>

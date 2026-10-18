@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { courses } from "@/data/courses";
 import { otsPlan } from "@/data/off-the-syllabus";
+import { resources } from "@/data/resources";
 import { buildSearchIndex } from "./search-index";
 import { getLessons } from "./lessons";
 import {
@@ -46,8 +47,10 @@ describe("the index", () => {
       }
     }
     const lessonCount = courses.reduce((n, c) => n + c.curriculum.length, 0);
-    // Off the Syllabus adds the collection and one entry for each article in its plan.
-    expect(index).toHaveLength(courses.length + lessonCount + 1 + otsPlan.length);
+    // Off the Syllabus adds the collection and one entry for each article in its plan, and
+    // each collection that is coming soon has an entry of its own.
+    const comingCount = resources.filter((r) => r.status === "coming").length;
+    expect(index).toHaveLength(courses.length + lessonCount + 1 + otsPlan.length + comingCount);
   });
 
   it("has unique ids and is plain data", () => {
