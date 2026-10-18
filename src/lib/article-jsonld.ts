@@ -1,4 +1,5 @@
 import { articleUrl, indexUrl, offTheSyllabus, seriesOf } from "@/data/off-the-syllabus";
+import { liveResources } from "@/data/resources";
 import { site } from "@/data/site";
 import type { Article } from "@/lib/articles";
 
@@ -54,6 +55,8 @@ export function collectionJsonLd(articles: readonly Article[]) {
     url: indexUrl(),
     inLanguage: "en",
     isAccessibleForFree: true,
+    // The day the collection first went live, from the shelf's own data.
+    datePublished: liveResources.find((r) => r.id === "off-the-syllabus")?.published,
     publisher: publisher(),
     hasPart: articles.map((a) => ({
       "@type": "TechArticle",

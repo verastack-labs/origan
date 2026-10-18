@@ -11,6 +11,7 @@ import { collectionJsonLd } from "@/lib/article-jsonld";
 import { getArticles } from "@/lib/articles";
 import { liveResources, resources, resourcesPage, type ComingResource } from "./resources";
 
+const rust = liveResources.find((r) => r.id === "dsa-in-rust")!;
 const coming = resources.filter((r): r is ComingResource => r.status === "coming");
 const html = (resource: Parameters<typeof ShelfCard>[0]["resource"], count = 0, hidden = false) =>
   renderToStaticMarkup(createElement(ShelfCard, { resource, count, hidden }));
@@ -93,7 +94,7 @@ describe("a coming card", () => {
   });
 
   it("is quieter than a live card: a dashed border, not a solid one", () => {
-    const live = html(liveResources[0], 12);
+    const live = html(rust, 12);
     // (A "+N more" pill is dashed too, so look at the card's own border.)
     expect(/<li class="[^"]*border-dashed/.test(live)).toBe(false);
     expect(live).toContain("<a ");
@@ -102,11 +103,11 @@ describe("a coming card", () => {
 
 describe("a live card", () => {
   it("shows its count and a link in", () => {
-    const markup = html(liveResources[0], 20);
+    const markup = html(rust, 20);
     expect(markup).toContain("Free · ");
     expect(markup).toContain("20");
     expect(markup).toContain("lessons");
-    expect(markup).toMatch(new RegExp(`href="${liveResources[0].href.replace(/\/$/, "")}/?"`));
+    expect(markup).toMatch(new RegExp(`href="${rust.href.replace(/\/$/, "")}/?"`));
     expect(markup).toContain("Open the lessons");
   });
 
@@ -124,6 +125,71 @@ describe("the order on the shelf", () => {
     const shuffled = [...resources].reverse();
     const sorted = liveFirst(shuffled).map((r) => r.status);
     expect(sorted).toEqual([...sorted].sort((a, b) => (a === b ? 0 : a === "live" ? -1 : 1)));
+  });
+});
+
+describe("the newest live item comes first", () => {
+  it("gives every live item a real publish date, and none a date in the future", () => {
+    for (const r of liveResources) {
+      expect(r.published, r.id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(new Date(r.published).toString(), r.id).not.toBe("Invalid Date");
+      expect(r.published <= new Date().toISOString().slice(0, 10), r.id).toBe(true);
+    }
+  });
+
+  it("lists live items newest first, then coming ones", () => {
+    const order = liveFirst(resources);
+    const live = order.filter((r) => r.status === "live");
+    for (let i = 1; i < live.length; i += 1) {
+      expect((live[i - 1] as { published: string }).published >= (live[i] as { published: string }).published).toBe(true);
+    }
+    const firstComing = order.findIndex((r) => r.status === "coming");
+    expect(order.slice(firstComing).every((r) => r.status === "coming")).toBe(true);
+    expect(order.slice(0, firstComing).every((r) => r.status === "live")).toBe(true);
+  });
+
+  it("puts Off the Syllabus on top, and keeps coming items in roadmap order", () => {
+    const order = liveFirst(resources).map((r) => r.id);
+    expect(order[0]).toBe("off-the-syllabus");
+    expect(order.slice(-5)).toEqual(["black-screen", "cloud-kitchen", "context-window", "kernel-panic", "table-manners"]);
+  });
+
+  it("is data-driven: a new collection with a later date lands on top, whatever order it is written in", () => {
+    const items = [
+      { id: "old", status: "live" as const, published: "2026-01-01", filters: [] },
+      { id: "soon", status: "coming" as const, filters: [] },
+      { id: "new", status: "live" as const, published: "2027-03-04", filters: [] },
+      { id: "mid", status: "live" as const, published: "2026-06-01", filters: [] },
+    ];
+    expect(liveFirst(items).map((i) => i.id)).toEqual(["new", "mid", "old", "soon"]);
+  });
+
+  it("keeps two items from the same day in the order they are written", () => {
+    const items = [
+      { id: "a", status: "live" as const, published: "2026-10-17", filters: [] },
+      { id: "b", status: "live" as const, published: "2026-10-17", filters: [] },
+    ];
+    expect(liveFirst(items).map((i) => i.id)).toEqual(["a", "b"]);
+  });
+
+  it("matches git: the dates are the day each course's first lesson reached the main branch", () => {
+    expect(liveResources.map((r) => [r.id, r.published])).toEqual([
+      ["off-the-syllabus", "2026-10-18"],
+      ["the-switch", "2026-10-17"],
+      ["java-collections", "2026-10-17"],
+      ["dsa-in-rust", "2026-10-17"],
+    ]);
+  });
+
+  it("is the order search results fall back on when they tie", () => {
+    const index = buildSearchIndex();
+    const firstSeen = [...new Set(index.map((e) => e.shelfId))];
+    expect(firstSeen).toEqual(liveFirst(resources).map((r) => r.id));
+  });
+
+  it("is the date in the collection's structured data", () => {
+    const ots = liveResources.find((r) => r.id === "off-the-syllabus")!;
+    expect(collectionJsonLd(getArticles()).datePublished).toBe(ots.published);
   });
 });
 

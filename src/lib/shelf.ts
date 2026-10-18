@@ -10,7 +10,7 @@ import { rankStarred } from "./stars";
  * within what is left. The chosen chip lives in the address as `?filter=rust`,
  * next to `?q=`, so a filtered view can be linked to.
  */
-export type Filterable = { filters: readonly string[]; status?: "live" | "coming" };
+export type Filterable = { filters: readonly string[]; status?: "live" | "coming"; published?: string };
 
 /** The items under one filter. `null` is "All": everything, in the order given. */
 export function filterItems<T extends Filterable>(items: readonly T[], filter: string | null): T[] {
@@ -37,9 +37,18 @@ export function countLabel(count: FilterCount): string {
   return `${count.total} · ${count.coming} soon`;
 }
 
-/** Live items first, then coming ones; otherwise the order they were given in. */
+/**
+ * The shelf's own order: live items first, newest `published` first (items
+ * from the same day, or with no date, keep the order they were given in), then
+ * coming ones in the order given, which is the roadmap's.
+ */
 export function liveFirst<T extends Filterable>(items: readonly T[]): T[] {
-  return [...items.filter((item) => item.status !== "coming"), ...items.filter((item) => item.status === "coming")];
+  const live = items
+    .map((item, at) => ({ item, at }))
+    .filter(({ item }) => item.status !== "coming")
+    .sort((a, b) => (b.item.published ?? "").localeCompare(a.item.published ?? "") || a.at - b.at)
+    .map(({ item }) => item);
+  return [...live, ...items.filter((item) => item.status === "coming")];
 }
 
 /**

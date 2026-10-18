@@ -34,6 +34,14 @@ type Shared = {
 
 export type LiveResource = Shared & {
   status: "live";
+  /**
+   * The day it first went live, as YYYY-MM-DD: the date of the first commit on
+   * the main branch that added its first lesson. The shelf lists live items
+   * newest first by this, so a new collection lands on top by itself. Two on
+   * the same day keep the order they are written in here, so write the newer
+   * one first.
+   */
+  published: string;
   href: string;
   /** What the count counts, singular and plural. */
   unit: readonly [string, string];
@@ -63,40 +71,28 @@ export const shelfFilters: readonly ShelfFilter[] = [
   { id: "databases", label: "Databases", hint: "SQL, indexes, transactions" },
 ];
 
+/**
+ * Written newest first, so that two live items from the same day keep that
+ * order. `liveFirst` in `lib/shelf.ts` is what sorts them, by `published`.
+ */
 export const resources: readonly Resource[] = [
   {
-    id: "dsa-in-rust",
+    id: "off-the-syllabus",
     status: "live",
-    filters: ["rust"],
-    name: rustDsa.name,
-    descriptor: rustDsa.descriptor,
-    summary: "Data structures and algorithms, taught in Rust, with code that is compiled and tested.",
-    href: rustDsa.path,
-    unit: ["lesson", "lessons"],
-    topics: [
-      "Vec", "Strings", "Linked lists", "Stacks", "Queues", "Hash maps", "Trees", "Heaps",
-      "Ordered maps", "Graphs", "Tries", "Union-find", "Sorting", "Binary search",
-      "Two pointers", "Backtracking", "BFS and DFS", "Shortest paths", "Dynamic programming",
-    ],
-  },
-  {
-    id: "java-collections",
-    status: "live",
-    filters: ["java"],
-    name: javaCollections.name,
-    descriptor: javaCollections.descriptor,
-    summary: "The Java Collections Framework, taught to beginners, with code that is compiled and tested.",
-    href: javaCollections.path,
-    unit: ["lesson", "lessons"],
-    topics: [
-      "Generics", "ArrayList", "LinkedList", "Iterators", "HashMap", "HashSet",
-      "equals and hashCode", "TreeMap", "Comparator", "ArrayDeque", "PriorityQueue",
-      "Collections helpers", "Choosing a collection",
-    ],
+    published: "2026-10-18",
+    filters: ["web"],
+    name: offTheSyllabus.name,
+    descriptor: offTheSyllabus.descriptor,
+    summary: offTheSyllabus.summary,
+    href: offTheSyllabus.path,
+    unit: ["article", "articles"],
+    topics: otsTopics,
+    cta: "Read the articles",
   },
   {
     id: "the-switch",
     status: "live",
+    published: "2026-10-17",
     filters: ["typescript"],
     name: theSwitch.name,
     descriptor: theSwitch.descriptor,
@@ -110,16 +106,36 @@ export const resources: readonly Resource[] = [
     ],
   },
   {
-    id: "off-the-syllabus",
+    id: "java-collections",
     status: "live",
-    filters: ["web"],
-    name: offTheSyllabus.name,
-    descriptor: offTheSyllabus.descriptor,
-    summary: offTheSyllabus.summary,
-    href: offTheSyllabus.path,
-    unit: ["article", "articles"],
-    topics: otsTopics,
-    cta: "Read the articles",
+    published: "2026-10-17",
+    filters: ["java"],
+    name: javaCollections.name,
+    descriptor: javaCollections.descriptor,
+    summary: "The Java Collections Framework, taught to beginners, with code that is compiled and tested.",
+    href: javaCollections.path,
+    unit: ["lesson", "lessons"],
+    topics: [
+      "Generics", "ArrayList", "LinkedList", "Iterators", "HashMap", "HashSet",
+      "equals and hashCode", "TreeMap", "Comparator", "ArrayDeque", "PriorityQueue",
+      "Collections helpers", "Choosing a collection",
+    ],
+  },
+  {
+    id: "dsa-in-rust",
+    status: "live",
+    published: "2026-10-17",
+    filters: ["rust"],
+    name: rustDsa.name,
+    descriptor: rustDsa.descriptor,
+    summary: "Data structures and algorithms, taught in Rust, with code that is compiled and tested.",
+    href: rustDsa.path,
+    unit: ["lesson", "lessons"],
+    topics: [
+      "Vec", "Strings", "Linked lists", "Stacks", "Queues", "Hash maps", "Trees", "Heaps",
+      "Ordered maps", "Graphs", "Tries", "Union-find", "Sorting", "Binary search",
+      "Two pointers", "Backtracking", "BFS and DFS", "Shortest paths", "Dynamic programming",
+    ],
   },
   // Coming soon. Each of these is a collection whose build is next. The shelf must
   // always have at least one: when a collection finishes, something else is shown

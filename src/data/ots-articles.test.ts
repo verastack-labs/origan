@@ -266,8 +266,8 @@ describe("the svh article's claims about this site's own code", () => {
 });
 
 describe("Off the Syllabus on the Resources page", () => {
-  it("is the fourth card, with its descriptor, a count of articles and its topic pills", () => {
-    const card = resources[3];
+  it("is a card, with its descriptor, a count of articles and its topic pills", () => {
+    const card = resources.find((r) => r.id === "off-the-syllabus")!;
     expect(card.name).toBe("Off the Syllabus");
     expect(card.descriptor).toBe("Web and tools");
     expect(card.href).toBe("/learn/off-the-syllabus/");

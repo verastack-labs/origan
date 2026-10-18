@@ -146,8 +146,9 @@ function rangesFor(title: string, terms: readonly Alternative[][]) {
  * A typed word matches the start of a word in the entry, so "hash" finds
  * "HashMap" and "hashCode". Order: the title is the whole query; the title
  * starts with it; every word is a word of the title; every word is in the
- * title, the topics or the language; then anything else. A course beats a
- * lesson on a tie, and ties after that keep the order of the index.
+ * title, the topics or the language; then anything else. Within a tier, whole
+ * words beat word starts. A course beats a lesson on a tie, and ties after that keep the order of
+ * the index, which is the shelf's order.
  */
 export function search(index: readonly SearchEntry[], query: string): SearchResult[] {
   const typed = wordsOf(query.slice(0, maxQueryLength));
@@ -155,7 +156,7 @@ export function search(index: readonly SearchEntry[], query: string): SearchResu
   const terms = typed.map(alternativesFor);
   const joined = typed.join(" ");
 
-  const out: { result: SearchResult; at: number }[] = [];
+  const out: { result: SearchResult; at: number; whole: boolean }[] = [];
   index.forEach((entry, at) => {
     const title = wordsOf(entry.title);
     const named = [...title, ...wordsOf(entry.descriptor ?? "")];
@@ -174,12 +175,16 @@ export function search(index: readonly SearchEntry[], query: string): SearchResu
             : matchesAll(near, terms)
               ? 4
               : 5;
-    out.push({ result: { entry, tier, ranges: rangesFor(entry.title, terms) }, at });
+    // Within a tier, a typed word that is a whole word of the name ("java" in "Java Collections")
+    // beats one that is only the start of a longer word ("java" in "JavaScript").
+    const whole = terms.every((alts) => alts.some((alt) => alt.every((w) => named.includes(w))));
+    out.push({ result: { entry, tier, ranges: rangesFor(entry.title, terms) }, at, whole });
   });
 
   out.sort(
     (a, b) =>
       a.result.tier - b.result.tier ||
+      Number(b.whole) - Number(a.whole) ||
       Number(isInner(a.result.entry)) - Number(isInner(b.result.entry)) ||
       a.at - b.at,
   );

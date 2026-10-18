@@ -153,9 +153,10 @@ describe("writing rules", () => {
 });
 
 describe("resources", () => {
-  it("lists Oxidise first, with a heading that fits one line", () => {
-    expect(resources[0].name).toBe("Oxidise");
-    expect(resources[0].descriptor).toBe("DSA in Rust");
+  it("has Oxidise on the shelf, and a heading that fits one line", () => {
+    const card = resources.find((r) => r.id === "dsa-in-rust")!;
+    expect(card.name).toBe("Oxidise");
+    expect(card.descriptor).toBe("DSA in Rust");
     checkHeading(resourcesPage.heading);
   });
 });

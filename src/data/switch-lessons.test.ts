@@ -261,8 +261,8 @@ describe("Switch writing rules", () => {
 });
 
 describe("Switch on the Resources page", () => {
-  it("is the third card, with its descriptor and the topic pills from the plan", () => {
-    const card = resources[2];
+  it("is a card, with its descriptor and the topic pills from the plan", () => {
+    const card = resources.find((r) => r.id === "the-switch")!;
     expect(card.name).toBe("The Switch");
     expect(card.descriptor).toBe("JavaScript to TypeScript");
     expect(card.href).toBe("/learn/js-to-ts/");

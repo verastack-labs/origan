@@ -7,6 +7,7 @@ import { buildSearchIndex } from "./search-index";
 import { STARRED, liveFirst, searchWithin } from "./shelf";
 import { STARS_KEY, loadStars, parseStars, rankStarred, saveStars, starAnnouncement, starsFirst, toggled } from "./stars";
 
+const rust = liveResources.find((r) => r.id === "dsa-in-rust")!;
 const known = resources.map((r) => r.id);
 const ids = (items: readonly { id: string }[]) => items.map((i) => i.id);
 
@@ -66,8 +67,9 @@ describe("the order with stars", () => {
   });
 
   it("keeps the shelf's own order inside the starred group, whatever order they were starred in", () => {
-    const sorted = starsFirst(shelf, new Set(["the-switch", "dsa-in-rust"]));
-    expect(ids(sorted).slice(0, 2)).toEqual(["dsa-in-rust", "the-switch"]);
+    // The shelf is newest first, so The Switch comes before Oxidise.
+    const sorted = starsFirst(shelf, new Set(["dsa-in-rust", "the-switch"]));
+    expect(ids(sorted).slice(0, 2)).toEqual(["the-switch", "dsa-in-rust"]);
   });
 
   it("puts a starred coming-soon card before the live cards that are not starred", () => {
@@ -169,16 +171,16 @@ describe("the star on a card", () => {
     renderToStaticMarkup(createElement(ShelfCard, { resource, count: 3, hidden: false, starred, onToggleStar: () => {} }));
 
   it("is a button that says what it does and whether it is pressed", () => {
-    const off = html(liveResources[0], false);
+    const off = html(rust, false);
     expect(off).toContain('aria-label="Star Oxidise"');
     expect(off).toContain('aria-pressed="false"');
-    const on = html(liveResources[0], true);
+    const on = html(rust, true);
     expect(on).toContain('aria-label="Unstar Oxidise"');
     expect(on).toContain('aria-pressed="true"');
   });
 
   it("sits beside the link, never inside it", () => {
-    const markup = html(liveResources[0], false);
+    const markup = html(rust, false);
     const link = /<a [^>]*>[\s\S]*?<\/a>/.exec(markup)![0];
     expect(link).not.toContain("<button");
     expect(markup.indexOf("<button")).toBeGreaterThan(markup.indexOf("</a>"));
@@ -190,7 +192,7 @@ describe("the star on a card", () => {
   });
 
   it("is drawn only when something handles it", () => {
-    const bare = renderToStaticMarkup(createElement(ShelfCard, { resource: liveResources[0], count: 3, hidden: false }));
+    const bare = renderToStaticMarkup(createElement(ShelfCard, { resource: rust, count: 3, hidden: false }));
     expect(bare).not.toContain("<button");
   });
 });

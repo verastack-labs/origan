@@ -4,6 +4,7 @@ import { partOf } from "@/data/rust-dsa";
 import { articlePath, offTheSyllabus, otsPlan, otsTopics, seriesOf } from "@/data/off-the-syllabus";
 import { getArticles } from "@/lib/articles";
 import { getLessons } from "@/lib/lessons";
+import { liveFirst } from "@/lib/shelf";
 import type { SearchEntry } from "@/lib/search";
 
 /**
@@ -65,7 +66,13 @@ export function buildSearchIndex(
 
   out.push(...articleEntries(liveArticles));
   out.push(...comingEntries());
-  return out;
+
+  // Ties in a search keep the index order, so put the index in the shelf's order:
+  // newest collection first, coming ones last. A sort is stable, so each
+  // collection keeps its own order inside.
+  const rank = new Map(liveFirst(resources).map((r, i) => [r.id, i]));
+  const at = (entry: SearchEntry) => rank.get(entry.shelfId) ?? rank.size;
+  return out.sort((a, b) => at(a) - at(b));
 }
 
 /** The shelf item for a path, if it is live. */
