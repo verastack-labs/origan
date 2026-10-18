@@ -61,7 +61,8 @@ const sizes = {
   },
   page: {
     heading: "text-[clamp(32px,5.4vw,64px)] font-bold leading-[1.03] tracking-[-0.04em]",
-    line: "max-w-[52ch] text-[clamp(17px,1.8vw,20.5px)]",
+    // A page head has the whole shell to itself, so its line may run longer.
+    line: "max-w-[60ch] text-[clamp(17px,1.8vw,20.5px)]",
     gap: "mt-[18px]",
   },
   section: {
@@ -92,7 +93,8 @@ export function HeadingPair({
   headingClassName?: string;
 }) {
   const s = sizes[size];
-  const line = `${s.line} leading-[1.45] tracking-[-0.01em] text-fg-2`;
+  // text-pretty: a wrapped line never leaves a single word alone on the last row.
+  const line = `${s.line} text-pretty leading-[1.45] tracking-[-0.01em] text-fg-2`;
 
   return (
     <div className={className}>
