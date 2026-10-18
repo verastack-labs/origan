@@ -72,7 +72,7 @@ sources:
     url: https://docs.github.com/en/rest/meta/meta#get-the-zen-of-github
 ---
 
-Your teacher says, "Test your backend with Postman." The senior in the next row says, "Postman wants a login now, use Bruno." A friend who lives in a terminal says, "Why not just curl?" A fourth person drops a link to something that runs in a browser tab.
+Your teacher says, "Test your backend with [Postman](https://www.postman.com/)." The senior in the next row says, "Postman wants a login now, use [Bruno](https://www.usebruno.com/)." A friend who lives in a terminal says, "Why not just [curl](https://curl.se/)?" A fourth person drops a link to something that runs in a browser tab.
 
 They are all right about something. This article lays the five side by side, with the facts checked in each tool's own docs, so you can pick for your situation and not for the loudest friend.
 
@@ -82,7 +82,7 @@ One rule for this page: there is no winner. Where a tool is better at something,
 
 First, two words. An **API** (application programming interface) is a way for one program to ask another for things. On the web, you usually ask over **HTTP**, the same language your browser speaks. An **API client** is a tool that lets you write one of those requests by hand, send it, and read the reply, without writing a whole program first.
 
-What does the tool actually send? The same thing a browser does: a few lines of text. MDN describes an HTTP request as a start line, some headers, an empty line, and sometimes a body. Here is that, written as code, so you can see what every form and flag below turns into.
+What does the tool actually send? The same thing a browser does: a few lines of text. [MDN describes an HTTP request](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages) as a start line, some headers, an empty line, and sometimes a body. Here is that, written as code, so you can see what every form and flag below turns into.
 
 <Sample file="api-clients.ts" name="request" />
 
@@ -102,8 +102,8 @@ Each cell below comes from the tool's own docs or repository, read on 18 October
 | --- | --- | --- | --- | --- |
 | **Postman** | Proprietary. It is licensed to you under Postman's Terms of Service. | A free plan, with paid plans above it. The pricing page lists Free, Solo, Team and Enterprise. | The lightweight API Client works signed out and stores its work locally. Collections need a free account. | Collections need an account. Native Git can connect a workspace to a folder in your Git project. |
 | **Bruno** | MIT. | An Open Source edition at no cost, with paid Pro and Ultimate editions. | Yes. The docs say it is offline-first by design. | Plain files in a folder on your disk. |
-| **Insomnia** | Apache-2.0. | A free Essentials plan, with paid Pro and Enterprise plans. | Yes. The local Scratch Pad needs no login. | Your choice: Local Vault on your device, Git Sync in a Git repository, or Cloud Sync in Insomnia Cloud. |
-| **Hoppscotch** | MIT for the Community Edition. The Enterprise Edition is separate. | Free on Hoppscotch Cloud, with a self-hosted Enterprise Edition. | It runs in a browser, as a desktop app, and from a command line. Signing in syncs data across devices. | Collections sit in workspaces, in local session storage or synced to your account. |
+| **[Insomnia](https://insomnia.rest/)** | Apache-2.0. | A free Essentials plan, with paid Pro and Enterprise plans. | Yes. The local Scratch Pad needs no login. | Your choice: Local Vault on your device, Git Sync in a Git repository, or Cloud Sync in Insomnia Cloud. |
+| **[Hoppscotch](https://hoppscotch.io/)** | MIT for the Community Edition. The Enterprise Edition is separate. | Free on Hoppscotch Cloud, with a self-hosted Enterprise Edition. | It runs in a browser, as a desktop app, and from a command line. Signing in syncs data across devices. | Collections sit in workspaces, in local session storage or synced to your account. |
 | **curl** | The curl licence, which curl's own page describes as inspired by MIT/X but not identical. | Free. The project calls itself free and open source software. | Nothing to sign up for. | Nowhere. It is a command, so the request lives in your shell history or a script you keep. |
 
 Two things to read carefully. First, a licence is not a price: an open source licence tells you what you may do with the code, and a tool can be open source and also sell paid plans, as Bruno and Insomnia do. Second, "cost model" is the shape, not the numbers. Pricing pages change often, and the plans' limits are on the pages linked below. I kept numbers out on purpose.
@@ -116,7 +116,7 @@ All five can also run from a terminal. Postman, Bruno, Insomnia and Hoppscotch e
 
 Postman is a commercial API platform. It has a free plan, and the paid plans add team features. On the checked day, the pricing page listed features such as API monitoring, mock servers and a collection runner, with different limits on each plan.
 
-How does it store your work? When you are not signed in, the desktop app opens as the lightweight API Client, where you can build and send requests, with all your work stored locally. To create a collection, the docs say you must sign in. Postman also has a feature called Native Git, which connects a workspace to a Git project so that collections, environments and more live as files in your project folder, and syncs them with Postman Cloud.
+How does it store your work? When you are not signed in, the desktop app opens as the lightweight API Client, where you can build and send requests, with all your work stored locally. To create a collection, the docs say you must sign in. Postman also has a feature called [Native Git](https://learning.postman.com/docs/use/native-git/setup), which connects a workspace to a Git project so that collections, environments and more live as files in your project folder, and syncs them with Postman Cloud.
 
 - **Use this when:** your team already uses it, or you want shared cloud workspaces and the other tools around requests, such as monitors and mock servers.
 - **Skip it when:** you want your saved requests as plain files with no account, or you do not want to sign in to save a collection.
@@ -138,7 +138,7 @@ Why might this suit a student? If your assignment lives in a Git repository, you
 
 Insomnia is open source under Apache-2.0, from Kong. Its README calls it a cross-platform API client for GraphQL, REST, WebSockets, SSE and gRPC. (GraphQL and gRPC are other ways programs ask each other for things. REST is the plain style this article's examples use.)
 
-Its storage is a choice. Local Vault keeps everything on your device, and works offline without sending data to the cloud. Git Sync stores projects in a Git repository you choose, independent of the cloud. Cloud Sync stores them in Insomnia Cloud for collaboration. And you can start with no account at all: the local Scratch Pad is described as free forever and needs no login.
+Its storage is a choice. Local Vault keeps everything on your device, and works offline without sending data to the cloud. Git Sync stores projects in a Git repository you choose, independent of the cloud. Cloud Sync stores them in Insomnia Cloud for collaboration. And you can start with no account at all: the [local Scratch Pad](https://developer.konghq.com/insomnia/storage/) is described as free forever and needs no login.
 
 Read the plan limits before you rely on Git Sync. The pricing and storage pages tie it to the plan: on the free Essentials plan, Git Sync projects are for up to three users.
 
@@ -158,13 +158,13 @@ Hoppscotch Cloud has a free tier, and signing in syncs your data across devices.
 
 curl is not an app. It is a command line tool and a library for transferring data with URLs, and it is free and open source. There is no window, no saved history, no form. You type one command.
 
-A GET request needs only the address. GitHub's API has a small endpoint at `/zen` that returns a short sentence.
+A GET request needs only the address. [GitHub's API](https://docs.github.com/en/rest/meta/meta#get-the-zen-of-github) has a small endpoint at `/zen` that returns a short sentence.
 
 ```sh
 curl https://api.github.com/zen
 ```
 
-A POST request sends data. JSONPlaceholder is a free fake API for practice; its own page says a POSTed resource is not really created on the server, and the reply is faked as if it were. curl's `--json` option sends a JSON body and sets the headers for it. It was added in curl 7.82.0.
+A POST request sends data. [JSONPlaceholder](https://jsonplaceholder.typicode.com/) is a free fake API for practice; its own page says a POSTed resource is not really created on the server, and the reply is faked as if it were. curl's `--json` option sends a JSON body and sets the headers for it. It was added in curl 7.82.0.
 
 ```sh
 curl --json '{"title":"chai","body":"two sugars","userId":1}' https://jsonplaceholder.typicode.com/posts

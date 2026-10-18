@@ -54,7 +54,7 @@ Second, you reach for the **Pay** button. Just as your thumb lands, an offer ban
 
 Third, you tap **Confirm**. Nothing happens. You tap again. A second later the page wakes up and books two seats.
 
-Nobody had to teach you that these feel bad. The Core Web Vitals are Google's way of putting a number on each of them. Let's meet the three.
+Nobody had to teach you that these feel bad. The [Core Web Vitals](https://web.dev/articles/vitals) are Google's way of putting a number on each of them. Let's meet the three.
 
 ## The three numbers
 
@@ -62,9 +62,9 @@ The **Core Web Vitals** are three measurements. Each one is a number for one kin
 
 | Name | In full | Which story | What it asks |
 | --- | --- | --- | --- |
-| LCP | Largest Contentful Paint | The blank page | How soon did the main content show up? |
-| CLS | Cumulative Layout Shift | The jumping button | How much did the page move around? |
-| INP | Interaction to Next Paint | The dead tap | How long did the page take to respond? |
+| LCP | [Largest Contentful Paint](https://web.dev/articles/lcp) | The blank page | How soon did the main content show up? |
+| CLS | [Cumulative Layout Shift](https://web.dev/articles/cls) | The jumping button | How much did the page move around? |
+| INP | [Interaction to Next Paint](https://web.dev/articles/inp) | The dead tap | How long did the page take to respond? |
 
 Before we go one by one, two small words. A **metric** is just a measurement with a name. A **paint** is the moment the browser actually draws something on your screen. "Next paint" means "the next time the screen changes."
 
@@ -143,7 +143,7 @@ How does one number come out of a whole visit with many taps? INP is calculated 
 
 <Sample file="core-web-vitals" name="inp" />
 
-You may have read about **FID**, First Input Delay. It only measured the delay before the page started handling your very first interaction. It ignored the processing, the painting and every later tap. INP replaced it as a Core Web Vital in March 2024. If an article still says "the three vitals are LCP, CLS and FID", it is older than that.
+You may have read about **FID**, [First Input Delay](https://web.dev/articles/fid). It only measured the delay before the page started handling your very first interaction. It ignored the processing, the painting and every later tap. INP replaced it as a Core Web Vital in March 2024. If an article still says "the three vitals are LCP, CLS and FID", it is older than that.
 
 **Remember:** INP is not "how fast is the page". It is "how long did I wait after I tapped", and the page's slowest answer counts.
 
@@ -175,7 +175,7 @@ They often disagree, and that is normal. In a test, nobody taps at a random mome
 
 **Remember:** field data says what happened to real people. Lab data says what one test saw. You want both, and you should trust the first when they disagree.
 
-If you want to collect field numbers from your own visitors, Google publishes a small open-source library, `web-vitals`, with a function for each metric. It is licensed under Apache 2.0.
+If you want to collect field numbers from your own visitors, Google publishes a small open-source library, [`web-vitals`](https://github.com/GoogleChrome/web-vitals), with a function for each metric. It is licensed under Apache 2.0.
 
 <Sample file="core-web-vitals-library.mjs" name="library" />
 
@@ -192,7 +192,7 @@ This takes five minutes and nothing to install. You will watch the real numbers 
 
 You will see a line for the LCP, with the element the browser chose. The number is in milliseconds. Now scroll the page and watch for lines starting "layout shift". The code leaves out shifts right after a tap and shifts too small to see. A calm page prints few lines, and the numbers are small. A line with a big number is a jump you could point at on screen.
 
-How does it work? A `PerformanceObserver` is a way of asking the browser to tell your code about things it measured. The `buffered: true` option, per MDN, also queues up the entries that happened before you started watching, which is why pasting it after the page has loaded still works.
+How does it work? A [`PerformanceObserver`](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver) is a way of asking the browser to tell your code about things it measured. The `buffered: true` option, per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver/observe), also queues up the entries that happened before you started watching, which is why pasting it after the page has loaded still works.
 
 Now, a challenge. Open a page you built. Does the biggest thing on screen carry a `width` and `height`? If not, you have found your first CLS fix.
 
@@ -204,7 +204,7 @@ The same idea as a function you can keep in a project, with a type for each piec
 
 Core Web Vitals are useful. They are also easy to over-trust. Here is when to hold them loosely.
 
-- **A good score is not a promise of a top spot.** Google says its ranking systems use Core Web Vitals, and that good results do not mean your pages will rank at the top of search results. Fix a slow page for your visitors first.
+- **A good score is not a promise of a top spot.** [Google says](https://developers.google.com/search/docs/appearance/page-experience) its ranking systems use Core Web Vitals, and that good results do not mean your pages will rank at the top of search results. Fix a slow page for your visitors first.
 - **They measure feel, not value.** A page can pass all three and still be hard to understand. They say nothing about whether the content is any good.
 - **Small sites may have no field data at all.** The tools that show real-visitor numbers need enough visits to report. A new site will often see nothing there. Lab tests still work.
 - **The 75th percentile hides the slowest quarter.** Passing means three visits in four were good. The fourth visit may have been painful.

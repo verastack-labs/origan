@@ -40,7 +40,7 @@ sources:
     url: https://developers.google.com/speed/docs/insights/v5/get-started
 ---
 
-Your college fest has a website. You paste its address into PageSpeed Insights, a free tool from Google, and wait. Then a big red circle appears with a number inside it. It says 41.
+Your college fest has a website. You paste its address into [PageSpeed Insights](https://pagespeed.web.dev/), a free tool from Google, and wait. Then a big red circle appears with a number inside it. It says 41.
 
 Your stomach drops. Is the site broken? Will people leave? Should you rewrite it tonight?
 
@@ -50,9 +50,9 @@ Take a breath. That 41 is real, but it is not what you think it is. It is the re
 
 A PageSpeed Insights report has two kinds of numbers in it. They look alike, they sit on the same page, and they mean different things.
 
-**Field data** is what happened to real people. When someone visits a page in Chrome, the browser can report how fast it felt. These reports are collected in a public dataset called the **Chrome User Experience Report**, or **CrUX** (said "crux"). PageSpeed Insights reads it for you. The window is the previous 28 days, and the numbers are the 75th percentile: the visit three quarters of the way from the best to the worst, so one visit in four was slower than that.
+**Field data** is what happened to real people. When someone visits a page in Chrome, the browser can report how fast it felt. These reports are collected in a public dataset called the **[Chrome User Experience Report](https://developer.chrome.com/docs/crux)**, or **CrUX** (said "crux"). PageSpeed Insights reads it for you. The window is the previous 28 days, and the numbers are the 75th percentile: the visit three quarters of the way from the best to the worst, so one visit in four was slower than that.
 
-**Lab data** is a test. PageSpeed Insights loads your page itself, using a tool called **Lighthouse**. Lighthouse is open source, and it also runs inside Chrome's DevTools. The load happens on a simulated device on a fixed network. For a mobile test that is a mid-tier phone on a mobile connection. For a desktop test it is an emulated desktop on a wired connection.
+**Lab data** is a test. PageSpeed Insights loads your page itself, using a tool called **[Lighthouse](https://developer.chrome.com/docs/lighthouse/overview)**. Lighthouse is open source, and it also runs inside Chrome's DevTools. The load happens on a simulated device on a fixed network. For a mobile test that is a mid-tier phone on a mobile connection. For a desktop test it is an emulated desktop on a wired connection.
 
 <FieldLabDiagram />
 
@@ -62,9 +62,9 @@ A PageSpeed Insights report has two kinds of numbers in it. They look alike, the
 
 Read the real-visitor half first. It answers the question you care about: did people have a good time?
 
-The field half shows the four numbers that matter, each at the 75th percentile: LCP, INP, CLS, and also FCP, the time until the first text or image is drawn. If you need a refresher on the first three, the previous article in this series has them in plain words.
+The field half shows the four numbers that matter, each at the 75th percentile: LCP, INP, CLS, and also FCP, the time until the first text or image is drawn. If you need a refresher on the first three, [the previous article in this series](/learn/off-the-syllabus/core-web-vitals/) has them in plain words.
 
-At the top there is a verdict: the Core Web Vitals assessment, passed or failed. The rule, from the PageSpeed Insights docs, is simple. If all three of INP, LCP and CLS have enough data, the page passes only when the 75th percentile of every one is good. If there is not enough INP data, the page passes when LCP and CLS are both good. If LCP or CLS lacks data, the page cannot be assessed. Here are those rules as code:
+At the top there is a verdict: the [Core Web Vitals](https://web.dev/articles/vitals) assessment, passed or failed. The rule, from the PageSpeed Insights docs, is simple. If all three of INP, LCP and CLS have enough data, the page passes only when the 75th percentile of every one is good. If there is not enough INP data, the page passes when LCP and CLS are both good. If LCP or CLS lacks data, the page cannot be assessed. Here are those rules as code:
 
 <Sample file="pagespeed.ts" name="assessment" />
 
@@ -89,7 +89,7 @@ How is it worked out? Lighthouse measures a handful of lab metrics, turns each i
 | FCP | First Contentful Paint: the first text or image appears | 10% |
 | SI | Speed Index: how quickly the page fills in | 10% |
 | LCP | Largest Contentful Paint | 25% |
-| TBT | Total Blocking Time: how long the page was too busy to respond | 30% |
+| TBT | [Total Blocking Time](https://web.dev/articles/tbt): how long the page was too busy to respond | 30% |
 | CLS | Cumulative Layout Shift | 25% |
 
 As code, with a worked example:
@@ -100,13 +100,13 @@ Try the arithmetic by hand with some made-up metric scores. Say FCP is 0.9, SI i
 
 Notice what carries the most weight. Total Blocking Time is 30% of the score. It is a lab measure: it adds up the time after the first paint when the main thread was blocked, meaning busy and unable to answer a tap. Only the part of each long task beyond 50 milliseconds counts. web.dev calls it a reasonable stand-in for INP in the lab, but not a substitute for it. A standard lab test cannot guess when a real person will tap, so INP comes from the field.
 
-One more fact calms a lot of panic. The report also lists **Opportunities** and **Diagnostics**: suggestions and notes about things that could be better. The Lighthouse docs are clear that only the metrics count towards the score, not the results of Opportunities or Diagnostics. Fixing them can improve the metrics, so there is an indirect link. But a long list of suggestions is not a long list of penalties.
+One more fact calms a lot of panic. The report also lists **Opportunities** and **Diagnostics**: suggestions and notes about things that could be better. The [Lighthouse docs](https://developer.chrome.com/docs/lighthouse/performance/performance-scoring) are clear that only the metrics count towards the score, not the results of Opportunities or Diagnostics. Fixing them can improve the metrics, so there is an indirect link. But a long list of suggestions is not a long list of penalties.
 
 **Remember:** the score is five measurements, weighted. The suggestions are advice, and they do not subtract points.
 
 ## Why the two halves disagree
 
-Sooner or later you will see a green field half and a red circle, or the other way round. This is normal, and web.dev explains why. A lab test is one device, one network, one place. Real visitors are many of each. In the field:
+Sooner or later you will see a green field half and a red circle, or the other way round. This is normal, and [web.dev explains why](https://web.dev/articles/lab-and-field-data-differences). A lab test is one device, one network, one place. Real visitors are many of each. In the field:
 
 - different visitors can see a different largest element, because of screen size, personalised content or tests;
 - real people scroll, which causes layout shifts a lab test often misses;
@@ -115,7 +115,7 @@ Sooner or later you will see a green field half and a red circle, or the other w
 
 Lab results can also differ from the real ones for a quieter reason: the test phone may be slower than most of your visitors' phones, or faster. Neither is wrong. They answer different questions.
 
-Lighthouse also changes its own thresholds by device. Its LCP audit page lists stricter lab thresholds for desktop than for mobile: a green desktop LCP is 1.2 seconds or less, against 2.5 seconds for mobile. The Core Web Vitals themselves use the same thresholds for both. So a lab colour and a field verdict can disagree even about the same LCP number.
+Lighthouse also changes its own thresholds by device. [Its LCP audit page](https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint) lists stricter lab thresholds for desktop than for mobile: a green desktop LCP is 1.2 seconds or less, against 2.5 seconds for mobile. The Core Web Vitals themselves use the same thresholds for both. So a lab colour and a field verdict can disagree even about the same LCP number.
 
 web.dev's advice is to use lab data for debugging and testing before you release, and field data to decide what to work on.
 

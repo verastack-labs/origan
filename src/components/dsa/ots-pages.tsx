@@ -7,6 +7,7 @@ import { Reveal } from "@/components/reveal";
 import { ChaptersLayout, type Chapter, type ChaptersNav } from "@/components/dsa/chapters";
 import { ContentsBlock, StudioCredit } from "@/components/dsa/lesson-chrome";
 import { inlineCode } from "@/components/dsa/inline-code";
+import { ProseLink } from "@/components/dsa/prose-link";
 import { articleComponents } from "@/components/dsa/mdx-components";
 import {
   articlePath,
@@ -266,13 +267,7 @@ function Sources({ article }: { article: Article }) {
       <ul className="mt-4 grid gap-2.5">
         {article.sources.map((source) => (
           <li key={source.url} className="text-[16px] leading-snug">
-            <a
-              href={source.url}
-              rel="noopener"
-              className="text-fg underline decoration-survey-2 decoration-1 underline-offset-4 transition-colors hover:text-survey"
-            >
-              {source.title}
-            </a>
+            <ProseLink href={source.url}>{source.title}</ProseLink>
             <span className="mt-0.5 block font-mono text-[11px] tracking-[0.02em] text-fg-3 [overflow-wrap:anywhere]">
               {new URL(source.url).host}
             </span>

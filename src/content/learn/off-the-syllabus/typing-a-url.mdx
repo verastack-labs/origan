@@ -45,7 +45,7 @@ sources:
 
 You open your phone, type `origan.verastack.dev` and press Go. A second later there is a page.
 
-That second is not empty. A dozen small things happen, in a fixed order, across machines in several places. Most of the time you never see them. This article walks through them one at a time, using the same words MDN, the web's reference site, uses.
+That second is not empty. A dozen small things happen, in a fixed order, across machines in several places. Most of the time you never see them. This article walks through them one at a time, using the same words [MDN](https://developer.mozilla.org/), the web's reference site, uses.
 
 One thing first. A **browser** is the program that fetches and shows web pages. A **server** is a computer that holds the pages and hands them out. Everything below is the two of them talking.
 
@@ -57,7 +57,7 @@ Here is the whole trip on one picture. Keep it in mind. We will visit each box.
 
 ## Start with the address
 
-The thing you type is a **URL**, short for Uniform Resource Locator: a web address. It has parts, and each part answers a different question. MDN's own example is `https://developer.mozilla.org/en-US/search?q=URL`.
+The thing you type is a **URL**, short for Uniform Resource Locator: a web address. It has parts, and each part answers a different question. [MDN's own example](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/What_is_a_URL) is `https://developer.mozilla.org/en-US/search?q=URL`.
 
 - The **scheme**, `https`, says which protocol (set of rules) to use. For websites it is HTTPS or its plain version, HTTP.
 - The **domain**, `developer.mozilla.org`, says which server you want.
@@ -76,7 +76,7 @@ Notice `sentToServer`. The browser sends the path and the query, and nothing aft
 
 ## Does the browser already know?
 
-Before it goes anywhere, the browser can check its own **HTTP cache**, a store of replies from earlier visits. MDN says the cache stores a response and reuses it for later requests, and that a stored response stays fresh for a time that the server sets. For example, a reply sent with `Cache-Control: max-age=604800` is fresh for 604,800 seconds, which is one week. While it is fresh, the browser can use it and does not ask the server at all.
+Before it goes anywhere, the browser can check its own **[HTTP cache](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching)**, a store of replies from earlier visits. MDN says the cache stores a response and reuses it for later requests, and that a stored response stays fresh for a time that the server sets. For example, a reply sent with `Cache-Control: max-age=604800` is fresh for 604,800 seconds, which is one week. While it is fresh, the browser can use it and does not ask the server at all.
 
 That is the dashed line on the picture. A fresh copy skips every network step and goes straight to drawing the page. It is why a page you visited an hour ago can open at once.
 
@@ -86,7 +86,7 @@ If there is nothing fresh, the trip begins.
 
 Computers do not find each other by name. They use numbers called **IP addresses**, like `192.0.2.172`, the example MDN uses. The name you typed has to be turned into one.
 
-That is the job of **DNS**, the Domain Name System. MDN calls it like an address book for websites: it holds the domain names with the IP addresses that go with them. Looking a name up in it is called a **DNS lookup**.
+That is the job of **[DNS](https://developer.mozilla.org/en-US/docs/Glossary/DNS)**, the Domain Name System. MDN calls it like an address book for websites: it holds the domain names with the IP addresses that go with them. Looking a name up in it is called a **DNS lookup**.
 
 Two details from MDN are worth knowing. A big site is often served from many machines around the world, so the address you get can depend on where you are. And a page usually needs only one lookup per name, though it needs one for each different name the page uses, such as a separate server for images.
 
@@ -98,15 +98,15 @@ Now the browser knows where the server is. Next it must open a line.
 
 It does this with a **TCP handshake**. TCP is the protocol that makes sure data arrives complete and in order. The handshake takes three messages that MDN names SYN, SYN-ACK and ACK: the browser says hello, the server says hello back, and the browser confirms. Think of two people on a phone call: "Hello?" "Hello, I can hear you." "Good, I can hear you too."
 
-After that, since the address began with `https`, comes the secure part. **TLS**, Transport Layer Security, is the protocol that makes the line private. MDN lists three things it gives you:
+After that, since the address began with `https`, comes the secure part. **[TLS](https://developer.mozilla.org/en-US/docs/Web/Security/Transport_Layer_Security)**, Transport Layer Security, is the protocol that makes the line private. MDN lists three things it gives you:
 
 - **encryption**: the data is scrambled in transit so an eavesdropper cannot read it;
 - **integrity**: nobody can change it on the way without being noticed;
 - **authentication**: the server can prove it is who it says it is.
 
-That proof is a **certificate**: a digitally signed document that ties the site's keys to its domain name. During the TLS handshake the two sides agree on a version, agree on a set of algorithms, check the certificate, and agree on a secret key. After that, everything, including the HTTP headers, is encrypted. The current version is TLS 1.3, which is defined in a document called RFC 8446.
+That proof is a **certificate**: a digitally signed document that ties the site's keys to its domain name. During the TLS handshake the two sides agree on a version, agree on a set of algorithms, check the certificate, and agree on a secret key. After that, everything, including the HTTP headers, is encrypted. The current version is TLS 1.3, which is defined in a document called [RFC 8446](https://www.rfc-editor.org/rfc/rfc8446.html).
 
-How long does all this take? MDN's walkthrough counts three round trips for TCP and five for TLS, eight in all, before the browser can even ask for the page. A **round trip** is one message there and one reply back. That count is MDN's model. Real numbers depend on the versions in use, and a newer protocol, HTTP/3, uses QUIC over UDP instead of TCP. Treat eight as "this part is not free", and not as a rule.
+How long does all this take? MDN's walkthrough counts three round trips for TCP and five for TLS, eight in all, before the browser can even ask for the page. A **round trip** is one message there and one reply back. That count is MDN's model. Real numbers depend on the versions in use, and a newer protocol, [HTTP/3](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Evolution_of_HTTP), uses QUIC over UDP instead of TCP. Treat eight as "this part is not free", and not as a rule.
 
 **Remember:** DNS finds the server. TCP opens the line. TLS makes it private. No page has been requested yet.
 
@@ -149,7 +149,7 @@ Next comes **layout**: working out the size and position of every box. Then **pa
 
 And that is the second you waited for.
 
-The measures from the first article in this series sit on this path. Largest Contentful Paint is the time until the biggest thing is painted. A layout shift is layout happening again after something moved. Now you know where each one lives.
+The measures from [the first article in this series](/learn/off-the-syllabus/core-web-vitals/) sit on this path. Largest Contentful Paint is the time until the biggest thing is painted. A layout shift is layout happening again after something moved. Now you know where each one lives.
 
 **Remember:** the HTML becomes a tree, the CSS becomes a tree, the two become a render tree, and then the browser measures, draws and layers.
 

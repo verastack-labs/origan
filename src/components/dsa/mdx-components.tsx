@@ -3,6 +3,7 @@ import type { MDXComponents } from "mdx/types";
 import { rustCourse, type Course } from "@/data/courses";
 import { playgroundCode } from "@/lib/snippets";
 import { CodeBlock } from "./code-block";
+import { ProseLink } from "./prose-link";
 import {
   ArrayDiagram,
   BytesDiagram,
@@ -81,8 +82,6 @@ async function Pre({ children }: { children?: ReactNode }) {
   );
 }
 
-const link =
-  "text-fg underline decoration-survey-2 decoration-1 underline-offset-4 transition-colors hover:text-survey";
 
 /**
  * Everything an MDX lesson can use. Markdown elements are styled here, and the
@@ -100,7 +99,7 @@ const shared: MDXComponents = {
   ol: (props: ComponentProps<"ol">) => (
     <ol className="my-4 grid list-decimal gap-2 pl-6 text-[17px] leading-[1.65] text-fg marker:font-mono marker:text-fg-3" {...props} />
   ),
-  a: (props: ComponentProps<"a">) => <a className={link} {...props} />,
+  a: ProseLink,
   strong: (props: ComponentProps<"strong">) => <strong className="font-semibold text-fg" {...props} />,
   code: (props: ComponentProps<"code">) => (
     <code className="rounded-control bg-panel-2 px-1.5 py-px font-mono text-[0.86em] text-fg" {...props} />

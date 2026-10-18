@@ -53,7 +53,7 @@ On a phone, the browser draws its own controls around your page: an address bar 
 
 First, a word. The **viewport** is the part of the page you can see right now. A **unit** such as `px` or `%` is what a number is measured in. `vh` is a unit too. It stands for "viewport height", and `1vh` is one percent of it. So `100vh` means the full height of the viewport.
 
-Which of the two phone heights is that? MDN says `vh` is equivalent to `lvh`, the large viewport. That is the height with the browser's bars tucked away. web.dev puts the problem plainly: although the viewport can change size, the `vw` and `vh` sizes do not. So when the page first loads and the bars are showing, an element sized at `100vh` is too tall for what you can see, and it only fits once the bars retract.
+Which of the two phone heights is that? [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/length) says `vh` is equivalent to `lvh`, the large viewport. That is the height with the browser's bars tucked away. [web.dev](https://web.dev/blog/viewport-units) puts the problem plainly: although the viewport can change size, the `vw` and `vh` sizes do not. So when the page first loads and the bars are showing, an element sized at `100vh` is too tall for what you can see, and it only fits once the bars retract.
 
 That is your hidden button. It is sitting in the part of the section that is under the address bar.
 
@@ -79,17 +79,17 @@ Now the real story. This site's home page opens with a big hero section. Its hei
 
 <Sample file="svh.css" name="hero-before" />
 
-`clamp()` picks a middle value but keeps it between a minimum and a maximum: here at least 540 pixels, at most 880, and ideally 88% of the screen's height. And it was `min-height`, so the box can still grow if the content needs more room.
+[`clamp()`](https://developer.mozilla.org/en-US/docs/Web/CSS/clamp) picks a middle value but keeps it between a minimum and a maximum: here at least 540 pixels, at most 880, and ideally 88% of the screen's height. And it was [`min-height`](https://developer.mozilla.org/en-US/docs/Web/CSS/min-height), so the box can still grow if the content needs more room.
 
 Sized in `vh`, the hero was measured against the large viewport, which is the situation described above: with the bars showing, a box measured that way is taller than the visible area. The fix was one letter:
 
 <Sample file="svh.css" name="hero-after" />
 
-The same change went into the lesson pages' sidebar, the "Chapters" panel on wide screens. It is stuck under the site's 63-pixel header with `position: sticky`, which keeps an element in place once you scroll to it, and it is as tall as the screen minus that header. It had been sized with `dvh`, and was changed to `svh`:
+The same change went into the lesson pages' sidebar, the "Chapters" panel on wide screens. It is stuck under the site's 63-pixel header with [`position: sticky`](https://developer.mozilla.org/en-US/docs/Web/CSS/position), which keeps an element in place once you scroll to it, and it is as tall as the screen minus that header. It had been sized with `dvh`, and was changed to `svh`:
 
 <Sample file="svh.css" name="sidebar" />
 
-`calc()` lets you mix units, so "100svh minus 63px" is fine. The reason for the change is in the commit that made it: size them with `svh`, so that an Android address bar cannot shift the page.
+[`calc()`](https://developer.mozilla.org/en-US/docs/Web/CSS/calc) lets you mix units, so "100svh minus 63px" is fine. The reason for the change is in the commit that made it: size them with `svh`, so that an Android address bar cannot shift the page.
 
 Was `dvh` wrong? Not everywhere. Two places on this site still use it:
 
@@ -122,7 +122,7 @@ A small guide:
 You will see the four numbers change on a real phone. It takes about ten minutes.
 
 1. Save the page below as `svh-demo.html`.
-2. Open it on your phone. You can send the file to yourself and open it, or put it on any web host you already use, or serve the folder from your laptop on your home Wi-Fi with `python -m http.server`, which listens on port 8000 and serves the current folder. Python's own docs say that server is not recommended for production, so stop it when you are done.
+2. Open it on your phone. You can send the file to yourself and open it, or put it on any web host you already use, or serve the folder from your laptop on your home Wi-Fi with `python -m http.server`, which listens on port 8000 and serves the current folder. [Python's own docs](https://docs.python.org/3/library/http.server.html) say that server is not recommended for production, so stop it when you are done.
 3. Scroll down and up. Watch the box at the top.
 
 <Sample file="svh-demo.html" name="page" />
