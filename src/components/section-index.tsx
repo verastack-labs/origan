@@ -177,7 +177,7 @@ function Register({ here, sections }: { here: string; sections: readonly { href:
         {open && (
           <ol
             id={id}
-            className="swap absolute inset-x-0 bottom-full mb-2 min-w-[240px] rounded-panel border border-line bg-ground p-1"
+            className="swap absolute bottom-full left-1/2 mb-2 w-max min-w-[max(100%,240px)] max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-panel border border-line bg-ground p-1"
           >
             {sheets.map((sheet, i) => {
               const isHere = sheet.href === current.href;
