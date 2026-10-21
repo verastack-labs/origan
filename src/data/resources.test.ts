@@ -29,14 +29,13 @@ describe("coming soon", () => {
       "Black Screen · The terminal",
       "Cloud Kitchen · Cloud basics",
       "Context Window · AI for engineers",
-      "Kernel Panic · Operating systems",
       "Table Manners · Databases in practice",
     ]);
     expect(resources.map((r) => r.status)).toEqual([...liveResources.map(() => "live"), ...coming.map(() => "coming")]);
   });
 
   it("has new filters of its own, each with a hint", () => {
-    expect(coming.map((r) => r.filters)).toEqual([["terminal"], ["cloud"], ["ai"], ["os"], ["databases"]]);
+    expect(coming.map((r) => r.filters)).toEqual([["terminal"], ["cloud"], ["ai"], ["databases"]]);
   });
 
   it("needs no route: no link, no count, and nothing that promises a date or a number", () => {
@@ -151,7 +150,7 @@ describe("the newest live item comes first", () => {
   it("puts Off the Syllabus on top, and keeps coming items in roadmap order", () => {
     const order = liveFirst(resources).map((r) => r.id);
     expect(order[0]).toBe("off-the-syllabus");
-    expect(order.slice(-5)).toEqual(["black-screen", "cloud-kitchen", "context-window", "kernel-panic", "table-manners"]);
+    expect(order.slice(-4)).toEqual(["black-screen", "cloud-kitchen", "context-window", "table-manners"]);
   });
 
   it("is data-driven: a new collection with a later date lands on top, whatever order it is written in", () => {
@@ -197,8 +196,8 @@ describe("search finds coming collections, but they have no page", () => {
   const index = buildSearchIndex();
 
   it("finds them by name and by pill, marked coming and not published", () => {
-    const byName = search(index, "kernel panic");
-    expect(byName[0].entry.title).toBe("Kernel Panic");
+    const byName = search(index, "table manners");
+    expect(byName[0].entry.title).toBe("Table Manners");
     expect(byName[0].entry.comingSoon).toBe(true);
     expect(byName[0].entry.published).toBe(false);
     expect(byName[0].entry.href).toBe("");
@@ -208,8 +207,8 @@ describe("search finds coming collections, but they have no page", () => {
   });
 
   it("finds them inside their filter, and not outside it", () => {
-    expect(searchWithin(index, "kernel", "os").map((r) => r.entry.title)).toContain("Kernel Panic");
-    expect(searchWithin(index, "kernel", "web").map((r) => r.entry.title)).not.toContain("Kernel Panic");
+    expect(searchWithin(index, "manners", "databases").map((r) => r.entry.title)).toContain("Table Manners");
+    expect(searchWithin(index, "manners", "web").map((r) => r.entry.title)).not.toContain("Table Manners");
   });
 
   it("has one entry per coming item and gives each its filters", () => {
