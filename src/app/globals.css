@@ -10,7 +10,7 @@
  * World: survey and levelling notation, drawn on two grounds. Dark is the
  * default and the first thing anyone sees: ink linework on a near-black field
  * with only an undertone of green, so the one accent carries all the colour.
- * Light is the same drawing plotted on near-white paper, and is the reader's
+ * Light is the same drawing plotted on pale mint paper, and is the reader's
  * choice, kept in localStorage and applied before first paint by an inline
  * script in the layout.
  *
@@ -59,15 +59,15 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --color-ground: #f7f9f8;
-  --color-ground-2: #eef2f0;
-  --color-panel: #ffffff;
-  --color-panel-2: #e9eeec;
+  --color-ground: #eef5f0;
+  --color-ground-2: #e6efe9;
+  --color-panel: #f3f8f4;
+  --color-panel-2: #e2ece5;
 
-  --color-line: #c9d3cf;
-  --color-line-2: #e0e7e4;
+  --color-line: #c6d6cc;
+  --color-line-2: #dbe6de;
 
-  --color-fg: #0a110e;
+  --color-fg: #1f2a25;
   --color-fg-2: #45534d;
   --color-fg-3: #5b6a64;
 
