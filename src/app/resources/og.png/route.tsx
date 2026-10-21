@@ -6,7 +6,7 @@ export const dynamic = "force-static";
 
 export function GET() {
   return lessonCard({
-    kicker: "Free courses",
+    kicker: "Free reading material",
     title: resourcesPage.notation,
     sub: resourcesPage.card,
   });

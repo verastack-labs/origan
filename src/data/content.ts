@@ -12,14 +12,14 @@ export const hero = {
   // payload rather than the time horizon. The newline is a deliberate break:
   // the hero's figure owns the right of the frame.
   heading: "Four years,\none [record].",
-  sub: "What each student has actually covered, from first semester to the final drive. They see where they are thin while there is still time. Your cell sees the same record as a cohort, never a ranking.",
+  sub: "What each student has actually covered and solved, from first semester to the final drive, with a Campus Coach who steps in when someone stalls. Your cell reads the same record as a cohort, never a ranking.",
   secondary: { label: "See the four years", href: "#profile" },
 } as const;
 
 export const datum = {
-  kicker: "Ask what a batch covered in second year and you get a shrug, or a spreadsheet nobody trusts.",
+  kicker: "Students aren't short of content. They're stuck in tutorial hell, watching hour after hour and never writing the solution themselves.",
   heading: "Nobody owns the [record].",
-  body: "So the gaps that were still fixable in year two are found in year four, when they are simply late.",
+  body: "Nobody notices when they stall. Ask what a batch covered in second year and you get a shrug, so the gaps that were still fixable then are found in year four, when they are simply late.",
 } as const;
 
 export const profile = {
@@ -39,7 +39,7 @@ export const semesters = [
   {
     key: "S1",
     title: "Direction established",
-    body: "Bearing builds the first roadmap. Playlists and the glossary begin.",
+    body: "Bearing builds the first roadmap, with the best existing playlist picked for each block.",
   },
   {
     key: "S2",
@@ -49,7 +49,7 @@ export const semesters = [
   {
     key: "S3",
     title: "Practice begins in earnest",
-    body: "Chain opens: data structure sheets with revisit marking, so a hard question comes back.",
+    body: "Chain opens: data structure problems to solve, with revisit marking, so a hard question comes back.",
   },
   {
     key: "S4",
@@ -91,14 +91,14 @@ export const strands = [
     glyph: "traverse",
     key: "Direction",
     heading: "Know what's next",
-    body: "Bearing builds a roadmap from a short questionnaire. Sightline puts a curated playlist in every block.",
+    body: "Bearing builds a roadmap from a short questionnaire. Sightline puts one proven playlist, picked from what already exists, in every block.",
     aside: "Heaviest in the first two years, when drifting is invisible until it is expensive.",
   },
   {
     glyph: "spotHeights",
     key: "Practice",
     heading: "Practice that comes back",
-    body: "Chain, for data structures with revisit marking. Bench Mark, a test engine covering aptitude and technical topics, spread across years.",
+    body: "Chain, where every topic ends in problems the student has to solve, with revisit marking. Bench Mark, a test engine covering aptitude and technical topics, spread across years.",
     aside: "The strand every branch uses. Mass recruiters screen on aptitude and hire well beyond computer science.",
   },
   {
@@ -142,7 +142,7 @@ export const alongside = {
 
 export const consultant = {
   heading: "Someone on your [campus].",
-  sub: "A Campus Coach sits with your students, five to ten conversations a campus day, and turns what they hear into the roadmap.",
+  sub: "Students go to the Campus Coach in person, or post questions through Origan. The Coach plans with your teachers and your Training and Placement Officer (TPO).",
   stats: [
     { value: "5 – 10", label: "Student conversations per campus day" },
     { value: "8", label: "Semesters the partnership covers" },
@@ -172,7 +172,11 @@ export const faq = {
   items: [
     {
       q: "So what is Origan, really?",
-      a: "It's a record of what each engineering student has covered, from first semester to the final drive. Students use a platform from year one, and a Campus Coach on campus keeps the record honest.",
+      a: "It's a record of what each engineering student has covered and solved, from first semester to the final drive. It picks the best existing material for each topic and makes students practise it, and a Campus Coach on campus notices when someone stalls.",
+    },
+    {
+      q: "Does Origan make its own courses?",
+      a: "No. It picks the best existing resources for each topic and makes students solve problems instead of only watching. Students are rarely short of content; they are stuck in tutorial hell, watching without ever writing the solution.",
     },
     {
       q: "Is it only for computer science students?",
@@ -180,7 +184,15 @@ export const faq = {
     },
     {
       q: "What does a Campus Coach actually do?",
-      a: "They sit with your students and listen. Five to ten conversations a campus day shape your roadmap, and your placement cell gets a report every two to four weeks.",
+      a: "Students go to them in person or post questions through Origan, and they plan with your teachers and your Training and Placement Officer (TPO) around what students are stuck on. Your placement cell gets summaries and reports every two to four weeks.",
+    },
+    {
+      q: "Can we take the Campus Coach without the platform?",
+      a: "Yes, and the Coach alone can make a real difference. Students get a limited Origan to post questions to the Coach and track them, the college gets the Coach's summaries and reports instead of dashboards, and the Coach still helps your faculty plan. The platform on its own is possible too, but it has no student support, so it makes much less difference without a Coach.",
+    },
+    {
+      q: "Can students sign up on their own?",
+      a: "No. Students get Origan through their college, and no part of it can be bought by an individual student. If your college isn't on Origan yet, you can ask us to bring it there.",
     },
     {
       q: "Do we have to drop our training partner?",
@@ -196,11 +208,11 @@ export const faq = {
     },
     {
       q: "How much does it cost?",
-      a: "We talk about price in conversation, not on the website. Write to Rigan or register your interest, and he will set up a time.",
+      a: "We talk about price in conversation, not on the website. It depends on which of the three ways you take Origan, so write to Rigan or register your interest, and he will set up a time.",
     },
     {
-      q: "Are Oxidise (DSA in Rust) and Filter Coffee (Java Collections) free?",
-      a: "Yes, both are free to read, with no sign-up. They sit on The Open Shelf, our free study material, made by VeraStack Labs and apart from the partnership.",
+      q: "What is the Open Shelf?",
+      a: "Free reading material from VeraStack Labs, open to anyone with no sign-up, including Oxidise (DSA in Rust) and Filter Coffee (Java Collections). It is separate from Origan and is not part of what a college buys.",
     },
   ],
 } as const;
@@ -371,19 +383,19 @@ export const studentBand = {
 
 export const product = {
   notation: "The platform",
-  kicker: "Not a course you finish. The place a student comes back to for eight semesters.",
+  kicker: "Not a course, and not ours to teach. The best existing material, picked for each topic, and proof it was practised.",
   heading: "From first year to [fourth].",
   description:
-    "Not a course. The thing a student returns to for eight semesters: what to learn next, the practice that makes it stick, and the applications at the end.",
+    "Not a course. The best existing material for each topic, picked for the student, with problems to solve after it, a record of what was done, and the applications at the end.",
 
   roadmap: {
     heading: "A roadmap that [stays].",
-    sub: "Bearing builds it from a short questionnaire, in blocks that don't reshuffle. Want another direction? Generate a second roadmap and keep both.",
+    sub: "Bearing builds it from a short questionnaire, in blocks that don't reshuffle, and fills each with the best material that already exists. Want another direction? Generate a second roadmap and keep both.",
     points: [
       {
         glyph: "traverse",
         label: "Why generated rather than chosen",
-        body: "A first-year cannot pick a syllabus they have not seen. The product chooses, and explains itself.",
+        body: "A first-year cannot pick a syllabus they have not seen. The product picks the best existing playlist for each topic, and explains itself.",
       },
       {
         glyph: "benchmark",
@@ -400,7 +412,7 @@ export const product = {
 
   practice: {
     heading: "Practice that comes [back].",
-    sub: "Chain brings a hard question back in a week or two. Bench Mark sets two tests a day, so practice becomes a habit, not a binge.",
+    sub: "Watching is not practising. Every topic ends in problems to solve in Chain, and a hard one comes back in a week or two. Bench Mark sets two tests a day, so practice becomes a habit, not a binge.",
     aptitude: {
       glyph: "spotHeights",
     label: "Aptitude sits inside the test engine",
@@ -433,23 +445,51 @@ export const partnership = {
   notation: "The partnership",
   heading: "Two things, one [partnership].",
   description:
-    "A platform your students use every week, and a person who has sat with them. One without the other is a fraction of the value.",
-  sub: "A platform your students use every week, and a person who has sat with them. Either alone is a fraction of the value.",
+    "Origan and a Campus Coach, best together. Three ways to take it: with a Coach, the Coach on its own, or Origan on its own. Students get it only through their college.",
+  sub: "A platform your students use every week, and a person they can go to. Best together; the Coach alone can still make a difference.",
 
   shape: [
     {
       glyph: "contours",
       key: "The platform",
       role: "The destination",
-      body: "Live from day one. Bearing, Sightline, Chain, Bench Mark, Beacon and Avsar, extended through the term rather than delivered once.",
+      body: "Live from day one. Bearing and Sightline pick the best existing material, Chain makes students solve it, and Bench Mark, Beacon and Avsar round it out, extended through the term rather than delivered once.",
     },
     {
       glyph: "staff",
       key: "The Campus Coach",
-      role: "The medium",
-      body: "Assigned for the whole term, not an onboarding window. Five to ten student conversations a campus day, and what they hear shapes what gets built for you.",
+      role: "The heart of it",
+      body: "Assigned for the whole term, not an onboarding window. Students go to them in person or post questions through Origan, and they plan with your teachers and your TPO.",
     },
   ],
+
+  ways: {
+    notation: "How it is bought",
+    heading: "Three ways to [begin].",
+    sub: "We recommend the first. Each is agreed with the college.",
+    recommended: "Recommended",
+    items: [
+      {
+        glyph: "contours",
+        key: "Origan with a Campus Coach",
+        recommended: true,
+        body: "The full partnership. Students use the platform every week and have a Coach to go to, in person or through Origan. The Coach plans with your teachers and TPO, and your cell reads the record by cohort in Datum.",
+      },
+      {
+        glyph: "staff",
+        key: "The Campus Coach on its own",
+        recommended: false,
+        body: "Students get a limited Origan, a place to post questions to the Coach and track them, and they can meet the Coach in person. The college gets the Coach's summaries and reports rather than dashboards, and the Coach still helps your faculty plan. The Coach alone can make a difference.",
+      },
+      {
+        glyph: "bearing",
+        key: "Origan on its own",
+        recommended: false,
+        body: "Students use the platform and your cell gets the cohort data, with support for the product itself. There is no student support, so it makes much less difference without a Coach.",
+      },
+    ],
+    note: "Students get Origan through their college. It can't be bought by individual students.",
+  },
 
   modes: {
     heading: "Two modes, one [difference].",
@@ -477,7 +517,7 @@ export const partnership = {
       { when: "Week one onward", what: "Your Campus Coach begins student conversations on the agreed cadence." },
       { when: "Within month one", what: "A first draft of Datum, your college's dashboard, shaped with your cell." },
       { when: "Every two to four weeks", what: "Reporting to your placement cell and to college leadership." },
-      { when: "Throughout", what: "Content and features extended against what your students actually report." },
+      { when: "Throughout", what: "Material and features extended against what your students actually report." },
     ],
   },
 
@@ -517,7 +557,7 @@ export const partnership = {
 
   cost: {
     heading: "On [cost].",
-    sub: "Not published. It depends on headcount, mode and term, and it's the first thing a conversation covers.",
+    sub: "Not published. It depends on headcount, mode, term and which of the three ways you take it, and it's the first thing a conversation covers.",
   },
 } as const;
 

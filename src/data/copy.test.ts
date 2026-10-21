@@ -1,3 +1,5 @@
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import * as content from "./content";
 import { analyticsPage } from "./analytics";
@@ -6,6 +8,10 @@ import { featuresPage } from "./features";
 import { javaCourse, rustCourse, switchCourse } from "./courses";
 import { resourcesPage } from "./resources";
 import { offTheSyllabus, otsSeries } from "./off-the-syllabus";
+import { site } from "./site";
+import { Faq, faqJsonLd } from "@/components/faq";
+import { siteGraph } from "@/components/json-ld";
+import { buildLlmsTxt } from "@/lib/llms";
 
 /**
  * The heading rule from origan-internal/docs/copy-deck.md: a heading is one
@@ -83,15 +89,56 @@ describe("headings", () => {
   });
 
   it("never uses an em-dash", () => {
-    const text = JSON.stringify([content, analyticsPage, coachPage, featuresPage, resourcesPage]);
+    const text = JSON.stringify([content, analyticsPage, coachPage, featuresPage, resourcesPage, site]);
     expect(text).not.toContain("—");
+    expect(buildLlmsTxt()).not.toContain("—");
+    expect(JSON.stringify(siteGraph())).not.toContain("—");
+  });
+});
+
+/** Everything public and written by us, except Datum's charts, which are labelled as invented. */
+const publicCopy = () =>
+  JSON.stringify([content, coachPage, featuresPage, resourcesPage, site]) +
+  buildLlmsTxt() +
+  JSON.stringify(siteGraph()) +
+  JSON.stringify(faqJsonLd());
+
+describe("the public pages", () => {
+  it("carry no price and no percentage", () => {
+    const text = publicCopy();
+    expect(text).not.toMatch(/[%₹$]/);
+    expect(text).not.toMatch(/(rupees?|INR|lakhs?|crores?)/i);
+  });
+
+  it("never name a competitor", () => {
+    expect(publicCopy()).not.toMatch(/cruxion|kodcampus/i);
+  });
+
+  it("offers three ways to buy, the recommended one first", () => {
+    const { items, note } = content.partnership.ways;
+    expect(items).toHaveLength(3);
+    expect(items.map((i) => i.recommended)).toEqual([true, false, false]);
+    expect(items[0].key).toBe("Origan with a Campus Coach");
+    expect(note).toBe("Students get Origan through their college. It can't be bought by individual students.");
+  });
+
+  it("says the Coach alone can make a difference, and that Origan alone has no student support", () => {
+    const [, coachOnly, platformOnly] = content.partnership.ways.items;
+    expect(coachOnly.body).toContain("The Coach alone can make a difference");
+    expect(platformOnly.body).toContain("no student support");
+  });
+
+  it("keeps the Open Shelf apart from Origan", () => {
+    expect(resourcesPage.sub).toContain("Separate from Origan");
+    expect(resourcesPage.description).toContain("separate from Origan");
+    expect(buildLlmsTxt()).toContain("## The Open Shelf is separate");
   });
 });
 
 describe("the FAQ", () => {
-  it("has six to eight questions, each answered in one to three sentences", () => {
+  it("has six to twelve questions, each answered in one to three sentences", () => {
     expect(content.faq.items.length).toBeGreaterThanOrEqual(6);
-    expect(content.faq.items.length).toBeLessThanOrEqual(8);
+    expect(content.faq.items.length).toBeLessThanOrEqual(12);
     for (const { q, a } of content.faq.items) {
       expect(q.endsWith("?")).toBe(true);
       const sentences = a.split(/(?<=[.!?])\s+/).length;
@@ -103,5 +150,32 @@ describe("the FAQ", () => {
   it("states no price, and no digit-led claim", () => {
     const text = content.faq.items.map((i) => i.a).join(" ");
     expect(text).not.toMatch(/[₹$]|\d/);
+  });
+
+  it("answers the positioning questions", () => {
+    const questions = content.faq.items.map((i) => i.q);
+    for (const q of [
+      "Does Origan make its own courses?",
+      "Can we take the Campus Coach without the platform?",
+      "Can students sign up on their own?",
+      "What is the Open Shelf?",
+    ]) {
+      expect(questions).toContain(q);
+    }
+  });
+
+  it("emits FAQPage structured data that matches the visible questions and answers", () => {
+    const ld = faqJsonLd();
+    expect(ld.mainEntity.map((e) => [e.name, e.acceptedAnswer.text])).toEqual(
+      content.faq.items.map((i) => [i.q, i.a]),
+    );
+    const markup = renderToStaticMarkup(createElement(Faq));
+    const visible = (text: string) => text.replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
+    for (const { q, a } of content.faq.items) {
+      expect(visible(markup)).toContain(q);
+      expect(visible(markup)).toContain(a);
+    }
+    const embedded = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(markup)?.[1];
+    expect(JSON.parse(embedded ?? "null")).toEqual(ld);
   });
 });

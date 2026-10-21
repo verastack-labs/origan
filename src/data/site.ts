@@ -5,7 +5,7 @@ export const site = {
   name: "Origan",
   tagline: "A record of what each batch has covered",
   description:
-    "Origan keeps a record of what each engineering student has covered, from first semester to the final drive, with a Campus Coach on campus.",
+    "Origan picks the best material that already exists, makes engineering students solve it, and records what each has covered, with a Campus Coach.",
   url: "https://origan.verastack.dev",
   studio: "VeraStack Labs",
   studioUrl: "https://verastack.dev",
@@ -13,6 +13,9 @@ export const site = {
   labsUrl: "https://verastack.dev",
   location: "Indiranagar, Bangalore",
   founder: "Rigan Burnwal",
+  // One line of why, from the hiring side of the table. Shown in the footer beside his name.
+  founderLine:
+    "Rigan spent two years in industry first, making hires and interviewing. Candidates are rarely separated by one more course.",
   phone: "+91 93806 54730",
   email: "rigan@verastack.dev",
   // Profiles that identify the studio behind the site, for the structured data.
@@ -93,6 +96,7 @@ export const productSections = [
 
 export const partnershipSections = [
   { href: "#shape", label: "The shape" },
+  { href: "#ways", label: "Three ways" },
   { href: "#modes", label: "Two modes" },
   { href: "#term", label: "The term" },
 ] as const;
