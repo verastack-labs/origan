@@ -38,6 +38,32 @@ export default function Partnership() {
         </div>
       </section>
 
+      <section id="ways" className={`border-t border-line-2 ${section}`}>
+        <div className={shell}>
+          <Reveal variant="label" className="notation">
+            {partnership.ways.notation}
+          </Reveal>
+          <HeadingPair pair={partnership.ways} className="mt-3.5" />
+
+          <div className="mt-[clamp(24px,3.4vw,44px)] grid gap-px overflow-hidden rounded-panel border border-line bg-line md:grid-cols-3">
+            {partnership.ways.items.map((way) => (
+              <Reveal key={way.key} className="bg-panel p-[clamp(22px,3vw,34px)]">
+                <Glyph name={way.glyph as GlyphName} />
+                <p className="notation mt-4 min-h-[1.2em] text-survey">
+                  {way.recommended ? partnership.ways.recommended : "\u00a0"}
+                </p>
+                <h3 className="mt-3 text-[clamp(19px,2.2vw,24px)] font-bold tracking-[-0.025em]">{way.key}</h3>
+                <p className="mt-3.5 text-[15.5px] text-fg-2">{way.body}</p>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal className="mt-[clamp(20px,2.6vw,32px)] max-w-[62ch] border-l border-survey-2 pl-5">
+            <p className="text-[16px] text-fg-2">{partnership.ways.note}</p>
+          </Reveal>
+        </div>
+      </section>
+
       <Alongside />
 
       <section id="modes" className={section}>

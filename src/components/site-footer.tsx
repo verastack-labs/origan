@@ -112,7 +112,8 @@ export function SiteFooter() {
                 {site.phone}
               </a>
             </address>
-            <p className="mt-5 max-w-[26ch] text-[13.5px] text-fg-3">
+            <p className="mt-5 max-w-[30ch] text-[13.5px] text-fg-2">{site.founderLine}</p>
+            <p className="mt-3 max-w-[26ch] text-[13.5px] text-fg-3">
               Forms on this site reach one inbox, and nothing here is a mailing list. Visits are counted without cookies.
             </p>
           </div>

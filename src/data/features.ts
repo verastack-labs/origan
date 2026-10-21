@@ -37,7 +37,7 @@ export const featuresPage = {
       name: "Bearing",
       descriptor: "The roadmap builder",
       glyph: "bearing",
-      body: "A short questionnaire on domain, language and framework produces a roadmap. The same answers always give the same roadmap, so your cell can see why a student is on the path they are on.",
+      body: "A short questionnaire on domain, language and framework produces a roadmap, with the best existing material picked for each step. The same answers always give the same roadmap, so your cell can see why a student is on the path they are on.",
       records: "Direction, set in year one",
     },
     {
@@ -51,7 +51,7 @@ export const featuresPage = {
       name: "Chain",
       descriptor: "The DSA tracker",
       glyph: "chain",
-      body: "Curated problem sheets, one link at a time. Anything shaky comes back in a week or two, because solved once is not yet learned.",
+      body: "Problem sheets, one link at a time. Every topic ends in problems the student has to solve, and anything shaky comes back in a week or two, because solved once is not yet learned.",
       records: "Solved, unsolved, due for revisit",
     },
     {
@@ -83,9 +83,9 @@ export const featuresPage = {
   faded: [
     {
       name: "Sightline",
-      descriptor: "Curated video learning",
+      descriptor: "Picked video learning",
       glyph: "staff",
-      body: "Playlists placed inside each roadmap block, with progress tracked per video, playlist and block.",
+      body: "One proven playlist from what already exists, placed inside each roadmap block, with progress tracked per video, playlist and block.",
       records: "Watched, in order",
     },
     {

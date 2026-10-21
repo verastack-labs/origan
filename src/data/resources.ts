@@ -182,10 +182,10 @@ export const liveResources: readonly LiveResource[] = resources.filter((r): r is
 
 export const resourcesPage = {
   notation: "The Open Shelf",
-  heading: "Free [study] material",
-  sub: "Made by VeraStack Labs. Open to anyone, no sign-up.",
+  heading: "Free [reading] material",
+  sub: "Free reading material from VeraStack Labs, open to anyone. Separate from Origan, with no sign-up.",
   description:
-    "Free courses for engineering students by VeraStack Labs: Oxidise (DSA in Rust), Filter Coffee (Java Collections) and The Switch (JavaScript to TypeScript), plus Off the Syllabus, articles on the web and its tools. Every code sample is tested.",
+    "The Open Shelf: free reading material from VeraStack Labs, open to anyone and separate from Origan. Oxidise (DSA in Rust), Filter Coffee (Java Collections), The Switch (JavaScript to TypeScript) and Off the Syllabus, on the web and its tools. Every code sample is tested.",
   /** The note at the foot of the shelf. The link is a mailto, so a student can suggest a topic. */
   more: {
     heading: "More on the way",
@@ -194,5 +194,5 @@ export const resourcesPage = {
     subject: "Topic for The Open Shelf",
   },
   /** The share card's one line under the title. */
-  card: "Oxidise · Filter Coffee · The Switch · Off the Syllabus. Free, no sign-up.",
+  card: "Oxidise · Filter Coffee · The Switch · Off the Syllabus. Free, no sign-up, separate from Origan.",
 };

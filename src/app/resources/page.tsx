@@ -17,15 +17,15 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: site.name,
-    title: `The Open Shelf · Free courses · ${site.name}`,
+    title: `The Open Shelf · Free reading material · ${site.name}`,
     description: resourcesPage.description,
     url: `${site.url}/resources/`,
     locale: "en_IN",
-    images: [{ url: "/resources/og.png", width: 1200, height: 630, alt: "The Open Shelf: free courses by VeraStack Labs" }],
+    images: [{ url: "/resources/og.png", width: 1200, height: 630, alt: "The Open Shelf: free reading material by VeraStack Labs, separate from Origan" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: `The Open Shelf · Free courses · ${site.name}`,
+    title: `The Open Shelf · Free reading material · ${site.name}`,
     description: resourcesPage.description,
     images: ["/resources/og.png"],
   },

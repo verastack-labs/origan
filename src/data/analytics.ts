@@ -51,7 +51,7 @@ export const analyticsPage = {
 
   topics: {
     heading: "Where a cohort is [stuck].",
-    sub: "Accuracy by topic and year. The weak cells decide next term's content.",
+    sub: "Accuracy by topic and year. The weak cells decide next term's practice.",
     caption: "Accuracy by topic and year",
     years: ["Year 1", "Year 2", "Year 3", "Year 4"],
     rows: [
@@ -89,7 +89,7 @@ export const analyticsPage = {
       items: [
         "Verbal sets added to the Year 3 practice rotation.",
         "A non-CS starting route added to Bearing.",
-        "Block revised, with a shorter first playlist.",
+        "Block revised, with a different playlist picked.",
       ],
     },
   },
