@@ -73,8 +73,8 @@ describe("the order with stars", () => {
   });
 
   it("puts a starred coming-soon card before the live cards that are not starred", () => {
-    const sorted = starsFirst(shelf, new Set(["kernel-panic"]));
-    expect(ids(sorted)[0]).toBe("kernel-panic");
+    const sorted = starsFirst(shelf, new Set(["table-manners"]));
+    expect(ids(sorted)[0]).toBe("table-manners");
     expect(ids(sorted).slice(1, 1 + liveResources.length)).toEqual(ids(liveResources));
   });
 
