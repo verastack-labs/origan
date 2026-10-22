@@ -518,7 +518,7 @@ export const partnership = {
       { when: "Months two and three", what: "Assessment continues, and the tools are built and tuned to what it finds." },
       { when: "By the end of month three", what: "Everything in place: Datum, your college's complete dashboard, and the progress monitors." },
       { when: "Through the term", what: "Your Campus Coach holds student conversations on one or two fixed days a week, and reports to your placement cell every two to four weeks." },
-      { when: "Then", what: "The full year of everything, with material and features extended against what your students actually report." },
+      { when: "From then on", what: "Everything, for the rest of the term, with material and features extended against what your students actually report." },
     ],
   },
 
