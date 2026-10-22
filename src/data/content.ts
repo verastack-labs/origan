@@ -516,7 +516,7 @@ export const partnership = {
       { when: "Month one", what: "Assessment. Your Campus Coach and our team study how your students prepare today, department by department." },
       { when: "From month two", what: "The core tools go live: the roadmap planner, curated video with notes, and the DSA sheets and tracker." },
       { when: "Months two and three", what: "Assessment continues, and the tools are built and tuned to what it finds." },
-      { when: "By the end of month three", what: "Everything in place: Datum, your college's complete dashboard, and the progress monitors. These three months are a bonus at the start, included in the year's charge." },
+      { when: "By the end of month three", what: "Everything in place: Datum, your college's complete dashboard, and the progress monitors." },
       { when: "Through the term", what: "Your Campus Coach holds student conversations on one or two fixed days a week, and reports to your placement cell every two to four weeks." },
       { when: "Then", what: "The full year of everything, with material and features extended against what your students actually report." },
     ],
