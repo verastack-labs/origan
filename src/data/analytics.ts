@@ -14,9 +14,9 @@
 export const analyticsPage = {
   notation: "Analytics",
   heading: "What your cell [sees].",
-  sub: "Datum reads the record as a whole batch or a single section, by branch, semester and topic. A first draft within month one.",
+  sub: "Datum reads the record as a whole batch or a single section, by branch, semester and topic. Ready by the end of month three.",
   description:
-    "Datum, your college's dashboard, is its view of the record. How closely it reads is yours to set: a whole batch down to a single section, by branch, semester and topic. A first draft within month one, shaped with your placement cell.",
+    "Datum, your college's dashboard, is its view of the record. How closely it reads is yours to set: a whole batch down to a single section, by branch, semester and topic. In place by the end of month three, shaped with your placement cell.",
   disclaimer: "Illustrative data",
   direction:
     "Drafted with each college, so these views show the direction, not a fixed product. Every number here is invented.",
