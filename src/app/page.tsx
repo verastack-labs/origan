@@ -1,4 +1,5 @@
 import { Hero } from "@/components/hero";
+import { FourProblems } from "@/components/four-problems";
 import { LongitudinalProfile } from "@/components/longitudinal-profile";
 import { Strands } from "@/components/strands";
 import { ConsultantStats } from "@/components/consultant-stats";
@@ -16,11 +17,12 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <FourProblems />
 
       <div className={shell}>
-        {/* More room above the statement than below it: it belongs to the
-            section it introduces, and the profile follows immediately. */}
-        <section className="border-b border-line-2 pb-[clamp(44px,6vw,80px)] pt-[clamp(70px,11vw,150px)]">
+        {/* The record heads the section it introduces, and the profile
+            follows immediately, so there is more room above than below. */}
+        <section className="border-b border-line-2 pb-[clamp(44px,6vw,80px)] pt-[clamp(56px,8.5vw,120px)]">
           <HeadingPair pair={datum} />
           <Reveal as="p" className="mt-4 max-w-[54ch] text-fg-2">
             {datum.body}

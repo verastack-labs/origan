@@ -55,7 +55,7 @@ export function Hero() {
 
         {/* The one heading on the site allowed two lines, broken where the
             data says: the figure owns the right of the frame, so the line sets
-            as "Four years, / not four weeks." in the left column. */}
+            as "Four problems, / fixed together." in the left column. */}
         <HeadingPair pair={hero} as="h1" size="hero" className="mt-4" />
 
         <Reveal className="mt-[26px] flex flex-wrap gap-3">
