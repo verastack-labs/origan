@@ -14,7 +14,7 @@ import { getLessons } from "@/lib/lessons";
  */
 /** One line per sheet, keyed by its href. A new sheet needs a line here, and the test says so. */
 export const sheetSummaries: Record<string, string> = {
-  "/": "The overview: what Origan is, why students stall in tutorial hell, and how four years of preparation fit together.",
+  "/": "The overview: the four reasons placement preparation breaks down, how Origan fixes them together, and how four years of preparation fit.",
   "/product/": "What the platform is: the best existing material picked for each topic, problems to solve, and a record of what was done.",
   "/features/": "The named parts of the platform.",
   "/analytics/": "The cohort-level views a college's dashboard, Datum, is built toward. Every chart uses illustrative data.",
@@ -100,12 +100,25 @@ ${articleSection(articles)}
 
 ## What it is
 
-${site.name} is a software placement preparation partnership sold to engineering
-colleges in India as an institutional agreement. Origan aggregates; it does not
-create. It picks the best existing resources for each topic, makes students
-solve problems instead of only watching, records what each student has covered
-and solved, and puts a person on it. The aim is to save students from tutorial
-hell, which is endless watching that never turns into solving.
+${site.name} is a placement preparation system sold to engineering colleges in
+India as an institutional agreement. It pairs personal guidance, from a Campus
+Coach, with software that tracks every student's progress. It isn't another
+training program, and it isn't just a tracker.
+
+Placement preparation breaks down for the same four reasons, and ${site.name}
+fixes all four together:
+
+1. Students don't know where to start. Bearing gives them a roadmap, and
+   Sightline the best existing material for each topic, in order.
+2. They get stuck and stop. The Campus Coach, posted questions and an R&D
+   team answer their doubts, so nobody stays stuck.
+3. Interest fades after a few weeks. The Campus Coach keeps students practising
+   every week, with problems from Chain and Bench Mark.
+4. Nobody sees who's falling behind until the drives begin. Datum shows the
+   placement cell, by cohort, who is on track and who needs help.
+
+Origan aggregates; it does not create. It picks the best existing resources
+for each topic and makes students solve problems instead of only watching.
 
 - A platform students use from their first semester through to placement season.
 - A Campus Coach assigned to the college for the length of the partnership.
@@ -134,11 +147,11 @@ typically arrives in the final year, runs a fixed syllabus for two weeks, and
 leaves. ${site.name} is in place from the first semester and is extended
 continuously based on what the Campus Coach learns on that campus.
 
-It sits alongside a college's existing training rather than replacing it.
-Colleges keep their aptitude trainers and company-specific programmes.
+It sits alongside a college's existing training and campus software rather than
+replacing them. Colleges keep their training partner, their aptitude trainers
+and company-specific programmes.
 
-${site.founder} spent two years in industry first, making hires and interviewing.
-Candidates are rarely separated by one more course.
+${site.founder} has hired and interviewed freshers himself.
 
 ## What the platform contains
 

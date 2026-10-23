@@ -3,9 +3,9 @@
  */
 export const site = {
   name: "Origan",
-  tagline: "A record of what each batch has covered",
+  tagline: "Placement preparation, start to finish",
   description:
-    "Origan picks the best material that already exists, makes engineering students solve it, and records what each has covered, with a Campus Coach.",
+    "Origan pairs a Campus Coach with software that tracks every engineering student's progress, and fixes the four reasons placement preparation breaks down.",
   url: "https://origan.verastack.dev",
   studio: "VeraStack Labs",
   studioUrl: "https://verastack.dev",
@@ -15,7 +15,7 @@ export const site = {
   founder: "Rigan Burnwal",
   // One line of why, from the hiring side of the table. Shown in the footer beside his name.
   founderLine:
-    "Rigan spent two years in industry first, making hires and interviewing. Candidates are rarely separated by one more course.",
+    "Rigan has hired and interviewed freshers himself.",
   phone: "+91 93806 54730",
   email: "rigan@verastack.dev",
   // Profiles that identify the studio behind the site, for the structured data.

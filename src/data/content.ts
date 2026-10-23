@@ -7,19 +7,52 @@
  */
 
 export const hero = {
-  notation: "Origan · The record of what a batch has covered",
-  // The cadence the carousel and the film close on, with the record as the
-  // payload rather than the time horizon. The newline is a deliberate break:
-  // the hero's figure owns the right of the frame.
-  heading: "Four years,\none [record].",
-  sub: "What each student has actually covered and solved, from first semester to the final drive, with a Campus Coach who steps in when someone stalls. Your cell reads the same record as a cohort, never a ranking.",
+  notation: "Origan · Placement preparation, start to finish",
+  // The lead is the four problems, fixed together. The newline is a
+  // deliberate break: the hero's figure owns the right of the frame.
+  heading: "Four problems,\nfixed [together].",
+  sub: "Students don't know where to start, get stuck, lose interest, and nobody sees who's falling behind until the drives. Origan pairs a Campus Coach with software that tracks every student's progress, and fixes all four together. It isn't another training program.",
   secondary: { label: "See the four years", href: "#profile" },
 } as const;
 
+/**
+ * The row under the hero: each problem with its fix. Kept to one short line
+ * of problem and two of fix, so the row reads at a glance before the record.
+ */
+export const fourProblems = {
+  notation: "Four problems, four fixes",
+  items: [
+    {
+      glyph: "traverse",
+      problem: "Students don't know where to start.",
+      fix: "One clear path",
+      body: "Bearing gives the roadmap, and Sightline the best existing material for each topic, in order.",
+    },
+    {
+      glyph: "reciprocal",
+      problem: "They get stuck and stop.",
+      fix: "Doubts answered",
+      body: "The Campus Coach, posted questions, and our R&D team for the hard ones, so nobody stays stuck.",
+    },
+    {
+      glyph: "staff",
+      problem: "Interest fades after a few weeks.",
+      fix: "A Coach every week",
+      body: "The Campus Coach keeps students practising, and Chain and Bench Mark give them the problems.",
+    },
+    {
+      glyph: "sheet",
+      problem: "Nobody sees who's falling behind.",
+      fix: "A view for the cell",
+      body: "Datum shows your placement cell, by cohort, who is on track and who needs help, before the drives.",
+    },
+  ],
+} as const;
+
 export const datum = {
-  kicker: "Students aren't short of content. They're stuck in tutorial hell, watching hour after hour and never writing the solution themselves.",
-  heading: "Nobody owns the [record].",
-  body: "Nobody notices when they stall. Ask what a batch covered in second year and you get a shrug, so the gaps that were still fixable then are found in year four, when they are simply late.",
+  kicker: "Today nobody owns the record. Ask what a batch covered in second year and you get a shrug.",
+  heading: "Four years, one [record].",
+  body: "Origan keeps what each student has actually covered and solved, from first semester to the final drive. Your cell reads it in Datum as a cohort, never a ranking, so the gaps are found while they are still fixable.",
 } as const;
 
 export const profile = {
@@ -172,7 +205,7 @@ export const faq = {
   items: [
     {
       q: "So what is Origan, really?",
-      a: "It's a record of what each engineering student has covered and solved, from first semester to the final drive. It picks the best existing material for each topic and makes students practise it, and a Campus Coach on campus notices when someone stalls.",
+      a: "It's a placement preparation system for engineering colleges that pairs a Campus Coach with software that tracks every student's progress. Students get one clear path through the best existing material, their doubts answered, and a Coach every week to keep them practising, and your placement cell sees who is falling behind. It isn't another training program, and it isn't just a tracker.",
     },
     {
       q: "Does Origan make its own courses?",
@@ -196,7 +229,7 @@ export const faq = {
     },
     {
       q: "Do we have to drop our training partner?",
-      a: "No, keep them. Origan runs alongside your trainers, from first year onward instead of one fortnight in the final year.",
+      a: "No, keep them. Origan works alongside your training partner and whatever campus software you already use, from first year onward instead of one fortnight in the final year.",
     },
     {
       q: "Will the college see my scores?",
