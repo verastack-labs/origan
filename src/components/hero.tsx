@@ -15,12 +15,14 @@ export function Hero() {
   return (
     <header
       id="top"
-      className="relative flex min-h-[clamp(540px,88svh,880px)] flex-col justify-end overflow-hidden border-b border-line"
+      className="relative flex min-h-[clamp(540px,88svh,880px)] flex-col justify-end overflow-hidden border-b border-line max-lg:pt-[clamp(260px,50vw,440px)]"
     >
       {/* Only a little larger than the frame. The old field was oversized so
           its texture ran off every edge; a figure that is placed wants to stay
           where it was placed. */}
-      <div className="absolute -inset-[3%]">
+      {/* Below lg there is no column beside the words, so the figure gets
+          its own band at the top and the words start under it. */}
+      <div className="absolute -inset-[3%] max-lg:inset-x-0 max-lg:top-0 max-lg:bottom-auto max-lg:h-[clamp(260px,50vw,440px)]">
         <FigureField />
       </div>
 
